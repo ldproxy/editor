@@ -7,8 +7,6 @@ main {
   font-family: sans-serif;
 }
 
-
-
 .component-container > * {
   margin: 0.25rem 0;
 }
@@ -20,4 +18,31 @@ main {
 
 .component-example > p {
   margin-bottom: 0.5rem;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+#geoInput {
+  display: none;
+}
+
+#uploadLabel {
+  background-color: #3498db;
+  color: #fff;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: medium;
+  font-weight: bold;
+  height: 20px;
+  width: 100px;
+}
+
+#uploadLabel:hover {
+  background-color: #2980b9;
 }
