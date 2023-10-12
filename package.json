@@ -8,14 +8,16 @@
   "repository": "https://github.com/ldproxy/editor",
   "type": "module",
   "engines": {
-    "vscode": "^1.83.0"
+    "vscode": "^1.82.2"
   },
   "browser": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "ldproxy-editor.showAutoCreate",
-        "title": "ldproxy: Create new entity"
+        "title": "Create new entities",
+        "category": "ldproxy",
+        "icon": "$(add)"
       }
     ],
     "views": {
@@ -27,6 +29,22 @@
         {
           "id": "ldproxy-editor.entityTree",
           "name": "Entities"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "when": "view == ldproxy-editor.storeTree",
+          "command": "ldproxy-editor.showAutoCreate",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "when": "view == ldproxy-editor.storeTree && viewItem == folder",
+          "command": "ldproxy-editor.showAutoCreate",
+          "group": "inline"
         }
       ]
     }
@@ -41,13 +59,14 @@
     "compile-web": "webpack",
     "watch-web": "webpack --watch",
     "package-web": "webpack --mode production --devtool hidden-source-map",
+    "package": "vsce package",
     "lint": "eslint src --ext ts"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.1",
     "@types/node": "^12.20.55",
-    "@types/vscode": "^1.83.0",
+    "@types/vscode": "^1.82.2",
     "@types/webpack-env": "^1.18.2",
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "@typescript-eslint/parser": "^6.7.5",
@@ -60,7 +79,9 @@
     "process": "^0.11.10",
     "ts-loader": "^9.5.0",
     "typescript": "^5.2.2",
+    "@vscode/vsce": "^2.21.1",
     "webpack": "^5.88.2",
     "webpack-cli": "^4.10.0"
-  }
+  },
+  "dependencies": {}
 }
