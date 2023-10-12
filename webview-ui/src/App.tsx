@@ -18,12 +18,14 @@ function App() {
 
   const handleUpdateData = (key: string, value: string) => {
     if (selectedDataSource === "PostgreSQL") {
+      setWfsData({});
       setSqlData({
         ...sqlData,
         [key]: value,
       });
     }
     if (selectedDataSource === "WFS") {
+      setSqlData({});
       setWfsData({
         ...wfsData,
         [key]: value,
@@ -92,9 +94,14 @@ function App() {
       {selectedDataSource === "PostgreSQL" ? (
         <PostgreSql submitData={submitData} handleUpdateData={handleUpdateData} />
       ) : selectedDataSource === "GeoPackage" ? (
-        <GeoPackage />
+        <GeoPackage selectedDataSource={selectedDataSource} />
       ) : (
-        <Wfs submitData={submitData} handleUpdateData={handleUpdateData} />
+        <Wfs
+          submitData={submitData}
+          handleUpdateData={handleUpdateData}
+          wfsData={wfsData}
+          setWfsData={setWfsData}
+        />
       )}
     </main>
   );

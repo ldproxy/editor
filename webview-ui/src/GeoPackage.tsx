@@ -1,13 +1,15 @@
 import "./App.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-function GeoPackage() {
+function GeoPackage(selectedDataSource: any) {
   const [GPKG, setGPKG] = useState<File | null | Blob>(null);
+  const [filename, setFilename] = useState<string>("");
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setGPKG(file);
+      setFilename(file.name);
       console.log("GP", file);
 
       file.arrayBuffer().then((buffer: ArrayBuffer) => {
@@ -18,6 +20,15 @@ function GeoPackage() {
       });
     }
   };
+
+  useEffect(() => {
+    if (selectedDataSource !== "GeoPackage") {
+      setGPKG(null);
+      setFilename("");
+    }
+  }, [selectedDataSource]);
+
+  console.log("filename", filename);
 
   return (
     <div className="button-container">
@@ -32,6 +43,7 @@ function GeoPackage() {
         multiple={false}
         style={{ display: "none" }}
       />
+      {filename !== "" && <span id="GpkgName">{filename}</span>}
     </div>
   );
 }
