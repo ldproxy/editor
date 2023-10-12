@@ -1,10 +1,16 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-
+import { VSCodeCheckbox, VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import getGeoPackageTables from "./Testdaten/GeoPackageTabellen";
 
-function GeoPackage(selectedDataSource: any) {
+type PostgreSqlProps = {
+  submitData: () => void;
+  selectedDataSource: any;
+  dataProcessed: string;
+  setDataProcessed(arg0: string): void;
+};
+
+function GeoPackage(props: PostgreSqlProps) {
   const [GPKG, setGPKG] = useState<File | null | Blob>(null);
   const [filename, setFilename] = useState<string>("");
   const geoPackageTables: string[] = Object.keys(getGeoPackageTables());
@@ -35,14 +41,14 @@ function GeoPackage(selectedDataSource: any) {
   };
 
   useEffect(() => {
-    if (selectedDataSource !== "GeoPackage") {
+    if (props.selectedDataSource !== "GeoPackage") {
       setGPKG(null);
       setFilename("");
       setSelectedGeoPackageTable([]);
     }
-  }, [selectedDataSource]);
+  }, [props.selectedDataSource]);
 
-  console.log(selectedGeoPackageTable);
+  console.log("selected Tables", selectedGeoPackageTable);
 
   return (
     <>
@@ -60,8 +66,11 @@ function GeoPackage(selectedDataSource: any) {
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
       </div>
+      <VSCodeButton onClick={props.submitData} disabled={props.dataProcessed === "inProgress"}>
+        Next
+      </VSCodeButton>
       {filename !== "" && (
-        <form>
+        <form id="outerContainerCheckboxes">
           <fieldset>
             <legend>Choose tables</legend>
             <div className="checkbox-container">

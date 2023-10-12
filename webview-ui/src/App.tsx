@@ -4,8 +4,9 @@ import {
   VSCodeRadioGroup,
   VSCodeRadio,
 } from "@vscode/webview-ui-toolkit/react";
+import { vscode } from "./utilities/vscode";
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GeoPackage from "./GeoPackage";
 import Wfs from "./Wfs";
 import PostgreSql from "./PostgreSql";
@@ -15,6 +16,7 @@ function App() {
   const [wfsData, setWfsData] = useState({});
   const [response, setResponse] = useState("");
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
+  const [dataProcessed, setDataProcessed] = useState<string>("");
 
   const handleUpdateData = (key: string, value: string) => {
     if (selectedDataSource === "PostgreSQL") {
@@ -47,9 +49,27 @@ function App() {
         setResponse(responseData);
       });
       */
+    setDataProcessed("inProgress");
+    console.log("submit", dataProcessed);
     console.log("sql", sqlData);
     console.log("wfs", wfsData);
   };
+
+  useEffect(() => {
+    console.log("dataProcessed", dataProcessed);
+    if (dataProcessed === "inProgress") {
+      vscode.postMessage({
+        command: "hello",
+        text: "Die Daten werden verarbeitet.",
+      });
+      setDataProcessed("true");
+    } else if (dataProcessed === "true") {
+      vscode.postMessage({
+        command: "hello",
+        text: "Die Daten wurden verarbeitet.",
+      });
+    }
+  }, [dataProcessed]);
 
   return (
     <main>
@@ -94,7 +114,12 @@ function App() {
       {selectedDataSource === "PostgreSQL" ? (
         <PostgreSql submitData={submitData} handleUpdateData={handleUpdateData} />
       ) : selectedDataSource === "GeoPackage" ? (
-        <GeoPackage selectedDataSource={selectedDataSource} />
+        <GeoPackage
+          selectedDataSource={selectedDataSource}
+          submitData={submitData}
+          dataProcessed={dataProcessed}
+          setDataProcessed={setDataProcessed}
+        />
       ) : (
         <Wfs
           submitData={submitData}

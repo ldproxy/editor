@@ -60,6 +60,10 @@ main {
   gap: 8px;
 }
 
+#outerContainerCheckboxes {
+  margin-top: 10px;
+}
+
 /* Switch in Wfs.tsx */
 
 #switchDiv {
