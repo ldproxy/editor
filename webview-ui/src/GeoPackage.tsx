@@ -44,7 +44,6 @@ function GeoPackage(props: PostgreSqlProps) {
   const handleSelectAllTables = () => {
     setSelectAllTables(!selectAllTables);
     if (selectAllTables) {
-      console.log("selectAllTables in Funktion", selectAllTables);
       setSelectedGeoPackageTable(geoPackageTables);
     } else {
       setSelectedGeoPackageTable([]);
@@ -64,8 +63,6 @@ function GeoPackage(props: PostgreSqlProps) {
       setSelectedGeoPackageTable([]);
     }
   }, [props.selectedDataSource]);
-
-  console.log("selected Tables", selectedGeoPackageTable);
 
   return (
     <>

@@ -50,13 +50,9 @@ function App() {
       });
       */
     setDataProcessed("inProgress");
-
-    console.log("sql", sqlData);
-    console.log("wfs", wfsData);
   };
 
   useEffect(() => {
-    console.log("dataProcessed", dataProcessed);
     if (dataProcessed === "inProgress") {
       vscode.postMessage({
         command: "hello",

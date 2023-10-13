@@ -16,10 +16,38 @@ type PostgreSqlProps = {
 };
 
 function PostgreSql(props: PostgreSqlProps) {
-  const schemas = Object.keys(getGeoPackageTables());
-  const geoPackageTables: string[] = Object.keys(getGeoPackageTables());
+  const allTables = getGeoPackageTables();
+  const allSchemas = Object.keys(allTables);
   const [selectedTable, setSelectedTable] = useState<string[]>([]);
-  const [selectAllTables, setSelectAllTables] = useState(false);
+  const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useState<string[]>([]);
+
+  const selectAllSchemasWithTables = () => {
+    const allTableNames = [];
+
+    for (const schema in allTables) {
+      const schemas = allTables[schema];
+      const tableNames = Object.keys(schemas);
+      allTableNames.push(...tableNames);
+    }
+
+    const allSchemasAlreadySelected = allSchemas.every((schema) =>
+      schemasSelectedinEntirety.includes(schema)
+    );
+    console.log("allSchemasAlreadySelected", allSchemasAlreadySelected);
+    if (!allSchemasAlreadySelected) {
+      setschemasSelectedinEntirety(
+        schemasSelectedinEntirety.concat(
+          allSchemas.filter((schema) => !schemasSelectedinEntirety.includes(schema))
+        )
+      );
+      console.log("schemasSelectedinEntirety", schemasSelectedinEntirety);
+      setSelectedTable(allTableNames);
+      console.log("selectedTable", selectedTable);
+    } else {
+      setschemasSelectedinEntirety([]);
+      setSelectedTable([]);
+    }
+  };
 
   const handleTableSelection = (tableName: string) => {
     if (selectedTable.includes(tableName)) {
@@ -35,17 +63,19 @@ function PostgreSql(props: PostgreSqlProps) {
     }
   }, [props.selectedDataSource]);
 
-  const handleSelectAllTables = () => {
-    setSelectAllTables(!selectAllTables);
-    if (selectAllTables) {
-      console.log("selectAllTables in Funktion", selectAllTables);
-      setSelectedTable(geoPackageTables);
+  const handleSelectAllTablesInSchema = (schema: string) => {
+    const tablesInThisSchema: string[] = Object.keys(allTables[schema]);
+    if (!schemasSelectedinEntirety.includes(schema)) {
+      setschemasSelectedinEntirety([...schemasSelectedinEntirety, schema]);
+
+      setSelectedTable((selectedTable) => selectedTable.concat(tablesInThisSchema));
     } else {
-      setSelectedTable([]);
+      setschemasSelectedinEntirety(schemasSelectedinEntirety.filter((s) => s !== schema));
+      setSelectedTable((prevSelectedTable) =>
+        prevSelectedTable.filter((tableName) => !tablesInThisSchema.includes(tableName))
+      );
     }
   };
-
-  console.log("selectAllTables", selectAllTables, "selectedTable", selectedTable);
 
   return (
     <div className="frame">
@@ -113,36 +143,44 @@ function PostgreSql(props: PostgreSqlProps) {
       )}
       {props.dataProcessed !== "inProgress" && (
         <form id="outerContainerCheckboxes">
-          <fieldset>
-            <legend>Choose tables</legend>
-            <div className="checkbox-container">
-              <VSCodeCheckbox checked={selectAllTables} onChange={handleSelectAllTables}>
-                All
-              </VSCodeCheckbox>
-              {geoPackageTables.map((tableName) => (
+          {allSchemas.length > 1 && (
+            <>
+              <fieldset key="everything">
+                <legend>Select all Schemas</legend>
                 <VSCodeCheckbox
-                  key={tableName}
-                  checked={selectedTable.includes(tableName)}
-                  onChange={() => handleTableSelection(tableName)}>
-                  {tableName}
+                  key="everything"
+                  checked={allSchemas.every((schema) => schemasSelectedinEntirety.includes(schema))}
+                  onChange={selectAllSchemasWithTables}>
+                  All
                 </VSCodeCheckbox>
-              ))}
-            </div>
-          </fieldset>
+              </fieldset>
+            </>
+          )}
+          {allSchemas.map((schema) => (
+            <fieldset key={schema}>
+              <legend>{schema}</legend>
+              <div className="checkbox-container">
+                <VSCodeCheckbox
+                  key={schema}
+                  checked={schemasSelectedinEntirety.includes(schema)}
+                  onChange={() => handleSelectAllTablesInSchema(schema)}>
+                  All
+                </VSCodeCheckbox>
+                {Object.keys(getGeoPackageTables()[schema]).map((tableName) => (
+                  <VSCodeCheckbox
+                    key={tableName}
+                    checked={selectedTable.includes(tableName)}
+                    onChange={() => handleTableSelection(tableName)}>
+                    {tableName}
+                  </VSCodeCheckbox>
+                ))}
+              </div>
+            </fieldset>
+          ))}
         </form>
-      )}{" "}
+      )}
     </div>
   );
 }
 
 export default PostgreSql;
-{
-  geoPackageTables.map((tableName) => (
-    <VSCodeCheckbox
-      key={tableName}
-      checked={selectedTable.includes(tableName)}
-      onChange={() => handleTableSelection(tableName)}>
-      {tableName}
-    </VSCodeCheckbox>
-  ));
-}
