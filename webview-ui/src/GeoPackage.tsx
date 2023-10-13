@@ -15,6 +15,7 @@ function GeoPackage(props: PostgreSqlProps) {
   const [filename, setFilename] = useState<string>("");
   const geoPackageTables: string[] = Object.keys(getGeoPackageTables());
   const [selectedGeoPackageTable, setSelectedGeoPackageTable] = useState<string[]>([]);
+  const [selectAllTables, setSelectAllTables] = useState(false);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,6 +40,22 @@ function GeoPackage(props: PostgreSqlProps) {
       setSelectedGeoPackageTable([...selectedGeoPackageTable, tableName]);
     }
   };
+
+  const handleSelectAllTables = () => {
+    setSelectAllTables(!selectAllTables);
+    if (selectAllTables) {
+      console.log("selectAllTables in Funktion", selectAllTables);
+      setSelectedGeoPackageTable(geoPackageTables);
+    } else {
+      setSelectedGeoPackageTable([]);
+    }
+  };
+
+  useEffect(() => {
+    if (props.selectedDataSource !== "GeoPackage") {
+      setSelectedGeoPackageTable([]);
+    }
+  }, [props.selectedDataSource]);
 
   useEffect(() => {
     if (props.selectedDataSource !== "GeoPackage") {
@@ -83,6 +100,9 @@ function GeoPackage(props: PostgreSqlProps) {
           <fieldset>
             <legend>Choose tables</legend>
             <div className="checkbox-container">
+              <VSCodeCheckbox checked={selectAllTables} onChange={handleSelectAllTables}>
+                All
+              </VSCodeCheckbox>
               {geoPackageTables.map((tableName) => (
                 <VSCodeCheckbox
                   key={tableName}

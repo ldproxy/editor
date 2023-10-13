@@ -82,12 +82,15 @@ function Wfs(props: PostgreSqlProps) {
           ) : null}
         </div>
         <div className="postgresWfsSubmit">
-          <VSCodeButton
-            className="submitButton"
-            onClick={props.submitData}
-            disabled={props.dataProcessed === "inProgress"}>
-            Next
-          </VSCodeButton>
+          {props.dataProcessed === "inProgress" ? (
+            <VSCodeButton className="submitButton" onClick={props.submitData} disabled={true}>
+              Next
+            </VSCodeButton>
+          ) : (
+            <VSCodeButton className="submitButton" onClick={props.submitData} disabled={false}>
+              Next
+            </VSCodeButton>
+          )}
         </div>
       </div>
       {props.dataProcessed === "inProgress" && (

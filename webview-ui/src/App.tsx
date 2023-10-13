@@ -50,7 +50,7 @@ function App() {
       });
       */
     setDataProcessed("inProgress");
-    console.log("submit", dataProcessed);
+
     console.log("sql", sqlData);
     console.log("wfs", wfsData);
   };
@@ -62,7 +62,9 @@ function App() {
         command: "hello",
         text: "Die Daten werden verarbeitet.",
       });
-      //   setDataProcessed("true");
+      setTimeout(() => {
+        setDataProcessed("true");
+      }, 2000);
     } else if (dataProcessed === "true") {
       vscode.postMessage({
         command: "hello",
@@ -86,27 +88,21 @@ function App() {
         </VSCodeTextField>
       </section>
       <section className="component-example">
-        <VSCodeRadioGroup name="DataType">
+        <VSCodeRadioGroup name="DataType" value={selectedDataSource}>
           <label slot="label">Data Source Type</label>
           <VSCodeRadio
             id="GeoPackage"
             value="GeoPackage"
-            onChange={() => setSelectedDataSource("GeoPackage")}
-            checked={selectedDataSource === "GeoPackage"}>
+            onChange={() => setSelectedDataSource("GeoPackage")}>
             GeoPackage
           </VSCodeRadio>
           <VSCodeRadio
             id="PostgreSQL"
             value="PostgreSQL"
-            onChange={() => setSelectedDataSource("PostgreSQL")}
-            checked={selectedDataSource === "PostgreSQL"}>
+            onChange={() => setSelectedDataSource("PostgreSQL")}>
             PostgreSQL
           </VSCodeRadio>
-          <VSCodeRadio
-            id="WFS"
-            value="WFS"
-            onChange={() => setSelectedDataSource("WFS")}
-            checked={selectedDataSource === "WFS"}>
+          <VSCodeRadio id="WFS" value="WFS" onChange={() => setSelectedDataSource("WFS")}>
             WFS
           </VSCodeRadio>
         </VSCodeRadioGroup>

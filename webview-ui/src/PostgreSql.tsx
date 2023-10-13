@@ -16,8 +16,10 @@ type PostgreSqlProps = {
 };
 
 function PostgreSql(props: PostgreSqlProps) {
+  const schemas = Object.keys(getGeoPackageTables());
   const geoPackageTables: string[] = Object.keys(getGeoPackageTables());
   const [selectedTable, setSelectedTable] = useState<string[]>([]);
+  const [selectAllTables, setSelectAllTables] = useState(false);
 
   const handleTableSelection = (tableName: string) => {
     if (selectedTable.includes(tableName)) {
@@ -32,6 +34,18 @@ function PostgreSql(props: PostgreSqlProps) {
       setSelectedTable([]);
     }
   }, [props.selectedDataSource]);
+
+  const handleSelectAllTables = () => {
+    setSelectAllTables(!selectAllTables);
+    if (selectAllTables) {
+      console.log("selectAllTables in Funktion", selectAllTables);
+      setSelectedTable(geoPackageTables);
+    } else {
+      setSelectedTable([]);
+    }
+  };
+
+  console.log("selectAllTables", selectAllTables, "selectedTable", selectedTable);
 
   return (
     <div className="frame">
@@ -102,6 +116,9 @@ function PostgreSql(props: PostgreSqlProps) {
           <fieldset>
             <legend>Choose tables</legend>
             <div className="checkbox-container">
+              <VSCodeCheckbox checked={selectAllTables} onChange={handleSelectAllTables}>
+                All
+              </VSCodeCheckbox>
               {geoPackageTables.map((tableName) => (
                 <VSCodeCheckbox
                   key={tableName}
@@ -119,3 +136,13 @@ function PostgreSql(props: PostgreSqlProps) {
 }
 
 export default PostgreSql;
+{
+  geoPackageTables.map((tableName) => (
+    <VSCodeCheckbox
+      key={tableName}
+      checked={selectedTable.includes(tableName)}
+      onChange={() => handleTableSelection(tableName)}>
+      {tableName}
+    </VSCodeCheckbox>
+  ));
+}
