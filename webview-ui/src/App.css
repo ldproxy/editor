@@ -25,6 +25,8 @@ main {
   flex-direction: column;
   gap: 10px;
   padding: 10px;
+  align-items: center;
+  text-align: center;
 }
 
 #GpkgName {
@@ -62,6 +64,39 @@ main {
 
 #outerContainerCheckboxes {
   margin-top: 10px;
+}
+
+.submitButton {
+  width: 60px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+}
+
+.progressRing {
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+}
+
+.frame {
+  margin-bottom: 10px;
+}
+
+#progressText {
+  font-size: 13px;
+}
+
+.postgresWfsOuterContainer {
+  width: 166.67px;
+  margin-bottom: 10px;
+}
+
+.postgresWfsSubmit {
+  display: flex;
+  justify-content: center;
 }
 
 /* Switch in Wfs.tsx */

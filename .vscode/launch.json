@@ -13,7 +13,7 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionDevelopmentKind=web",
-        "${workspaceFolder}/src"
+        "${workspaceFolder}/data"
       ],
       "outFiles": ["${workspaceFolder}/dist/*.js"],
       "preLaunchTask": "${defaultBuildTask}",

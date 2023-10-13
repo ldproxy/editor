@@ -65,10 +65,19 @@ function GeoPackage(props: PostgreSqlProps) {
           style={{ display: "none" }}
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
+        <VSCodeButton
+          className="submitButton"
+          onClick={props.submitData}
+          disabled={props.dataProcessed === "inProgress"}>
+          Next
+        </VSCodeButton>
       </div>
-      <VSCodeButton onClick={props.submitData} disabled={props.dataProcessed === "inProgress"}>
-        Next
-      </VSCodeButton>
+      {props.dataProcessed === "inProgress" && (
+        <div className="progress-container">
+          <VSCodeProgressRing className="progressRing" />
+          <span id="progressText">Die Daten werden verarbeitet...</span>
+        </div>
+      )}
       {filename !== "" && (
         <form id="outerContainerCheckboxes">
           <fieldset>

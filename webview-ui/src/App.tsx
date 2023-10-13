@@ -62,7 +62,7 @@ function App() {
         command: "hello",
         text: "Die Daten werden verarbeitet.",
       });
-      setDataProcessed("true");
+      //   setDataProcessed("true");
     } else if (dataProcessed === "true") {
       vscode.postMessage({
         command: "hello",
@@ -112,7 +112,12 @@ function App() {
         </VSCodeRadioGroup>
       </section>
       {selectedDataSource === "PostgreSQL" ? (
-        <PostgreSql submitData={submitData} handleUpdateData={handleUpdateData} />
+        <PostgreSql
+          submitData={submitData}
+          handleUpdateData={handleUpdateData}
+          dataProcessed={dataProcessed}
+          selectedDataSource={selectedDataSource}
+        />
       ) : selectedDataSource === "GeoPackage" ? (
         <GeoPackage
           selectedDataSource={selectedDataSource}
@@ -126,6 +131,7 @@ function App() {
           handleUpdateData={handleUpdateData}
           wfsData={wfsData}
           setWfsData={setWfsData}
+          dataProcessed={dataProcessed}
         />
       )}
     </main>
