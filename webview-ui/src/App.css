@@ -66,6 +66,10 @@ main {
   margin-top: 10px;
 }
 
+#everything fieldset {
+  margin-bottom: 10px;
+}
+
 .submitButton {
   width: 60px;
 }
@@ -97,6 +101,17 @@ main {
 .postgresWfsSubmit {
   display: flex;
   justify-content: center;
+}
+
+.mappedCheckboxesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.mappedCheckboxesContainer fieldset {
+  width: calc(50% - 50px);
+  margin-bottom: 10px;
 }
 
 /* Switch in Wfs.tsx */

@@ -27,15 +27,6 @@ function getGeoPackageTables() {
       table26: 26,
       table27: 27,
     },
-    Schema4: {
-      table31: 21,
-      table32: 22,
-      table33: 23,
-      table34: 24,
-      table35333: 25,
-      table36: 26,
-      table37: 27,
-    },
   };
   return GeoPackageTables;
 }

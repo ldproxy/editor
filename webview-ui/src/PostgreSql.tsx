@@ -144,7 +144,7 @@ function PostgreSql(props: PostgreSqlProps) {
       {props.dataProcessed !== "inProgress" && (
         <form id="outerContainerCheckboxes">
           {allSchemas.length > 1 && (
-            <>
+            <div id="everything">
               <fieldset key="everything">
                 <legend>Select all Schemas</legend>
                 <VSCodeCheckbox
@@ -154,29 +154,31 @@ function PostgreSql(props: PostgreSqlProps) {
                   All
                 </VSCodeCheckbox>
               </fieldset>
-            </>
+            </div>
           )}
-          {allSchemas.map((schema) => (
-            <fieldset key={schema}>
-              <legend>{schema}</legend>
-              <div className="checkbox-container">
-                <VSCodeCheckbox
-                  key={schema}
-                  checked={schemasSelectedinEntirety.includes(schema)}
-                  onChange={() => handleSelectAllTablesInSchema(schema)}>
-                  All
-                </VSCodeCheckbox>
-                {Object.keys(getGeoPackageTables()[schema]).map((tableName) => (
+          <div className="mappedCheckboxesContainer">
+            {allSchemas.map((schema) => (
+              <fieldset key={schema}>
+                <legend>{schema}</legend>
+                <div className="checkbox-container">
                   <VSCodeCheckbox
-                    key={tableName}
-                    checked={selectedTable.includes(tableName)}
-                    onChange={() => handleTableSelection(tableName)}>
-                    {tableName}
+                    key={schema}
+                    checked={schemasSelectedinEntirety.includes(schema)}
+                    onChange={() => handleSelectAllTablesInSchema(schema)}>
+                    All
                   </VSCodeCheckbox>
-                ))}
-              </div>
-            </fieldset>
-          ))}
+                  {Object.keys(getGeoPackageTables()[schema]).map((tableName) => (
+                    <VSCodeCheckbox
+                      key={tableName}
+                      checked={selectedTable.includes(tableName)}
+                      onChange={() => handleTableSelection(tableName)}>
+                      {tableName}
+                    </VSCodeCheckbox>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+          </div>
         </form>
       )}
     </div>
