@@ -14,41 +14,68 @@ import PostgreSql from "./PostgreSql";
 function App() {
   const [sqlData, setSqlData] = useState({});
   const [wfsData, setWfsData] = useState({});
-  const [response, setResponse] = useState("");
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
+  const basisDates = {
+    command: "auto",
+    subcommand: "analyze",
+    source: "C:/Users/p.zahnen/Documents/GitHub/editor/data",
+    verbose: true,
+  };
 
   const handleUpdateData = (key: string, value: string) => {
     if (selectedDataSource === "PostgreSQL") {
       setWfsData({});
-      setSqlData({
-        ...sqlData,
+      if (!Object.keys(sqlData).includes("command")) {
+        setSqlData(basisDates);
+      }
+      setSqlData((prevSqlData) => ({
+        ...prevSqlData,
         [key]: value,
-      });
+        featureProviderType: selectedDataSource,
+      }));
     }
     if (selectedDataSource === "WFS") {
       setSqlData({});
-      setWfsData({
-        ...wfsData,
+      if (!Object.keys(wfsData).includes("command")) {
+        setWfsData(basisDates);
+      }
+      setWfsData((prevWfsData) => ({
+        ...prevWfsData,
         [key]: value,
-      });
+        featureProviderType: selectedDataSource,
+      }));
     }
   };
 
-  const submitData = () => {
-    /*
-    fetch("http://localhost:7080/rest/admin/services", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data), 
-    })
-      .then((response) => response.json())
-      .then((responseData) => {
-        setResponse(responseData);
-      });
-      */
+  const submitData = (data: Object) => {
+    const socket = new WebSocket("ws://localhost:8080/sock");
+
+    socket.addEventListener("open", () => {
+      console.log("WebSocket-Verbindung geöffnet");
+      const jsonData = JSON.stringify(data);
+      console.log("sqlData", jsonData);
+      socket.send(jsonData);
+    });
+
+    socket.addEventListener("message", (event) => {
+      console.log("Nachricht vom Server erhalten:", event.data);
+    });
+
+    socket.addEventListener("close", (event) => {
+      if (event.wasClean) {
+        console.log(
+          `WebSocket-Verbindung geschlossen, Code: ${event.code}, Grund: ${event.reason}`
+        );
+      } else {
+        console.error("WebSocket-Verbindung unerwartet geschlossen");
+      }
+    });
+
+    socket.addEventListener("error", (error) => {
+      console.error("WebSocket-Fehler:", error);
+    });
+
     setDataProcessed("inProgress");
   };
 
@@ -77,7 +104,7 @@ function App() {
           onChange={(e) => {
             const target = e.target as HTMLInputElement;
             if (target) {
-              handleUpdateData("Id", target.value);
+              handleUpdateData("id", target.value);
             }
           }}>
           Id
@@ -109,6 +136,7 @@ function App() {
           handleUpdateData={handleUpdateData}
           dataProcessed={dataProcessed}
           selectedDataSource={selectedDataSource}
+          sqlData={sqlData}
         />
       ) : selectedDataSource === "GeoPackage" ? (
         <GeoPackage

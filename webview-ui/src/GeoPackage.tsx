@@ -4,7 +4,7 @@ import { VSCodeCheckbox, VSCodeProgressRing, VSCodeButton } from "@vscode/webvie
 import getGeoPackageTables from "./Testdaten/GeoPackageTabellen";
 
 type PostgreSqlProps = {
-  submitData: () => void;
+  submitData: (data: JSON) => void;
   selectedDataSource: any;
   dataProcessed: string;
   setDataProcessed(arg0: string): void;
@@ -114,7 +114,7 @@ function GeoPackage(props: PostgreSqlProps) {
         {filename !== "" && <span id="GpkgName">{filename}</span>}
         <VSCodeButton
           className="submitButton"
-          onClick={props.submitData}
+          onClick={() => props.submitData}
           disabled={props.dataProcessed === "inProgress"}>
           Next
         </VSCodeButton>

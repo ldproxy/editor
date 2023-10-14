@@ -9,10 +9,11 @@ import "./App.css";
 import { useEffect, useState } from "react";
 
 type PostgreSqlProps = {
-  submitData: () => void;
+  submitData: (data: Object) => void;
   handleUpdateData(key: string, value: string): void;
   dataProcessed: string;
   selectedDataSource: any;
+  sqlData: Object;
 };
 
 function PostgreSql(props: PostgreSqlProps) {
@@ -86,7 +87,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("Host", target.value);
+                  props.handleUpdateData("host", target.value);
                 }
               }}>
               Host
@@ -97,7 +98,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("Database", target.value);
+                  props.handleUpdateData("database", target.value);
                 }
               }}>
               Database
@@ -108,7 +109,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("User", target.value);
+                  props.handleUpdateData("user", target.value);
                 }
               }}>
               User
@@ -119,7 +120,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("Password", target.value);
+                  props.handleUpdateData("password", target.value);
                 }
               }}>
               Password
@@ -129,7 +130,7 @@ function PostgreSql(props: PostgreSqlProps) {
         <div className="postgresWfsSubmit">
           <VSCodeButton
             className="submitButton"
-            onClick={props.submitData}
+            onClick={() => props.submitData(props.sqlData)}
             disabled={props.dataProcessed === "inProgress"}>
             Next
           </VSCodeButton>

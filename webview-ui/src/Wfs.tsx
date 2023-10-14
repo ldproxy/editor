@@ -7,10 +7,10 @@ import {
 import { useState } from "react";
 
 type PostgreSqlProps = {
-  submitData: () => void;
+  submitData: (data: Object) => void;
   handleUpdateData(key: string, value: string): void;
-  wfsData: { [key: string]: string };
-  setWfsData(wfsData: { [key: string]: string }): void;
+  wfsData: Object;
+  setWfsData(wfsData: Object): void;
   dataProcessed: string;
 };
 
@@ -20,12 +20,12 @@ function Wfs(props: PostgreSqlProps) {
   const handleSwitchToggle = () => {
     setIsSwitchOn(!isSwitchOn);
     if (!isSwitchOn) {
-      const updatedWfsData = { ...props.wfsData };
-      if ("User" in updatedWfsData) {
-        delete updatedWfsData["User"];
+      const updatedWfsData = props.wfsData;
+      if ("user" in updatedWfsData) {
+        delete updatedWfsData["user"];
       }
-      if ("Password" in updatedWfsData) {
-        delete updatedWfsData["Password"];
+      if ("password" in updatedWfsData) {
+        delete updatedWfsData["password"];
       }
 
       props.setWfsData(updatedWfsData);
@@ -61,7 +61,7 @@ function Wfs(props: PostgreSqlProps) {
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
-                      props.handleUpdateData("User", target.value);
+                      props.handleUpdateData("user", target.value);
                     }
                   }}>
                   User
@@ -72,7 +72,7 @@ function Wfs(props: PostgreSqlProps) {
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
-                      props.handleUpdateData("Password", target.value);
+                      props.handleUpdateData("password", target.value);
                     }
                   }}>
                   Password
@@ -82,15 +82,12 @@ function Wfs(props: PostgreSqlProps) {
           ) : null}
         </div>
         <div className="postgresWfsSubmit">
-          {props.dataProcessed === "inProgress" ? (
-            <VSCodeButton className="submitButton" onClick={props.submitData} disabled={true}>
-              Next
-            </VSCodeButton>
-          ) : (
-            <VSCodeButton className="submitButton" onClick={props.submitData} disabled={false}>
-              Next
-            </VSCodeButton>
-          )}
+          <VSCodeButton
+            className="submitButton"
+            onClick={() => props.submitData(props.wfsData)}
+            disabled={props.dataProcessed === "inProgress"}>
+            Next
+          </VSCodeButton>
         </div>
       </div>
       {props.dataProcessed === "inProgress" && (
