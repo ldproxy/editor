@@ -11,11 +11,12 @@ type PostgreSqlProps = {
 };
 
 function GeoPackage(props: PostgreSqlProps) {
+  const allTables = getGeoPackageTables();
+  const allSchemas = Object.keys(allTables);
   const [GPKG, setGPKG] = useState<File | null | Blob>(null);
   const [filename, setFilename] = useState<string>("");
-  const geoPackageTables: string[] = Object.keys(getGeoPackageTables());
   const [selectedGeoPackageTable, setSelectedGeoPackageTable] = useState<string[]>([]);
-  const [selectAllTables, setSelectAllTables] = useState(false);
+  const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useState<string[]>([]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -33,6 +34,42 @@ function GeoPackage(props: PostgreSqlProps) {
     }
   };
 
+  useEffect(() => {
+    if (props.selectedDataSource !== "GeoPackage") {
+      setGPKG(null);
+      setFilename("");
+      setSelectedGeoPackageTable([]);
+    }
+  }, [props.selectedDataSource]);
+
+  const selectAllSchemasWithTables = () => {
+    const allTableNames = [];
+
+    for (const schema in allTables) {
+      const schemas = allTables[schema];
+      const tableNames = Object.keys(schemas);
+      allTableNames.push(...tableNames);
+    }
+
+    const allSchemasAlreadySelected = allSchemas.every((schema) =>
+      schemasSelectedinEntirety.includes(schema)
+    );
+    console.log("allSchemasAlreadySelected", allSchemasAlreadySelected);
+    if (!allSchemasAlreadySelected) {
+      setschemasSelectedinEntirety(
+        schemasSelectedinEntirety.concat(
+          allSchemas.filter((schema) => !schemasSelectedinEntirety.includes(schema))
+        )
+      );
+      console.log("schemasSelectedinEntirety", schemasSelectedinEntirety);
+      setSelectedGeoPackageTable(allTableNames);
+      console.log("selectedTable", selectedGeoPackageTable);
+    } else {
+      setschemasSelectedinEntirety([]);
+      setSelectedGeoPackageTable([]);
+    }
+  };
+
   const handleTableSelection = (tableName: string) => {
     if (selectedGeoPackageTable.includes(tableName)) {
       setSelectedGeoPackageTable(selectedGeoPackageTable.filter((table) => table !== tableName));
@@ -41,28 +78,25 @@ function GeoPackage(props: PostgreSqlProps) {
     }
   };
 
-  const handleSelectAllTables = () => {
-    setSelectAllTables(!selectAllTables);
-    if (selectAllTables) {
-      setSelectedGeoPackageTable(geoPackageTables);
-    } else {
+  useEffect(() => {
+    if (props.selectedDataSource !== "GeoPackage") {
       setSelectedGeoPackageTable([]);
+    }
+  }, [props.selectedDataSource]);
+
+  const handleSelectAllTablesInSchema = (schema: string) => {
+    const tablesInThisSchema: string[] = Object.keys(allTables[schema]);
+    if (!schemasSelectedinEntirety.includes(schema)) {
+      setschemasSelectedinEntirety([...schemasSelectedinEntirety, schema]);
+
+      setSelectedGeoPackageTable((selectedTable) => selectedTable.concat(tablesInThisSchema));
+    } else {
+      setschemasSelectedinEntirety(schemasSelectedinEntirety.filter((s) => s !== schema));
+      setSelectedGeoPackageTable((prevSelectedTable) =>
+        prevSelectedTable.filter((tableName) => !tablesInThisSchema.includes(tableName))
+      );
     }
   };
-
-  useEffect(() => {
-    if (props.selectedDataSource !== "GeoPackage") {
-      setSelectedGeoPackageTable([]);
-    }
-  }, [props.selectedDataSource]);
-
-  useEffect(() => {
-    if (props.selectedDataSource !== "GeoPackage") {
-      setGPKG(null);
-      setFilename("");
-      setSelectedGeoPackageTable([]);
-    }
-  }, [props.selectedDataSource]);
 
   return (
     <>
@@ -94,22 +128,42 @@ function GeoPackage(props: PostgreSqlProps) {
       )}
       {filename !== "" && (
         <form id="outerContainerCheckboxes">
-          <fieldset>
-            <legend>Choose tables</legend>
-            <div className="checkbox-container">
-              <VSCodeCheckbox checked={selectAllTables} onChange={handleSelectAllTables}>
-                All
-              </VSCodeCheckbox>
-              {geoPackageTables.map((tableName) => (
+          {allSchemas.length > 1 && (
+            <div id="everything">
+              <fieldset key="everything">
+                <legend>Select all Schemas</legend>
                 <VSCodeCheckbox
-                  key={tableName}
-                  checked={selectedGeoPackageTable.includes(tableName)}
-                  onChange={() => handleTableSelection(tableName)}>
-                  {tableName}
+                  key="everything"
+                  checked={allSchemas.every((schema) => schemasSelectedinEntirety.includes(schema))}
+                  onChange={selectAllSchemasWithTables}>
+                  All
                 </VSCodeCheckbox>
-              ))}
+              </fieldset>
             </div>
-          </fieldset>
+          )}
+          <div className="mappedCheckboxesContainer">
+            {allSchemas.map((schema) => (
+              <fieldset key={schema}>
+                <legend>{schema}</legend>
+                <div className="checkbox-container">
+                  <VSCodeCheckbox
+                    key={schema}
+                    checked={schemasSelectedinEntirety.includes(schema)}
+                    onChange={() => handleSelectAllTablesInSchema(schema)}>
+                    All
+                  </VSCodeCheckbox>
+                  {Object.keys(getGeoPackageTables()[schema]).map((tableName) => (
+                    <VSCodeCheckbox
+                      key={tableName}
+                      checked={selectedGeoPackageTable.includes(tableName)}
+                      onChange={() => handleTableSelection(tableName)}>
+                      {tableName}
+                    </VSCodeCheckbox>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+          </div>
         </form>
       )}
     </>
