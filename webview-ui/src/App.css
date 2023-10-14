@@ -41,7 +41,7 @@ main {
 }
 
 #uploadLabel {
-  background-color: #0e639c;
+  background-color: #007acc;
   color: #fff;
   padding: 10px 20px;
   cursor: pointer;
@@ -54,7 +54,7 @@ main {
 }
 
 #uploadLabel:hover {
-  background-color: #2980b9;
+  background-color: #0e639c;
 }
 
 .checkbox-container {
