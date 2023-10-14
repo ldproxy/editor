@@ -41,15 +41,16 @@ main {
 }
 
 #uploadLabel {
-  background-color: #3498db;
+  background-color: #0e639c;
   color: #fff;
   padding: 10px 20px;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 2px;
   font-size: medium;
   font-weight: bold;
   height: 20px;
   width: 100px;
+  fill: currentcolor;
 }
 
 #uploadLabel:hover {

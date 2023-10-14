@@ -110,7 +110,6 @@ function GeoPackage(props: PostgreSqlProps) {
           onChange={(event) => onFileChange(event)}
           accept=".gpkg"
           multiple={false}
-          style={{ display: "none" }}
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
         <VSCodeButton
