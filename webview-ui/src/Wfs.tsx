@@ -12,6 +12,7 @@ type PostgreSqlProps = {
   wfsData: Object;
   setWfsData(wfsData: Object): void;
   dataProcessed: string;
+  error: Object;
 };
 
 function Wfs(props: PostgreSqlProps) {
@@ -89,6 +90,11 @@ function Wfs(props: PostgreSqlProps) {
             Next
           </VSCodeButton>
         </div>
+      </div>
+      <div id="errorSpan">
+        {props.error && props.error.hasOwnProperty("WFS") ? (
+          <span id="error-text">{`Error: ${(props.error as any).WFS}`}</span>
+        ) : null}
       </div>
       {props.dataProcessed === "inProgress" && (
         <div className="progress-container">

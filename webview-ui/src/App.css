@@ -115,6 +115,20 @@ main {
   margin-bottom: 10px;
 }
 
+#errorSpan {
+  text-align: left;
+  padding: 10px 0;
+}
+
+#error-text {
+  background-color: #ff0000;
+  font-size: 13px;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
 /* Switch in Wfs.tsx */
 
 #switchDiv {

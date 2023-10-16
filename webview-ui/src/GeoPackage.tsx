@@ -8,6 +8,7 @@ type PostgreSqlProps = {
   selectedDataSource: any;
   dataProcessed: string;
   setDataProcessed(arg0: string): void;
+  error: Object;
 };
 
 function GeoPackage(props: PostgreSqlProps) {
@@ -118,6 +119,11 @@ function GeoPackage(props: PostgreSqlProps) {
           disabled={props.dataProcessed === "inProgress"}>
           Next
         </VSCodeButton>
+      </div>
+      <div id="errorSpan">
+        {props.error && props.error.hasOwnProperty("GeoPackage") ? (
+          <span id="error-text">{`Error: ${(props.error as any).GeoPackage}`}</span>
+        ) : null}
       </div>
       {props.dataProcessed === "inProgress" && (
         <div className="progress-container">

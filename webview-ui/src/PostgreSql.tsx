@@ -12,8 +12,9 @@ type PostgreSqlProps = {
   submitData: (data: Object) => void;
   handleUpdateData(key: string, value: string): void;
   dataProcessed: string;
-  selectedDataSource: any;
+  selectedDataSource: string;
   sqlData: Object;
+  error: Object;
 };
 
 function PostgreSql(props: PostgreSqlProps) {
@@ -139,6 +140,11 @@ function PostgreSql(props: PostgreSqlProps) {
             Next
           </VSCodeButton>
         </div>
+      </div>
+      <div id="errorSpan">
+        {props.error && props.error.hasOwnProperty("PostgreSQL") ? (
+          <span id="error-text">{`Error: ${(props.error as any).PostgreSQL}`}</span>
+        ) : null}
       </div>
       {props.dataProcessed === "inProgress" && (
         <div className="progress-container">

@@ -16,6 +16,7 @@ function App() {
   const [wfsData, setWfsData] = useState({});
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
+  const [error, setError] = useState<Object>({});
   const [workspace, setWorkspace] = useState(
     "c:\\Users\\p.zahnen\\Documents\\GitHub\\editor\\data"
   );
@@ -83,9 +84,15 @@ function App() {
     });
 
     socket.addEventListener("message", (event) => {
-      console.log("Nachricht vom Server erhalten:", event.data);
+      const response = JSON.parse(event.data);
+      console.log("Nachricht vom Server erhalten:", response);
+      if (response.error) {
+        console.error(`Error:`, response.error);
+        setError({ [selectedDataSource]: response.error });
+      }
     });
 
+    /*
     socket.addEventListener("close", (event) => {
       if (event.wasClean) {
         console.log(
@@ -99,7 +106,7 @@ function App() {
     socket.addEventListener("error", (error) => {
       console.error("WebSocket-Fehler:", error);
     });
-
+    */
     setDataProcessed("inProgress");
   };
 
@@ -161,6 +168,7 @@ function App() {
           dataProcessed={dataProcessed}
           selectedDataSource={selectedDataSource}
           sqlData={sqlData}
+          error={error}
         />
       ) : selectedDataSource === "GeoPackage" ? (
         <GeoPackage
@@ -168,6 +176,7 @@ function App() {
           submitData={submitData}
           dataProcessed={dataProcessed}
           setDataProcessed={setDataProcessed}
+          error={error}
         />
       ) : (
         <Wfs
@@ -176,6 +185,7 @@ function App() {
           wfsData={wfsData}
           setWfsData={setWfsData}
           dataProcessed={dataProcessed}
+          error={error}
         />
       )}
     </main>
