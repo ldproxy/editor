@@ -74,12 +74,14 @@ function App() {
   };
 
   const submitData = (data: Object) => {
+    setDataProcessed("inProgress");
+
     const socket = new WebSocket("ws://localhost:8080/sock");
 
     socket.addEventListener("open", () => {
       console.log("WebSocket-Verbindung geöffnet");
       const jsonData = JSON.stringify(data);
-      console.log("sqlData", jsonData);
+      console.log("Data", jsonData);
       socket.send(jsonData);
     });
 
@@ -89,6 +91,8 @@ function App() {
       if (response.error) {
         console.error(`Error:`, response.error);
         setError({ [selectedDataSource]: response.error });
+      } else {
+        setError({});
       }
     });
 
@@ -107,7 +111,6 @@ function App() {
       console.error("WebSocket-Fehler:", error);
     });
     */
-    setDataProcessed("inProgress");
   };
 
   useEffect(() => {
