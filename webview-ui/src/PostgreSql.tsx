@@ -31,6 +31,7 @@ function PostgreSql(props: PostgreSqlProps) {
       allTableNames.push(...tableNames);
     }
 
+    console.log("allTableNames", allTableNames);
     const allSchemasAlreadySelected = allSchemas.every((schema) =>
       schemasSelectedinEntirety.includes(schema)
     );
@@ -77,6 +78,9 @@ function PostgreSql(props: PostgreSqlProps) {
       );
     }
   };
+
+  console.log("selectedTable", selectedTable);
+  console.log("schemasSelectedinEntirety", schemasSelectedinEntirety);
 
   return (
     <div className="frame">

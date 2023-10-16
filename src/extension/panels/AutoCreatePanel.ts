@@ -1,6 +1,14 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
+import * as vscode from "vscode";
+
+const workspaceFolders = vscode.workspace.workspaceFolders;
+let workspace: string;
+if (workspaceFolders && workspaceFolders.length > 0) {
+  workspace = workspaceFolders[0].uri.fsPath;
+}
+// const workspace = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -67,7 +75,6 @@ export class AutoCreatePanel {
           ],
         }
       );
-
       AutoCreatePanel.currentPanel = new AutoCreatePanel(panel, extensionUri);
     }
   }
@@ -118,7 +125,7 @@ export class AutoCreatePanel {
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
-          <title>Hello World</title>
+          <title>Hello World</title>    
         </head>
         <body>
           <div id="root"></div>
@@ -135,6 +142,7 @@ export class AutoCreatePanel {
    * @param webview A reference to the extension webview
    * @param context A reference to the extension context
    */
+
   private _setWebviewMessageListener(webview: Webview) {
     webview.onDidReceiveMessage(
       (message: any) => {
@@ -145,6 +153,8 @@ export class AutoCreatePanel {
           case "hello":
             // Code that should run in response to the hello message command
             window.showInformationMessage(text);
+          case "onLoad":
+            this._panel.webview.postMessage({ command: "setWorkspace", workspaceRoot: workspace });
             return;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)

@@ -16,12 +16,36 @@ function App() {
   const [wfsData, setWfsData] = useState({});
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
+  const [workspace, setWorkspace] = useState(
+    "c:\\Users\\p.zahnen\\Documents\\GitHub\\editor\\data"
+  );
   const basisDates = {
     command: "auto",
     subcommand: "analyze",
-    source: "C:/Users/p.zahnen/Documents/GitHub/editor/data",
+    source: workspace,
     verbose: true,
   };
+
+  useEffect(() => {
+    vscode.postMessage({
+      command: "onLoad",
+      text: "onLoad",
+    });
+  }, []);
+
+  window.addEventListener("message", (event) => {
+    const message = event.data;
+
+    switch (message.command) {
+      case "setWorkspace":
+        const workspaceRoot = message.workspaceRoot;
+        console.log("Workspace Root:", workspaceRoot);
+        setWorkspace(workspaceRoot);
+        break;
+      default:
+        console.log("Access to the workspace is not available.");
+    }
+  });
 
   const handleUpdateData = (key: string, value: string) => {
     if (selectedDataSource === "PostgreSQL") {
