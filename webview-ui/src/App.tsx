@@ -37,7 +37,7 @@ function App() {
       });
   }, []);
 
-  window.addEventListener("message", async (event) => {
+  window.addEventListener("message", (event) => {
     const message = event.data;
 
     switch (message.command) {
@@ -47,8 +47,10 @@ function App() {
         setWorkspace(workspaceRoot);
         break;
       case "setGeopackages":
-        const existingGeopackages = await message.existingGeopackages;
-        console.log("Existing Geopackages:", existingGeopackages);
+        setTimeout(() => {
+          const existingGeopackages = message.existingGeopackages;
+          console.log("Existing Geopackages:", existingGeopackages);
+        }, 5000);
         break;
       default:
         console.log("Access to the workspace and/or existing Gpkg is not available.");
