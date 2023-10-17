@@ -123,7 +123,7 @@ export class AutoCreatePanel {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; connect-src 'self' ws:;">
           <link rel="stylesheet" type="text/css" href="${stylesUri}">
           <title>Hello World</title>    
         </head>
@@ -153,9 +153,13 @@ export class AutoCreatePanel {
           case "hello":
             // Code that should run in response to the hello message command
             window.showInformationMessage(text);
+            break;
+          case "error":
+            window.showErrorMessage(text);
+            break;
           case "onLoad":
             this._panel.webview.postMessage({ command: "setWorkspace", workspaceRoot: workspace });
-            return;
+            break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
         }

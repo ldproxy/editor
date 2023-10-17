@@ -8,7 +8,6 @@ type PostgreSqlProps = {
   selectedDataSource: any;
   dataProcessed: string;
   setDataProcessed(arg0: string): void;
-  error: Object;
 };
 
 function GeoPackage(props: PostgreSqlProps) {
@@ -55,16 +54,13 @@ function GeoPackage(props: PostgreSqlProps) {
     const allSchemasAlreadySelected = allSchemas.every((schema) =>
       schemasSelectedinEntirety.includes(schema)
     );
-    console.log("allSchemasAlreadySelected", allSchemasAlreadySelected);
     if (!allSchemasAlreadySelected) {
       setschemasSelectedinEntirety(
         schemasSelectedinEntirety.concat(
           allSchemas.filter((schema) => !schemasSelectedinEntirety.includes(schema))
         )
       );
-      console.log("schemasSelectedinEntirety", schemasSelectedinEntirety);
       setSelectedGeoPackageTable(allTableNames);
-      console.log("selectedTable", selectedGeoPackageTable);
     } else {
       setschemasSelectedinEntirety([]);
       setSelectedGeoPackageTable([]);
@@ -120,11 +116,6 @@ function GeoPackage(props: PostgreSqlProps) {
           Next
         </VSCodeButton>
       </div>
-      <div id="errorSpan">
-        {props.error && props.error.hasOwnProperty("GeoPackage") ? (
-          <span id="error-text">{`Error: ${(props.error as any).GeoPackage}`}</span>
-        ) : null}
-      </div>
       {props.dataProcessed === "inProgress" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
@@ -140,7 +131,7 @@ function GeoPackage(props: PostgreSqlProps) {
                 <VSCodeCheckbox
                   key="everything"
                   checked={allSchemas.every((schema) => schemasSelectedinEntirety.includes(schema))}
-                  onChange={selectAllSchemasWithTables}>
+                  onClick={selectAllSchemasWithTables}>
                   All
                 </VSCodeCheckbox>
               </fieldset>
@@ -154,14 +145,14 @@ function GeoPackage(props: PostgreSqlProps) {
                   <VSCodeCheckbox
                     key={schema}
                     checked={schemasSelectedinEntirety.includes(schema)}
-                    onChange={() => handleSelectAllTablesInSchema(schema)}>
+                    onClick={() => handleSelectAllTablesInSchema(schema)}>
                     All
                   </VSCodeCheckbox>
                   {Object.keys(getGeoPackageTables()[schema]).map((tableName) => (
                     <VSCodeCheckbox
                       key={tableName}
                       checked={selectedGeoPackageTable.includes(tableName)}
-                      onChange={() => handleTableSelection(tableName)}>
+                      onClick={() => handleTableSelection(tableName)}>
                       {tableName}
                     </VSCodeCheckbox>
                   ))}

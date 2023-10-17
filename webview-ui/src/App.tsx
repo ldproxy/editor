@@ -16,7 +16,6 @@ function App() {
   const [wfsData, setWfsData] = useState({});
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
-  const [error, setError] = useState<Object>({});
   const [workspace, setWorkspace] = useState(
     "c:\\Users\\p.zahnen\\Documents\\GitHub\\editor\\data"
   );
@@ -74,43 +73,51 @@ function App() {
   };
 
   const submitData = (data: Object) => {
-    setDataProcessed("inProgress");
+    try {
+      JSON.parse(JSON.stringify(data));
+      const socket = new WebSocket("ws://localhost:8080/sock");
 
-    const socket = new WebSocket("ws://localhost:8080/sock");
+      socket.addEventListener("open", () => {
+        const jsonData = JSON.stringify(data);
+        console.log("WebSocket-Verbindung geöffnet");
+        console.log("Data", jsonData);
+        socket.send(jsonData);
+      });
 
-    socket.addEventListener("open", () => {
-      console.log("WebSocket-Verbindung geöffnet");
-      const jsonData = JSON.stringify(data);
-      console.log("Data", jsonData);
-      socket.send(jsonData);
-    });
+      socket.addEventListener("message", (event) => {
+        const response = JSON.parse(event.data);
+        console.log("Nachricht vom Server erhalten:", response);
+        if (response.error && response.error === "No 'command' given: {}") {
+          vscode.postMessage({
+            command: "error",
+            text: `Error: Empty Fields`,
+          });
+        } else if (response.error) {
+          vscode.postMessage({
+            command: "error",
+            text: `Error: ${response.error}`,
+          });
+        }
+      });
+      setDataProcessed("inProgress");
+      /*
+      socket.addEventListener("close", (event) => {
+        if (event.wasClean) {
+          console.log(
+            `WebSocket-Verbindung geschlossen, Code: ${event.code}, Grund: ${event.reason}`
+          );
+        } else {
+          console.error("WebSocket-Verbindung unerwartet geschlossen");
+        }
+      });
 
-    socket.addEventListener("message", (event) => {
-      const response = JSON.parse(event.data);
-      console.log("Nachricht vom Server erhalten:", response);
-      if (response.error) {
-        console.error(`Error:`, response.error);
-        setError({ [selectedDataSource]: response.error });
-      } else {
-        setError({});
-      }
-    });
-
-    /*
-    socket.addEventListener("close", (event) => {
-      if (event.wasClean) {
-        console.log(
-          `WebSocket-Verbindung geschlossen, Code: ${event.code}, Grund: ${event.reason}`
-        );
-      } else {
-        console.error("WebSocket-Verbindung unerwartet geschlossen");
-      }
-    });
-
-    socket.addEventListener("error", (error) => {
-      console.error("WebSocket-Fehler:", error);
-    });
-    */
+      socket.addEventListener("error", (error) => {
+        console.error("WebSocket-Fehler:", error);
+      }); 
+      */
+    } catch (error) {
+      console.error("Fehler beim JSON-Serialisieren:", error);
+    }
   };
 
   useEffect(() => {
@@ -171,7 +178,6 @@ function App() {
           dataProcessed={dataProcessed}
           selectedDataSource={selectedDataSource}
           sqlData={sqlData}
-          error={error}
         />
       ) : selectedDataSource === "GeoPackage" ? (
         <GeoPackage
@@ -179,7 +185,6 @@ function App() {
           submitData={submitData}
           dataProcessed={dataProcessed}
           setDataProcessed={setDataProcessed}
-          error={error}
         />
       ) : (
         <Wfs
@@ -188,7 +193,6 @@ function App() {
           wfsData={wfsData}
           setWfsData={setWfsData}
           dataProcessed={dataProcessed}
-          error={error}
         />
       )}
     </main>

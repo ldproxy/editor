@@ -14,7 +14,6 @@ type PostgreSqlProps = {
   dataProcessed: string;
   selectedDataSource: string;
   sqlData: Object;
-  error: Object;
 };
 
 function PostgreSql(props: PostgreSqlProps) {
@@ -32,20 +31,16 @@ function PostgreSql(props: PostgreSqlProps) {
       allTableNames.push(...tableNames);
     }
 
-    console.log("allTableNames", allTableNames);
     const allSchemasAlreadySelected = allSchemas.every((schema) =>
       schemasSelectedinEntirety.includes(schema)
     );
-    console.log("allSchemasAlreadySelected", allSchemasAlreadySelected);
     if (!allSchemasAlreadySelected) {
       setschemasSelectedinEntirety(
         schemasSelectedinEntirety.concat(
           allSchemas.filter((schema) => !schemasSelectedinEntirety.includes(schema))
         )
       );
-      console.log("schemasSelectedinEntirety", schemasSelectedinEntirety);
       setSelectedTable(allTableNames);
-      console.log("selectedTable", selectedTable);
     } else {
       setschemasSelectedinEntirety([]);
       setSelectedTable([]);
@@ -79,9 +74,6 @@ function PostgreSql(props: PostgreSqlProps) {
       );
     }
   };
-
-  console.log("selectedTable", selectedTable);
-  console.log("schemasSelectedinEntirety", schemasSelectedinEntirety);
 
   return (
     <div className="frame">
@@ -141,11 +133,6 @@ function PostgreSql(props: PostgreSqlProps) {
           </VSCodeButton>
         </div>
       </div>
-      <div id="errorSpan">
-        {props.error && props.error.hasOwnProperty("PostgreSQL") ? (
-          <span id="error-text">{`Error: ${(props.error as any).PostgreSQL}`}</span>
-        ) : null}
-      </div>
       {props.dataProcessed === "inProgress" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
@@ -161,7 +148,7 @@ function PostgreSql(props: PostgreSqlProps) {
                 <VSCodeCheckbox
                   key="everything"
                   checked={allSchemas.every((schema) => schemasSelectedinEntirety.includes(schema))}
-                  onChange={selectAllSchemasWithTables}>
+                  onClick={selectAllSchemasWithTables}>
                   All
                 </VSCodeCheckbox>
               </fieldset>
@@ -175,14 +162,14 @@ function PostgreSql(props: PostgreSqlProps) {
                   <VSCodeCheckbox
                     key={schema}
                     checked={schemasSelectedinEntirety.includes(schema)}
-                    onChange={() => handleSelectAllTablesInSchema(schema)}>
+                    onClick={() => handleSelectAllTablesInSchema(schema)}>
                     All
                   </VSCodeCheckbox>
                   {Object.keys(getGeoPackageTables()[schema]).map((tableName) => (
                     <VSCodeCheckbox
                       key={tableName}
                       checked={selectedTable.includes(tableName)}
-                      onChange={() => handleTableSelection(tableName)}>
+                      onClick={() => handleTableSelection(tableName)}>
                       {tableName}
                     </VSCodeCheckbox>
                   ))}
