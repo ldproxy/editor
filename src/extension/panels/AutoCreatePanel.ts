@@ -145,7 +145,7 @@ export class AutoCreatePanel {
 
   private _setWebviewMessageListener(webview: Webview) {
     webview.onDidReceiveMessage(
-      (message: any) => {
+      async (message: any) => {
         const command = message.command;
         const text = message.text;
 
@@ -163,7 +163,7 @@ export class AutoCreatePanel {
           case "setExistingGpkg":
             this._panel.webview.postMessage({
               command: "setGeopackages",
-              existingGeopackages: listGpkgFilesInDirectory(),
+              existingGeopackages: await listGpkgFilesInDirectory(),
             });
             break;
           // Add more switch case statements here as more webview message commands

@@ -14,11 +14,10 @@ import PostgreSql from "./PostgreSql";
 function App() {
   const [sqlData, setSqlData] = useState({});
   const [wfsData, setWfsData] = useState({});
+  const [existingGeopackages, setExistingGeopackages] = useState<string[]>([]);
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
-  const [workspace, setWorkspace] = useState(
-    "c:\\Users\\p.zahnen\\Documents\\GitHub\\editor\\data"
-  );
+  const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
   const basisDates = {
     command: "auto",
     subcommand: "analyze",
@@ -44,13 +43,11 @@ function App() {
       case "setWorkspace":
         const workspaceRoot = message.workspaceRoot;
         console.log("Workspace Root:", workspaceRoot);
-        setWorkspace(workspaceRoot);
+        setWorkspace(workspaceRoot.replace(/\\/g, "/"));
         break;
       case "setGeopackages":
-        setTimeout(() => {
-          const existingGeopackages = message.existingGeopackages;
-          console.log("Existing Geopackages:", existingGeopackages);
-        }, 5000);
+        setExistingGeopackages(message.existingGeopackages);
+        console.log("Existing Geopackages:", message.existingGeopackages);
         break;
       default:
         console.log("Access to the workspace and/or existing Gpkg is not available.");
