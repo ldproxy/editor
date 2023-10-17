@@ -41,7 +41,9 @@ function App() {
         const workspaceRoot = message.workspaceRoot;
         console.log("Workspace Root:", workspaceRoot);
         setWorkspace(workspaceRoot);
-        break;
+
+        const existingGeopackages = message.existingGeopackages;
+        console.log("Existing Geopackages:", existingGeopackages);
       default:
         console.log("Access to the workspace is not available.");
     }

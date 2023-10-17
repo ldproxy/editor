@@ -1,6 +1,7 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
+import { listGpkgFilesInDirectory } from "../utilities/getGpkg";
 import * as vscode from "vscode";
 
 const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -8,7 +9,6 @@ let workspace: string;
 if (workspaceFolders && workspaceFolders.length > 0) {
   workspace = workspaceFolders[0].uri.fsPath;
 }
-// const workspace = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -159,6 +159,10 @@ export class AutoCreatePanel {
             break;
           case "onLoad":
             this._panel.webview.postMessage({ command: "setWorkspace", workspaceRoot: workspace });
+            this._panel.webview.postMessage({
+              command: "setWorkspace",
+              existingGeopackages: listGpkgFilesInDirectory(),
+            });
             break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
