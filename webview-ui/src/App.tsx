@@ -30,10 +30,14 @@ function App() {
     vscode.postMessage({
       command: "onLoad",
       text: "onLoad",
-    });
+    }),
+      vscode.postMessage({
+        command: "setExistingGpkg",
+        text: "setExistingGpkg",
+      });
   }, []);
 
-  window.addEventListener("message", (event) => {
+  window.addEventListener("message", async (event) => {
     const message = event.data;
 
     switch (message.command) {
@@ -41,11 +45,13 @@ function App() {
         const workspaceRoot = message.workspaceRoot;
         console.log("Workspace Root:", workspaceRoot);
         setWorkspace(workspaceRoot);
-
-        const existingGeopackages = message.existingGeopackages;
+        break;
+      case "setGeopackages":
+        const existingGeopackages = await message.existingGeopackages;
         console.log("Existing Geopackages:", existingGeopackages);
+        break;
       default:
-        console.log("Access to the workspace is not available.");
+        console.log("Access to the workspace and/or existing Gpkg is not available.");
     }
   });
 
@@ -124,10 +130,6 @@ function App() {
 
   useEffect(() => {
     if (dataProcessed === "inProgress") {
-      vscode.postMessage({
-        command: "hello",
-        text: "Die Daten werden verarbeitet.",
-      });
       setTimeout(() => {
         setDataProcessed("true");
       }, 2000);

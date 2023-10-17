@@ -159,8 +159,10 @@ export class AutoCreatePanel {
             break;
           case "onLoad":
             this._panel.webview.postMessage({ command: "setWorkspace", workspaceRoot: workspace });
+            break;
+          case "setExistingGpkg":
             this._panel.webview.postMessage({
-              command: "setWorkspace",
+              command: "setGeopackages",
               existingGeopackages: listGpkgFilesInDirectory(),
             });
             break;
