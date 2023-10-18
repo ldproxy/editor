@@ -14,7 +14,7 @@ import PostgreSql from "./PostgreSql";
 function App() {
   const [sqlData, setSqlData] = useState({});
   const [wfsData, setWfsData] = useState({});
-  const [existingGeopackages, setExistingGeopackages] = useState<string[]>([]);
+  const [existingGeopackages, setExistingGeopackages] = useState<string[]>([""]);
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
@@ -188,6 +188,7 @@ function App() {
           submitData={submitData}
           dataProcessed={dataProcessed}
           setDataProcessed={setDataProcessed}
+          existingGeopackages={existingGeopackages}
         />
       ) : (
         <Wfs

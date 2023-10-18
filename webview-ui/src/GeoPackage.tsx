@@ -8,12 +8,13 @@ type PostgreSqlProps = {
   selectedDataSource: any;
   dataProcessed: string;
   setDataProcessed(arg0: string): void;
+  existingGeopackages: string[];
 };
 
 function GeoPackage(props: PostgreSqlProps) {
   const allTables = getGeoPackageTables();
   const allSchemas = Object.keys(allTables);
-  const [GPKG, setGPKG] = useState<File | null | Blob>(null);
+  const [GPKG, setGPKG] = useState<string>("");
   const [filename, setFilename] = useState<string>("");
   const [selectedGeoPackageTable, setSelectedGeoPackageTable] = useState<string[]>([]);
   const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useState<string[]>([]);
@@ -21,7 +22,7 @@ function GeoPackage(props: PostgreSqlProps) {
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setGPKG(file);
+      setGPKG(file.name);
       setFilename(file.name);
       console.log("GP", file);
 
@@ -36,7 +37,7 @@ function GeoPackage(props: PostgreSqlProps) {
 
   useEffect(() => {
     if (props.selectedDataSource !== "GeoPackage") {
-      setGPKG(null);
+      setGPKG("");
       setFilename("");
       setSelectedGeoPackageTable([]);
     }
@@ -95,6 +96,8 @@ function GeoPackage(props: PostgreSqlProps) {
     }
   };
 
+  console.log("GPKG:", GPKG);
+
   return (
     <>
       <div className="button-container">
@@ -109,6 +112,21 @@ function GeoPackage(props: PostgreSqlProps) {
           multiple={false}
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
+        or
+        <select
+          className="dropdown"
+          placeholder="Choose existing File..."
+          value={GPKG}
+          onChange={(event) => setGPKG(event.target.value)}>
+          <option value="" hidden>
+            Choose existing File...
+          </option>
+          {props.existingGeopackages.map((option) => (
+            <option key={option} value={option.split("\\").slice(-3).join("/")}>
+              {option.split("\\").pop()}
+            </option>
+          ))}
+        </select>
         <VSCodeButton
           className="submitButton"
           onClick={() => props.submitData}
