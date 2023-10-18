@@ -98,6 +98,16 @@ function GeoPackage(props: PostgreSqlProps) {
     }
   };
 
+  const handleReset = () => {
+    setExistingGPKG("");
+    setNewGPKG("");
+    setFilename("");
+    const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
   return (
     <>
       <div className="button-container">
@@ -135,12 +145,19 @@ function GeoPackage(props: PostgreSqlProps) {
             </option>
           ))}
         </select>
-        <VSCodeButton
-          className="submitButton"
-          onClick={() => props.submitData}
-          disabled={props.dataProcessed === "inProgress"}>
-          Next
-        </VSCodeButton>
+        <div className="submitAndReset">
+          <VSCodeButton
+            className="submitButton"
+            onClick={() => props.submitData}
+            disabled={props.dataProcessed === "inProgress"}>
+            Next
+          </VSCodeButton>
+          {existingGPKG || newGPKG ? (
+            <VSCodeButton className="resetButton" onClick={handleReset}>
+              Reset
+            </VSCodeButton>
+          ) : null}
+        </div>
       </div>
       {props.dataProcessed === "inProgress" && (
         <div className="progress-container">

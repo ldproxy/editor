@@ -52,6 +52,29 @@ main {
   fill: currentcolor;
 }
 
+.resetButton {
+  background-color: red;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: medium;
+  font-weight: bold;
+  height: 28px;
+  width: 60px;
+  fill: currentcolor;
+}
+
+.resetButton:hover {
+  background-color: darkred;
+}
+
+.submitAndReset {
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 #uploadLabelDisabled {
   background-color: #ccc;
   color: #999;
