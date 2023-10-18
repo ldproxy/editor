@@ -14,7 +14,8 @@ type PostgreSqlProps = {
 function GeoPackage(props: PostgreSqlProps) {
   const allTables = getGeoPackageTables();
   const allSchemas = Object.keys(allTables);
-  const [GPKG, setGPKG] = useState<string>("");
+  const [newGPKG, setNewGPKG] = useState<string>("");
+  const [existingGPKG, setExistingGPKG] = useState<string>("");
   const [filename, setFilename] = useState<string>("");
   const [selectedGeoPackageTable, setSelectedGeoPackageTable] = useState<string[]>([]);
   const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useState<string[]>([]);
@@ -22,7 +23,7 @@ function GeoPackage(props: PostgreSqlProps) {
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setGPKG(file.name);
+      setNewGPKG(file.name);
       setFilename(file.name);
       console.log("GP", file);
 
@@ -37,7 +38,8 @@ function GeoPackage(props: PostgreSqlProps) {
 
   useEffect(() => {
     if (props.selectedDataSource !== "GeoPackage") {
-      setGPKG("");
+      setNewGPKG("");
+      setExistingGPKG("");
       setFilename("");
       setSelectedGeoPackageTable([]);
     }
@@ -96,28 +98,34 @@ function GeoPackage(props: PostgreSqlProps) {
     }
   };
 
-  console.log("GPKG:", GPKG);
-
   return (
     <>
       <div className="button-container">
-        <label htmlFor="geoInput" id="uploadLabel">
-          Upload new File
-        </label>
+        {!existingGPKG ? (
+          <label htmlFor="geoInput" id="uploadLabel">
+            Upload new File
+          </label>
+        ) : (
+          <label htmlFor="geoInput" id="uploadLabelDisabled">
+            Upload new File
+          </label>
+        )}
         <input
-          id="geoInput"
+          id={"geoInput"}
           type="file"
           onChange={(event) => onFileChange(event)}
           accept=".gpkg"
           multiple={false}
+          disabled={!!existingGPKG}
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
         or
         <select
           className="dropdown"
           placeholder="Choose existing File..."
-          value={GPKG}
-          onChange={(event) => setGPKG(event.target.value)}>
+          value={existingGPKG}
+          onChange={(event) => setExistingGPKG(event.target.value)}
+          disabled={!!newGPKG}>
           <option value="" hidden>
             Choose existing File...
           </option>

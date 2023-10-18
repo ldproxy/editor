@@ -52,6 +52,19 @@ main {
   fill: currentcolor;
 }
 
+#uploadLabelDisabled {
+  background-color: #ccc;
+  color: #999;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: medium;
+  font-weight: bold;
+  padding-top: 5px;
+  height: 23px;
+  width: 150px;
+  fill: currentcolor;
+}
+
 #uploadLabel:hover {
   background-color: #0e639c;
 }
