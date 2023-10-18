@@ -2,25 +2,42 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 /**
- * @returns all .gpkg files in a given directory
+ * @returns all .gpkg files in a given directory and its subdirectories
  */
-export async function listGpkgFilesInDirectory() {
+export async function listGpkgFilesInDirectory(
+  directoryPath = "C:/Users/p.zahnen/Documents/GitHub/editor/data/resources/features"
+) {
   try {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     let directory;
-    let directoryPath = "C:/Users/p.zahnen/Documents/GitHub/editor/data/resources/features";
     if (workspaceFolders && workspaceFolders.length > 0) {
       directory = workspaceFolders[0].uri.fsPath;
       directoryPath = path.join(directory, "/resources/features");
     }
-    const files = await vscode.workspace.fs.readDirectory(vscode.Uri.file(directoryPath));
+    const allFiles = await readAllFilesInDirectory(vscode.Uri.file(directoryPath));
 
-    const gpkgFiles: string[] = files
-      .filter((file) => file[1] === vscode.FileType.File && path.extname(file[0]) === ".gpkg")
-      .map((file) => file[0]);
+    const gpkgFiles: string[] = allFiles.filter((file: string) => path.extname(file) === ".gpkg");
 
     return gpkgFiles;
   } catch (error) {
     return `Fehler beim Lesen des Verzeichnisses: ${error}`;
   }
+}
+
+async function readAllFilesInDirectory(directoryUri: any) {
+  const files = await vscode.workspace.fs.readDirectory(directoryUri);
+  let allFiles: string[] = [];
+
+  for (const file of files) {
+    const fileUri = vscode.Uri.joinPath(directoryUri, file[0]);
+
+    if (file[1] === vscode.FileType.File) {
+      allFiles.push(fileUri.fsPath);
+    } else if (file[1] === vscode.FileType.Directory) {
+      const subDirectoryFiles = await readAllFilesInDirectory(fileUri);
+      allFiles = allFiles.concat(subDirectoryFiles);
+    }
+  }
+
+  return allFiles;
 }

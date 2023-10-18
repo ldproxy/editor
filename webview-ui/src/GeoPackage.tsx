@@ -99,7 +99,7 @@ function GeoPackage(props: PostgreSqlProps) {
     <>
       <div className="button-container">
         <label htmlFor="geoInput" id="uploadLabel">
-          Choose File
+          Upload new File
         </label>
         <input
           id="geoInput"
