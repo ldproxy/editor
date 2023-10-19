@@ -53,15 +53,12 @@ main {
 }
 
 .resetButton {
-  background-color: red;
-  color: #fff;
   cursor: pointer;
   border-radius: 2px;
   font-size: medium;
   font-weight: bold;
   height: 28px;
   width: 60px;
-  fill: currentcolor;
 }
 
 .resetButton:hover {
