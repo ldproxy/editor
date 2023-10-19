@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import GeoPackage from "./GeoPackage";
 import Wfs from "./Wfs";
 import PostgreSql from "./PostgreSql";
+import Tables from "./Tables";
 
 type TableData = {
   [key: string]: string[];
@@ -124,11 +125,12 @@ function App() {
             command: "error",
             text: `Error: ${response.error}`,
           });
+        } else {
+          setDataProcessed("inProgress");
+          setAllTables(response.details.schemas);
+          console.log("All Tables:", response.details.schemas);
         }
-        setAllTables(response.details.schemas);
-        console.log("All Tables:", response.details.schemas);
       });
-      setDataProcessed("inProgress");
       /*
       socket.addEventListener("close", (event) => {
         if (event.wasClean) {
@@ -163,70 +165,72 @@ function App() {
   }, [dataProcessed]);
 
   return (
-    <main>
-      <h3>Create new service</h3>
-      <section className="component-example">
-        <VSCodeTextField
-          onChange={(e) => {
-            const target = e.target as HTMLInputElement;
-            if (target) {
-              handleUpdateData("id", target.value);
-            }
-          }}>
-          Id
-        </VSCodeTextField>
-      </section>
-      <section className="component-example">
-        <VSCodeRadioGroup name="DataType" value={selectedDataSource}>
-          <label slot="label">Data Source Type</label>
-          <VSCodeRadio
-            id="GeoPackage"
-            value="GeoPackage"
-            onChange={() => setSelectedDataSource("GeoPackage")}>
-            GeoPackage
-          </VSCodeRadio>
-          <VSCodeRadio
-            id="PostgreSQL"
-            value="PostgreSQL"
-            onChange={() => setSelectedDataSource("PostgreSQL")}>
-            PostgreSQL
-          </VSCodeRadio>
-          <VSCodeRadio id="WFS" value="WFS" onChange={() => setSelectedDataSource("WFS")}>
-            WFS
-          </VSCodeRadio>
-        </VSCodeRadioGroup>
-      </section>
-      {selectedDataSource === "PostgreSQL" ? (
-        <PostgreSql
-          submitData={submitData}
-          handleUpdateData={handleUpdateData}
-          dataProcessed={dataProcessed}
-          selectedDataSource={selectedDataSource}
-          sqlData={sqlData}
-          allTables={allTables}
-        />
-      ) : selectedDataSource === "GeoPackage" ? (
-        <GeoPackage
-          selectedDataSource={selectedDataSource}
-          submitData={submitData}
-          dataProcessed={dataProcessed}
-          setDataProcessed={setDataProcessed}
-          existingGeopackages={existingGeopackages}
-          handleUpdateData={handleUpdateData}
-          gpkgData={gpkgData}
-          setGpkgData={setGpkgData}
-          allTables={allTables}
-        />
+    <>
+      {dataProcessed !== "true" ? (
+        <main>
+          <h3>Create new service</h3>
+          <section className="component-example">
+            <VSCodeTextField
+              onChange={(e) => {
+                const target = e.target as HTMLInputElement;
+                if (target) {
+                  handleUpdateData("id", target.value);
+                }
+              }}>
+              Id
+            </VSCodeTextField>
+          </section>
+          <section className="component-example">
+            <VSCodeRadioGroup name="DataType" value={selectedDataSource}>
+              <label slot="label">Data Source Type</label>
+              <VSCodeRadio
+                id="GeoPackage"
+                value="GeoPackage"
+                onChange={() => setSelectedDataSource("GeoPackage")}>
+                GeoPackage
+              </VSCodeRadio>
+              <VSCodeRadio
+                id="PostgreSQL"
+                value="PostgreSQL"
+                onChange={() => setSelectedDataSource("PostgreSQL")}>
+                PostgreSQL
+              </VSCodeRadio>
+              <VSCodeRadio id="WFS" value="WFS" onChange={() => setSelectedDataSource("WFS")}>
+                WFS
+              </VSCodeRadio>
+            </VSCodeRadioGroup>
+          </section>
+          {selectedDataSource === "PostgreSQL" ? (
+            <PostgreSql
+              submitData={submitData}
+              handleUpdateData={handleUpdateData}
+              dataProcessed={dataProcessed}
+              sqlData={sqlData}
+            />
+          ) : selectedDataSource === "GeoPackage" ? (
+            <GeoPackage
+              selectedDataSource={selectedDataSource}
+              submitData={submitData}
+              dataProcessed={dataProcessed}
+              existingGeopackages={existingGeopackages}
+              handleUpdateData={handleUpdateData}
+              gpkgData={gpkgData}
+              setGpkgData={setGpkgData}
+            />
+          ) : (
+            <Wfs
+              submitData={submitData}
+              handleUpdateData={handleUpdateData}
+              wfsData={wfsData}
+              setWfsData={setWfsData}
+              dataProcessed={dataProcessed}
+            />
+          )}
+        </main>
       ) : (
-        <Wfs
-          submitData={submitData}
-          handleUpdateData={handleUpdateData}
-          wfsData={wfsData}
-          setWfsData={setWfsData}
-          dataProcessed={dataProcessed}
-        />
+        <Tables allTables={allTables} selectedDataSource={selectedDataSource} />
       )}
-    </main>
+    </>
   );
 }
 
