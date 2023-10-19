@@ -135,7 +135,7 @@ function GeoPackage(props: PostgreSqlProps) {
         </select>
         or
         {!existingGPKG ? (
-          <label htmlFor="geoInput" id="uploadLabel">
+          <label htmlFor="geoInput" className="vscode-button">
             Upload new File
           </label>
         ) : (

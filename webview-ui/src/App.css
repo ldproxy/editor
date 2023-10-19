@@ -39,19 +39,6 @@ main {
   display: none;
 }
 
-#uploadLabel {
-  background-color: #007acc;
-  color: #fff;
-  cursor: pointer;
-  border-radius: 2px;
-  font-size: medium;
-  font-weight: bold;
-  padding-top: 5px;
-  height: 23px;
-  width: 150px;
-  fill: currentcolor;
-}
-
 .resetButton {
   cursor: pointer;
   border-radius: 2px;
@@ -61,8 +48,55 @@ main {
   width: 60px;
 }
 
-.resetButton:hover {
-  background-color: darkred;
+.vscode-button {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: medium;
+  font-weight: bold;
+  padding-top: 5px;
+  height: 23px;
+  width: 150px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.vscode-light .vscode-button {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: medium;
+  font-weight: bold;
+  padding-top: 5px;
+  height: 23px;
+  width: 150px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.vscode-dark .vscode-button {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: medium;
+  font-weight: bold;
+  padding-top: 5px;
+  height: 23px;
+  width: 150px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+vscode-button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.vscode-light .vscode-button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.vscode-dark .vscode-button:hover {
+  background-color: var(--vscode-button-hoverBackground);
 }
 
 .submitAndReset {
@@ -83,10 +117,6 @@ main {
   height: 23px;
   width: 150px;
   fill: currentcolor;
-}
-
-#uploadLabel:hover {
-  background-color: #0e639c;
 }
 
 .dropdown {
