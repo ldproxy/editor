@@ -11,6 +11,10 @@ import GeoPackage from "./GeoPackage";
 import Wfs from "./Wfs";
 import PostgreSql from "./PostgreSql";
 
+type TableData = {
+  [key: string]: string[];
+};
+
 function App() {
   const [sqlData, setSqlData] = useState({});
   const [wfsData, setWfsData] = useState({});
@@ -18,6 +22,7 @@ function App() {
   const [existingGeopackages, setExistingGeopackages] = useState<string[]>([""]);
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
+  const [allTables, setAllTables] = useState<TableData>({});
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
   const basisDates = {
     command: "auto",
@@ -120,6 +125,8 @@ function App() {
             text: `Error: ${response.error}`,
           });
         }
+        setAllTables(response.details.schemas);
+        console.log("All Tables:", response.details.schemas);
       });
       setDataProcessed("inProgress");
       /*
@@ -196,6 +203,7 @@ function App() {
           dataProcessed={dataProcessed}
           selectedDataSource={selectedDataSource}
           sqlData={sqlData}
+          allTables={allTables}
         />
       ) : selectedDataSource === "GeoPackage" ? (
         <GeoPackage
@@ -207,6 +215,7 @@ function App() {
           handleUpdateData={handleUpdateData}
           gpkgData={gpkgData}
           setGpkgData={setGpkgData}
+          allTables={allTables}
         />
       ) : (
         <Wfs
