@@ -1,4 +1,4 @@
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeCheckbox, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { useEffect, useState } from "react";
 
@@ -80,44 +80,50 @@ const Tables = (props: TabelsProps) => {
     }
   };
   return (
-    <form id="outerContainerCheckboxes">
-      {allSchemas.length > 1 && (
-        <div id="everything">
-          <fieldset key="everything">
-            <legend>Select all Schemas</legend>
-            <VSCodeCheckbox
-              key="everything"
-              checked={allSchemas.every((schema) => schemasSelectedinEntirety.includes(schema))}
-              onClick={selectAllSchemasWithTables}>
-              All
-            </VSCodeCheckbox>
-          </fieldset>
-        </div>
-      )}
-      <div className="mappedCheckboxesContainer">
-        {allSchemas.map((schema) => (
-          <fieldset key={schema}>
-            <legend>{schema}</legend>
-            <div className="checkbox-container">
+    <>
+      <form id="outerContainerCheckboxes">
+        {allSchemas.length > 1 && (
+          <div id="everything">
+            <fieldset key="everything">
+              <legend>Select all Schemas</legend>
               <VSCodeCheckbox
-                key={schema}
-                checked={schemasSelectedinEntirety.includes(schema)}
-                onClick={() => handleSelectAllTablesInSchema(schema)}>
+                key="everything"
+                checked={allSchemas.every((schema) => schemasSelectedinEntirety.includes(schema))}
+                onClick={selectAllSchemasWithTables}>
                 All
               </VSCodeCheckbox>
-              {props.allTables[schema].map((tableName) => (
+            </fieldset>
+          </div>
+        )}
+        <div className="mappedCheckboxesContainer">
+          {allSchemas.map((schema) => (
+            <fieldset key={schema}>
+              <legend>{schema}</legend>
+              <div className="checkbox-container">
                 <VSCodeCheckbox
-                  key={tableName + Math.floor(Math.random() * 1000)}
-                  checked={selectedTable[schema]?.includes(tableName)}
-                  onClick={() => handleTableSelection(tableName, schema)}>
-                  {tableName}
+                  key={schema}
+                  checked={schemasSelectedinEntirety.includes(schema)}
+                  onClick={() => handleSelectAllTablesInSchema(schema)}>
+                  All
                 </VSCodeCheckbox>
-              ))}
-            </div>
-          </fieldset>
-        ))}
+                {props.allTables[schema].map((tableName) => (
+                  <VSCodeCheckbox
+                    key={tableName + Math.floor(Math.random() * 1000)}
+                    checked={selectedTable[schema]?.includes(tableName)}
+                    onClick={() => handleTableSelection(tableName, schema)}>
+                    {tableName}
+                  </VSCodeCheckbox>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+      </form>
+      <div className="submitandBack">
+        <VSCodeButton className="submitButton">Next</VSCodeButton>
+        <VSCodeButton className="submitButton">Back</VSCodeButton>
       </div>
-    </form>
+    </>
   );
 };
 

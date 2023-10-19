@@ -182,6 +182,10 @@ vscode-button:hover {
   margin-bottom: 10px;
 }
 
+.submitandBack .submitButton {
+  margin: 5px;
+}
+
 /* Switch in Wfs.tsx */
 
 #switchDiv {
