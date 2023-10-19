@@ -38,10 +38,11 @@ function Wfs(props: PostgreSqlProps) {
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
+              value={props.wfsData.WFSURL ? props.wfsData.WFSURL : null}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("WFS URL", target.value);
+                  props.handleUpdateData("WFSURL", target.value);
                 }
               }}>
               WFS URL
@@ -58,6 +59,7 @@ function Wfs(props: PostgreSqlProps) {
             <>
               <section className="component-example">
                 <VSCodeTextField
+                  value={props.wfsData.user ? props.wfsData.user : null}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
@@ -69,6 +71,7 @@ function Wfs(props: PostgreSqlProps) {
               </section>
               <section className="component-example">
                 <VSCodeTextField
+                  value={props.wfsData.password ? props.wfsData.password : null}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {

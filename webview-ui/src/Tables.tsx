@@ -7,6 +7,7 @@ type TabelsProps = {
   allTables: {
     [key: string]: string[];
   };
+  setDataProcessed(dataProcessed: string): void;
 };
 
 const Tables = (props: TabelsProps) => {
@@ -121,7 +122,9 @@ const Tables = (props: TabelsProps) => {
       </form>
       <div className="submitandBack">
         <VSCodeButton className="submitButton">Next</VSCodeButton>
-        <VSCodeButton className="submitButton">Back</VSCodeButton>
+        <VSCodeButton className="submitButton" onClick={() => props.setDataProcessed("")}>
+          Back
+        </VSCodeButton>
       </div>
     </>
   );

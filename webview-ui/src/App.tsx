@@ -33,6 +33,12 @@ function App() {
   };
 
   useEffect(() => {
+    setGpkgData({});
+    setWfsData({});
+    setSqlData({});
+  }, [selectedDataSource]);
+
+  useEffect(() => {
     vscode.postMessage({
       command: "onLoad",
       text: "onLoad",
@@ -128,7 +134,16 @@ function App() {
         } else {
           setDataProcessed("inProgress");
           setAllTables(response.details.schemas);
-          console.log("All Tables:", response.details.schemas);
+          setWfsData((prevWfsData) => {
+            // Erstelle eine Kopie des vorherigen wfsData-Objekts
+            const newWfsData = { ...prevWfsData };
+
+            // Lösche die Schlüssel "user" und "password" aus dem neuen Objekt
+            delete newWfsData.user;
+            delete newWfsData.password;
+
+            return newWfsData;
+          });
         }
       });
       /*
@@ -171,6 +186,7 @@ function App() {
           <h3>Create new service</h3>
           <section className="component-example">
             <VSCodeTextField
+              value={sqlData.id || wfsData.id || gpkgData.id || ""}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -228,7 +244,11 @@ function App() {
           )}
         </main>
       ) : (
-        <Tables allTables={allTables} selectedDataSource={selectedDataSource} />
+        <Tables
+          allTables={allTables}
+          selectedDataSource={selectedDataSource}
+          setDataProcessed={setDataProcessed}
+        />
       )}
     </>
   );

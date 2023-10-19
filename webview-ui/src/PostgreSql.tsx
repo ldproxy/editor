@@ -5,7 +5,6 @@ import {
   VSCodeCheckbox,
 } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
-import { useEffect, useState } from "react";
 
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
@@ -21,6 +20,7 @@ function PostgreSql(props: PostgreSqlProps) {
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
+              value={props.sqlData.host ? props.sqlData.host : null}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -32,6 +32,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
+              value={props.sqlData.database ? props.sqlData.database : null}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -43,6 +44,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
+              value={props.sqlData.user ? props.sqlData.user : null}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -54,6 +56,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
+              value={props.sqlData.password ? props.sqlData.password : null}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
