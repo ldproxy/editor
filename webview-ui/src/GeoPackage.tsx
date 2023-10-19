@@ -4,17 +4,20 @@ import { VSCodeCheckbox, VSCodeProgressRing, VSCodeButton } from "@vscode/webvie
 import getGeoPackageTables from "./Testdaten/GeoPackageTabellen";
 
 type PostgreSqlProps = {
-  submitData: (data: JSON) => void;
+  submitData: (data: Object) => void;
   selectedDataSource: any;
   dataProcessed: string;
   setDataProcessed(arg0: string): void;
   existingGeopackages: string[];
+  handleUpdateData(key: string, value: string): void;
+  gpkgData: Object;
+  setGpkgData(arg0: Object): void;
 };
 
 function GeoPackage(props: PostgreSqlProps) {
   const allTables = getGeoPackageTables();
   const allSchemas = Object.keys(allTables);
-  const [newGPKG, setNewGPKG] = useState<string>("");
+  const [newGPKG, setNewGPKG] = useState<any>();
   const [existingGPKG, setExistingGPKG] = useState<string>("");
   const [filename, setFilename] = useState<string>("");
   const [selectedGeoPackageTable, setSelectedGeoPackageTable] = useState<string[]>([]);
@@ -26,12 +29,12 @@ function GeoPackage(props: PostgreSqlProps) {
       setNewGPKG(file.name);
       setFilename(file.name);
       console.log("GP", file);
+      props.handleUpdateData("Geopackage", file.name);
 
       file.arrayBuffer().then((buffer: ArrayBuffer) => {
         const uint8Array = new Uint8Array(buffer);
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
-        console.log(base64String);
       });
     }
   };
@@ -106,11 +109,31 @@ function GeoPackage(props: PostgreSqlProps) {
     if (fileInput) {
       fileInput.value = "";
     }
+    props.setGpkgData({});
   };
 
   return (
     <>
       <div className="button-container">
+        <select
+          className="dropdown"
+          placeholder="Choose existing File..."
+          value={existingGPKG}
+          onChange={(event) => {
+            setExistingGPKG(event.target.value);
+            props.handleUpdateData("Geopackage", event.target.value);
+          }}
+          disabled={!!newGPKG}>
+          <option value="" hidden>
+            Choose existing File...
+          </option>
+          {props.existingGeopackages.map((option) => (
+            <option key={option} value={option.split("\\").slice(-3).join("/")}>
+              {option.split("\\").pop()}
+            </option>
+          ))}
+        </select>
+        or
         {!existingGPKG ? (
           <label htmlFor="geoInput" id="uploadLabel">
             Upload new File
@@ -129,26 +152,10 @@ function GeoPackage(props: PostgreSqlProps) {
           disabled={!!existingGPKG}
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
-        or
-        <select
-          className="dropdown"
-          placeholder="Choose existing File..."
-          value={existingGPKG}
-          onChange={(event) => setExistingGPKG(event.target.value)}
-          disabled={!!newGPKG}>
-          <option value="" hidden>
-            Choose existing File...
-          </option>
-          {props.existingGeopackages.map((option) => (
-            <option key={option} value={option.split("\\").slice(-3).join("/")}>
-              {option.split("\\").pop()}
-            </option>
-          ))}
-        </select>
         <div className="submitAndReset">
           <VSCodeButton
             className="submitButton"
-            onClick={() => props.submitData}
+            onClick={() => props.submitData(props.gpkgData)}
             disabled={props.dataProcessed === "inProgress"}>
             Next
           </VSCodeButton>

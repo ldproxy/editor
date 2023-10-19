@@ -14,6 +14,7 @@ import PostgreSql from "./PostgreSql";
 function App() {
   const [sqlData, setSqlData] = useState({});
   const [wfsData, setWfsData] = useState({});
+  const [gpkgData, setGpkgData] = useState({});
   const [existingGeopackages, setExistingGeopackages] = useState<string[]>([""]);
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
@@ -57,6 +58,7 @@ function App() {
   const handleUpdateData = (key: string, value: string) => {
     if (selectedDataSource === "PostgreSQL") {
       setWfsData({});
+      setGpkgData({});
       if (!Object.keys(sqlData).includes("command")) {
         setSqlData(basisDates);
       }
@@ -68,11 +70,24 @@ function App() {
     }
     if (selectedDataSource === "WFS") {
       setSqlData({});
+      setGpkgData({});
       if (!Object.keys(wfsData).includes("command")) {
         setWfsData(basisDates);
       }
       setWfsData((prevWfsData) => ({
         ...prevWfsData,
+        [key]: value,
+        featureProviderType: selectedDataSource,
+      }));
+    }
+    if (selectedDataSource === "GeoPackage") {
+      setSqlData({});
+      setWfsData({});
+      if (!Object.keys(gpkgData).includes("command")) {
+        setGpkgData(basisDates);
+      }
+      setGpkgData((prevGpkgData) => ({
+        ...prevGpkgData,
         [key]: value,
         featureProviderType: selectedDataSource,
       }));
@@ -189,6 +204,9 @@ function App() {
           dataProcessed={dataProcessed}
           setDataProcessed={setDataProcessed}
           existingGeopackages={existingGeopackages}
+          handleUpdateData={handleUpdateData}
+          gpkgData={gpkgData}
+          setGpkgData={setGpkgData}
         />
       ) : (
         <Wfs
