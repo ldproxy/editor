@@ -22,7 +22,7 @@ function App() {
   const [gpkgData, setGpkgData] = useState({});
   const [existingGeopackages, setExistingGeopackages] = useState<string[]>([""]);
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
-  const [dataProcessed, setDataProcessed] = useState<string>("");
+  const [dataProcessing, setDataProcessing] = useState<string>("");
   const [allTables, setAllTables] = useState<TableData>({});
   const [selectedTable, setSelectedTable] = useState<{
     [schema: string]: string[];
@@ -74,7 +74,7 @@ function App() {
     if (selectedDataSource === "PostgreSQL") {
       setWfsData({});
       setGpkgData({});
-      if (!Object.keys(sqlData).includes("command")) {
+      if (!Object.keys(sqlData).includes("subcommand")) {
         setSqlData(basisDates);
       }
       setSqlData((prevSqlData) => ({
@@ -86,7 +86,7 @@ function App() {
     if (selectedDataSource === "WFS") {
       setSqlData({});
       setGpkgData({});
-      if (!Object.keys(wfsData).includes("command")) {
+      if (!Object.keys(wfsData).includes("subcommand")) {
         setWfsData(basisDates);
       }
       setWfsData((prevWfsData) => ({
@@ -98,7 +98,7 @@ function App() {
     if (selectedDataSource === "GeoPackage") {
       setSqlData({});
       setWfsData({});
-      if (!Object.keys(gpkgData).includes("command")) {
+      if (!Object.keys(gpkgData).includes("subcommand")) {
         setGpkgData(basisDates);
       }
       setGpkgData((prevGpkgData) => ({
@@ -163,7 +163,11 @@ function App() {
             text: `Error: ${response.error}`,
           });
         } else {
-          setDataProcessed("inProgress");
+          if (dataProcessing.length < 1) {
+            setDataProcessing("inProgress");
+          } else if (dataProcessing === "analyzed") {
+            setDataProcessing("inProgressGenerating");
+          }
           setAllTables(response.details.schemas);
         }
 
@@ -197,21 +201,30 @@ function App() {
   };
 
   useEffect(() => {
-    if (dataProcessed === "inProgress") {
+    if (dataProcessing === "inProgress") {
       setTimeout(() => {
-        setDataProcessed("true");
+        setDataProcessing("analyzed");
       }, 2000);
-    } else if (dataProcessed === "true") {
+    } else if (dataProcessing === "inProgressGenerating") {
+      setTimeout(() => {
+        setDataProcessing("generated");
+      }, 2000);
+    } else if (dataProcessing === "analyzed") {
       vscode.postMessage({
         command: "hello",
         text: "Die Daten wurden verarbeitet.",
       });
+    } else if (dataProcessing === "generated") {
+      vscode.postMessage({
+        command: "hello",
+        text: "Die Daten wurden erstellt.",
+      });
     }
-  }, [dataProcessed]);
+  }, [dataProcessing]);
 
   return (
     <>
-      {dataProcessed !== "true" ? (
+      {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
           <h3>Create new service</h3>
           <section className="component-example">
@@ -250,14 +263,14 @@ function App() {
             <PostgreSql
               submitData={submitData}
               handleUpdateData={handleUpdateData}
-              dataProcessed={dataProcessed}
+              dataProcessing={dataProcessing}
               sqlData={sqlData}
             />
           ) : selectedDataSource === "GeoPackage" ? (
             <GeoPackage
               selectedDataSource={selectedDataSource}
               submitData={submitData}
-              dataProcessed={dataProcessed}
+              dataProcess={dataProcessing}
               existingGeopackages={existingGeopackages}
               handleUpdateData={handleUpdateData}
               gpkgData={gpkgData}
@@ -269,7 +282,7 @@ function App() {
               handleUpdateData={handleUpdateData}
               wfsData={wfsData}
               setWfsData={setWfsData}
-              dataProcessed={dataProcessed}
+              dataProcessing={dataProcessing}
             />
           )}
         </main>
@@ -277,15 +290,17 @@ function App() {
         <Tables
           allTables={allTables}
           selectedDataSource={selectedDataSource}
-          setDataProcessed={setDataProcessed}
+          setDataProcessing={setDataProcessing}
           handleGenerate={handleGenerate}
           selectedTable={selectedTable}
           setSelectedTable={setSelectedTable}
-          dataProcessed={dataProcessed}
+          dataProcessing={dataProcessing}
           submitData={submitData}
           sqlData={sqlData}
           wfsData={wfsData}
           gpkgData={gpkgData}
+          setSqlData={setSqlData}
+          handleUpdateData={handleUpdateData}
         />
       )}
     </>

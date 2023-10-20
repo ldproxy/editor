@@ -5,7 +5,7 @@ import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/rea
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
   selectedDataSource: any;
-  dataProcessed: string;
+  dataProcessing: string;
   existingGeopackages: string[];
   handleUpdateData(key: string, value: string): void;
   gpkgData: Object;
@@ -16,10 +16,6 @@ function GeoPackage(props: PostgreSqlProps) {
   const [newGPKG, setNewGPKG] = useState<any>();
   const [existingGPKG, setExistingGPKG] = useState<string>("");
   const [filename, setFilename] = useState<string>("");
-  const [selectedTable, setSelectedTable] = useState<{
-    [schema: string]: string[];
-  }>({});
-  const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useState<string[]>([]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -27,12 +23,12 @@ function GeoPackage(props: PostgreSqlProps) {
       setNewGPKG(file.name);
       setFilename(file.name);
       console.log("GP", file);
-      props.handleUpdateData("Geopackage", "resources/features/" + file.name);
 
       file.arrayBuffer().then((buffer: ArrayBuffer) => {
         const uint8Array = new Uint8Array(buffer);
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
+        props.handleUpdateData(file.name, base64String);
       });
     }
   };
@@ -42,13 +38,6 @@ function GeoPackage(props: PostgreSqlProps) {
       setNewGPKG("");
       setExistingGPKG("");
       setFilename("");
-      setSelectedTable({});
-    }
-  }, [props.selectedDataSource]);
-
-  useEffect(() => {
-    if (props.selectedDataSource !== "GeoPackage") {
-      setSelectedTable({});
     }
   }, [props.selectedDataSource]);
 
@@ -62,9 +51,6 @@ function GeoPackage(props: PostgreSqlProps) {
     }
     props.setGpkgData({});
   };
-
-  console.log("selectedTable", selectedTable);
-  console.log("schemasSelectedinEntirety", schemasSelectedinEntirety);
 
   return (
     <>
@@ -110,7 +96,7 @@ function GeoPackage(props: PostgreSqlProps) {
           <VSCodeButton
             className="submitButton"
             onClick={() => props.submitData(props.gpkgData)}
-            disabled={props.dataProcessed === "inProgress"}>
+            disabled={props.dataProcessing === "inProgress"}>
             Next
           </VSCodeButton>
           {existingGPKG || newGPKG ? (
@@ -120,7 +106,7 @@ function GeoPackage(props: PostgreSqlProps) {
           ) : null}
         </div>
       </div>
-      {props.dataProcessed === "inProgress" && (
+      {props.dataProcessing === "inProgress" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Die Daten werden verarbeitet...</span>

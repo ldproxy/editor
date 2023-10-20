@@ -11,7 +11,7 @@ type PostgreSqlProps = {
   handleUpdateData(key: string, value: string): void;
   wfsData: Object;
   setWfsData(wfsData: Object): void;
-  dataProcessed: string;
+  dataProcessing: string;
 };
 
 function Wfs(props: PostgreSqlProps) {
@@ -88,12 +88,12 @@ function Wfs(props: PostgreSqlProps) {
           <VSCodeButton
             className="submitButton"
             onClick={() => props.submitData(props.wfsData)}
-            disabled={props.dataProcessed === "inProgress"}>
+            disabled={props.dataProcessing === "inProgress"}>
             Next
           </VSCodeButton>
         </div>
       </div>
-      {props.dataProcessed === "inProgress" && (
+      {props.dataProcessing === "inProgress" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Die Daten werden verarbeitet...</span>

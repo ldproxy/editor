@@ -8,7 +8,7 @@ import "./App.css";
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
   handleUpdateData(key: string, value: string): void;
-  dataProcessed: string;
+  dataProcessing: string;
   sqlData: Object;
 };
 
@@ -70,12 +70,12 @@ function PostgreSql(props: PostgreSqlProps) {
           <VSCodeButton
             className="submitButton"
             onClick={() => props.submitData(props.sqlData)}
-            disabled={props.dataProcessed === "inProgress"}>
+            disabled={props.dataProcessing === "inProgress"}>
             Next
           </VSCodeButton>
         </div>
       </div>
-      {props.dataProcessed === "inProgress" && (
+      {props.dataProcessing === "inProgress" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Die Daten werden verarbeitet...</span>

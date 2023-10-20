@@ -7,17 +7,19 @@ type TabelsProps = {
   allTables: {
     [key: string]: string[];
   };
-  setDataProcessed(dataProcessed: string): void;
+  setDataProcessing(dataProcessing: string): void;
   handleGenerate(): void;
   selectedTable: {
     [key: string]: string[];
   };
   setSelectedTable(selectedTable: { [key: string]: string[] }): void;
-  dataProcessed: string;
+  dataProcessing: string;
   sqlData: Object;
   wfsData: Object;
   gpkgData: Object;
   submitData(data: Object): void;
+  setSqlData(sqlData: Object): void;
+  handleUpdateData(key: string, value: string): void;
 };
 
 const Tables = (props: TabelsProps) => {
@@ -102,6 +104,15 @@ const Tables = (props: TabelsProps) => {
     }
   };
 
+  const handleBack = () => {
+    props.setDataProcessing("");
+    props.setSelectedTable({});
+
+    const { selectedTables, ...sqlDataWithoutSelectedTables } = props.sqlData;
+    props.setSqlData(sqlDataWithoutSelectedTables);
+
+    props.handleUpdateData("subcommand", "analyze");
+  };
   return (
     <>
       <form id="outerContainerCheckboxes">
@@ -146,14 +157,14 @@ const Tables = (props: TabelsProps) => {
         <VSCodeButton
           className="submitButton"
           onClick={handleGenerateSubmit}
-          disabled={props.dataProcessed === "inProgress"}>
+          disabled={props.dataProcessing === "inProgress"}>
           Next
         </VSCodeButton>
-        <VSCodeButton className="submitButton" onClick={() => props.setDataProcessed("")}>
+        <VSCodeButton className="submitButton" onClick={handleBack}>
           Back
         </VSCodeButton>
       </div>
-      {props.dataProcessed === "inProgress" && (
+      {props.dataProcessing === "inProgressGenerating" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Die Daten werden verarbeitet...</span>
