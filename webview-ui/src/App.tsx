@@ -11,6 +11,7 @@ import GeoPackage from "./GeoPackage";
 import Wfs from "./Wfs";
 import PostgreSql from "./PostgreSql";
 import Tables from "./Tables";
+import Final from "./Final";
 
 type TableData = {
   [key: string]: string[];
@@ -157,18 +158,18 @@ function App() {
             command: "error",
             text: `Error: Empty Fields`,
           });
-        } else if (response.error) {
+        } /* else if (response.error) {
           vscode.postMessage({
             command: "error",
             text: `Error: ${response.error}`,
           });
-        } else {
+        } */ else {
           if (dataProcessing.length < 1) {
             setDataProcessing("inProgress");
+            setAllTables(response.details.schemas);
           } else if (dataProcessing === "analyzed") {
             setDataProcessing("inProgressGenerating");
           }
-          setAllTables(response.details.schemas);
         }
 
         if (wfsData.user && wfsData.password) {
@@ -270,7 +271,7 @@ function App() {
             <GeoPackage
               selectedDataSource={selectedDataSource}
               submitData={submitData}
-              dataProcess={dataProcessing}
+              dataProcessing={dataProcessing}
               existingGeopackages={existingGeopackages}
               handleUpdateData={handleUpdateData}
               gpkgData={gpkgData}
@@ -286,7 +287,7 @@ function App() {
             />
           )}
         </main>
-      ) : (
+      ) : dataProcessing === "analyzed" || dataProcessing === "inProgressGenerating" ? (
         <Tables
           allTables={allTables}
           selectedDataSource={selectedDataSource}
@@ -304,6 +305,16 @@ function App() {
           setGpkgData={setGpkgData}
           handleUpdateData={handleUpdateData}
         />
+      ) : dataProcessing === "generated" ? (
+        <Final
+          workspace={workspace}
+          sqlData={sqlData}
+          wfsData={wfsData}
+          gpkgData={gpkgData}
+          selectedDataSource={selectedDataSource}
+        />
+      ) : (
+        "An Error Occurred"
       )}
     </>
   );
