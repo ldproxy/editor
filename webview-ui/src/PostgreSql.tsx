@@ -2,7 +2,6 @@ import {
   VSCodeButton,
   VSCodeTextField,
   VSCodeProgressRing,
-  VSCodeCheckbox,
 } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 

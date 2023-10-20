@@ -24,6 +24,9 @@ function App() {
   const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
   const [dataProcessed, setDataProcessed] = useState<string>("");
   const [allTables, setAllTables] = useState<TableData>({});
+  const [selectedTable, setSelectedTable] = useState<{
+    [schema: string]: string[];
+  }>({});
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
   const basisDates = {
     command: "auto",
@@ -106,6 +109,34 @@ function App() {
     }
   };
 
+  const handleGenerate = () => {
+    if (selectedDataSource === "PostgreSQL") {
+      sqlData.subcommand = "generate";
+      if (Object.keys(selectedTable).length !== 0) {
+        setSqlData((prevSqlData) => ({
+          ...prevSqlData,
+          selectedTables: selectedTable,
+        }));
+      }
+    } else if (selectedDataSource === "GeoPackage") {
+      gpkgData.subcommand = "generate";
+      if (Object.keys(selectedTable).length !== 0) {
+        setGpkgData((prevGpkgData) => ({
+          ...prevGpkgData,
+          selectedTables: selectedTable,
+        }));
+      }
+    } else if (selectedDataSource === "WFS") {
+      wfsData.subcommand = "generate";
+      if (Object.keys(selectedTable).length !== 0) {
+        setWfsData((prevWfsData) => ({
+          ...prevWfsData,
+          selectedTables: selectedTable,
+        }));
+      }
+    }
+  };
+
   const submitData = (data: Object) => {
     try {
       JSON.parse(JSON.stringify(data));
@@ -134,14 +165,13 @@ function App() {
         } else {
           setDataProcessed("inProgress");
           setAllTables(response.details.schemas);
-          setWfsData((prevWfsData) => {
-            // Erstelle eine Kopie des vorherigen wfsData-Objekts
-            const newWfsData = { ...prevWfsData };
+        }
 
-            // Lösche die Schlüssel "user" und "password" aus dem neuen Objekt
+        if (wfsData.user && wfsData.password) {
+          setWfsData((prevWfsData) => {
+            const newWfsData = { ...prevWfsData };
             delete newWfsData.user;
             delete newWfsData.password;
-
             return newWfsData;
           });
         }
@@ -248,6 +278,14 @@ function App() {
           allTables={allTables}
           selectedDataSource={selectedDataSource}
           setDataProcessed={setDataProcessed}
+          handleGenerate={handleGenerate}
+          selectedTable={selectedTable}
+          setSelectedTable={setSelectedTable}
+          dataProcessed={dataProcessed}
+          submitData={submitData}
+          sqlData={sqlData}
+          wfsData={wfsData}
+          gpkgData={gpkgData}
         />
       )}
     </>

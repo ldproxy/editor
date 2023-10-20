@@ -1,4 +1,4 @@
-import { VSCodeCheckbox, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { useEffect, useState } from "react";
 
@@ -8,13 +8,20 @@ type TabelsProps = {
     [key: string]: string[];
   };
   setDataProcessed(dataProcessed: string): void;
+  handleGenerate(): void;
+  selectedTable: {
+    [key: string]: string[];
+  };
+  setSelectedTable(selectedTable: { [key: string]: string[] }): void;
+  dataProcessed: string;
+  sqlData: Object;
+  wfsData: Object;
+  gpkgData: Object;
+  submitData(data: Object): void;
 };
 
 const Tables = (props: TabelsProps) => {
   const allSchemas = Object.keys(props.allTables);
-  const [selectedTable, setSelectedTable] = useState<{
-    [schema: string]: string[];
-  }>({});
   const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useState<string[]>([]);
 
   const selectAllSchemasWithTables = () => {
@@ -27,31 +34,31 @@ const Tables = (props: TabelsProps) => {
           allSchemas.filter((schema) => !schemasSelectedinEntirety.includes(schema))
         )
       );
-      setSelectedTable(props.allTables);
+      props.setSelectedTable(props.allTables);
     } else {
       setschemasSelectedinEntirety([]);
-      setSelectedTable({});
+      props.setSelectedTable({});
     }
   };
 
   const handleTableSelection = (tableName: string, schema: string) => {
-    if (selectedTable[schema]) {
-      if (selectedTable[schema].includes(tableName)) {
+    if (props.selectedTable[schema]) {
+      if (props.selectedTable[schema].includes(tableName)) {
         const updatedSelectedTables = {
-          ...selectedTable,
-          [schema]: selectedTable[schema].filter((table) => table !== tableName),
+          ...props.selectedTable,
+          [schema]: props.selectedTable[schema].filter((table) => table !== tableName),
         };
-        setSelectedTable(updatedSelectedTables);
+        props.setSelectedTable(updatedSelectedTables);
       } else {
         const updatedSelectedTables = {
-          ...selectedTable,
-          [schema]: [...selectedTable[schema], tableName],
+          ...props.selectedTable,
+          [schema]: [...props.selectedTable[schema], tableName],
         };
-        setSelectedTable(updatedSelectedTables);
+        props.setSelectedTable(updatedSelectedTables);
       }
     } else {
-      setSelectedTable({
-        ...selectedTable,
+      props.setSelectedTable({
+        ...props.selectedTable,
         [schema]: [tableName],
       });
     }
@@ -59,7 +66,7 @@ const Tables = (props: TabelsProps) => {
 
   useEffect(() => {
     if (props.selectedDataSource !== "GeoPackage") {
-      setSelectedTable({});
+      props.setSelectedTable({});
     }
   }, [props.selectedDataSource]);
 
@@ -68,18 +75,33 @@ const Tables = (props: TabelsProps) => {
     if (!schemasSelectedinEntirety.includes(schema)) {
       setschemasSelectedinEntirety([...schemasSelectedinEntirety, schema]);
 
-      const updatedSelectedTables = { ...selectedTable };
+      const updatedSelectedTables = { ...props.selectedTable };
       updatedSelectedTables[schema] = tablesInThisSchema;
 
-      setSelectedTable(updatedSelectedTables);
+      props.setSelectedTable(updatedSelectedTables);
     } else {
       setschemasSelectedinEntirety(schemasSelectedinEntirety.filter((s) => s !== schema));
-      const updatedSelectedTables = { ...selectedTable };
+      const updatedSelectedTables = { ...props.selectedTable };
       delete updatedSelectedTables[schema];
 
-      setSelectedTable(updatedSelectedTables);
+      props.setSelectedTable(updatedSelectedTables);
     }
   };
+
+  useEffect(() => {
+    props.handleGenerate();
+  }, [props.selectedTable]);
+
+  const handleGenerateSubmit = () => {
+    if (props.selectedDataSource === "PostgreSQL") {
+      props.submitData(props.sqlData);
+    } else if (props.selectedDataSource === "GeoPackage") {
+      props.submitData(props.gpkgData);
+    } else if (props.selectedDataSource === "WFS") {
+      props.submitData(props.gpkgData);
+    }
+  };
+
   return (
     <>
       <form id="outerContainerCheckboxes">
@@ -110,7 +132,7 @@ const Tables = (props: TabelsProps) => {
                 {props.allTables[schema].map((tableName) => (
                   <VSCodeCheckbox
                     key={tableName + Math.floor(Math.random() * 1000)}
-                    checked={selectedTable[schema]?.includes(tableName)}
+                    checked={props.selectedTable[schema]?.includes(tableName)}
                     onClick={() => handleTableSelection(tableName, schema)}>
                     {tableName}
                   </VSCodeCheckbox>
@@ -121,11 +143,22 @@ const Tables = (props: TabelsProps) => {
         </div>
       </form>
       <div className="submitandBack">
-        <VSCodeButton className="submitButton">Next</VSCodeButton>
+        <VSCodeButton
+          className="submitButton"
+          onClick={handleGenerateSubmit}
+          disabled={props.dataProcessed === "inProgress"}>
+          Next
+        </VSCodeButton>
         <VSCodeButton className="submitButton" onClick={() => props.setDataProcessed("")}>
           Back
         </VSCodeButton>
       </div>
+      {props.dataProcessed === "inProgress" && (
+        <div className="progress-container">
+          <VSCodeProgressRing className="progressRing" />
+          <span id="progressText">Die Daten werden verarbeitet...</span>
+        </div>
+      )}
     </>
   );
 };
