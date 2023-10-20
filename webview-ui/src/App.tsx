@@ -300,6 +300,8 @@ function App() {
           wfsData={wfsData}
           gpkgData={gpkgData}
           setSqlData={setSqlData}
+          setWfsData={setWfsData}
+          setGpkgData={setGpkgData}
           handleUpdateData={handleUpdateData}
         />
       )}

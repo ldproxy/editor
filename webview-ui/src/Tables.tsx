@@ -19,6 +19,8 @@ type TabelsProps = {
   gpkgData: Object;
   submitData(data: Object): void;
   setSqlData(sqlData: Object): void;
+  setWfsData(wfsData: Object): void;
+  setGpkgData(gpkgData: Object): void;
   handleUpdateData(key: string, value: string): void;
 };
 
@@ -108,8 +110,16 @@ const Tables = (props: TabelsProps) => {
     props.setDataProcessing("");
     props.setSelectedTable({});
 
-    const { selectedTables, ...sqlDataWithoutSelectedTables } = props.sqlData;
-    props.setSqlData(sqlDataWithoutSelectedTables);
+    if (props.selectedDataSource === "PostgreSQL") {
+      const { selectedTables, ...sqlDataWithoutSelectedTables } = props.sqlData;
+      props.setSqlData(sqlDataWithoutSelectedTables);
+    } else if (props.selectedDataSource === "GeoPackage") {
+      const { selectedTables, ...gpkgDataWithoutSelectedTables } = props.gpkgData;
+      props.setGpkgData(gpkgDataWithoutSelectedTables);
+    } else if (props.selectedDataSource === "WFS") {
+      const { selectedTables, ...wfsDataWithoutSelectedTables } = props.wfsData;
+      props.setWfsData(wfsDataWithoutSelectedTables);
+    }
 
     props.handleUpdateData("subcommand", "analyze");
   };
