@@ -52,6 +52,9 @@ const Tables = (props: TabelsProps) => {
           ...props.selectedTable,
           [schema]: props.selectedTable[schema].filter((table) => table !== tableName),
         };
+        if (updatedSelectedTables[schema].length === 0) {
+          delete updatedSelectedTables[schema];
+        }
         props.setSelectedTable(updatedSelectedTables);
       } else {
         const updatedSelectedTables = {
@@ -172,7 +175,8 @@ const Tables = (props: TabelsProps) => {
           className="submitButton"
           onClick={handleGenerateSubmit}
           disabled={
-            props.dataProcessing === "inProgress" || Object.keys(props.selectedTable).length === 0
+            props.dataProcessing === "inProgressGenerating" ||
+            Object.keys(props.selectedTable).length === 0
           }>
           Next
         </VSCodeButton>
