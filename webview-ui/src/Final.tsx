@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { vscode } from "./utilities/vscode";
@@ -14,21 +13,10 @@ type FinalProps = {
   setSqlData: Function;
   setWfsData: Function;
   setSelectedTable: Function;
+  namesOfCreatedFiles: Array<string>;
 };
 
 const Final = (props: FinalProps) => {
-  const [id, setId] = useState<string>("");
-
-  useEffect(() => {
-    if (props.selectedDataSource === "PGIS") {
-      setId(props.sqlData.id);
-    } else if (props.selectedDataSource === "WFS") {
-      setId(props.wfsData.id);
-    } else if (props.selectedDataSource === "GPKG") {
-      setId(props.gpkgData.id);
-    }
-  }, []);
-
   const onClose = () => {
     vscode.postMessage({ command: "closeWebview" });
   };
@@ -44,10 +32,15 @@ const Final = (props: FinalProps) => {
   return (
     <div className="final-container">
       <div className="final-content">
-        <h2 className="final-title">File created.</h2>
-        <a href={`${props.workspace}/resources/features/${id}`} className="final-link">
-          Open File
-        </a>
+        <h2 className="final-title">Files created.</h2>
+        {props.namesOfCreatedFiles.map((file, index) => (
+          <a
+            key={index}
+            href={`${props.workspace}/entities/instances/providers/${file}`}
+            className="final-link">
+            Open {file}
+          </a>
+        ))}
         <div className="final-buttons">
           <VSCodeButton className="final-dismiss" onClick={onClose}>
             Dismiss

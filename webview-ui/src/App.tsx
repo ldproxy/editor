@@ -25,6 +25,7 @@ function App() {
   const [selectedDataSource, setSelectedDataSource] = useState("PGIS");
   const [dataProcessing, setDataProcessing] = useState<string>("");
   const [allTables, setAllTables] = useState<TableData>({});
+  const [namesOfCreatedFiles, setNamesOfCreatedFiles] = useState("");
   const [selectedTable, setSelectedTable] = useState<{
     [schema: string]: string[];
   }>({});
@@ -171,17 +172,22 @@ function App() {
             command: "error",
             text: `Error: Empty Fields`,
           });
-        } /* else if (response.error) {
+        } else if (response.error) {
           vscode.postMessage({
             command: "error",
             text: `Error: ${response.error}`,
           });
-        } */ else {
+        } else {
           if (dataProcessing.length < 1) {
             setDataProcessing("inProgress");
             setAllTables(response.details.schemas);
-            console.log("allTables", response.details.schemas);
           } else if (dataProcessing === "analyzed") {
+            const createdFiles = response.details.new_files;
+            const namesOfCreatedFiles = createdFiles.map((file: string) => {
+              const parts = file.split("/");
+              return parts[parts.length - 1];
+            });
+            setNamesOfCreatedFiles(namesOfCreatedFiles);
             setDataProcessing("inProgressGenerating");
           }
         }
@@ -332,6 +338,7 @@ function App() {
           setSqlData={setSqlData}
           setWfsData={setWfsData}
           setSelectedTable={setSelectedTable}
+          namesOfCreatedFiles={namesOfCreatedFiles}
         />
       ) : (
         "An Error Occurred"

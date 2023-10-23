@@ -171,7 +171,9 @@ const Tables = (props: TabelsProps) => {
         <VSCodeButton
           className="submitButton"
           onClick={handleGenerateSubmit}
-          disabled={props.dataProcessing === "inProgress"}>
+          disabled={
+            props.dataProcessing === "inProgress" || Object.keys(props.selectedTable).length === 0
+          }>
           Next
         </VSCodeButton>
       </div>
