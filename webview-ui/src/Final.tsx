@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
+import { vscode } from "./utilities/vscode";
 
 type FinalProps = {
   workspace: string;
@@ -8,6 +9,11 @@ type FinalProps = {
   wfsData: Object;
   gpkgData: Object;
   selectedDataSource: string;
+  setDataProcessing: Function;
+  setGpkgData: Function;
+  setSqlData: Function;
+  setWfsData: Function;
+  setSelectedTable: Function;
 };
 
 const Final = (props: FinalProps) => {
@@ -23,11 +29,17 @@ const Final = (props: FinalProps) => {
     }
   }, []);
 
-  const onClose = () => {};
+  const onClose = () => {
+    vscode.postMessage({ command: "closeWebview" });
+  };
 
-  const onCreateAnother = () => {};
-
-  console.log("workspace", props.workspace);
+  const onCreateAnother = () => {
+    props.setDataProcessing("");
+    props.setGpkgData({});
+    props.setSqlData({});
+    props.setWfsData({});
+    props.setSelectedTable({});
+  };
 
   return (
     <div className="final-container">

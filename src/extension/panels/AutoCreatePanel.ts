@@ -166,6 +166,9 @@ export class AutoCreatePanel {
               existingGeopackages: await listGpkgFilesInDirectory(),
             });
             break;
+          case "closeWebview":
+            this.dispose();
+            break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
         }

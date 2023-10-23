@@ -313,6 +313,11 @@ function App() {
           wfsData={wfsData}
           gpkgData={gpkgData}
           selectedDataSource={selectedDataSource}
+          setDataProcessing={setDataProcessing}
+          setGpkgData={setGpkgData}
+          setSqlData={setSqlData}
+          setWfsData={setWfsData}
+          setSelectedTable={setSelectedTable}
         />
       ) : (
         "An Error Occurred"
