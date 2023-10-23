@@ -10,6 +10,7 @@ type PostgreSqlProps = {
   handleUpdateData(key: string, value: string): void;
   dataProcessing: string;
   sqlData: Object;
+  handleGenerate(): void;
 };
 
 function PostgreSql(props: PostgreSqlProps) {
@@ -23,7 +24,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("host", target.value);
+                  props.handleGenerate("host", target.value);
                 }
               }}>
               Host
@@ -35,7 +36,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("database", target.value);
+                  props.handleGenerate("database", target.value);
                 }
               }}>
               Database
@@ -47,7 +48,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("user", target.value);
+                  props.handleGenerate("user", target.value);
                 }
               }}>
               User
@@ -59,7 +60,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("password", target.value);
+                  props.handleGenerate("password", target.value);
                 }
               }}>
               Password

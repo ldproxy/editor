@@ -165,7 +165,7 @@ function App() {
           });
         } */ else {
           if (dataProcessing.length < 1) {
-            setDataProcessing("inProgress");
+            setDataProcessing("inProgressGenerating");
             setAllTables(response.details.schemas);
           } else if (dataProcessing === "analyzed") {
             setDataProcessing("inProgressGenerating");
@@ -266,6 +266,7 @@ function App() {
               handleUpdateData={handleUpdateData}
               dataProcessing={dataProcessing}
               sqlData={sqlData}
+              handleGenerate={handleGenerate}
             />
           ) : selectedDataSource === "GeoPackage" ? (
             <GeoPackage
