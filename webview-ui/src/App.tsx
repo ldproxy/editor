@@ -36,6 +36,19 @@ function App() {
     verbose: true,
   };
 
+  // Hilfsfunktion bis feststeht in welchem Format die selektierten Tabellen weitersgeschickt werden sollen.
+  function objectToString(selectedTable) {
+    const strArr = [];
+
+    for (const key in selectedTable) {
+      if (selectedTable.hasOwnProperty(key)) {
+        strArr.push(`${key}:${selectedTable[key].join("/")}`);
+      }
+    }
+
+    return strArr.join(",");
+  }
+
   useEffect(() => {
     setGpkgData({});
     setWfsData({});
@@ -116,7 +129,7 @@ function App() {
       if (Object.keys(selectedTable).length !== 0) {
         setSqlData((prevSqlData) => ({
           ...prevSqlData,
-          selectedTables: selectedTable,
+          selectedTables: objectToString(selectedTable),
         }));
       }
     } else if (selectedDataSource === "GPKG") {
@@ -167,6 +180,7 @@ function App() {
           if (dataProcessing.length < 1) {
             setDataProcessing("inProgress");
             setAllTables(response.details.schemas);
+            console.log("allTables", response.details.schemas);
           } else if (dataProcessing === "analyzed") {
             setDataProcessing("inProgressGenerating");
           }

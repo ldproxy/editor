@@ -165,14 +165,14 @@ const Tables = (props: TabelsProps) => {
         </div>
       </form>
       <div className="submitandBack">
+        <VSCodeButton className="submitButton" onClick={handleBack}>
+          Back
+        </VSCodeButton>
         <VSCodeButton
           className="submitButton"
           onClick={handleGenerateSubmit}
           disabled={props.dataProcessing === "inProgress"}>
           Next
-        </VSCodeButton>
-        <VSCodeButton className="submitButton" onClick={handleBack}>
-          Back
         </VSCodeButton>
       </div>
       {props.dataProcessing === "inProgressGenerating" && (
