@@ -69,7 +69,7 @@ const Tables = (props: TabelsProps) => {
   };
 
   useEffect(() => {
-    if (props.selectedDataSource !== "GeoPackage") {
+    if (props.selectedDataSource !== "GPKG") {
       props.setSelectedTable({});
     }
   }, [props.selectedDataSource]);
@@ -97,9 +97,9 @@ const Tables = (props: TabelsProps) => {
   }, [props.selectedTable]);
 
   const handleGenerateSubmit = () => {
-    if (props.selectedDataSource === "PostgreSQL") {
+    if (props.selectedDataSource === "PGIS") {
       props.submitData(props.sqlData);
-    } else if (props.selectedDataSource === "GeoPackage") {
+    } else if (props.selectedDataSource === "GPKG") {
       props.submitData(props.gpkgData);
     } else if (props.selectedDataSource === "WFS") {
       props.submitData(props.gpkgData);
@@ -110,10 +110,10 @@ const Tables = (props: TabelsProps) => {
     props.setDataProcessing("");
     props.setSelectedTable({});
 
-    if (props.selectedDataSource === "PostgreSQL") {
+    if (props.selectedDataSource === "PGIS") {
       const { selectedTables, ...sqlDataWithoutSelectedTables } = props.sqlData;
       props.setSqlData(sqlDataWithoutSelectedTables);
-    } else if (props.selectedDataSource === "GeoPackage") {
+    } else if (props.selectedDataSource === "GPKG") {
       const { selectedTables, ...gpkgDataWithoutSelectedTables } = props.gpkgData;
       props.setGpkgData(gpkgDataWithoutSelectedTables);
     } else if (props.selectedDataSource === "WFS") {
@@ -123,6 +123,7 @@ const Tables = (props: TabelsProps) => {
 
     props.handleUpdateData("subcommand", "analyze");
   };
+
   return (
     <>
       <form id="outerContainerCheckboxes">

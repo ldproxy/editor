@@ -2,7 +2,7 @@ import "./App.css";
 import React, { useState, useEffect } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
-type PostgreSqlProps = {
+type GeoPackageProps = {
   submitData: (data: Object) => void;
   selectedDataSource: any;
   dataProcessing: string;
@@ -12,7 +12,7 @@ type PostgreSqlProps = {
   setGpkgData(arg0: Object): void;
 };
 
-function GeoPackage(props: PostgreSqlProps) {
+function GeoPackage(props: GeoPackageProps) {
   const [newGPKG, setNewGPKG] = useState<any>();
   const [existingGPKG, setExistingGPKG] = useState<string>("");
   const [filename, setFilename] = useState<string>("");
@@ -34,7 +34,7 @@ function GeoPackage(props: PostgreSqlProps) {
   };
 
   useEffect(() => {
-    if (props.selectedDataSource !== "GeoPackage") {
+    if (props.selectedDataSource !== "GPKG") {
       setNewGPKG("");
       setExistingGPKG("");
       setFilename("");

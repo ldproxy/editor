@@ -24,7 +24,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleGenerate("host", target.value);
+                  props.handleUpdateData("host", target.value);
                 }
               }}>
               Host
@@ -36,7 +36,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleGenerate("database", target.value);
+                  props.handleUpdateData("database", target.value);
                 }
               }}>
               Database
@@ -48,7 +48,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleGenerate("user", target.value);
+                  props.handleUpdateData("user", target.value);
                 }
               }}>
               User
@@ -60,7 +60,7 @@ function PostgreSql(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleGenerate("password", target.value);
+                  props.handleUpdateData("password", target.value);
                 }
               }}>
               Password

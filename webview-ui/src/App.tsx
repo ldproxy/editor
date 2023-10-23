@@ -22,7 +22,7 @@ function App() {
   const [wfsData, setWfsData] = useState({});
   const [gpkgData, setGpkgData] = useState({});
   const [existingGeopackages, setExistingGeopackages] = useState<string[]>([""]);
-  const [selectedDataSource, setSelectedDataSource] = useState("PostgreSQL");
+  const [selectedDataSource, setSelectedDataSource] = useState("PGIS");
   const [dataProcessing, setDataProcessing] = useState<string>("");
   const [allTables, setAllTables] = useState<TableData>({});
   const [selectedTable, setSelectedTable] = useState<{
@@ -72,7 +72,7 @@ function App() {
   });
 
   const handleUpdateData = (key: string, value: string) => {
-    if (selectedDataSource === "PostgreSQL") {
+    if (selectedDataSource === "PGIS") {
       setWfsData({});
       setGpkgData({});
       if (!Object.keys(sqlData).includes("subcommand")) {
@@ -96,7 +96,7 @@ function App() {
         featureProviderType: selectedDataSource,
       }));
     }
-    if (selectedDataSource === "GeoPackage") {
+    if (selectedDataSource === "GPKG") {
       setSqlData({});
       setWfsData({});
       if (!Object.keys(gpkgData).includes("subcommand")) {
@@ -111,16 +111,16 @@ function App() {
   };
 
   const handleGenerate = () => {
-    if (selectedDataSource === "PostgreSQL") {
-      sqlData.subcommand = "generate";
+    if (selectedDataSource === "PGIS") {
+      sqlData.subcommand = "check";
       if (Object.keys(selectedTable).length !== 0) {
         setSqlData((prevSqlData) => ({
           ...prevSqlData,
           selectedTables: selectedTable,
         }));
       }
-    } else if (selectedDataSource === "GeoPackage") {
-      gpkgData.subcommand = "generate";
+    } else if (selectedDataSource === "GPKG") {
+      gpkgData.subcommand = "check";
       if (Object.keys(selectedTable).length !== 0) {
         setGpkgData((prevGpkgData) => ({
           ...prevGpkgData,
@@ -128,7 +128,7 @@ function App() {
         }));
       }
     } else if (selectedDataSource === "WFS") {
-      wfsData.subcommand = "generate";
+      wfsData.subcommand = "check";
       if (Object.keys(selectedTable).length !== 0) {
         setWfsData((prevWfsData) => ({
           ...prevWfsData,
@@ -165,7 +165,7 @@ function App() {
           });
         } */ else {
           if (dataProcessing.length < 1) {
-            setDataProcessing("inProgressGenerating");
+            setDataProcessing("inProgress");
             setAllTables(response.details.schemas);
           } else if (dataProcessing === "analyzed") {
             setDataProcessing("inProgressGenerating");
@@ -245,14 +245,14 @@ function App() {
               <label slot="label">Data Source Type</label>
               <VSCodeRadio
                 id="GeoPackage"
-                value="GeoPackage"
-                onChange={() => setSelectedDataSource("GeoPackage")}>
+                value=" GPKG"
+                onChange={() => setSelectedDataSource("GPKG")}>
                 GeoPackage
               </VSCodeRadio>
               <VSCodeRadio
                 id="PostgreSQL"
-                value="PostgreSQL"
-                onChange={() => setSelectedDataSource("PostgreSQL")}>
+                value="PGIS"
+                onChange={() => setSelectedDataSource("PGIS")}>
                 PostgreSQL
               </VSCodeRadio>
               <VSCodeRadio id="WFS" value="WFS" onChange={() => setSelectedDataSource("WFS")}>
@@ -260,7 +260,7 @@ function App() {
               </VSCodeRadio>
             </VSCodeRadioGroup>
           </section>
-          {selectedDataSource === "PostgreSQL" ? (
+          {selectedDataSource === "PGIS" ? (
             <PostgreSql
               submitData={submitData}
               handleUpdateData={handleUpdateData}
@@ -268,7 +268,7 @@ function App() {
               sqlData={sqlData}
               handleGenerate={handleGenerate}
             />
-          ) : selectedDataSource === "GeoPackage" ? (
+          ) : selectedDataSource === "GPKG" ? (
             <GeoPackage
               selectedDataSource={selectedDataSource}
               submitData={submitData}

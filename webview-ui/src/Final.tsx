@@ -20,11 +20,11 @@ const Final = (props: FinalProps) => {
   const [id, setId] = useState<string>("");
 
   useEffect(() => {
-    if (props.selectedDataSource === "PostgreSQL") {
+    if (props.selectedDataSource === "PGIS") {
       setId(props.sqlData.id);
     } else if (props.selectedDataSource === "WFS") {
       setId(props.wfsData.id);
-    } else if (props.selectedDataSource === "GeoPackage") {
+    } else if (props.selectedDataSource === "GPKG") {
       setId(props.gpkgData.id);
     }
   }, []);
