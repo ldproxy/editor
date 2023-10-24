@@ -29,6 +29,13 @@ const Final = (props: FinalProps) => {
     props.setSelectedTable({});
   };
 
+  const onLinkClick = (file: string) => {
+    vscode.postMessage({
+      command: "success",
+      text: `${props.workspace}/entities/instances/providers/${file}`,
+    });
+  };
+
   return (
     <div className="final-container">
       <div className="final-content">
@@ -37,7 +44,8 @@ const Final = (props: FinalProps) => {
           <a
             key={index}
             href={`${props.workspace}/entities/instances/providers/${file}`}
-            className="final-link">
+            className="final-link"
+            onClick={() => onLinkClick(file)}>
             Open {file}
           </a>
         ))}

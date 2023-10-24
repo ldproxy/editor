@@ -236,9 +236,9 @@ function App() {
         setDataProcessing("analyzed");
       }, 2000);
     } else if (dataProcessing === "inProgressGenerating") {
-      setTimeout(() => {
-        setDataProcessing("generated");
-      }, 2000);
+      //  setTimeout(() => {
+      setDataProcessing("generated");
+      //   }, 2000);
     } else if (dataProcessing === "analyzed") {
       vscode.postMessage({
         command: "hello",

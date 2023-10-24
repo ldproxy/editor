@@ -169,6 +169,9 @@ export class AutoCreatePanel {
           case "closeWebview":
             this.dispose();
             break;
+          case "success":
+            await vscode.commands.executeCommand("vscode.open", Uri.file(text));
+            break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
         }
