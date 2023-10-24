@@ -270,19 +270,19 @@ function App() {
             </VSCodeTextField>
           </section>
           <section className="component-example">
-            <VSCodeRadioGroup name="DataType" value={selectedDataSource}>
+            <VSCodeRadioGroup name="DataType" value={selectedDataSource} orientation="vertical">
               <label slot="label">Data Source Type</label>
-              <VSCodeRadio
-                id="GeoPackage"
-                value=" GPKG"
-                onChange={() => setSelectedDataSource("GPKG")}>
-                GeoPackage
-              </VSCodeRadio>
               <VSCodeRadio
                 id="PostgreSQL"
                 value="PGIS"
                 onChange={() => setSelectedDataSource("PGIS")}>
                 PostgreSQL
+              </VSCodeRadio>
+              <VSCodeRadio
+                id="GeoPackage"
+                value=" GPKG"
+                onChange={() => setSelectedDataSource("GPKG")}>
+                GeoPackage
               </VSCodeRadio>
               <VSCodeRadio id="WFS" value="WFS" onChange={() => setSelectedDataSource("WFS")}>
                 WFS

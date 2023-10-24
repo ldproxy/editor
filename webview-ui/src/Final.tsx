@@ -39,7 +39,7 @@ const Final = (props: FinalProps) => {
   return (
     <div className="final-container">
       <div className="final-content">
-        <h2 className="final-title">Files created.</h2>
+        <h2 className="final-title">The following files were created.</h2>
         {props.namesOfCreatedFiles.map((file, index) => (
           <a
             key={index}

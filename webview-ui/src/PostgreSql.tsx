@@ -28,7 +28,7 @@ function PostgreSql(props: PostgreSqlProps) {
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.host ? props.sqlData.host : undefined}
+              value={props.sqlData.host ? props.sqlData.host : undefined || ""}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -40,7 +40,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.database ? props.sqlData.database : undefined}
+              value={props.sqlData.database ? props.sqlData.database : undefined || ""}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -52,7 +52,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.user ? props.sqlData.user : undefined}
+              value={props.sqlData.user ? props.sqlData.user : undefined || ""}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -64,7 +64,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.password ? props.sqlData.password : undefined}
+              value={props.sqlData.password ? props.sqlData.password : undefined || ""}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
