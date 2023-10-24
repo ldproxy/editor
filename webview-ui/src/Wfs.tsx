@@ -5,11 +5,18 @@ import {
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import { useState } from "react";
+import { BasicData } from "./utilities/xtracfg";
+
+export type WfsData = BasicData & {
+  url?: string;
+  user?: string;
+  password?: string;
+};
 
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
   handleUpdateData(key: string, value: string): void;
-  wfsData: Object;
+  wfsData: WfsData;
   setWfsData(wfsData: Object): void;
   dataProcessing: string;
 };
@@ -38,11 +45,11 @@ function Wfs(props: PostgreSqlProps) {
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
-              value={props.wfsData.WFSURL ? props.wfsData.WFSURL : null}
+              value={props.wfsData.url ? props.wfsData.url : undefined}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("WFSURL", target.value);
+                  props.handleUpdateData("url", target.value);
                 }
               }}>
               WFS URL
@@ -59,7 +66,7 @@ function Wfs(props: PostgreSqlProps) {
             <>
               <section className="component-example">
                 <VSCodeTextField
-                  value={props.wfsData.user ? props.wfsData.user : null}
+                  value={props.wfsData.user ? props.wfsData.user : undefined}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
@@ -71,7 +78,7 @@ function Wfs(props: PostgreSqlProps) {
               </section>
               <section className="component-example">
                 <VSCodeTextField
-                  value={props.wfsData.password ? props.wfsData.password : null}
+                  value={props.wfsData.password ? props.wfsData.password : undefined}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {

@@ -1,22 +1,25 @@
 import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { useEffect, useState } from "react";
+import { SqlData } from "./PostgreSql";
+import { WfsData } from "./Wfs";
+import { GpkgData } from "./GeoPackage";
+
+export type TableData = {
+  [key: string]: string[];
+};
 
 type TabelsProps = {
   selectedDataSource: string;
-  allTables: {
-    [key: string]: string[];
-  };
+  allTables: TableData;
   setDataProcessing(dataProcessing: string): void;
   handleGenerate(): void;
-  selectedTable: {
-    [key: string]: string[];
-  };
-  setSelectedTable(selectedTable: { [key: string]: string[] }): void;
+  selectedTable: TableData;
+  setSelectedTable(selectedTable: TableData): void;
   dataProcessing: string;
-  sqlData: Object;
-  wfsData: Object;
-  gpkgData: Object;
+  sqlData: SqlData;
+  wfsData: WfsData;
+  gpkgData: GpkgData;
   submitData(data: Object): void;
   setSqlData(sqlData: Object): void;
   setWfsData(wfsData: Object): void;
@@ -113,7 +116,8 @@ const Tables = (props: TabelsProps) => {
     props.setDataProcessing("");
     props.setSelectedTable({});
 
-    if (props.selectedDataSource === "PGIS") {
+    //TODO: why and where are selectedTables added to sqlData etc.?
+    /*if (props.selectedDataSource === "PGIS") {
       const { selectedTables, ...sqlDataWithoutSelectedTables } = props.sqlData;
       props.setSqlData(sqlDataWithoutSelectedTables);
     } else if (props.selectedDataSource === "GPKG") {
@@ -122,7 +126,7 @@ const Tables = (props: TabelsProps) => {
     } else if (props.selectedDataSource === "WFS") {
       const { selectedTables, ...wfsDataWithoutSelectedTables } = props.wfsData;
       props.setWfsData(wfsDataWithoutSelectedTables);
-    }
+    }*/
 
     props.handleUpdateData("subcommand", "analyze");
   };

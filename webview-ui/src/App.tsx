@@ -7,30 +7,30 @@ import {
 import { vscode } from "./utilities/vscode";
 import "./App.css";
 import { useEffect, useState } from "react";
-import GeoPackage from "./GeoPackage";
-import Wfs from "./Wfs";
-import PostgreSql from "./PostgreSql";
-import Tables from "./Tables";
+import GeoPackage, { GpkgData } from "./GeoPackage";
+import Wfs, { WfsData } from "./Wfs";
+import PostgreSql, { SqlData } from "./PostgreSql";
+import Tables, { TableData } from "./Tables";
 import Final from "./Final";
+import { BasicData } from "./utilities/xtracfg";
 
-type TableData = {
-  [key: string]: string[];
+type TableSelection = {
+  [schema: string]: string[];
 };
 
 function App() {
-  const [sqlData, setSqlData] = useState({});
-  const [wfsData, setWfsData] = useState({});
-  const [gpkgData, setGpkgData] = useState({});
+  const [sqlData, setSqlData] = useState<SqlData>({});
+  const [wfsData, setWfsData] = useState<WfsData>({});
+  const [gpkgData, setGpkgData] = useState<GpkgData>({});
   const [existingGeopackages, setExistingGeopackages] = useState<string[]>([""]);
   const [selectedDataSource, setSelectedDataSource] = useState("PGIS");
   const [dataProcessing, setDataProcessing] = useState<string>("");
   const [allTables, setAllTables] = useState<TableData>({});
-  const [namesOfCreatedFiles, setNamesOfCreatedFiles] = useState("");
-  const [selectedTable, setSelectedTable] = useState<{
-    [schema: string]: string[];
-  }>({});
+  const [namesOfCreatedFiles, setNamesOfCreatedFiles] = useState([]);
+  const [selectedTable, setSelectedTable] = useState<TableSelection>({});
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
-  const basisDates = {
+
+  const basicData: BasicData = {
     command: "auto",
     subcommand: "analyze",
     source: workspace,
@@ -38,7 +38,7 @@ function App() {
   };
 
   // Hilfsfunktion bis feststeht in welchem Format die selektierten Tabellen weitersgeschickt werden sollen.
-  function objectToString(selectedTable) {
+  function objectToString(selectedTable: TableSelection) {
     const strArr = [];
 
     for (const key in selectedTable) {
@@ -90,7 +90,7 @@ function App() {
       setWfsData({});
       setGpkgData({});
       if (!Object.keys(sqlData).includes("subcommand")) {
-        setSqlData(basisDates);
+        setSqlData(basicData);
       }
       setSqlData((prevSqlData) => ({
         ...prevSqlData,
@@ -102,7 +102,7 @@ function App() {
       setSqlData({});
       setGpkgData({});
       if (!Object.keys(wfsData).includes("subcommand")) {
-        setWfsData(basisDates);
+        setWfsData(basicData);
       }
       setWfsData((prevWfsData) => ({
         ...prevWfsData,
@@ -114,7 +114,7 @@ function App() {
       setSqlData({});
       setWfsData({});
       if (!Object.keys(gpkgData).includes("subcommand")) {
-        setGpkgData(basisDates);
+        setGpkgData(basicData);
       }
       setGpkgData((prevGpkgData) => ({
         ...prevGpkgData,
@@ -126,7 +126,10 @@ function App() {
 
   const handleGenerate = () => {
     if (selectedDataSource === "PGIS") {
-      sqlData.subcommand = "check";
+      setSqlData((prevSqlData) => ({
+        ...prevSqlData,
+        subcommand: "check",
+      }));
       if (Object.keys(selectedTable).length !== 0) {
         setSqlData((prevSqlData) => ({
           ...prevSqlData,
@@ -134,7 +137,10 @@ function App() {
         }));
       }
     } else if (selectedDataSource === "GPKG") {
-      gpkgData.subcommand = "check";
+      setGpkgData((prevGpkgData) => ({
+        ...prevGpkgData,
+        subcommand: "check",
+      }));
       if (Object.keys(selectedTable).length !== 0) {
         setGpkgData((prevGpkgData) => ({
           ...prevGpkgData,
@@ -142,7 +148,10 @@ function App() {
         }));
       }
     } else if (selectedDataSource === "WFS") {
-      wfsData.subcommand = "check";
+      setWfsData((prevWfsData) => ({
+        ...prevWfsData,
+        subcommand: "check",
+      }));
       if (Object.keys(selectedTable).length !== 0) {
         setWfsData((prevWfsData) => ({
           ...prevWfsData,

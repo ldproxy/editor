@@ -4,12 +4,20 @@ import {
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
+import { BasicData } from "./utilities/xtracfg";
+
+export type SqlData = BasicData & {
+  host?: string;
+  database?: string;
+  user?: string;
+  password?: string;
+};
 
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
   handleUpdateData(key: string, value: string): void;
   dataProcessing: string;
-  sqlData: Object;
+  sqlData: SqlData;
   handleGenerate(): void;
 };
 
@@ -20,7 +28,7 @@ function PostgreSql(props: PostgreSqlProps) {
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.host ? props.sqlData.host : null}
+              value={props.sqlData.host ? props.sqlData.host : undefined}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -32,7 +40,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.database ? props.sqlData.database : null}
+              value={props.sqlData.database ? props.sqlData.database : undefined}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -44,7 +52,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.user ? props.sqlData.user : null}
+              value={props.sqlData.user ? props.sqlData.user : undefined}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -56,7 +64,7 @@ function PostgreSql(props: PostgreSqlProps) {
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.password ? props.sqlData.password : null}
+              value={props.sqlData.password ? props.sqlData.password : undefined}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {

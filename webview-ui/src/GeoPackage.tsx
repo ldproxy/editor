@@ -1,6 +1,9 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { BasicData } from "./utilities/xtracfg";
+
+export type GpkgData = BasicData & {};
 
 type GeoPackageProps = {
   submitData: (data: Object) => void;
@@ -8,7 +11,7 @@ type GeoPackageProps = {
   dataProcessing: string;
   existingGeopackages: string[];
   handleUpdateData(key: string, value: string): void;
-  gpkgData: Object;
+  gpkgData: GpkgData;
   setGpkgData(arg0: Object): void;
 };
 
