@@ -193,8 +193,12 @@ function App() {
           } else if (dataProcessing === "analyzed") {
             const createdFiles = response.details.new_files;
             const namesOfCreatedFiles = createdFiles.map((file: string) => {
-              const parts = file.split("/");
-              return parts[parts.length - 1];
+              const startIndex = file.indexOf("data");
+              if (startIndex >= 0) {
+                return file.substring(startIndex + 5);
+              } else {
+                return file;
+              }
             });
             setNamesOfCreatedFiles(namesOfCreatedFiles);
             setDataProcessing("inProgressGenerating");
