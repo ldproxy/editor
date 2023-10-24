@@ -246,7 +246,8 @@ function App() {
       });
     } else if (dataProcessing === "generated") {
       vscode.postMessage({
-        command: "The configuration has been created.",
+        command: "hello",
+        text: "The configuration has been created.",
       });
     }
   }, [dataProcessing]);

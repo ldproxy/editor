@@ -1,0 +1,71 @@
+---
+id: erfererf
+createdAt: 1698149251690
+lastModified: 1698149251690
+providerType: feature
+providerSubType: sql
+nativeCrs:
+  code: 25832
+  forceAxisOrder: NONE
+connectionInfo:
+  database: vineyards
+  host: localhost:5437
+  user: postgres
+  password: cG9zdGdyZXM=
+sourcePathDefaults:
+  primaryKey: ogc_fid
+  sortKey: ogc_fid
+types:
+  vineyards:
+    sourcePath: /vineyards
+    properties:
+      ogc_fid:
+        sourcePath: ogc_fid
+        type: INTEGER
+        role: ID
+        scope: QUERIES
+      wlg_nr:
+        sourcePath: wlg_nr
+        type: INTEGER
+      datum:
+        sourcePath: datum
+        type: DATETIME
+        role: PRIMARY_INSTANT
+      suchfeld:
+        sourcePath: suchfeld
+        type: STRING
+      suchfeld_1:
+        sourcePath: suchfeld_1
+        type: STRING
+      anbaugebie:
+        sourcePath: anbaugebie
+        type: STRING
+      bereich:
+        sourcePath: bereich
+        type: STRING
+      grosslage:
+        sourcePath: grosslage
+        type: STRING
+      wlg_name:
+        sourcePath: wlg_name
+        type: STRING
+      gemeinde:
+        sourcePath: gemeinde
+        type: STRING
+      gemarkunge:
+        sourcePath: gemarkunge
+        type: STRING
+      rebflache_:
+        sourcePath: rebflache_
+        type: STRING
+      gem_info:
+        sourcePath: gem_info
+        type: STRING
+      gid:
+        sourcePath: gid
+        type: FLOAT
+      wkb_geometry:
+        sourcePath: wkb_geometry
+        type: GEOMETRY
+        role: PRIMARY_GEOMETRY
+        geometryType: MULTI_POLYGON
