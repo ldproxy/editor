@@ -188,7 +188,7 @@ const Tables = (props: TabelsProps) => {
       {props.dataProcessing === "inProgressGenerating" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
-          <span id="progressText">Die Daten werden verarbeitet...</span>
+          <span id="progressText">Data is being processed...</span>
         </div>
       )}
     </>

@@ -242,12 +242,11 @@ function App() {
     } else if (dataProcessing === "analyzed") {
       vscode.postMessage({
         command: "hello",
-        text: "Die Daten wurden verarbeitet.",
+        text: "The data has been processed.",
       });
     } else if (dataProcessing === "generated") {
       vscode.postMessage({
-        command: "hello",
-        text: "Die Daten wurden erstellt.",
+        command: "The configuration has been created.",
       });
     }
   }, [dataProcessing]);
