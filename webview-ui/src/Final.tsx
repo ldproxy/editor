@@ -40,19 +40,23 @@ const Final = (props: FinalProps) => {
     <div className="final-container">
       <div className="final-content">
         <h2 className="final-title">The following files were created.</h2>
-        {props.namesOfCreatedFiles.map((file, index) => {
-          const parts = file.split("/");
-          const fileName = parts[parts.length - 1];
-          return (
-            <a
-              key={index}
-              href={`${props.workspace}/entities/instances/providers/${fileName}`}
-              className="final-link"
-              onClick={() => onLinkClick(fileName)}>
-              {file}
-            </a>
-          );
-        })}
+        <ul>
+          {props.namesOfCreatedFiles.map((file, index) => {
+            const parts = file.split("/");
+            const fileName = parts[parts.length - 1];
+            return (
+              <li key={index}>
+                <a
+                  key={index}
+                  href={`${props.workspace}/entities/instances/providers/${fileName}`}
+                  className="final-link"
+                  onClick={() => onLinkClick(fileName)}>
+                  {file}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
         <div className="final-buttons">
           <VSCodeButton className="final-dismiss" onClick={onClose}>
             Dismiss

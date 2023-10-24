@@ -18,6 +18,12 @@ type TableSelection = {
   [schema: string]: string[];
 };
 
+type ResponseType = {
+  error?: string;
+  details?: Object;
+  results?: Array<{ status: string }>;
+};
+
 function App() {
   const [sqlData, setSqlData] = useState<SqlData>({});
   const [wfsData, setWfsData] = useState<WfsData>({});
@@ -29,6 +35,7 @@ function App() {
   const [namesOfCreatedFiles, setNamesOfCreatedFiles] = useState([]);
   const [selectedTable, setSelectedTable] = useState<TableSelection>({});
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
+  const [currentResponse, setCurrentResponse] = useState<ResponseType>({});
 
   const basicData: BasicData = {
     command: "auto",
@@ -175,6 +182,7 @@ function App() {
 
       socket.addEventListener("message", (event) => {
         const response = JSON.parse(event.data);
+        setCurrentResponse(JSON.parse(event.data));
         console.log("Nachricht vom Server erhalten:", response);
         if (response.error && response.error === "No 'command' given: {}") {
           vscode.postMessage({
@@ -192,15 +200,17 @@ function App() {
             setAllTables(response.details.schemas);
           } else if (dataProcessing === "analyzed") {
             const createdFiles = response.details.new_files;
-            const namesOfCreatedFiles = createdFiles.map((file: string) => {
-              const startIndex = file.indexOf("data");
-              if (startIndex >= 0) {
-                return file.substring(startIndex + 5);
-              } else {
-                return file;
-              }
-            });
-            setNamesOfCreatedFiles(namesOfCreatedFiles);
+            if (createdFiles.length > 0) {
+              const namesOfCreatedFiles = createdFiles.map((file: string) => {
+                const startIndex = file.indexOf("data");
+                if (startIndex >= 0) {
+                  return file.substring(startIndex + 5);
+                } else {
+                  return file;
+                }
+              });
+              setNamesOfCreatedFiles(namesOfCreatedFiles);
+            }
             setDataProcessing("inProgressGenerating");
           }
         }
@@ -239,11 +249,18 @@ function App() {
       setTimeout(() => {
         setDataProcessing("analyzed");
       }, 2000);
-    } else if (dataProcessing === "inProgressGenerating") {
-      //  setTimeout(() => {
+    } else if (
+      dataProcessing === "inProgressGenerating" &&
+      currentResponse.results &&
+      currentResponse.results[0].status !== null &&
+      currentResponse.results[0].status === "SUCCESS"
+    ) {
       setDataProcessing("generated");
-      //   }, 2000);
-    } else if (dataProcessing === "analyzed") {
+    } /* else if (dataProcessing === "inProgressGenerating") {
+      setTimeout(() => {
+        setDataProcessing("generated");
+      }, 2000);
+    } */ else if (dataProcessing === "analyzed") {
       vscode.postMessage({
         command: "hello",
         text: "The data has been processed.",
