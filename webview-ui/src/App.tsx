@@ -195,7 +195,12 @@ function App() {
         setCurrentResponse(response);
         console.log("Nachricht vom Server erhalten:", response);
 
-        if (response.error) {
+        if (response.error && response.error === "No 'command' given: {}") {
+          vscode.postMessage({
+            command: "error",
+            text: `Error: Empty Fields`,
+          });
+        } else if (response.error) {
           setDataProcessing("");
           setGenerateProgress("Analyzing tables");
           vscode.postMessage({
