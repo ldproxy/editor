@@ -200,12 +200,12 @@ function App() {
             command: "error",
             text: `Error: Empty Fields`,
           });
-        } else if (response.error) {
+        } else if (response.error || (response.results && response.results[0].status === "ERROR")) {
           setDataProcessing("");
           setGenerateProgress("Analyzing tables");
           vscode.postMessage({
             command: "error",
-            text: `Error: ${response.error}`,
+            text: `Error: ${response.error || response.results[0].message}`,
           });
         }
 
