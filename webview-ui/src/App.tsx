@@ -41,7 +41,7 @@ function App() {
   const [currentResponse, setCurrentResponse] = useState<ResponseType>({});
   const [generateProgress, setGenerateProgress] = useState<string>("Analyzing tables");
   const [currentTable, setCurrentTable] = useState<string>("");
-  const [progress, setProgress] = useState<Object>({});
+  const [progress, setProgress] = useState<{ [key: string]: string[] }>({});
 
   const basicData: BasicData = {
     command: "auto",
@@ -345,7 +345,7 @@ function App() {
             />
           )}
         </main>
-      ) : dataProcessing === "analyzed" || dataProcessing === "inProgressGenerating" ? (
+      ) : dataProcessing === "analyzed" ? (
         <Tables
           allTables={allTables}
           selectedDataSource={selectedDataSource}
@@ -364,7 +364,7 @@ function App() {
           handleUpdateData={handleUpdateData}
           generateProgress={generateProgress}
         />
-      ) : dataProcessing === "generated" ? (
+      ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
         <Final
           workspace={workspace}
           sqlData={sqlData}
@@ -380,6 +380,7 @@ function App() {
           currentTable={currentTable}
           progress={progress}
           selectedTable={selectedTable}
+          dataProcessing={dataProcessing}
         />
       ) : (
         "An Error Occurred"

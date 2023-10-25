@@ -17,8 +17,9 @@ type FinalProps = {
   setSelectedTable: Function;
   namesOfCreatedFiles: Array<string>;
   currentTable: string;
-  progress: Object;
+  progress: { [key: string]: string[] };
   selectedTable: SchemaTables;
+  dataProcessing: string;
 };
 
 const Final = (props: FinalProps) => {
@@ -48,35 +49,38 @@ const Final = (props: FinalProps) => {
         currentTable={props.currentTable}
         progress={props.progress}
         selectedTable={props.selectedTable}
+        dataProcessed={props.dataProcessing}
       />
-      <div className="final-content">
-        <h2 className="final-title">The following files were created.</h2>
-        <ul>
-          {props.namesOfCreatedFiles.map((file, index) => {
-            const parts = file.split("/");
-            const fileName = parts[parts.length - 1];
-            return (
-              <li key={index}>
-                <a
-                  key={index}
-                  href={`${props.workspace}/${fileName}`}
-                  className="final-link"
-                  onClick={() => onLinkClick(fileName)}>
-                  {file}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="final-buttons">
-          <VSCodeButton className="final-dismiss" onClick={onClose}>
-            Dismiss
-          </VSCodeButton>
-          <VSCodeButton className="final-create-another" onClick={onCreateAnother}>
-            Create Another
-          </VSCodeButton>
+      {props.dataProcessing === "generated" ? (
+        <div className="final-content">
+          <h2 className="final-title">The following files were created.</h2>
+          <ul>
+            {props.namesOfCreatedFiles.map((file, index) => {
+              const parts = file.split("/");
+              const fileName = parts[parts.length - 1];
+              return (
+                <li key={index}>
+                  <a
+                    key={index}
+                    href={`${props.workspace}/${fileName}`}
+                    className="final-link"
+                    onClick={() => onLinkClick(fileName)}>
+                    {file}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="final-buttons">
+            <VSCodeButton className="final-dismiss" onClick={onClose}>
+              Dismiss
+            </VSCodeButton>
+            <VSCodeButton className="final-create-another" onClick={onCreateAnother}>
+              Create Another
+            </VSCodeButton>
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 };
