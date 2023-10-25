@@ -131,7 +131,7 @@ const Tables = (props: TabelsProps) => {
     props.handleUpdateData("subcommand", "analyze");
   };
 
-  console.log("schemasSelectedinEntirety", schemasSelectedinEntirety);
+  console.log("selectedTables", props.selectedTable);
 
   // TODO: use indeterminate={true} for All checkboxes when not all/nothing checked
   return (

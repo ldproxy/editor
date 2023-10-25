@@ -1,6 +1,8 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { vscode } from "./utilities/vscode";
+import Progress from "./Progress";
+import { SchemaTables } from "./utilities/xtracfg";
 
 type FinalProps = {
   workspace: string;
@@ -14,6 +16,9 @@ type FinalProps = {
   setWfsData: Function;
   setSelectedTable: Function;
   namesOfCreatedFiles: Array<string>;
+  currentTable: string;
+  progress: Object;
+  selectedTable: SchemaTables;
 };
 
 const Final = (props: FinalProps) => {
@@ -39,6 +44,11 @@ const Final = (props: FinalProps) => {
 
   return (
     <div className="final-container">
+      <Progress
+        currentTable={props.currentTable}
+        progress={props.progress}
+        selectedTable={props.selectedTable}
+      />
       <div className="final-content">
         <h2 className="final-title">The following files were created.</h2>
         <ul>

@@ -40,6 +40,8 @@ function App() {
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
   const [currentResponse, setCurrentResponse] = useState<ResponseType>({});
   const [generateProgress, setGenerateProgress] = useState<string>("Analyzing tables");
+  const [currentTable, setCurrentTable] = useState<string>("");
+  const [progress, setProgress] = useState<Object>({});
 
   const basicData: BasicData = {
     command: "auto",
@@ -264,13 +266,15 @@ function App() {
       setDataProcessing("generated");
       setGenerateProgress("Analyzing tables");
     } else if (currentResponse.details && currentResponse.details.currentTable) {
+      setCurrentTable(currentResponse.details.currentTable);
+      currentResponse.details.progress ? setProgress(currentResponse.details.progress) : null;
       setGenerateProgress(
         `Analyzing table '${currentResponse.details.currentTable}' (${currentResponse.details.currentCount}/${currentResponse.details.targetCount})`
       );
     }
   }, [dataProcessing, currentResponse]);
 
-  console.log("dataProccessing", dataProcessing);
+  console.log("crd", currentResponse.details);
 
   return (
     <>
@@ -373,6 +377,9 @@ function App() {
           setWfsData={setWfsData}
           setSelectedTable={setSelectedTable}
           namesOfCreatedFiles={namesOfCreatedFiles}
+          currentTable={currentTable}
+          progress={progress}
+          selectedTable={selectedTable}
         />
       ) : (
         "An Error Occurred"
