@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 const workspaceFolders = vscode.workspace.workspaceFolders;
 let workspace: string;
 if (workspaceFolders && workspaceFolders.length > 0) {
-  workspace = workspaceFolders[0].uri.path;
+  workspace = workspaceFolders[0].uri.fsPath;
 }
 
 /**
