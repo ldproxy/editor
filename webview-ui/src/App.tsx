@@ -261,7 +261,7 @@ function App() {
         `Analyzing table '${currentResponse.details.currentTable}' (${currentResponse.details.currentCount}/${currentResponse.details.targetCount})`
       );
     }
-  }, [dataProcessing, currentResponse, workspace]);
+  }, [dataProcessing, currentResponse]);
 
   return (
     <>

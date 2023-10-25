@@ -4,19 +4,18 @@ import * as vscode from "vscode";
 /**
  * @returns all .gpkg files in a given directory and its subdirectories
  */
-export async function listGpkgFilesInDirectory(
-  directoryPath = path.posix.normalize(
-    "C:/Users/p.zahnen/Documents/GitHub/editor/data/resources/features"
-  )
-) {
+export async function listGpkgFilesInDirectory() {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+
+  if (!workspaceFolders || workspaceFolders.length <= 0) {
+    return [];
+  }
+
   try {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    let directory;
-    if (workspaceFolders && workspaceFolders.length > 0) {
-      directory = workspaceFolders[0].uri.path;
-      directoryPath = path.posix.join(directory, "/resources/features");
-    }
-    const allFiles = await readAllFilesInDirectory(vscode.Uri.file(directoryPath));
+    const directoryUri = vscode.Uri.joinPath(workspaceFolders[0].uri, "resources/features");
+    const directoryPath = path.posix.normalize(directoryUri.path);
+
+    const allFiles = await readAllFilesInDirectory(directoryUri);
 
     const gpkgFiles: string[] = allFiles.filter((file: string) => path.extname(file) === ".gpkg");
 
@@ -34,7 +33,7 @@ async function readAllFilesInDirectory(directoryUri: any) {
     const fileUri = vscode.Uri.joinPath(directoryUri, file[0]);
 
     if (file[1] === vscode.FileType.File) {
-      allFiles.push(fileUri.fsPath);
+      allFiles.push(fileUri.path);
     } else if (file[1] === vscode.FileType.Directory) {
       const subDirectoryFiles = await readAllFilesInDirectory(fileUri);
       allFiles = allFiles.concat(subDirectoryFiles);
