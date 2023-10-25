@@ -173,27 +173,27 @@ const Tables = (props: TabelsProps) => {
             </fieldset>
           ))}
         </div>
-        <div className="submitAndReset">
-          <VSCodeButton className="submitButton" onClick={handleBack}>
-            Back
-          </VSCodeButton>
-          <VSCodeButton
-            className="submitButton"
-            onClick={handleGenerateSubmit}
-            disabled={
-              props.dataProcessing === "inProgressGenerating" ||
-              Object.keys(props.selectedTable).length === 0
-            }>
-            Next
-          </VSCodeButton>
-        </div>
-        {props.dataProcessing === "inProgressGenerating" && (
-          <div className="progress-container">
-            <VSCodeProgressRing className="progressRing" />
-            <span id="progressText">{props.generateProgress} ...</span>
-          </div>
-        )}
       </form>
+      <div className="submitAndReset">
+        <VSCodeButton className="submitButton" onClick={handleBack}>
+          Back
+        </VSCodeButton>
+        <VSCodeButton
+          className="submitButton"
+          onClick={handleGenerateSubmit}
+          disabled={
+            props.dataProcessing === "inProgressGenerating" ||
+            Object.keys(props.selectedTable).length === 0
+          }>
+          Next
+        </VSCodeButton>
+      </div>
+      {props.dataProcessing === "inProgressGenerating" && (
+        <div className="progress-container">
+          <VSCodeProgressRing className="progressRing" />
+          <span id="progressText">{props.generateProgress} ...</span>
+        </div>
+      )}
     </>
   );
 };
