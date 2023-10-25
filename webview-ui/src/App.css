@@ -24,8 +24,8 @@ main {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 10px;
-  align-items: center;
+  padding-top: 10px;
+  align-items: start;
   text-align: center;
 }
 
@@ -53,49 +53,15 @@ main {
   color: var(--vscode-button-foreground);
   cursor: pointer;
   border-radius: 2px;
-  font-size: medium;
-  font-weight: bold;
-  padding-top: 5px;
-  height: 23px;
-  width: 150px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.vscode-light .vscode-button {
-  background-color: var(--vscode-button-background);
-  color: var(--vscode-button-foreground);
-  cursor: pointer;
-  border-radius: 2px;
-  font-size: medium;
-  font-weight: bold;
-  padding-top: 5px;
-  height: 23px;
-  width: 150px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.vscode-dark .vscode-button {
-  background-color: var(--vscode-button-background);
-  color: var(--vscode-button-foreground);
-  cursor: pointer;
-  border-radius: 2px;
-  font-size: medium;
-  font-weight: bold;
-  padding-top: 5px;
-  height: 23px;
-  width: 150px;
+  border: calc(var(--border-width) * 1px) solid var(--button-border);
+  font-family: var(--font-family);
+  font-size: var(--type-ramp-base-font-size);
+  line-height: var(--type-ramp-base-line-height);
+  padding: var(--button-padding-vertical) var(--button-padding-horizontal);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 vscode-button:hover {
-  background-color: var(--vscode-button-hoverBackground);
-}
-
-.vscode-light .vscode-button:hover {
-  background-color: var(--vscode-button-hoverBackground);
-}
-
-.vscode-dark .vscode-button:hover {
   background-color: var(--vscode-button-hoverBackground);
 }
 
@@ -104,18 +70,19 @@ vscode-button:hover {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding-top: 10px;
 }
 
 #uploadLabelDisabled {
-  background-color: #ccc;
-  color: #999;
-  cursor: pointer;
+  opacity: var(--disabled-opacity);
+  background: var(--button-primary-background);
+  cursor: not-allowed;
   border-radius: 2px;
-  font-size: medium;
-  font-weight: bold;
-  padding-top: 5px;
-  height: 23px;
-  width: 150px;
+  border: calc(var(--border-width) * 1px) solid var(--button-border);
+  font-family: var(--font-family);
+  font-size: var(--type-ramp-base-font-size);
+  line-height: var(--type-ramp-base-line-height);
+  padding: var(--button-padding-vertical) var(--button-padding-horizontal);
   fill: currentcolor;
 }
 

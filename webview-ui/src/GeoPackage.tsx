@@ -58,6 +58,7 @@ function GeoPackage(props: GeoPackageProps) {
   return (
     <>
       <div className="button-container">
+        {/* TODO: use VSCodeDropdown */}
         <select
           className="dropdown"
           placeholder="Choose existing File..."
@@ -71,12 +72,12 @@ function GeoPackage(props: GeoPackageProps) {
             Choose existing File...
           </option>
           {props.existingGeopackages.map((option) => (
-            <option key={option} value={option.split("\\").slice(-3).join("/")}>
-              {option.split("\\").pop()}
+            <option key={option} value={option}>
+              {option}
             </option>
           ))}
         </select>
-        or
+        <span>or</span>
         {!existingGPKG ? (
           <label htmlFor="geoInput" className="vscode-button">
             Upload new File

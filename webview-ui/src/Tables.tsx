@@ -131,6 +131,7 @@ const Tables = (props: TabelsProps) => {
     props.handleUpdateData("subcommand", "analyze");
   };
 
+  // TODO: use indeterminate={true} for All checkboxes when not all/nothing checked
   return (
     <>
       <form id="outerContainerCheckboxes">

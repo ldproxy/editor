@@ -5,20 +5,22 @@ import * as vscode from "vscode";
  * @returns all .gpkg files in a given directory and its subdirectories
  */
 export async function listGpkgFilesInDirectory(
-  directoryPath = "C:/Users/p.zahnen/Documents/GitHub/editor/data/resources/features"
+  directoryPath = path.posix.normalize(
+    "C:/Users/p.zahnen/Documents/GitHub/editor/data/resources/features"
+  )
 ) {
   try {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     let directory;
     if (workspaceFolders && workspaceFolders.length > 0) {
-      directory = workspaceFolders[0].uri.fsPath;
-      directoryPath = path.join(directory, "/resources/features");
+      directory = workspaceFolders[0].uri.path;
+      directoryPath = path.posix.join(directory, "/resources/features");
     }
     const allFiles = await readAllFilesInDirectory(vscode.Uri.file(directoryPath));
 
     const gpkgFiles: string[] = allFiles.filter((file: string) => path.extname(file) === ".gpkg");
 
-    return gpkgFiles;
+    return gpkgFiles.map((file: string) => path.posix.relative(directoryPath, file));
   } catch (error) {
     return `Fehler beim Lesen des Verzeichnisses: ${error}`;
   }

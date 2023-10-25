@@ -81,7 +81,7 @@ function App() {
       case "setWorkspace":
         const workspaceRoot = message.workspaceRoot;
         console.log("Workspace Root:", workspaceRoot);
-        setWorkspace(workspaceRoot.replace(/\\/g, "/"));
+        setWorkspace(workspaceRoot);
         break;
       case "setGeopackages":
         setExistingGeopackages(message.existingGeopackages);
