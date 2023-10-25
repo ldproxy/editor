@@ -150,7 +150,7 @@ const Tables = (props: TabelsProps) => {
         )}
         <div className="mappedCheckboxesContainer">
           {allSchemas.map((schema) => (
-            <fieldset key={schema}>
+            <fieldset key={schema} className="checkbox-fieldset">
               <legend>{schema}</legend>
               <div className="checkbox-container">
                 <VSCodeCheckbox

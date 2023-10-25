@@ -1,3 +1,12 @@
+html,
+#root {
+  height: 100%;
+}
+
+body {
+  height: 98%;
+}
+
 main {
   display: flex;
   flex-direction: column;
@@ -92,6 +101,11 @@ vscode-button:hover {
   height: 25px;
 }
 
+.checkbox-fieldset {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
 .checkbox-container {
   display: flex;
   flex-direction: column;
@@ -100,6 +114,8 @@ vscode-button:hover {
 
 #outerContainerCheckboxes {
   margin-top: 10px;
+  height: 85%;
+  overflow-y: auto;
 }
 
 #everything fieldset {
