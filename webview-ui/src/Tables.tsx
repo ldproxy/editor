@@ -25,6 +25,7 @@ type TabelsProps = {
   setWfsData(wfsData: Object): void;
   setGpkgData(gpkgData: Object): void;
   handleUpdateData(key: string, value: string): void;
+  generateProgress: string;
 };
 
 const Tables = (props: TabelsProps) => {
@@ -188,7 +189,7 @@ const Tables = (props: TabelsProps) => {
       {props.dataProcessing === "inProgressGenerating" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
-          <span id="progressText">Analyzing tables ...</span>
+          <span id="progressText">{props.generateProgress} ...</span>
         </div>
       )}
     </>

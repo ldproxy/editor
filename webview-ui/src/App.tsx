@@ -16,7 +16,14 @@ import { BasicData, SchemaTables } from "./utilities/xtracfg";
 
 type ResponseType = {
   error?: string;
-  details?: { types?: SchemaTables; new_files?: string[] };
+  details?: {
+    types?: SchemaTables;
+    new_files?: string[];
+    currentTable?: string;
+    currentCount?: number;
+    targetCount?: number;
+    progress?: SchemaTables;
+  };
   results?: Array<{ status: string }>;
 };
 
@@ -32,6 +39,7 @@ function App() {
   const [selectedTable, setSelectedTable] = useState<SchemaTables>({});
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
   const [currentResponse, setCurrentResponse] = useState<ResponseType>({});
+  const [generateProgress, setGenerateProgress] = useState<string>("Analyzing tables");
 
   const basicData: BasicData = {
     command: "auto",
@@ -189,6 +197,7 @@ function App() {
 
         if (response.error) {
           setDataProcessing("");
+          setGenerateProgress("Analyzing tables");
           vscode.postMessage({
             command: "error",
             text: `Error: ${response.error}`,
@@ -246,6 +255,11 @@ function App() {
       }
       setCurrentResponse({});
       setDataProcessing("generated");
+      setGenerateProgress("Analyzing tables");
+    } else if (currentResponse.details && currentResponse.details.currentTable) {
+      setGenerateProgress(
+        `Analyzing table '${currentResponse.details.currentTable}' (${currentResponse.details.currentCount}/${currentResponse.details.targetCount})`
+      );
     }
   }, [dataProcessing, currentResponse, workspace]);
 
@@ -330,6 +344,7 @@ function App() {
           setWfsData={setWfsData}
           setGpkgData={setGpkgData}
           handleUpdateData={handleUpdateData}
+          generateProgress={generateProgress}
         />
       ) : dataProcessing === "generated" ? (
         <Final
