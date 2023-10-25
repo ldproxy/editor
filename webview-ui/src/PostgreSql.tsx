@@ -18,7 +18,6 @@ type PostgreSqlProps = {
   handleUpdateData(key: string, value: string): void;
   dataProcessing: string;
   sqlData: SqlData;
-  handleGenerate(): void;
 };
 
 function PostgreSql(props: PostgreSqlProps) {
@@ -75,7 +74,7 @@ function PostgreSql(props: PostgreSqlProps) {
             </VSCodeTextField>
           </section>
         </div>
-        <div className="postgresWfsSubmit">
+        <div className="submitAndReset">
           <VSCodeButton
             className="submitButton"
             onClick={() => props.submitData(props.sqlData)}
@@ -87,7 +86,7 @@ function PostgreSql(props: PostgreSqlProps) {
       {props.dataProcessing === "inProgress" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
-          <span id="progressText">Data is being processed...</span>
+          <span id="progressText">Analyzing database ...</span>
         </div>
       )}
     </div>

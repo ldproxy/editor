@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   VSCodeButton,
   VSCodeTextField,
@@ -6,21 +7,16 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { vscode } from "./utilities/vscode";
 import "./App.css";
-import { useEffect, useState } from "react";
 import GeoPackage, { GpkgData } from "./GeoPackage";
 import Wfs, { WfsData } from "./Wfs";
 import PostgreSql, { SqlData } from "./PostgreSql";
 import Tables, { TableData } from "./Tables";
 import Final from "./Final";
-import { BasicData } from "./utilities/xtracfg";
-
-type TableSelection = {
-  [schema: string]: string[];
-};
+import { BasicData, SchemaTables } from "./utilities/xtracfg";
 
 type ResponseType = {
   error?: string;
-  details?: Object;
+  details?: { types?: SchemaTables; new_files?: string[] };
   results?: Array<{ status: string }>;
 };
 
@@ -32,8 +28,8 @@ function App() {
   const [selectedDataSource, setSelectedDataSource] = useState("PGIS");
   const [dataProcessing, setDataProcessing] = useState<string>("");
   const [allTables, setAllTables] = useState<TableData>({});
-  const [namesOfCreatedFiles, setNamesOfCreatedFiles] = useState([]);
-  const [selectedTable, setSelectedTable] = useState<TableSelection>({});
+  const [namesOfCreatedFiles, setNamesOfCreatedFiles] = useState<string[]>([]);
+  const [selectedTable, setSelectedTable] = useState<SchemaTables>({});
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
   const [currentResponse, setCurrentResponse] = useState<ResponseType>({});
 
@@ -45,7 +41,7 @@ function App() {
   };
 
   // Hilfsfunktion bis feststeht in welchem Format die selektierten Tabellen weitersgeschickt werden sollen.
-  function objectToString(selectedTable: TableSelection) {
+  function objectToString(selectedTable: SchemaTables) {
     const strArr = [];
 
     for (const key in selectedTable) {
@@ -135,18 +131,18 @@ function App() {
     if (selectedDataSource === "PGIS") {
       setSqlData((prevSqlData) => ({
         ...prevSqlData,
-        subcommand: "check",
+        subcommand: "generate",
       }));
       if (Object.keys(selectedTable).length !== 0) {
         setSqlData((prevSqlData) => ({
           ...prevSqlData,
-          selectedTables: objectToString(selectedTable),
+          types: selectedTable,
         }));
       }
     } else if (selectedDataSource === "GPKG") {
       setGpkgData((prevGpkgData) => ({
         ...prevGpkgData,
-        subcommand: "check",
+        subcommand: "generate",
       }));
       if (Object.keys(selectedTable).length !== 0) {
         setGpkgData((prevGpkgData) => ({
@@ -157,7 +153,7 @@ function App() {
     } else if (selectedDataSource === "WFS") {
       setWfsData((prevWfsData) => ({
         ...prevWfsData,
-        subcommand: "check",
+        subcommand: "generate",
       }));
       if (Object.keys(selectedTable).length !== 0) {
         setWfsData((prevWfsData) => ({
@@ -168,7 +164,13 @@ function App() {
     }
   };
 
-  const submitData = (data: Object) => {
+  const submitData = (data: BasicData) => {
+    if (data.subcommand === "analyze") {
+      setDataProcessing("inProgress");
+    } else if (data.subcommand === "generate") {
+      setDataProcessing("inProgressGenerating");
+    }
+
     try {
       JSON.parse(JSON.stringify(data));
       const socket = new WebSocket("ws://localhost:8080/sock");
@@ -182,37 +184,15 @@ function App() {
 
       socket.addEventListener("message", (event) => {
         const response = JSON.parse(event.data);
-        setCurrentResponse(JSON.parse(event.data));
+        setCurrentResponse(response);
         console.log("Nachricht vom Server erhalten:", response);
-        if (response.error && response.error === "No 'command' given: {}") {
-          vscode.postMessage({
-            command: "error",
-            text: `Error: Empty Fields`,
-          });
-        } else if (response.error) {
+
+        if (response.error) {
+          setDataProcessing("");
           vscode.postMessage({
             command: "error",
             text: `Error: ${response.error}`,
           });
-        } else {
-          if (dataProcessing.length < 1) {
-            setDataProcessing("inProgress");
-            setAllTables(response.details.schemas);
-          } else if (dataProcessing === "analyzed") {
-            const createdFiles = response.details.new_files;
-            if (createdFiles.length > 0) {
-              const namesOfCreatedFiles = createdFiles.map((file: string) => {
-                const startIndex = file.indexOf("data");
-                if (startIndex >= 0) {
-                  return file.substring(startIndex + 5);
-                } else {
-                  return file;
-                }
-              });
-              setNamesOfCreatedFiles(namesOfCreatedFiles);
-            }
-            setDataProcessing("inProgressGenerating");
-          }
         }
 
         if (wfsData.user && wfsData.password) {
@@ -245,33 +225,29 @@ function App() {
   };
 
   useEffect(() => {
-    if (dataProcessing === "inProgress") {
-      setTimeout(() => {
-        setDataProcessing("analyzed");
-      }, 2000);
+    if (
+      dataProcessing === "inProgress" &&
+      currentResponse.results &&
+      currentResponse.results[0].status === "SUCCESS"
+    ) {
+      if (currentResponse.details && currentResponse.details.types) {
+        setAllTables(currentResponse.details.types);
+      }
+      setCurrentResponse({});
+      setDataProcessing("analyzed");
     } else if (
       dataProcessing === "inProgressGenerating" &&
       currentResponse.results &&
-      currentResponse.results[0].status !== null &&
       currentResponse.results[0].status === "SUCCESS"
     ) {
+      if (currentResponse.details && currentResponse.details.new_files) {
+        const namesOfCreatedFiles = currentResponse.details.new_files;
+        setNamesOfCreatedFiles(namesOfCreatedFiles);
+      }
+      setCurrentResponse({});
       setDataProcessing("generated");
-    } /* else if (dataProcessing === "inProgressGenerating") {
-      setTimeout(() => {
-        setDataProcessing("generated");
-      }, 2000);
-    } */ else if (dataProcessing === "analyzed") {
-      vscode.postMessage({
-        command: "hello",
-        text: "The data has been processed.",
-      });
-    } else if (dataProcessing === "generated") {
-      vscode.postMessage({
-        command: "hello",
-        text: "The configuration has been created.",
-      });
     }
-  }, [dataProcessing]);
+  }, [dataProcessing, currentResponse, workspace]);
 
   return (
     <>
@@ -316,7 +292,6 @@ function App() {
               handleUpdateData={handleUpdateData}
               dataProcessing={dataProcessing}
               sqlData={sqlData}
-              handleGenerate={handleGenerate}
             />
           ) : selectedDataSource === "GPKG" ? (
             <GeoPackage

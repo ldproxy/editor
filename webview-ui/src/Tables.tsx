@@ -116,17 +116,16 @@ const Tables = (props: TabelsProps) => {
     props.setDataProcessing("");
     props.setSelectedTable({});
 
-    //TODO: why and where are selectedTables added to sqlData etc.?
-    /*if (props.selectedDataSource === "PGIS") {
-      const { selectedTables, ...sqlDataWithoutSelectedTables } = props.sqlData;
+    if (props.selectedDataSource === "PGIS") {
+      const { types, ...sqlDataWithoutSelectedTables } = props.sqlData;
       props.setSqlData(sqlDataWithoutSelectedTables);
     } else if (props.selectedDataSource === "GPKG") {
-      const { selectedTables, ...gpkgDataWithoutSelectedTables } = props.gpkgData;
+      const { types, ...gpkgDataWithoutSelectedTables } = props.gpkgData;
       props.setGpkgData(gpkgDataWithoutSelectedTables);
     } else if (props.selectedDataSource === "WFS") {
-      const { selectedTables, ...wfsDataWithoutSelectedTables } = props.wfsData;
+      const { types, ...wfsDataWithoutSelectedTables } = props.wfsData;
       props.setWfsData(wfsDataWithoutSelectedTables);
-    }*/
+    }
 
     props.handleUpdateData("subcommand", "analyze");
   };
@@ -172,7 +171,7 @@ const Tables = (props: TabelsProps) => {
           ))}
         </div>
       </form>
-      <div className="submitandBack">
+      <div className="submitAndReset">
         <VSCodeButton className="submitButton" onClick={handleBack}>
           Back
         </VSCodeButton>
@@ -189,7 +188,7 @@ const Tables = (props: TabelsProps) => {
       {props.dataProcessing === "inProgressGenerating" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
-          <span id="progressText">Data is being processed...</span>
+          <span id="progressText">Analyzing tables ...</span>
         </div>
       )}
     </>
