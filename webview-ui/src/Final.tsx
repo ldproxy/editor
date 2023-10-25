@@ -32,8 +32,9 @@ const Final = (props: FinalProps) => {
   const onLinkClick = (file: string) => {
     vscode.postMessage({
       command: "success",
-      text: `${props.workspace}/entities/instances/providers/${file}`,
+      text: `${props.workspace}/${file}`,
     });
+    vscode.getState();
   };
 
   return (
@@ -48,7 +49,7 @@ const Final = (props: FinalProps) => {
               <li key={index}>
                 <a
                   key={index}
-                  href={`${props.workspace}/entities/instances/providers/${fileName}`}
+                  href={`${props.workspace}/${fileName}`}
                   className="final-link"
                   onClick={() => onLinkClick(fileName)}>
                   {file}

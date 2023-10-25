@@ -48,6 +48,10 @@ function App() {
     verbose: true,
   };
 
+  useEffect(() => {
+    vscode.getState();
+  }, []);
+
   // Hilfsfunktion bis feststeht in welchem Format die selektierten Tabellen weitersgeschickt werden sollen.
   function objectToString(selectedTable: SchemaTables) {
     const strArr = [];
@@ -175,8 +179,10 @@ function App() {
   const submitData = (data: BasicData) => {
     if (data.subcommand === "analyze") {
       setDataProcessing("inProgress");
+      vscode.setState(dataProcessing);
     } else if (data.subcommand === "generate") {
       setDataProcessing("inProgressGenerating");
+      vscode.setState(dataProcessing);
     }
 
     try {
@@ -202,6 +208,7 @@ function App() {
           });
         } else if (response.error) {
           setDataProcessing("");
+          vscode.setState(dataProcessing);
           setGenerateProgress("Analyzing tables");
           vscode.postMessage({
             command: "error",
@@ -238,6 +245,8 @@ function App() {
     }
   };
 
+  console.log("dataProccessing:", dataProcessing);
+
   useEffect(() => {
     if (
       dataProcessing === "inProgress" &&
@@ -249,6 +258,7 @@ function App() {
       }
       setCurrentResponse({});
       setDataProcessing("analyzed");
+      vscode.setState(dataProcessing);
     } else if (
       dataProcessing === "inProgressGenerating" &&
       currentResponse.results &&
@@ -260,6 +270,7 @@ function App() {
       }
       setCurrentResponse({});
       setDataProcessing("generated");
+      vscode.setState(dataProcessing);
       setGenerateProgress("Analyzing tables");
     } else if (currentResponse.details && currentResponse.details.currentTable) {
       setGenerateProgress(
