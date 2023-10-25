@@ -280,6 +280,7 @@ function App() {
           <section className="component-example">
             <VSCodeTextField
               value={sqlData.id || wfsData.id || gpkgData.id || ""}
+              disabled={dataProcessing === "inProgress"}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -290,7 +291,11 @@ function App() {
             </VSCodeTextField>
           </section>
           <section className="component-example">
-            <VSCodeRadioGroup name="DataType" value={selectedDataSource} orientation="vertical">
+            <VSCodeRadioGroup
+              name="DataType"
+              value={selectedDataSource}
+              orientation="vertical"
+              disabled={dataProcessing === "inProgress"}>
               <label slot="label">Data Source Type</label>
               <VSCodeRadio
                 id="PostgreSQL"

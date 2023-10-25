@@ -46,6 +46,7 @@ function Wfs(props: PostgreSqlProps) {
           <section className="component-example">
             <VSCodeTextField
               value={props.wfsData.url ? props.wfsData.url : undefined || ""}
+              disabled={props.dataProcessing === "inProgress"}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -57,7 +58,12 @@ function Wfs(props: PostgreSqlProps) {
           </section>
           <div id="switchDiv">
             <label className="switch">
-              <input type="checkbox" checked={isSwitchOn} onChange={handleSwitchToggle} />
+              <input
+                type="checkbox"
+                checked={isSwitchOn}
+                onChange={handleSwitchToggle}
+                disabled={props.dataProcessing === "inProgress"}
+              />
               <span className="slider"></span>
             </label>
             <label htmlFor="basicAuthSwitch">Basic Auth</label>
@@ -67,6 +73,7 @@ function Wfs(props: PostgreSqlProps) {
               <section className="component-example">
                 <VSCodeTextField
                   value={props.wfsData.user ? props.wfsData.user : undefined || ""}
+                  disabled={props.dataProcessing === "inProgress"}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
@@ -79,6 +86,7 @@ function Wfs(props: PostgreSqlProps) {
               <section className="component-example">
                 <VSCodeTextField
                   value={props.wfsData.password ? props.wfsData.password : undefined || ""}
+                  disabled={props.dataProcessing === "inProgress"}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {

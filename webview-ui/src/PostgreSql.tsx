@@ -28,6 +28,7 @@ function PostgreSql(props: PostgreSqlProps) {
           <section className="component-example">
             <VSCodeTextField
               value={props.sqlData.host ? props.sqlData.host : undefined || ""}
+              disabled={props.dataProcessing === "inProgress"}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -40,6 +41,7 @@ function PostgreSql(props: PostgreSqlProps) {
           <section className="component-example">
             <VSCodeTextField
               value={props.sqlData.database ? props.sqlData.database : undefined || ""}
+              disabled={props.dataProcessing === "inProgress"}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -52,6 +54,7 @@ function PostgreSql(props: PostgreSqlProps) {
           <section className="component-example">
             <VSCodeTextField
               value={props.sqlData.user ? props.sqlData.user : undefined || ""}
+              disabled={props.dataProcessing === "inProgress"}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -64,6 +67,7 @@ function PostgreSql(props: PostgreSqlProps) {
           <section className="component-example">
             <VSCodeTextField
               value={props.sqlData.password ? props.sqlData.password : undefined || ""}
+              disabled={props.dataProcessing === "inProgress"}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {

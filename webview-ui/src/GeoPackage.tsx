@@ -67,7 +67,7 @@ function GeoPackage(props: GeoPackageProps) {
             setExistingGPKG(event.target.value);
             props.handleUpdateData("Geopackage", event.target.value);
           }}
-          disabled={!!newGPKG}>
+          disabled={props.dataProcessing === "inProgress" || !!newGPKG}>
           <option value="" hidden>
             Choose existing File...
           </option>
@@ -78,7 +78,7 @@ function GeoPackage(props: GeoPackageProps) {
           ))}
         </select>
         <span>or</span>
-        {!existingGPKG ? (
+        {!existingGPKG && props.dataProcessing !== "inProgress" ? (
           <label htmlFor="geoInput" className="vscode-button">
             Upload new File
           </label>
@@ -93,7 +93,7 @@ function GeoPackage(props: GeoPackageProps) {
           onChange={(event) => onFileChange(event)}
           accept=".gpkg"
           multiple={false}
-          disabled={!!existingGPKG}
+          disabled={props.dataProcessing === "inProgress" || !!existingGPKG}
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
         <div className="submitAndReset">
