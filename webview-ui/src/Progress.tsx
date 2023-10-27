@@ -53,7 +53,7 @@ const Progress = (props: ProgressProps) => {
               props.dataProcessed !== "generated" ? (
                 <div className="spinnerTable">
                   <VSCodeProgressRing className="progressRing2" />
-                  {props.currentTable.split(".")[1]}
+                  <span className="table-item"> {props.currentTable.split(".")[1]}</span>
                 </div>
               ) : null}
             </ul>

@@ -272,8 +272,8 @@ input:checked + .slider:before {
   align-items: center;
 }
 
-.progressRing {
-  width: 2px;
-  height: 2px;
-  margin-right: 0.5em;
+.progressRing2 {
+  width: 9px;
+  height: 15px;
+  margin-right: 0.3em;
 }
