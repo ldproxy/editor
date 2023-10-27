@@ -42,6 +42,8 @@ function App() {
   const [generateProgress, setGenerateProgress] = useState<string>("Analyzing tables");
   const [currentTable, setCurrentTable] = useState<string>("");
   const [progress, setProgress] = useState<{ [key: string]: string[] }>({});
+  const [currentCount, setCurrentCount] = useState<number>(0);
+  const [targetCount, setTargetCount] = useState<number>(0);
 
   const basicData: BasicData = {
     command: "auto",
@@ -268,6 +270,10 @@ function App() {
     } else if (currentResponse.details && currentResponse.details.currentTable) {
       setCurrentTable(currentResponse.details.currentTable);
       currentResponse.details.progress ? setProgress(currentResponse.details.progress) : null;
+      currentResponse.details.currentCount
+        ? setCurrentCount(currentResponse.details.currentCount)
+        : 0;
+      currentResponse.details.targetCount ? setTargetCount(currentResponse.details.targetCount) : 0;
       setGenerateProgress(
         `Analyzing table '${currentResponse.details.currentTable}' (${currentResponse.details.currentCount}/${currentResponse.details.targetCount})`
       );
@@ -381,6 +387,8 @@ function App() {
           progress={progress}
           selectedTable={selectedTable}
           dataProcessing={dataProcessing}
+          currentCount={currentCount}
+          targetCount={targetCount}
         />
       ) : (
         "An Error Occurred"

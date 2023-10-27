@@ -7,38 +7,60 @@ type ProgressProps = {
   progress: { [key: string]: string[] };
   selectedTable: SchemaTables;
   dataProcessed: string;
+  currentCount: number;
+  targetCount: number;
 };
 
 const Progress = (props: ProgressProps) => {
   return (
-    <div>
-      {Object.keys(props.progress).map((schema, schemaIndex) => (
-        <div key={schemaIndex}>
-          <span>{schema}</span>
-          {props.progress[schema].map((table, tableIndex) =>
-            table !== props.currentTable.split(".")[1] ? (
-              <div key={tableIndex}>
-                <div>✓ {table}</div>
-              </div>
-            ) : props.dataProcessed === "generated" ? (
-              <div key={tableIndex}>
-                <div>✓ {table}</div>
-              </div>
-            ) : null
-          )}
-          {props.currentTable &&
-          !Object.values(props.progress).flat().includes(props.currentTable) &&
-          props.currentTable.split(".")[0] === schema &&
-          props.dataProcessed !== "generated" ? (
-            <div>
-              <VSCodeProgressRing className="progressRing" />
-              {props.currentTable.split(".")[1]}
-            </div>
-          ) : null}
-        </div>
-      ))}
+    <div className="progress">
+      {Object.keys(props.progress).map((schema, schemaIndex) => {
+        const tablesForSchema = props.progress[schema];
+        const completedTables = tablesForSchema.filter((table) => {
+          return table !== props.currentTable.split(".")[1] || props.dataProcessed === "generated";
+        });
+
+        return (
+          <div key={schemaIndex}>
+            <span className="schema-bullet">&#8226; {schema}</span>
+            {completedTables.length === props.selectedTable[schema].length ? (
+              <span className="table-item">✓</span>
+            ) : (
+              <span className="table-item">
+                {completedTables.length} / {props.selectedTable[schema].length}
+              </span>
+            )}
+            <ul>
+              {props.progress[schema].map((table, tableIndex) => {
+                if (table !== props.currentTable.split(".")[1]) {
+                  return (
+                    <div key={tableIndex}>
+                      <span className="table-item">✓ {table}</span>
+                    </div>
+                  );
+                } else if (props.dataProcessed === "generated") {
+                  return (
+                    <div key={tableIndex}>
+                      <span className="table-item">✓ {table}</span>
+                    </div>
+                  );
+                }
+                return null;
+              })}
+              {props.currentTable &&
+              !Object.values(props.progress).flat().includes(props.currentTable) &&
+              props.currentTable.split(".")[0] === schema &&
+              props.dataProcessed !== "generated" ? (
+                <div className="spinnerTable">
+                  <VSCodeProgressRing className="progressRing2" />
+                  {props.currentTable.split(".")[1]}
+                </div>
+              ) : null}
+            </ul>
+          </div>
+        );
+      })}
     </div>
   );
 };
-
 export default Progress;

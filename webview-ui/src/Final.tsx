@@ -20,6 +20,8 @@ type FinalProps = {
   progress: { [key: string]: string[] };
   selectedTable: SchemaTables;
   dataProcessing: string;
+  currentCount: number;
+  targetCount: number;
 };
 
 const Final = (props: FinalProps) => {
@@ -50,6 +52,8 @@ const Final = (props: FinalProps) => {
         progress={props.progress}
         selectedTable={props.selectedTable}
         dataProcessed={props.dataProcessing}
+        currentCount={props.currentCount}
+        targetCount={props.targetCount}
       />
       {props.dataProcessing === "generated" ? (
         <div className="final-content">
