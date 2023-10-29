@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  VSCodeButton,
-  VSCodeTextField,
-  VSCodeRadioGroup,
-  VSCodeRadio,
-} from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
 import { vscode } from "./utilities/vscode";
 import "./App.css";
 import GeoPackage, { GpkgData } from "./GeoPackage";
@@ -44,6 +39,7 @@ function App() {
   const [progress, setProgress] = useState<{ [key: string]: string[] }>({});
   const [currentCount, setCurrentCount] = useState<number>(0);
   const [targetCount, setTargetCount] = useState<number>(0);
+  const [error, setError] = useState<{ [key: string]: string }>({});
 
   const basicData: BasicData = {
     command: "auto",
@@ -51,19 +47,6 @@ function App() {
     source: workspace,
     verbose: true,
   };
-
-  // Hilfsfunktion bis feststeht in welchem Format die selektierten Tabellen weitersgeschickt werden sollen.
-  function objectToString(selectedTable: SchemaTables) {
-    const strArr = [];
-
-    for (const key in selectedTable) {
-      if (selectedTable.hasOwnProperty(key)) {
-        strArr.push(`${key}:${selectedTable[key].join("/")}`);
-      }
-    }
-
-    return strArr.join(",");
-  }
 
   useEffect(() => {
     setGpkgData({});
@@ -177,6 +160,7 @@ function App() {
   };
 
   const submitData = (data: BasicData) => {
+    setError({});
     if (data.subcommand === "analyze") {
       setDataProcessing("inProgress");
     } else if (data.subcommand === "generate") {
@@ -210,6 +194,44 @@ function App() {
           vscode.postMessage({
             command: "error",
             text: `Error: ${response.error || response.results[0].message}`,
+          });
+        }
+
+        if (
+          response.results &&
+          response.results[0].status === "ERROR" &&
+          response.results[0].message.includes("host")
+        ) {
+          setError((prevError) => {
+            return { ...prevError, host: response.error || response.results[0].message };
+          });
+        } else if (
+          response.results &&
+          response.results[0].status === "ERROR" &&
+          response.results[0].message === "database"
+        ) {
+          setError((prevError) => {
+            return { ...prevError, database: response.error || response.results[0].message };
+          });
+        } else if (
+          response.results &&
+          response.results[0].status === "ERROR" &&
+          response.results[0].message.includes("user name")
+        ) {
+          setError((prevError) => {
+            return { ...prevError, user: response.error || response.results[0].message };
+          });
+        } else if (
+          response.results &&
+          response.results[0].status === "ERROR" &&
+          response.results[0].message.includes("password")
+        ) {
+          setError((prevError) => {
+            return { ...prevError, password: response.error || response.results[0].message };
+          });
+        } else if (response.error && response.error === "No id given") {
+          setError((prevError) => {
+            return { ...prevError, id: response.error || response.results[0].message };
           });
         }
 
@@ -281,6 +303,7 @@ function App() {
   }, [dataProcessing, currentResponse]);
 
   console.log("crd", currentResponse.details);
+  console.log("myError", error);
 
   return (
     <>
@@ -300,6 +323,7 @@ function App() {
               Id
             </VSCodeTextField>
           </section>
+          {error.id && <span className="error-message">{error.id}</span>}
           <section className="component-example">
             <VSCodeRadioGroup
               name="DataType"
@@ -330,6 +354,7 @@ function App() {
               handleUpdateData={handleUpdateData}
               dataProcessing={dataProcessing}
               sqlData={sqlData}
+              error={error}
             />
           ) : selectedDataSource === "GPKG" ? (
             <GeoPackage

@@ -18,6 +18,13 @@ type PostgreSqlProps = {
   handleUpdateData(key: string, value: string): void;
   dataProcessing: string;
   sqlData: SqlData;
+  error: {
+    id?: string;
+    host?: string;
+    database?: string;
+    user?: string;
+    password?: string;
+  };
 };
 
 function PostgreSql(props: PostgreSqlProps) {
@@ -37,6 +44,7 @@ function PostgreSql(props: PostgreSqlProps) {
               }}>
               Host
             </VSCodeTextField>
+            {props.error.host && <span className="error-message">{props.error.host}</span>}
           </section>
           <section className="component-example">
             <VSCodeTextField
@@ -50,6 +58,7 @@ function PostgreSql(props: PostgreSqlProps) {
               }}>
               Database
             </VSCodeTextField>
+            {props.error.database && <span className="error-message">{props.error.database}</span>}
           </section>
           <section className="component-example">
             <VSCodeTextField
@@ -63,6 +72,7 @@ function PostgreSql(props: PostgreSqlProps) {
               }}>
               User
             </VSCodeTextField>
+            {props.error.user && <span className="error-message">{props.error.user}</span>}
           </section>
           <section className="component-example">
             <VSCodeTextField
@@ -76,6 +86,7 @@ function PostgreSql(props: PostgreSqlProps) {
               }}>
               Password
             </VSCodeTextField>
+            {props.error.password && <span className="error-message">{props.error.password}</span>}
           </section>
         </div>
         <div className="submitAndReset">
