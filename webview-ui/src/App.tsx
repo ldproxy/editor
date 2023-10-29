@@ -200,18 +200,20 @@ function App() {
         if (
           response.results &&
           response.results[0].status === "ERROR" &&
-          response.results[0].message.includes("host")
+          response.results[0].message.includes("host") &&
+          !response.results[0].message.includes("refused")
         ) {
           setError((prevError) => {
-            return { ...prevError, host: response.error || response.results[0].message };
+            return { ...prevError, host: response.results[0].message.split(",")[0] };
           });
         } else if (
-          response.results &&
-          response.results[0].status === "ERROR" &&
-          response.results[0].message === "database"
+          (response.results &&
+            response.results[0].status === "ERROR" &&
+            response.results[0].message === "database") ||
+          response.results[0].message.includes("database")
         ) {
           setError((prevError) => {
-            return { ...prevError, database: response.error || response.results[0].message };
+            return { ...prevError, database: "No 'database' given" };
           });
         } else if (
           response.results &&
@@ -219,7 +221,7 @@ function App() {
           response.results[0].message.includes("user name")
         ) {
           setError((prevError) => {
-            return { ...prevError, user: response.error || response.results[0].message };
+            return { ...prevError, user: "No 'username' specified" };
           });
         } else if (
           response.results &&
@@ -227,11 +229,11 @@ function App() {
           response.results[0].message.includes("password")
         ) {
           setError((prevError) => {
-            return { ...prevError, password: response.error || response.results[0].message };
+            return { ...prevError, password: "'Password' authentication failed" };
           });
         } else if (response.error && response.error === "No id given") {
           setError((prevError) => {
-            return { ...prevError, id: response.error || response.results[0].message };
+            return { ...prevError, id: response.error };
           });
         }
 
