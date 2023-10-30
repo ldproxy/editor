@@ -167,6 +167,12 @@ vscode-button:hover {
   margin-top: 4px;
 }
 
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 /* Switch in Wfs.tsx */
 
 #switchDiv {

@@ -191,10 +191,27 @@ function App() {
         } else if (response.error || (response.results && response.results[0].status === "ERROR")) {
           setDataProcessing("");
           setGenerateProgress("Analyzing tables");
-          vscode.postMessage({
-            command: "error",
-            text: `Error: ${response.error || response.results[0].message}`,
-          });
+          if (
+            (response &&
+              response.results &&
+              response.results[0] &&
+              response.results[0].message &&
+              !response.results[0].message.includes("host") &&
+              !response.results[0].message.includes("database") &&
+              !response.results[0].message.includes("user") &&
+              !response.results[0].message.includes("password")) ||
+            (response &&
+              response.results &&
+              response.results[0] &&
+              response.results[0].message &&
+              response.results[0].message.includes("refused")) ||
+            (response && response.error && !response.error.includes("No id given"))
+          ) {
+            vscode.postMessage({
+              command: "error",
+              text: `Error: ${response.error || response.results[0].message}`,
+            });
+          }
         }
 
         if (
@@ -207,9 +224,8 @@ function App() {
             return { ...prevError, host: response.results[0].message.split(",")[0] };
           });
         } else if (
-          (response.results &&
-            response.results[0].status === "ERROR" &&
-            response.results[0].message === "database") ||
+          response.results &&
+          response.results[0].status === "ERROR" &&
           response.results[0].message.includes("database")
         ) {
           setError((prevError) => {
@@ -313,19 +329,21 @@ function App() {
         <main>
           <h3>Create new service</h3>
           <section className="component-example">
-            <VSCodeTextField
-              value={sqlData.id || wfsData.id || gpkgData.id || ""}
-              disabled={dataProcessing === "inProgress"}
-              onChange={(e) => {
-                const target = e.target as HTMLInputElement;
-                if (target) {
-                  handleUpdateData("id", target.value);
-                }
-              }}>
-              Id
-            </VSCodeTextField>
+            <div className="input-container">
+              <VSCodeTextField
+                value={sqlData.id || wfsData.id || gpkgData.id || ""}
+                disabled={dataProcessing === "inProgress"}
+                onChange={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  if (target) {
+                    handleUpdateData("id", target.value);
+                  }
+                }}>
+                Id
+              </VSCodeTextField>
+              {error.id && <span className="error-message">{error.id}</span>}
+            </div>
           </section>
-          {error.id && <span className="error-message">{error.id}</span>}
           <section className="component-example">
             <VSCodeRadioGroup
               name="DataType"
