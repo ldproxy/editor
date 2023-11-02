@@ -10,7 +10,6 @@ type GeoPackageProps = {
   selectedDataSource: any;
   dataProcessing: string;
   existingGeopackages: string[];
-  handleUpdateData(key: string, value: string): void;
   gpkgData: GpkgData;
   setGpkgData(arg0: Object): void;
 };
@@ -31,7 +30,7 @@ function GeoPackage(props: GeoPackageProps) {
         const uint8Array = new Uint8Array(buffer);
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
-        props.handleUpdateData(file.name, base64String);
+        //   props.handleUpdateData(file.name, base64String);
       });
     }
   };
@@ -65,7 +64,7 @@ function GeoPackage(props: GeoPackageProps) {
           value={existingGPKG}
           onChange={(event) => {
             setExistingGPKG(event.target.value);
-            props.handleUpdateData("Geopackage", event.target.value);
+            //  props.handleUpdateData("Geopackage", event.target.value);
           }}
           disabled={props.dataProcessing === "inProgress" || !!newGPKG}>
           <option value="" hidden>

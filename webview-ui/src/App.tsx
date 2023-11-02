@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
 import { vscode } from "./utilities/vscode";
 import "./App.css";
 import GeoPackage, { GpkgData } from "./GeoPackage";
 import Wfs, { WfsData } from "./Wfs";
-import PostgreSql, { SqlData } from "./PostgreSql";
-import Tables, { TableData } from "./Tables";
+import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
+import Tables, { TableData, allTablesAtom } from "./Tables";
 import Final from "./Final";
 import { BasicData, SchemaTables } from "./utilities/xtracfg";
+import { RecoilRoot, useRecoilState, useRecoilValue } from "recoil";
+import { currentCountAtom, targetCountAtom } from "./Final";
+import { featureProviderTypeAtom } from "./Common";
 
 type ResponseType = {
   error?: string;
@@ -23,22 +25,21 @@ type ResponseType = {
 };
 
 function App() {
-  const [sqlData, setSqlData] = useState<SqlData>({});
+  const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const [wfsData, setWfsData] = useState<WfsData>({});
   const [gpkgData, setGpkgData] = useState<GpkgData>({});
   const [existingGeopackages, setExistingGeopackages] = useState<string[]>([""]);
-  const [selectedDataSource, setSelectedDataSource] = useState("PGIS");
+  const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
   const [dataProcessing, setDataProcessing] = useState<string>("");
-  const [allTables, setAllTables] = useState<TableData>({});
+  const [allTables, setAllTables] = useRecoilState<TableData>(allTablesAtom);
   const [namesOfCreatedFiles, setNamesOfCreatedFiles] = useState<string[]>([]);
-  const [selectedTable, setSelectedTable] = useState<SchemaTables>({});
   const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
   const [currentResponse, setCurrentResponse] = useState<ResponseType>({});
   const [generateProgress, setGenerateProgress] = useState<string>("Analyzing tables");
   const [currentTable, setCurrentTable] = useState<string>("");
   const [progress, setProgress] = useState<{ [key: string]: string[] }>({});
-  const [currentCount, setCurrentCount] = useState<number>(0);
-  const [targetCount, setTargetCount] = useState<number>(0);
+  const [currentCount, setCurrentCount] = useRecoilState<number>(currentCountAtom);
+  const [targetCount, setTargetCount] = useRecoilState<number>(targetCountAtom);
   const [error, setError] = useState<{ [key: string]: string }>({});
 
   const basicData: BasicData = {
@@ -47,12 +48,6 @@ function App() {
     source: workspace,
     verbose: true,
   };
-
-  useEffect(() => {
-    setGpkgData({});
-    setWfsData({});
-    setSqlData({});
-  }, [selectedDataSource]);
 
   useEffect(() => {
     vscode.postMessage({
@@ -83,79 +78,22 @@ function App() {
     }
   });
 
-  const handleUpdateData = (key: string, value: string) => {
-    if (selectedDataSource === "PGIS") {
-      setWfsData({});
-      setGpkgData({});
-      if (!Object.keys(sqlData).includes("subcommand")) {
-        setSqlData(basicData);
-      }
-      setSqlData((prevSqlData) => ({
-        ...prevSqlData,
-        [key]: value,
-        featureProviderType: selectedDataSource,
-      }));
-    }
-    if (selectedDataSource === "WFS") {
-      setSqlData({});
-      setGpkgData({});
-      if (!Object.keys(wfsData).includes("subcommand")) {
-        setWfsData(basicData);
-      }
-      setWfsData((prevWfsData) => ({
-        ...prevWfsData,
-        [key]: value,
-        featureProviderType: selectedDataSource,
-      }));
-    }
-    if (selectedDataSource === "GPKG") {
-      setSqlData({});
-      setWfsData({});
-      if (!Object.keys(gpkgData).includes("subcommand")) {
-        setGpkgData(basicData);
-      }
-      setGpkgData((prevGpkgData) => ({
-        ...prevGpkgData,
-        [key]: value,
-        featureProviderType: selectedDataSource,
-      }));
-    }
+  const analyze = (connectionInfo: Object) => {
+    submitData({
+      ...basicData,
+      ...connectionInfo,
+      subcommand: "analyze",
+    });
   };
 
-  const handleGenerate = () => {
+  const generate = (selectedTables: TableData) => {
     if (selectedDataSource === "PGIS") {
-      setSqlData((prevSqlData) => ({
-        ...prevSqlData,
+      submitData({
+        ...basicData,
+        ...sqlData,
+        types: selectedTables,
         subcommand: "generate",
-      }));
-      if (Object.keys(selectedTable).length !== 0) {
-        setSqlData((prevSqlData) => ({
-          ...prevSqlData,
-          types: selectedTable,
-        }));
-      }
-    } else if (selectedDataSource === "GPKG") {
-      setGpkgData((prevGpkgData) => ({
-        ...prevGpkgData,
-        subcommand: "generate",
-      }));
-      if (Object.keys(selectedTable).length !== 0) {
-        setGpkgData((prevGpkgData) => ({
-          ...prevGpkgData,
-          selectedTables: selectedTable,
-        }));
-      }
-    } else if (selectedDataSource === "WFS") {
-      setWfsData((prevWfsData) => ({
-        ...prevWfsData,
-        subcommand: "generate",
-      }));
-      if (Object.keys(selectedTable).length !== 0) {
-        setWfsData((prevWfsData) => ({
-          ...prevWfsData,
-          selectedTables: selectedTable,
-        }));
-      }
+      });
     }
   };
 
@@ -282,8 +220,6 @@ function App() {
     }
   };
 
-  console.log("dataProccessing:", dataProcessing);
-
   useEffect(() => {
     if (
       dataProcessing === "inProgress" &&
@@ -322,57 +258,16 @@ function App() {
 
   console.log("crd", currentResponse.details);
   console.log("myError", error);
+  console.log("dataProcessing", dataProcessing);
 
   return (
     <>
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
-          <h3>Create new service</h3>
-          <section className="component-example">
-            <div className="input-container">
-              <VSCodeTextField
-                value={sqlData.id || wfsData.id || gpkgData.id || ""}
-                disabled={dataProcessing === "inProgress"}
-                onChange={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  if (target) {
-                    handleUpdateData("id", target.value);
-                  }
-                }}>
-                Id
-              </VSCodeTextField>
-              {error.id && <span className="error-message">{error.id}</span>}
-            </div>
-          </section>
-          <section className="component-example">
-            <VSCodeRadioGroup
-              name="DataType"
-              value={selectedDataSource}
-              orientation="vertical"
-              disabled={dataProcessing === "inProgress"}>
-              <label slot="label">Data Source Type</label>
-              <VSCodeRadio
-                id="PostgreSQL"
-                value="PGIS"
-                onChange={() => setSelectedDataSource("PGIS")}>
-                PostgreSQL
-              </VSCodeRadio>
-              <VSCodeRadio
-                id="GeoPackage"
-                value=" GPKG"
-                onChange={() => setSelectedDataSource("GPKG")}>
-                GeoPackage
-              </VSCodeRadio>
-              <VSCodeRadio id="WFS" value="WFS" onChange={() => setSelectedDataSource("WFS")}>
-                WFS
-              </VSCodeRadio>
-            </VSCodeRadioGroup>
-          </section>
           {selectedDataSource === "PGIS" ? (
             <PostgreSql
-              submitData={submitData}
-              handleUpdateData={handleUpdateData}
-              dataProcessing={dataProcessing}
+              submitData={analyze}
+              inProgress={dataProcessing === "inProgress"}
               sqlData={sqlData}
               error={error}
             />
@@ -382,14 +277,12 @@ function App() {
               submitData={submitData}
               dataProcessing={dataProcessing}
               existingGeopackages={existingGeopackages}
-              handleUpdateData={handleUpdateData}
               gpkgData={gpkgData}
               setGpkgData={setGpkgData}
             />
           ) : (
             <Wfs
               submitData={submitData}
-              handleUpdateData={handleUpdateData}
               wfsData={wfsData}
               setWfsData={setWfsData}
               dataProcessing={dataProcessing}
@@ -398,42 +291,31 @@ function App() {
         </main>
       ) : dataProcessing === "analyzed" ? (
         <Tables
-          allTables={allTables}
           selectedDataSource={selectedDataSource}
           setDataProcessing={setDataProcessing}
-          handleGenerate={handleGenerate}
-          selectedTable={selectedTable}
-          setSelectedTable={setSelectedTable}
           dataProcessing={dataProcessing}
           submitData={submitData}
           sqlData={sqlData}
           wfsData={wfsData}
           gpkgData={gpkgData}
-          setSqlData={setSqlData}
           setWfsData={setWfsData}
           setGpkgData={setGpkgData}
-          handleUpdateData={handleUpdateData}
           generateProgress={generateProgress}
+          generate={generate}
         />
       ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
         <Final
           workspace={workspace}
-          sqlData={sqlData}
           wfsData={wfsData}
           gpkgData={gpkgData}
           selectedDataSource={selectedDataSource}
           setDataProcessing={setDataProcessing}
           setGpkgData={setGpkgData}
-          setSqlData={setSqlData}
           setWfsData={setWfsData}
-          setSelectedTable={setSelectedTable}
           namesOfCreatedFiles={namesOfCreatedFiles}
           currentTable={currentTable}
           progress={progress}
-          selectedTable={selectedTable}
           dataProcessing={dataProcessing}
-          currentCount={currentCount}
-          targetCount={targetCount}
         />
       ) : (
         "An Error Occurred"

@@ -3,28 +3,38 @@ import "./App.css";
 import { vscode } from "./utilities/vscode";
 import Progress from "./Progress";
 import { SchemaTables } from "./utilities/xtracfg";
+import { selectedTablesAtom, TableData } from "./Tables";
+import { atom, useRecoilState, useRecoilValue, selector } from "recoil";
+
+export const currentCountAtom = atom({
+  key: "currentCount",
+  default: 0,
+});
+
+export const targetCountAtom = atom({
+  key: "targetCount",
+  default: 0,
+});
 
 type FinalProps = {
   workspace: string;
-  sqlData: Object;
   wfsData: Object;
   gpkgData: Object;
   selectedDataSource: string;
   setDataProcessing: Function;
   setGpkgData: Function;
-  setSqlData: Function;
   setWfsData: Function;
-  setSelectedTable: Function;
   namesOfCreatedFiles: Array<string>;
   currentTable: string;
   progress: { [key: string]: string[] };
-  selectedTable: SchemaTables;
   dataProcessing: string;
-  currentCount: number;
-  targetCount: number;
 };
 
 const Final = (props: FinalProps) => {
+  const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
+  const currentCount = useRecoilValue<number>(currentCountAtom);
+  const targetCount = useRecoilValue<number>(targetCountAtom);
+
   const onClose = () => {
     vscode.postMessage({ command: "closeWebview" });
   };
@@ -32,9 +42,8 @@ const Final = (props: FinalProps) => {
   const onCreateAnother = () => {
     props.setDataProcessing("");
     props.setGpkgData({});
-    props.setSqlData({});
     props.setWfsData({});
-    props.setSelectedTable({});
+    setSelectedTables({});
   };
 
   const onLinkClick = (file: string) => {
@@ -50,10 +59,10 @@ const Final = (props: FinalProps) => {
       <Progress
         currentTable={props.currentTable}
         progress={props.progress}
-        selectedTable={props.selectedTable}
+        selectedTable={selectedTables}
         dataProcessed={props.dataProcessing}
-        currentCount={props.currentCount}
-        targetCount={props.targetCount}
+        currentCount={currentCount}
+        targetCount={targetCount}
       />
       {props.dataProcessing === "generated" ? (
         <div className="final-content">

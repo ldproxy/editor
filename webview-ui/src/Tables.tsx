@@ -4,6 +4,23 @@ import { useEffect, useState } from "react";
 import { SqlData } from "./PostgreSql";
 import { WfsData } from "./Wfs";
 import { GpkgData } from "./GeoPackage";
+import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { BasicData, SchemaTables } from "./utilities/xtracfg";
+
+export const allTablesAtom = atom({
+  key: "allTables",
+  default: {},
+});
+
+export const selectedTablesAtom = atom({
+  key: "selectedTables",
+  default: {},
+});
+
+const schemasSelectedinEntiretyAtom = atom({
+  key: "schemasSelectedinEntirety",
+  default: [""],
+});
 
 export type TableData = {
   [key: string]: string[];
@@ -11,26 +28,25 @@ export type TableData = {
 
 type TabelsProps = {
   selectedDataSource: string;
-  allTables: TableData;
   setDataProcessing(dataProcessing: string): void;
-  handleGenerate(): void;
-  selectedTable: TableData;
-  setSelectedTable(selectedTable: TableData): void;
   dataProcessing: string;
   sqlData: SqlData;
   wfsData: WfsData;
   gpkgData: GpkgData;
   submitData(data: Object): void;
-  setSqlData(sqlData: Object): void;
   setWfsData(wfsData: Object): void;
   setGpkgData(gpkgData: Object): void;
-  handleUpdateData(key: string, value: string): void;
   generateProgress: string;
+  generate(data: Object): void;
 };
 
 const Tables = (props: TabelsProps) => {
-  const allSchemas = Object.keys(props.allTables);
-  const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useState<string[]>([]);
+  const allTables = useRecoilValue<TableData>(allTablesAtom);
+  const allSchemas = Object.keys(allTables);
+  const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useRecoilState<string[]>(
+    schemasSelectedinEntiretyAtom
+  );
+  const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
 
   const selectAllSchemasWithTables = () => {
     const allSchemasAlreadySelected = allSchemas.every((schema) =>
@@ -42,96 +58,64 @@ const Tables = (props: TabelsProps) => {
           allSchemas.filter((schema) => !schemasSelectedinEntirety.includes(schema))
         )
       );
-      props.setSelectedTable(props.allTables);
+      setSelectedTables(allTables);
     } else {
       setschemasSelectedinEntirety([]);
-      props.setSelectedTable({});
+      setSelectedTables({});
     }
   };
 
   const handleTableSelection = (tableName: string, schema: string) => {
-    if (props.selectedTable[schema]) {
-      if (props.selectedTable[schema].includes(tableName)) {
+    if (selectedTables[schema]) {
+      if (selectedTables[schema].includes(tableName)) {
         const updatedSelectedTables = {
-          ...props.selectedTable,
-          [schema]: props.selectedTable[schema].filter((table) => table !== tableName),
+          ...selectedTables,
+          [schema]: selectedTables[schema].filter((table) => table !== tableName),
         };
         if (updatedSelectedTables[schema].length === 0) {
           delete updatedSelectedTables[schema];
         }
-        props.setSelectedTable(updatedSelectedTables);
+        setSelectedTables(updatedSelectedTables);
       } else {
         const updatedSelectedTables = {
-          ...props.selectedTable,
-          [schema]: [...props.selectedTable[schema], tableName],
+          ...selectedTables,
+          [schema]: [...selectedTables[schema], tableName],
         };
-        props.setSelectedTable(updatedSelectedTables);
+        setSelectedTables(updatedSelectedTables);
       }
     } else {
-      props.setSelectedTable({
-        ...props.selectedTable,
+      setSelectedTables({
+        ...selectedTables,
         [schema]: [tableName],
       });
     }
   };
 
-  useEffect(() => {
-    if (props.selectedDataSource !== "GPKG") {
-      props.setSelectedTable({});
-    }
-  }, [props.selectedDataSource]);
-
   const handleSelectAllTablesInSchema = (schema: string) => {
-    const tablesInThisSchema: string[] = props.allTables[schema];
+    const tablesInThisSchema: string[] = allTables[schema];
     if (!schemasSelectedinEntirety.includes(schema)) {
       setschemasSelectedinEntirety([...schemasSelectedinEntirety, schema]);
 
-      const updatedSelectedTables = { ...props.selectedTable };
+      const updatedSelectedTables = { ...selectedTables };
       updatedSelectedTables[schema] = tablesInThisSchema;
 
-      props.setSelectedTable(updatedSelectedTables);
+      setSelectedTables(updatedSelectedTables);
     } else {
       setschemasSelectedinEntirety(schemasSelectedinEntirety.filter((s) => s !== schema));
-      const updatedSelectedTables = { ...props.selectedTable };
+      const updatedSelectedTables = { ...selectedTables };
       delete updatedSelectedTables[schema];
 
-      props.setSelectedTable(updatedSelectedTables);
+      setSelectedTables(updatedSelectedTables);
     }
   };
 
-  useEffect(() => {
-    props.handleGenerate();
-  }, [props.selectedTable]);
-
-  const handleGenerateSubmit = () => {
-    if (props.selectedDataSource === "PGIS") {
-      props.submitData(props.sqlData);
-    } else if (props.selectedDataSource === "GPKG") {
-      props.submitData(props.gpkgData);
-    } else if (props.selectedDataSource === "WFS") {
-      props.submitData(props.gpkgData);
-    }
-  };
-
+  //remove all but dataprocessing
   const handleBack = () => {
     props.setDataProcessing("");
-    props.setSelectedTable({});
-
-    if (props.selectedDataSource === "PGIS") {
-      const { types, ...sqlDataWithoutSelectedTables } = props.sqlData;
-      props.setSqlData(sqlDataWithoutSelectedTables);
-    } else if (props.selectedDataSource === "GPKG") {
-      const { types, ...gpkgDataWithoutSelectedTables } = props.gpkgData;
-      props.setGpkgData(gpkgDataWithoutSelectedTables);
-    } else if (props.selectedDataSource === "WFS") {
-      const { types, ...wfsDataWithoutSelectedTables } = props.wfsData;
-      props.setWfsData(wfsDataWithoutSelectedTables);
-    }
-
-    props.handleUpdateData("subcommand", "analyze");
+    setSelectedTables({});
   };
 
-  console.log("selectedTables", props.selectedTable);
+  console.log("selectedTables", selectedTables);
 
   // TODO: use indeterminate={true} for All checkboxes when not all/nothing checked
   return (
@@ -161,10 +145,10 @@ const Tables = (props: TabelsProps) => {
                   onClick={() => handleSelectAllTablesInSchema(schema)}>
                   All
                 </VSCodeCheckbox>
-                {props.allTables[schema].map((tableName) => (
+                {allTables[schema].map((tableName) => (
                   <VSCodeCheckbox
-                    key={tableName + Math.floor(Math.random() * 1000)}
-                    checked={props.selectedTable[schema]?.includes(tableName)}
+                    key={tableName + schema}
+                    checked={selectedTables[schema]?.includes(tableName)}
                     onClick={() => handleTableSelection(tableName, schema)}>
                     {tableName}
                   </VSCodeCheckbox>
@@ -180,10 +164,10 @@ const Tables = (props: TabelsProps) => {
         </VSCodeButton>
         <VSCodeButton
           className="submitButton"
-          onClick={handleGenerateSubmit}
+          onClick={() => props.generate(selectedTables)}
           disabled={
             props.dataProcessing === "inProgressGenerating" ||
-            Object.keys(props.selectedTable).length === 0
+            Object.keys(selectedTables).length === 0
           }>
           Next
         </VSCodeButton>

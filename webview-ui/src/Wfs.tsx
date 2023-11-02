@@ -15,7 +15,6 @@ export type WfsData = BasicData & {
 
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
-  handleUpdateData(key: string, value: string): void;
   wfsData: WfsData;
   setWfsData(wfsData: Object): void;
   dataProcessing: string;
@@ -50,7 +49,7 @@ function Wfs(props: PostgreSqlProps) {
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("url", target.value);
+                  //  props.handleUpdateData("url", target.value);
                 }
               }}>
               WFS URL
@@ -77,7 +76,7 @@ function Wfs(props: PostgreSqlProps) {
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
-                      props.handleUpdateData("user", target.value);
+                      //        props.handleUpdateData("user", target.value);
                     }
                   }}>
                   User
@@ -90,7 +89,7 @@ function Wfs(props: PostgreSqlProps) {
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
-                      props.handleUpdateData("password", target.value);
+                      //    props.handleUpdateData("password", target.value);
                     }
                   }}>
                   Password

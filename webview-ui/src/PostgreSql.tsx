@@ -5,8 +5,52 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { BasicData } from "./utilities/xtracfg";
+import { atom, useRecoilState, useRecoilValue, selector } from "recoil";
+import Common, { idAtom, featureProviderTypeAtom } from "./Common";
+
+const hostAtom = atom({
+  key: "host",
+  default: "",
+});
+
+const databaseAtom = atom({
+  key: "database",
+  default: "",
+});
+
+const userAtom = atom({
+  key: "user",
+  default: "",
+});
+
+const passwordAtom = atom({
+  key: "password",
+  default: "",
+});
+
+export const sqlDataSelector = selector({
+  key: "sqlDataSelector",
+  get: ({ get }) => {
+    const id = get(idAtom);
+    const featureProviderType = get(featureProviderTypeAtom);
+    const host = get(hostAtom);
+    const database = get(databaseAtom);
+    const user = get(userAtom);
+    const password = get(passwordAtom);
+    return {
+      id,
+      featureProviderType,
+      host,
+      database,
+      user,
+      password,
+    };
+  },
+});
 
 export type SqlData = BasicData & {
+  id?: string;
+  featureProviderType?: string;
   host?: string;
   database?: string;
   user?: string;
@@ -15,8 +59,7 @@ export type SqlData = BasicData & {
 
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
-  handleUpdateData(key: string, value: string): void;
-  dataProcessing: string;
+  inProgress: boolean;
   sqlData: SqlData;
   error: {
     id?: string;
@@ -27,78 +70,85 @@ type PostgreSqlProps = {
   };
 };
 
-function PostgreSql(props: PostgreSqlProps) {
+function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
+  const [host, setHost] = useRecoilState<string>(hostAtom);
+  const [database, setDatabase] = useRecoilState<string>(databaseAtom);
+  const [user, setUser] = useRecoilState<string>(userAtom);
+  const [password, setPassword] = useRecoilState<string>(passwordAtom);
+  const sqlData = useRecoilValue(sqlDataSelector);
+
   return (
     <div className="frame">
       <div className="postgresWfsOuterContainer">
         <div className="postgresWfsInnerContainer">
+          <Common error={error} disabled={inProgress} />
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.host ? props.sqlData.host : undefined || ""}
-              disabled={props.dataProcessing === "inProgress"}
+              value={host}
+              disabled={inProgress}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("host", target.value);
+                  setHost(target.value);
                 }
               }}>
               Host
             </VSCodeTextField>
-            {props.error.host && <span className="error-message">{props.error.host}</span>}
+            {error.host && <span className="error-message">{error.host}</span>}
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.database ? props.sqlData.database : undefined || ""}
-              disabled={props.dataProcessing === "inProgress"}
+              value={database}
+              disabled={inProgress}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("database", target.value);
+                  setDatabase(target.value);
                 }
               }}>
               Database
             </VSCodeTextField>
-            {props.error.database && <span className="error-message">{props.error.database}</span>}
+            {error.database && <span className="error-message">{error.database}</span>}
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.user ? props.sqlData.user : undefined || ""}
-              disabled={props.dataProcessing === "inProgress"}
+              value={user}
+              disabled={inProgress}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("user", target.value);
+                  setUser(target.value);
                 }
               }}>
               User
             </VSCodeTextField>
-            {props.error.user && <span className="error-message">{props.error.user}</span>}
+            {error.user && <span className="error-message">{error.user}</span>}
           </section>
           <section className="component-example">
             <VSCodeTextField
-              value={props.sqlData.password ? props.sqlData.password : undefined || ""}
-              disabled={props.dataProcessing === "inProgress"}
+              value={password}
+              disabled={inProgress}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  props.handleUpdateData("password", target.value);
+                  setPassword(target.value);
                 }
               }}>
               Password
             </VSCodeTextField>
-            {props.error.password && <span className="error-message">{props.error.password}</span>}
+            {error.password && <span className="error-message">{error.password}</span>}
           </section>
         </div>
         <div className="submitAndReset">
           <VSCodeButton
             className="submitButton"
-            onClick={() => props.submitData(props.sqlData)}
-            disabled={props.dataProcessing === "inProgress"}>
+            onClick={() => submitData(sqlData)}
+            disabled={inProgress}>
             Next
           </VSCodeButton>
         </div>
       </div>
-      {props.dataProcessing === "inProgress" && (
+      {inProgress && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Analyzing database ...</span>

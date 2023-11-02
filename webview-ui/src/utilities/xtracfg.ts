@@ -9,6 +9,7 @@ export type BasicData = {
   id?: string;
   verbose?: boolean;
   types?: SchemaTables;
+  featureProviderType?: string;
 };
 
 //TODO: move all websocket communication to this file
