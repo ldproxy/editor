@@ -69,15 +69,13 @@ const Final = (props: FinalProps) => {
           <h2 className="final-title">The following files were created.</h2>
           <ul>
             {props.namesOfCreatedFiles.map((file, index) => {
-              const parts = file.split("/");
-              const fileName = parts[parts.length - 1];
               return (
                 <li key={index}>
                   <a
                     key={index}
-                    href={`${props.workspace}/${fileName}`}
+                    href={`${props.workspace}/${file}`}
                     className="final-link"
-                    onClick={() => onLinkClick(fileName)}>
+                    onClick={() => onLinkClick(file)}>
                     {file}
                   </a>
                 </li>
