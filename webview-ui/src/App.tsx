@@ -321,11 +321,11 @@ function App() {
             <GeoPackage
               selectedDataSource={selectedDataSource}
               submitData={submitData}
-              dataProcessing={dataProcessing}
+              inProgress={dataProcessing === "inProgress"}
               existingGeopackages={existingGeopackages}
             />
           ) : (
-            <Wfs submitData={submitData} dataProcessing={dataProcessing} />
+            <Wfs submitData={submitData} inProgress={dataProcessing === "inProgress"} />
           )}
         </main>
       ) : dataProcessing === "analyzed" ? (

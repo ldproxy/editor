@@ -20,7 +20,7 @@ export type WfsData = BasicData & {
 
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
-  dataProcessing: string;
+  inProgress: boolean;
 };
 
 export const isSwitchOnAtom = atom({
@@ -54,7 +54,7 @@ function Wfs(props: PostgreSqlProps) {
           <section className="component-example">
             <VSCodeTextField
               value={wfsData.url ? wfsData.url : undefined || ""}
-              disabled={props.dataProcessing === "inProgress"}
+              disabled={props.inProgress}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -70,7 +70,7 @@ function Wfs(props: PostgreSqlProps) {
                 type="checkbox"
                 checked={isSwitchOn}
                 onChange={handleSwitchToggle}
-                disabled={props.dataProcessing === "inProgress"}
+                disabled={props.inProgress}
               />
               <span className="slider"></span>
             </label>
@@ -81,7 +81,7 @@ function Wfs(props: PostgreSqlProps) {
               <section className="component-example">
                 <VSCodeTextField
                   value={wfsData.user ? wfsData.user : undefined || ""}
-                  disabled={props.dataProcessing === "inProgress"}
+                  disabled={props.inProgress}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
@@ -94,7 +94,7 @@ function Wfs(props: PostgreSqlProps) {
               <section className="component-example">
                 <VSCodeTextField
                   value={wfsData.password ? wfsData.password : undefined || ""}
-                  disabled={props.dataProcessing === "inProgress"}
+                  disabled={props.inProgress}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
@@ -111,12 +111,12 @@ function Wfs(props: PostgreSqlProps) {
           <VSCodeButton
             className="submitButton"
             onClick={() => props.submitData(wfsData)}
-            disabled={props.dataProcessing === "inProgress"}>
+            disabled={props.inProgress}>
             Next
           </VSCodeButton>
         </div>
       </div>
-      {props.dataProcessing === "inProgress" && (
+      {props.inProgress && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Data is being processed...</span>

@@ -33,7 +33,7 @@ export type GpkgData = BasicData & {};
 type GeoPackageProps = {
   submitData: (data: Object) => void;
   selectedDataSource: any;
-  dataProcessing: string;
+  inProgress: boolean;
   existingGeopackages: string[];
 };
 
@@ -90,7 +90,7 @@ function GeoPackage(props: GeoPackageProps) {
             setExistingGPKG(event.target.value);
             //  props.handleUpdateData("Geopackage", event.target.value);
           }}
-          disabled={props.dataProcessing === "inProgress" || !!newGPKG}>
+          disabled={props.inProgress || !!newGPKG}>
           <option value="" hidden>
             Choose existing File...
           </option>
@@ -101,7 +101,7 @@ function GeoPackage(props: GeoPackageProps) {
           ))}
         </select>
         <span>or</span>
-        {!existingGPKG && props.dataProcessing !== "inProgress" ? (
+        {!existingGPKG && !props.inProgress ? (
           <label htmlFor="geoInput" className="vscode-button">
             Upload new File
           </label>
@@ -116,14 +116,14 @@ function GeoPackage(props: GeoPackageProps) {
           onChange={(event) => onFileChange(event)}
           accept=".gpkg"
           multiple={false}
-          disabled={props.dataProcessing === "inProgress" || !!existingGPKG}
+          disabled={props.inProgress || !!existingGPKG}
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
         <div className="submitAndReset">
           <VSCodeButton
             className="submitButton"
             onClick={() => props.submitData(gpkgData)}
-            disabled={props.dataProcessing === "inProgress"}>
+            disabled={props.inProgress}>
             Next
           </VSCodeButton>
           {existingGPKG || newGPKG ? (
@@ -133,7 +133,7 @@ function GeoPackage(props: GeoPackageProps) {
           ) : null}
         </div>
       </div>
-      {props.dataProcessing === "inProgress" && (
+      {props.inProgress && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Data is being processed...</span>
