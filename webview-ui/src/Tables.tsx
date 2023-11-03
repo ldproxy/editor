@@ -1,11 +1,9 @@
 import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
-import { useEffect, useState } from "react";
 import { SqlData } from "./PostgreSql";
 import { WfsData } from "./Wfs";
 import { GpkgData } from "./GeoPackage";
 import { atom, useRecoilState, useRecoilValue } from "recoil";
-import { BasicData, SchemaTables } from "./utilities/xtracfg";
 
 export const allTablesAtom = atom({
   key: "allTables",
@@ -93,6 +91,7 @@ const Tables = (props: TabelsProps) => {
 
   const handleSelectAllTablesInSchema = (schema: string) => {
     const tablesInThisSchema: string[] = allTables[schema];
+
     if (!schemasSelectedinEntirety.includes(schema)) {
       setschemasSelectedinEntirety([...schemasSelectedinEntirety, schema]);
 
@@ -115,6 +114,32 @@ const Tables = (props: TabelsProps) => {
     setSelectedTables({});
   };
 
+  const isAllSelectedInSchema = (schema: string) => {
+    const tablesInSchema = allTables[schema] || [];
+    const selectedTablesInSchema = selectedTables[schema] || [];
+    return tablesInSchema.length === selectedTablesInSchema.length;
+  };
+
+  const areAllTablesSelected = () => {
+    const allTablesKeys = Object.keys(allTables);
+    const selectedTablesKeys = Object.keys(selectedTables);
+
+    if (allTablesKeys.length !== selectedTablesKeys.length) {
+      return false;
+    }
+
+    for (const key of allTablesKeys) {
+      const allTablesArray: string[] = allTables[key];
+      const selectedTablesArray: string[] = selectedTables[key];
+
+      if (allTablesArray.length !== selectedTablesArray.length) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   console.log("selectedTables", selectedTables);
 
   // TODO: use indeterminate={true} for All checkboxes when not all/nothing checked
@@ -127,7 +152,7 @@ const Tables = (props: TabelsProps) => {
               <legend>Select all Schemas</legend>
               <VSCodeCheckbox
                 key="everything"
-                checked={allSchemas.every((schema) => schemasSelectedinEntirety.includes(schema))}
+                checked={areAllTablesSelected()}
                 onClick={selectAllSchemasWithTables}>
                 All
               </VSCodeCheckbox>
@@ -141,7 +166,7 @@ const Tables = (props: TabelsProps) => {
               <div className="checkbox-container">
                 <VSCodeCheckbox
                   key={schema}
-                  checked={schemasSelectedinEntirety.includes(schema)}
+                  checked={isAllSelectedInSchema(schema)}
                   onClick={() => handleSelectAllTablesInSchema(schema)}>
                   All
                 </VSCodeCheckbox>

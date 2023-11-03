@@ -41,8 +41,6 @@ const Final = (props: FinalProps) => {
 
   const onCreateAnother = () => {
     props.setDataProcessing("");
-    props.setGpkgData({});
-    props.setWfsData({});
     setSelectedTables({});
   };
 

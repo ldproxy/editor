@@ -167,7 +167,7 @@ function App() {
           response.results[0].message.includes("database")
         ) {
           setError((prevError) => {
-            return { ...prevError, database: "No 'database' given" };
+            return { ...prevError, database: response.results[0].message };
           });
         } else if (
           response.results &&
@@ -175,7 +175,7 @@ function App() {
           response.results[0].message.includes("user name")
         ) {
           setError((prevError) => {
-            return { ...prevError, user: "No 'username' specified" };
+            return { ...prevError, user: response.results[0].message };
           });
         } else if (
           response.results &&
@@ -183,7 +183,11 @@ function App() {
           response.results[0].message.includes("password")
         ) {
           setError((prevError) => {
-            return { ...prevError, password: "'Password' authentication failed" };
+            return {
+              ...prevError,
+              password: response.results[0].message,
+              user: response.results[0].message,
+            };
           });
         } else if (response.error && response.error === "No id given") {
           setError((prevError) => {
