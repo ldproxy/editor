@@ -4,7 +4,6 @@ import { SqlData } from "./PostgreSql";
 import { WfsData } from "./Wfs";
 import { GpkgData } from "./GeoPackage";
 import { atom, useRecoilState, useRecoilValue } from "recoil";
-import { useEffect } from "react";
 
 export const allTablesAtom = atom({
   key: "allTables",
@@ -14,11 +13,6 @@ export const allTablesAtom = atom({
 export const selectedTablesAtom = atom({
   key: "selectedTables",
   default: {},
-});
-
-const schemasSelectedinEntiretyAtom = atom({
-  key: "schemasSelectedinEntirety",
-  default: [""],
 });
 
 export type TableData = {
@@ -42,24 +36,14 @@ type TabelsProps = {
 const Tables = (props: TabelsProps) => {
   const allTables = useRecoilValue<TableData>(allTablesAtom);
   const allSchemas = Object.keys(allTables);
-  const [schemasSelectedinEntirety, setschemasSelectedinEntirety] = useRecoilState<string[]>(
-    schemasSelectedinEntiretyAtom
-  );
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
 
   const selectAllSchemasWithTables = () => {
-    const allSchemasAlreadySelected = allSchemas.every((schema) =>
-      schemasSelectedinEntirety.includes(schema)
-    );
+    const allSchemasAlreadySelected = areAllTablesSelected();
+
     if (!allSchemasAlreadySelected) {
-      setschemasSelectedinEntirety(
-        schemasSelectedinEntirety.concat(
-          allSchemas.filter((schema) => !schemasSelectedinEntirety.includes(schema))
-        )
-      );
       setSelectedTables(allTables);
     } else {
-      setschemasSelectedinEntirety([]);
       setSelectedTables({});
     }
   };
@@ -95,11 +79,16 @@ const Tables = (props: TabelsProps) => {
     const schemaSelected = selectedTables[schema]?.length === tablesInThisSchema.length;
 
     if (!schemaSelected) {
-      selectedTables[schema] = tablesInThisSchema;
-      setschemasSelectedinEntirety([...schemasSelectedinEntirety, schema]);
+      setSelectedTables((prevSelectedTables) => ({
+        ...prevSelectedTables,
+        [schema]: tablesInThisSchema,
+      }));
     } else {
-      delete selectedTables[schema];
-      setschemasSelectedinEntirety(schemasSelectedinEntirety.filter((s) => s !== schema));
+      setSelectedTables((prevSelectedTables) => {
+        const updatedSelectedTables = { ...prevSelectedTables };
+        delete updatedSelectedTables[schema];
+        return updatedSelectedTables;
+      });
     }
   };
 
