@@ -60,7 +60,6 @@ export type SqlData = BasicData & {
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
   inProgress: boolean;
-  sqlData: SqlData;
   error: {
     id?: string;
     host?: string;

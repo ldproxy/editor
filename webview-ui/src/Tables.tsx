@@ -23,13 +23,11 @@ export const currentTableAtom = atom({
 });
 
 type TabelsProps = {
-  selectedDataSource: string;
-  submitData(data: Object): void;
   generateProgress: string;
   generate(data: Object): void;
 };
 
-const Tables = (props: TabelsProps) => {
+const Tables = ({ generateProgress, generate }: TabelsProps) => {
   const allTables = useRecoilValue<TableData>(allTablesAtom);
   const allSchemas = Object.keys(allTables);
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
@@ -170,7 +168,7 @@ const Tables = (props: TabelsProps) => {
         </VSCodeButton>
         <VSCodeButton
           className="submitButton"
-          onClick={() => props.generate(selectedTables)}
+          onClick={() => generate(selectedTables)}
           disabled={
             dataProcessing === "inProgressGenerating" || Object.keys(selectedTables).length === 0
           }>
@@ -180,7 +178,7 @@ const Tables = (props: TabelsProps) => {
       {dataProcessing === "inProgressGenerating" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
-          <span id="progressText">{props.generateProgress} ...</span>
+          <span id="progressText">{generateProgress} ...</span>
         </div>
       )}
     </>

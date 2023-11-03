@@ -19,7 +19,7 @@ type CommonProps = {
   };
 };
 
-function Common(props: CommonProps) {
+function Common({ disabled, error }: CommonProps) {
   const [id, setId] = useRecoilState(idAtom);
   const [featureProviderType, setFeatureProviderType] = useRecoilState(featureProviderTypeAtom);
 
@@ -30,7 +30,7 @@ function Common(props: CommonProps) {
         <div className="input-container">
           <VSCodeTextField
             value={id}
-            disabled={props.disabled}
+            disabled={disabled}
             onChange={(e) => {
               const target = e.target as HTMLInputElement;
               if (target) {
@@ -39,7 +39,7 @@ function Common(props: CommonProps) {
             }}>
             Id
           </VSCodeTextField>
-          {props.error.id && <span className="error-message">{props.error.id}</span>}
+          {error.id && <span className="error-message">{error.id}</span>}
         </div>
       </section>
       <section className="component-example">
@@ -47,7 +47,7 @@ function Common(props: CommonProps) {
           name="DataType"
           value={featureProviderType}
           orientation="vertical"
-          disabled={props.disabled}>
+          disabled={disabled}>
           <label slot="label">Data Source Type</label>
           <VSCodeRadio id="PostgreSQL" value="PGIS" onChange={() => setFeatureProviderType("PGIS")}>
             PostgreSQL

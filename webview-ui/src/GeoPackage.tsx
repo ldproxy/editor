@@ -37,7 +37,12 @@ type GeoPackageProps = {
   existingGeopackages: string[];
 };
 
-function GeoPackage(props: GeoPackageProps) {
+function GeoPackage({
+  submitData,
+  selectedDataSource,
+  inProgress,
+  existingGeopackages,
+}: GeoPackageProps) {
   const [gpkgData, setGpkgData] = useRecoilState<GpkgData>(gpkgDataAtom);
   const [newGPKG, setNewGPKG] = useRecoilState<any>(newGPKGAtom);
   const [existingGPKG, setExistingGPKG] = useRecoilState<string>(existingGPKGAtom);
@@ -60,12 +65,12 @@ function GeoPackage(props: GeoPackageProps) {
   };
 
   useEffect(() => {
-    if (props.selectedDataSource !== "GPKG") {
+    if (selectedDataSource !== "GPKG") {
       setNewGPKG("");
       setExistingGPKG("");
       setFilename("");
     }
-  }, [props.selectedDataSource]);
+  }, [selectedDataSource]);
 
   const handleReset = () => {
     setExistingGPKG("");
@@ -90,18 +95,18 @@ function GeoPackage(props: GeoPackageProps) {
             setExistingGPKG(event.target.value);
             //  props.handleUpdateData("Geopackage", event.target.value);
           }}
-          disabled={props.inProgress || !!newGPKG}>
+          disabled={inProgress || !!newGPKG}>
           <option value="" hidden>
             Choose existing File...
           </option>
-          {props.existingGeopackages.map((option) => (
+          {existingGeopackages.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
           ))}
         </select>
         <span>or</span>
-        {!existingGPKG && !props.inProgress ? (
+        {!existingGPKG && !inProgress ? (
           <label htmlFor="geoInput" className="vscode-button">
             Upload new File
           </label>
@@ -116,14 +121,14 @@ function GeoPackage(props: GeoPackageProps) {
           onChange={(event) => onFileChange(event)}
           accept=".gpkg"
           multiple={false}
-          disabled={props.inProgress || !!existingGPKG}
+          disabled={inProgress || !!existingGPKG}
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
         <div className="submitAndReset">
           <VSCodeButton
             className="submitButton"
-            onClick={() => props.submitData(gpkgData)}
-            disabled={props.inProgress}>
+            onClick={() => submitData(gpkgData)}
+            disabled={inProgress}>
             Next
           </VSCodeButton>
           {existingGPKG || newGPKG ? (
@@ -133,7 +138,7 @@ function GeoPackage(props: GeoPackageProps) {
           ) : null}
         </div>
       </div>
-      {props.inProgress && (
+      {inProgress && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Data is being processed...</span>

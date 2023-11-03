@@ -7,8 +7,6 @@ type ProgressProps = {
   progress: { [key: string]: string[] };
   selectedTable: SchemaTables;
   dataProcessed: string;
-  currentCount: number;
-  targetCount: number;
 };
 
 type SchemaData = {
@@ -16,22 +14,22 @@ type SchemaData = {
   completedTables: string[];
 };
 
-const Progress = (props: ProgressProps) => {
-  if (Object.keys(props.progress).length === 0 || Object.keys(props.selectedTable).length === 0) {
+const Progress = ({ currentTable, progress, selectedTable, dataProcessed }: ProgressProps) => {
+  if (Object.keys(progress).length === 0 || Object.keys(selectedTable).length === 0) {
     return null;
   }
 
-  const schemasToShow: SchemaData[] = Object.keys(props.selectedTable).map((schema) => ({
+  const schemasToShow: SchemaData[] = Object.keys(selectedTable).map((schema) => ({
     schema,
     completedTables: [],
   }));
 
   schemasToShow.forEach((schemaData) => {
     const { schema } = schemaData;
-    if (props.progress.hasOwnProperty(schema)) {
-      const tablesForSchema = props.progress[schema];
+    if (progress.hasOwnProperty(schema)) {
+      const tablesForSchema = progress[schema];
       const completedTables = tablesForSchema.filter((table) => {
-        return table !== props.currentTable.split(".")[1] || props.dataProcessed === "generated";
+        return table !== currentTable.split(".")[1] || dataProcessed === "generated";
       });
       schemaData.completedTables = completedTables;
     }
@@ -45,23 +43,23 @@ const Progress = (props: ProgressProps) => {
         return (
           <div key={schemaIndex}>
             <span className="schema-bullet">&#8226; {schema}</span>
-            {completedTables.length === props.selectedTable[schema].length ? (
+            {completedTables.length === selectedTable[schema].length ? (
               <span className="table-item">✓</span>
             ) : (
               <span className="table-item">
-                {completedTables.length} / {props.selectedTable[schema].length}
+                {completedTables.length} / {selectedTable[schema].length}
               </span>
             )}
-            {completedTables.length === props.selectedTable[schema].length ? null : (
+            {completedTables.length === selectedTable[schema].length ? null : (
               <ul>
-                {props.progress[schema]?.map((table, tableIndex) => {
-                  if (table !== props.currentTable.split(".")[1]) {
+                {progress[schema]?.map((table, tableIndex) => {
+                  if (table !== currentTable.split(".")[1]) {
                     return (
                       <div key={tableIndex}>
                         <span className="table-item">✓ {table}</span>
                       </div>
                     );
-                  } else if (props.dataProcessed === "generated") {
+                  } else if (dataProcessed === "generated") {
                     return (
                       <div key={tableIndex}>
                         <span className="table-item">✓ {table}</span>
@@ -70,13 +68,13 @@ const Progress = (props: ProgressProps) => {
                   }
                   return null;
                 })}
-                {props.currentTable &&
-                !Object.values(props.progress).flat().includes(props.currentTable) &&
-                props.currentTable.split(".")[0] === schema &&
-                props.dataProcessed !== "generated" ? (
+                {currentTable &&
+                !Object.values(progress).flat().includes(currentTable) &&
+                currentTable.split(".")[0] === schema &&
+                dataProcessed !== "generated" ? (
                   <div className="spinnerTable">
                     <VSCodeProgressRing className="progressRing2" />
-                    <span className="table-item"> {props.currentTable.split(".")[1]}</span>
+                    <span className="table-item"> {currentTable.split(".")[1]}</span>
                   </div>
                 ) : null}
               </ul>

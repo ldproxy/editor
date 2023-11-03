@@ -314,7 +314,6 @@ function App() {
             <PostgreSql
               submitData={analyze}
               inProgress={dataProcessing === "inProgress"}
-              sqlData={sqlData}
               error={error}
             />
           ) : selectedDataSource === "GPKG" ? (
@@ -329,21 +328,13 @@ function App() {
           )}
         </main>
       ) : dataProcessing === "analyzed" ? (
-        <Tables
-          selectedDataSource={selectedDataSource}
-          submitData={submitData}
-          generateProgress={generateProgress}
-          generate={generate}
-        />
+        <Tables generateProgress={generateProgress} generate={generate} />
       ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
         <Final
           workspace={workspace}
-          selectedDataSource={selectedDataSource}
           namesOfCreatedFiles={namesOfCreatedFiles}
           currentTable={currentTable}
           progress={progress}
-          currentCount={currentCount}
-          targetCount={targetCount}
         />
       ) : (
         "An Error Occurred"

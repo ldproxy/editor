@@ -23,15 +23,12 @@ export const namesOfCreatedFilesAtom = atom({
 
 type FinalProps = {
   workspace: string;
-  selectedDataSource: string;
   namesOfCreatedFiles: Array<string>;
   currentTable: string;
   progress: { [key: string]: string[] };
-  currentCount: number;
-  targetCount: number;
 };
 
-const Final = (props: FinalProps) => {
+const Final = ({ workspace, namesOfCreatedFiles, currentTable, progress }: FinalProps) => {
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
   const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
 
@@ -47,7 +44,7 @@ const Final = (props: FinalProps) => {
   const onLinkClick = (file: string) => {
     vscode.postMessage({
       command: "success",
-      text: `${props.workspace}/${file}`,
+      text: `${workspace}/${file}`,
     });
     vscode.getState();
   };
@@ -55,23 +52,21 @@ const Final = (props: FinalProps) => {
   return (
     <div className="final-container">
       <Progress
-        currentTable={props.currentTable}
-        progress={props.progress}
+        currentTable={currentTable}
+        progress={progress}
         selectedTable={selectedTables}
         dataProcessed={dataProcessing}
-        currentCount={props.currentCount}
-        targetCount={props.targetCount}
       />
       {dataProcessing === "generated" ? (
         <div className="final-content">
           <h2 className="final-title">The following files were created.</h2>
           <ul>
-            {props.namesOfCreatedFiles.map((file, index) => {
+            {namesOfCreatedFiles.map((file, index) => {
               return (
                 <li key={index}>
                   <a
                     key={index}
-                    href={`${props.workspace}/${file}`}
+                    href={`${workspace}/${file}`}
                     className="final-link"
                     onClick={() => onLinkClick(file)}>
                     {file}

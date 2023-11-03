@@ -28,7 +28,7 @@ export const isSwitchOnAtom = atom({
   default: false,
 });
 
-function Wfs(props: PostgreSqlProps) {
+function Wfs({ submitData, inProgress }: PostgreSqlProps) {
   const [wfsData, setWfsData] = useRecoilState<WfsData>(wfsDataAtom);
   const [isSwitchOn, setIsSwitchOn] = useRecoilState(isSwitchOnAtom);
 
@@ -54,7 +54,7 @@ function Wfs(props: PostgreSqlProps) {
           <section className="component-example">
             <VSCodeTextField
               value={wfsData.url ? wfsData.url : undefined || ""}
-              disabled={props.inProgress}
+              disabled={inProgress}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
@@ -70,7 +70,7 @@ function Wfs(props: PostgreSqlProps) {
                 type="checkbox"
                 checked={isSwitchOn}
                 onChange={handleSwitchToggle}
-                disabled={props.inProgress}
+                disabled={inProgress}
               />
               <span className="slider"></span>
             </label>
@@ -81,7 +81,7 @@ function Wfs(props: PostgreSqlProps) {
               <section className="component-example">
                 <VSCodeTextField
                   value={wfsData.user ? wfsData.user : undefined || ""}
-                  disabled={props.inProgress}
+                  disabled={inProgress}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
@@ -94,7 +94,7 @@ function Wfs(props: PostgreSqlProps) {
               <section className="component-example">
                 <VSCodeTextField
                   value={wfsData.password ? wfsData.password : undefined || ""}
-                  disabled={props.inProgress}
+                  disabled={inProgress}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
@@ -110,13 +110,13 @@ function Wfs(props: PostgreSqlProps) {
         <div className="postgresWfsSubmit">
           <VSCodeButton
             className="submitButton"
-            onClick={() => props.submitData(wfsData)}
-            disabled={props.inProgress}>
+            onClick={() => submitData(wfsData)}
+            disabled={inProgress}>
             Next
           </VSCodeButton>
         </div>
       </div>
-      {props.inProgress && (
+      {inProgress && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Data is being processed...</span>
