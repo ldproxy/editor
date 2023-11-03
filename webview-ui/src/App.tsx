@@ -1,15 +1,56 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { vscode } from "./utilities/vscode";
 import "./App.css";
-import GeoPackage, { GpkgData } from "./GeoPackage";
-import Wfs, { WfsData } from "./Wfs";
+import GeoPackage, { existingGeopackageAtom } from "./GeoPackage";
+import Wfs, { WfsData, wfsDataAtom } from "./Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
-import Tables, { TableData, allTablesAtom } from "./Tables";
+import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
 import Final from "./Final";
 import { BasicData, SchemaTables } from "./utilities/xtracfg";
-import { RecoilRoot, useRecoilState, useRecoilValue } from "recoil";
-import { currentCountAtom, targetCountAtom } from "./Final";
+import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { currentCountAtom, targetCountAtom, namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
+
+export const dataProcessingAtom = atom({
+  key: "dataProcessing",
+  default: "",
+});
+
+export const workspaceAtom = atom({
+  key: "workspace",
+  default: "c:/Users/p.zahnen/Documents/GitHub/editor/data",
+});
+
+export const errorAtom = atom({
+  key: "error",
+  default: {},
+});
+
+export const currentResponseAtom = atom<ResponseType>({
+  key: "currentResponse",
+  default: {
+    error: "",
+    details: {
+      types: {},
+      new_files: [],
+      currentTable: "",
+      currentCount: 0,
+      targetCount: 0,
+      progress: {},
+    },
+    results: [],
+  },
+});
+
+export const generateProgressAtom = atom({
+  key: "generateProgress",
+  default: "",
+});
+
+export const progressAtom = atom({
+  key: "progress",
+  default: {},
+});
 
 type ResponseType = {
   error?: string;
@@ -26,21 +67,23 @@ type ResponseType = {
 
 function App() {
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
-  const [wfsData, setWfsData] = useState<WfsData>({});
-  const [gpkgData, setGpkgData] = useState<GpkgData>({});
-  const [existingGeopackages, setExistingGeopackages] = useState<string[]>([""]);
+  const [wfsData, setWfsData] = useRecoilState<WfsData>(wfsDataAtom);
+  const [existingGeopackages, setExistingGeopackages] =
+    useRecoilState<string[]>(existingGeopackageAtom);
   const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
-  const [dataProcessing, setDataProcessing] = useState<string>("");
+  const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
   const [allTables, setAllTables] = useRecoilState<TableData>(allTablesAtom);
-  const [namesOfCreatedFiles, setNamesOfCreatedFiles] = useState<string[]>([]);
-  const [workspace, setWorkspace] = useState("c:/Users/p.zahnen/Documents/GitHub/editor/data");
-  const [currentResponse, setCurrentResponse] = useState<ResponseType>({});
-  const [generateProgress, setGenerateProgress] = useState<string>("Analyzing tables");
-  const [currentTable, setCurrentTable] = useState<string>("");
-  const [progress, setProgress] = useState<{ [key: string]: string[] }>({});
+  const [namesOfCreatedFiles, setNamesOfCreatedFiles] =
+    useRecoilState<string[]>(namesOfCreatedFilesAtom);
+  const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
+  const [currentResponse, setCurrentResponse] = useRecoilState(currentResponseAtom);
+  const [generateProgress, setGenerateProgress] = useRecoilState<string>(generateProgressAtom);
+
+  const [currentTable, setCurrentTable] = useRecoilState<string>(currentTableAtom);
+  const [progress, setProgress] = useRecoilState<{ [key: string]: string[] }>(progressAtom);
   const [currentCount, setCurrentCount] = useRecoilState<number>(currentCountAtom);
   const [targetCount, setTargetCount] = useRecoilState<number>(targetCountAtom);
-  const [error, setError] = useState<{ [key: string]: string }>({});
+  const [error, setError] = useRecoilState<{ [key: string]: string }>(errorAtom);
 
   const basicData: BasicData = {
     command: "auto",
@@ -262,7 +305,6 @@ function App() {
 
   console.log("crd", currentResponse.details);
   console.log("myError", error);
-  console.log("dataProcessing", dataProcessing);
 
   return (
     <>
@@ -281,45 +323,27 @@ function App() {
               submitData={submitData}
               dataProcessing={dataProcessing}
               existingGeopackages={existingGeopackages}
-              gpkgData={gpkgData}
-              setGpkgData={setGpkgData}
             />
           ) : (
-            <Wfs
-              submitData={submitData}
-              wfsData={wfsData}
-              setWfsData={setWfsData}
-              dataProcessing={dataProcessing}
-            />
+            <Wfs submitData={submitData} dataProcessing={dataProcessing} />
           )}
         </main>
       ) : dataProcessing === "analyzed" ? (
         <Tables
           selectedDataSource={selectedDataSource}
-          setDataProcessing={setDataProcessing}
-          dataProcessing={dataProcessing}
           submitData={submitData}
-          sqlData={sqlData}
-          wfsData={wfsData}
-          gpkgData={gpkgData}
-          setWfsData={setWfsData}
-          setGpkgData={setGpkgData}
           generateProgress={generateProgress}
           generate={generate}
         />
       ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
         <Final
           workspace={workspace}
-          wfsData={wfsData}
-          gpkgData={gpkgData}
           selectedDataSource={selectedDataSource}
-          setDataProcessing={setDataProcessing}
-          setGpkgData={setGpkgData}
-          setWfsData={setWfsData}
           namesOfCreatedFiles={namesOfCreatedFiles}
           currentTable={currentTable}
           progress={progress}
-          dataProcessing={dataProcessing}
+          currentCount={currentCount}
+          targetCount={targetCount}
         />
       ) : (
         "An Error Occurred"

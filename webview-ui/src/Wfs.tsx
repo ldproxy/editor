@@ -4,8 +4,13 @@ import {
   VSCodeButton,
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
-import { useState } from "react";
 import { BasicData } from "./utilities/xtracfg";
+import { useRecoilState, atom } from "recoil";
+
+export const wfsDataAtom = atom({
+  key: "wfsData",
+  default: {},
+});
 
 export type WfsData = BasicData & {
   url?: string;
@@ -15,18 +20,22 @@ export type WfsData = BasicData & {
 
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
-  wfsData: WfsData;
-  setWfsData(wfsData: Object): void;
   dataProcessing: string;
 };
 
+export const isSwitchOnAtom = atom({
+  key: "isSwitchOn",
+  default: false,
+});
+
 function Wfs(props: PostgreSqlProps) {
-  const [isSwitchOn, setIsSwitchOn] = useState(false);
+  const [wfsData, setWfsData] = useRecoilState<WfsData>(wfsDataAtom);
+  const [isSwitchOn, setIsSwitchOn] = useRecoilState(isSwitchOnAtom);
 
   const handleSwitchToggle = () => {
     setIsSwitchOn(!isSwitchOn);
     if (!isSwitchOn) {
-      const updatedWfsData = props.wfsData;
+      const updatedWfsData = wfsData;
       if ("user" in updatedWfsData) {
         delete updatedWfsData["user"];
       }
@@ -34,7 +43,7 @@ function Wfs(props: PostgreSqlProps) {
         delete updatedWfsData["password"];
       }
 
-      props.setWfsData(updatedWfsData);
+      setWfsData(updatedWfsData);
     }
   };
 
@@ -44,7 +53,7 @@ function Wfs(props: PostgreSqlProps) {
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
-              value={props.wfsData.url ? props.wfsData.url : undefined || ""}
+              value={wfsData.url ? wfsData.url : undefined || ""}
               disabled={props.dataProcessing === "inProgress"}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
@@ -71,7 +80,7 @@ function Wfs(props: PostgreSqlProps) {
             <>
               <section className="component-example">
                 <VSCodeTextField
-                  value={props.wfsData.user ? props.wfsData.user : undefined || ""}
+                  value={wfsData.user ? wfsData.user : undefined || ""}
                   disabled={props.dataProcessing === "inProgress"}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
@@ -84,7 +93,7 @@ function Wfs(props: PostgreSqlProps) {
               </section>
               <section className="component-example">
                 <VSCodeTextField
-                  value={props.wfsData.password ? props.wfsData.password : undefined || ""}
+                  value={wfsData.password ? wfsData.password : undefined || ""}
                   disabled={props.dataProcessing === "inProgress"}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
@@ -101,7 +110,7 @@ function Wfs(props: PostgreSqlProps) {
         <div className="postgresWfsSubmit">
           <VSCodeButton
             className="submitButton"
-            onClick={() => props.submitData(props.wfsData)}
+            onClick={() => props.submitData(wfsData)}
             disabled={props.dataProcessing === "inProgress"}>
             Next
           </VSCodeButton>

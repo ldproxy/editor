@@ -1,7 +1,32 @@
 import "./App.css";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { BasicData } from "./utilities/xtracfg";
+import { atom, useRecoilState } from "recoil";
+
+export const newGPKGAtom = atom({
+  key: "newGPKG",
+});
+
+export const existingGPKGAtom = atom({
+  key: "existingGPKG",
+  default: "",
+});
+
+export const filenameAtom = atom({
+  key: "filename",
+  default: "",
+});
+
+export const gpkgDataAtom = atom({
+  key: "gpkgData",
+  default: {},
+});
+
+export const existingGeopackageAtom = atom({
+  key: "existingGeopackage",
+  default: [""],
+});
 
 export type GpkgData = BasicData & {};
 
@@ -10,14 +35,13 @@ type GeoPackageProps = {
   selectedDataSource: any;
   dataProcessing: string;
   existingGeopackages: string[];
-  gpkgData: GpkgData;
-  setGpkgData(arg0: Object): void;
 };
 
 function GeoPackage(props: GeoPackageProps) {
-  const [newGPKG, setNewGPKG] = useState<any>();
-  const [existingGPKG, setExistingGPKG] = useState<string>("");
-  const [filename, setFilename] = useState<string>("");
+  const [gpkgData, setGpkgData] = useRecoilState<GpkgData>(gpkgDataAtom);
+  const [newGPKG, setNewGPKG] = useRecoilState<any>(newGPKGAtom);
+  const [existingGPKG, setExistingGPKG] = useRecoilState<string>(existingGPKGAtom);
+  const [filename, setFilename] = useRecoilState<string>(filenameAtom);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,7 +75,7 @@ function GeoPackage(props: GeoPackageProps) {
     if (fileInput) {
       fileInput.value = "";
     }
-    props.setGpkgData({});
+    setGpkgData({});
   };
 
   return (
@@ -98,7 +122,7 @@ function GeoPackage(props: GeoPackageProps) {
         <div className="submitAndReset">
           <VSCodeButton
             className="submitButton"
-            onClick={() => props.submitData(props.gpkgData)}
+            onClick={() => props.submitData(gpkgData)}
             disabled={props.dataProcessing === "inProgress"}>
             Next
           </VSCodeButton>

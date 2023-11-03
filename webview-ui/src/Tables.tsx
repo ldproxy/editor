@@ -1,9 +1,7 @@
 import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
-import { SqlData } from "./PostgreSql";
-import { WfsData } from "./Wfs";
-import { GpkgData } from "./GeoPackage";
 import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { dataProcessingAtom } from "./App";
 
 export const allTablesAtom = atom({
   key: "allTables",
@@ -19,16 +17,14 @@ export type TableData = {
   [key: string]: string[];
 };
 
+export const currentTableAtom = atom({
+  key: "currentTable",
+  default: "",
+});
+
 type TabelsProps = {
   selectedDataSource: string;
-  setDataProcessing(dataProcessing: string): void;
-  dataProcessing: string;
-  sqlData: SqlData;
-  wfsData: WfsData;
-  gpkgData: GpkgData;
   submitData(data: Object): void;
-  setWfsData(wfsData: Object): void;
-  setGpkgData(gpkgData: Object): void;
   generateProgress: string;
   generate(data: Object): void;
 };
@@ -37,6 +33,7 @@ const Tables = (props: TabelsProps) => {
   const allTables = useRecoilValue<TableData>(allTablesAtom);
   const allSchemas = Object.keys(allTables);
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
+  const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
 
   const selectAllSchemasWithTables = () => {
     const allSchemasAlreadySelected = areAllTablesSelected();
@@ -94,7 +91,7 @@ const Tables = (props: TabelsProps) => {
 
   //remove all but dataprocessing
   const handleBack = () => {
-    props.setDataProcessing("");
+    setDataProcessing("");
     setSelectedTables({});
   };
 
@@ -175,13 +172,12 @@ const Tables = (props: TabelsProps) => {
           className="submitButton"
           onClick={() => props.generate(selectedTables)}
           disabled={
-            props.dataProcessing === "inProgressGenerating" ||
-            Object.keys(selectedTables).length === 0
+            dataProcessing === "inProgressGenerating" || Object.keys(selectedTables).length === 0
           }>
           Next
         </VSCodeButton>
       </div>
-      {props.dataProcessing === "inProgressGenerating" && (
+      {dataProcessing === "inProgressGenerating" && (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">{props.generateProgress} ...</span>

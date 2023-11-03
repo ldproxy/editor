@@ -2,9 +2,9 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { vscode } from "./utilities/vscode";
 import Progress from "./Progress";
-import { SchemaTables } from "./utilities/xtracfg";
 import { selectedTablesAtom, TableData } from "./Tables";
-import { atom, useRecoilState, useRecoilValue, selector } from "recoil";
+import { atom, useRecoilState } from "recoil";
+import { dataProcessingAtom } from "./App";
 
 export const currentCountAtom = atom({
   key: "currentCount",
@@ -16,31 +16,31 @@ export const targetCountAtom = atom({
   default: 0,
 });
 
+export const namesOfCreatedFilesAtom = atom({
+  key: "namesOfCreatedFiles",
+  default: [""],
+});
+
 type FinalProps = {
   workspace: string;
-  wfsData: Object;
-  gpkgData: Object;
   selectedDataSource: string;
-  setDataProcessing: Function;
-  setGpkgData: Function;
-  setWfsData: Function;
   namesOfCreatedFiles: Array<string>;
   currentTable: string;
   progress: { [key: string]: string[] };
-  dataProcessing: string;
+  currentCount: number;
+  targetCount: number;
 };
 
 const Final = (props: FinalProps) => {
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
-  const currentCount = useRecoilValue<number>(currentCountAtom);
-  const targetCount = useRecoilValue<number>(targetCountAtom);
+  const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
 
   const onClose = () => {
     vscode.postMessage({ command: "closeWebview" });
   };
 
   const onCreateAnother = () => {
-    props.setDataProcessing("");
+    setDataProcessing("");
     setSelectedTables({});
   };
 
@@ -58,11 +58,11 @@ const Final = (props: FinalProps) => {
         currentTable={props.currentTable}
         progress={props.progress}
         selectedTable={selectedTables}
-        dataProcessed={props.dataProcessing}
-        currentCount={currentCount}
-        targetCount={targetCount}
+        dataProcessed={dataProcessing}
+        currentCount={props.currentCount}
+        targetCount={props.targetCount}
       />
-      {props.dataProcessing === "generated" ? (
+      {dataProcessing === "generated" ? (
         <div className="final-content">
           <h2 className="final-title">The following files were created.</h2>
           <ul>
