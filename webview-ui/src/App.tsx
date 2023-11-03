@@ -154,7 +154,6 @@ function App() {
 
       socket.addEventListener("open", () => {
         const jsonData = JSON.stringify(data);
-        console.log("WebSocket-Verbindung geöffnet");
         console.log("Data", jsonData);
         socket.send(jsonData);
       });
@@ -271,7 +270,8 @@ function App() {
     if (
       dataProcessing === "inProgress" &&
       currentResponse.results &&
-      currentResponse.results[0].status === "SUCCESS"
+      currentResponse.results.length >= 1 &&
+      currentResponse.results[0]?.status === "SUCCESS"
     ) {
       if (currentResponse.details && currentResponse.details.types) {
         setAllTables(currentResponse.details.types);
