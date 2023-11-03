@@ -4,6 +4,7 @@ import { SqlData } from "./PostgreSql";
 import { WfsData } from "./Wfs";
 import { GpkgData } from "./GeoPackage";
 import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { useEffect } from "react";
 
 export const allTablesAtom = atom({
   key: "allTables",
@@ -91,20 +92,14 @@ const Tables = (props: TabelsProps) => {
 
   const handleSelectAllTablesInSchema = (schema: string) => {
     const tablesInThisSchema: string[] = allTables[schema];
+    const schemaSelected = selectedTables[schema]?.length === tablesInThisSchema.length;
 
-    if (!schemasSelectedinEntirety.includes(schema)) {
+    if (!schemaSelected) {
+      selectedTables[schema] = tablesInThisSchema;
       setschemasSelectedinEntirety([...schemasSelectedinEntirety, schema]);
-
-      const updatedSelectedTables = { ...selectedTables };
-      updatedSelectedTables[schema] = tablesInThisSchema;
-
-      setSelectedTables(updatedSelectedTables);
     } else {
+      delete selectedTables[schema];
       setschemasSelectedinEntirety(schemasSelectedinEntirety.filter((s) => s !== schema));
-      const updatedSelectedTables = { ...selectedTables };
-      delete updatedSelectedTables[schema];
-
-      setSelectedTables(updatedSelectedTables);
     }
   };
 
