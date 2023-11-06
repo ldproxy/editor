@@ -55,10 +55,7 @@ function Common({ disabled, error }: CommonProps) {
           <VSCodeRadio id="PostgreSQL" value="PGIS" onChange={() => setFeatureProviderType("PGIS")}>
             PostgreSQL
           </VSCodeRadio>
-          <VSCodeRadio
-            id="GeoPackage"
-            value=" GPKG"
-            onChange={() => setFeatureProviderType("GPKG")}>
+          <VSCodeRadio id="GeoPackage" value="GPKG" onChange={() => setFeatureProviderType("GPKG")}>
             GeoPackage
           </VSCodeRadio>
           <VSCodeRadio id="WFS" value="WFS" onChange={() => setFeatureProviderType("WFS")}>

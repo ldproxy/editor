@@ -124,8 +124,6 @@ function GeoPackage({
     }
   };
 
-  console.log("newGpkg", currentlySelectedGPKG);
-
   return (
     <>
       <Common error={error} disabled={inProgress} />

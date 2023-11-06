@@ -141,7 +141,7 @@ const Tables = ({ generateProgress, generate }: TabelsProps) => {
         <div className="mappedCheckboxesContainer">
           {allSchemas.map((schema) => (
             <fieldset key={schema} className="checkbox-fieldset">
-              <legend>{schema}</legend>
+              <legend>{schema !== "None" ? schema : ""}</legend>
               <div className="checkbox-container">
                 <VSCodeCheckbox
                   key={schema}
