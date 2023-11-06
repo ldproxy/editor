@@ -5,22 +5,66 @@ import {
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import { BasicData } from "./utilities/xtracfg";
-import { useRecoilState, atom } from "recoil";
+import { useRecoilState, atom, useRecoilValue, selector } from "recoil";
+import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 
 export const wfsDataAtom = atom({
   key: "wfsData",
   default: {},
 });
 
+export const urlAtom = atom({
+  key: "url",
+  default: "",
+});
+
+const userAtom = atom({
+  key: "user",
+  default: "",
+});
+
+const passwordAtom = atom({
+  key: "password",
+  default: "",
+});
+
+export const wfsDataSelector = selector({
+  key: "wfsDataSelector",
+  get: ({ get }) => {
+    const id = get(idAtom);
+    const url = get(urlAtom);
+    const user = get(userAtom);
+    const password = get(passwordAtom);
+    const featureProviderType = get(featureProviderTypeAtom);
+    return {
+      id,
+      ...(url ? { url } : null),
+      ...(user ? { user } : null),
+      ...(password ? { password } : null),
+      featureProviderType,
+    };
+  },
+});
+
 export type WfsData = BasicData & {
+  id?: string;
   url?: string;
   user?: string;
   password?: string;
+  featureProviderType?: string;
 };
 
 type PostgreSqlProps = {
   submitData: (data: Object) => void;
   inProgress: boolean;
+  error: {
+    id?: string;
+    host?: string;
+    database?: string;
+    user?: string;
+    password?: string;
+    url?: string;
+  };
 };
 
 export const isSwitchOnAtom = atom({
@@ -28,41 +72,42 @@ export const isSwitchOnAtom = atom({
   default: false,
 });
 
-function Wfs({ submitData, inProgress }: PostgreSqlProps) {
-  const [wfsData, setWfsData] = useRecoilState<WfsData>(wfsDataAtom);
+function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
+  const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
+
+  const [url, setUrl] = useRecoilState<string>(urlAtom);
+  const [user, setUser] = useRecoilState<string>(userAtom);
+  const [password, setPassword] = useRecoilState<string>(passwordAtom);
   const [isSwitchOn, setIsSwitchOn] = useRecoilState(isSwitchOnAtom);
 
   const handleSwitchToggle = () => {
     setIsSwitchOn(!isSwitchOn);
     if (!isSwitchOn) {
-      const updatedWfsData = wfsData;
-      if ("user" in updatedWfsData) {
-        delete updatedWfsData["user"];
-      }
-      if ("password" in updatedWfsData) {
-        delete updatedWfsData["password"];
-      }
-
-      setWfsData(updatedWfsData);
+      setUser("");
+      setPassword("");
     }
   };
 
+  console.log("wfsData", wfsData);
+
   return (
     <div className="frame">
+      <Common error={error} disabled={inProgress} />
       <div className="postgresWfsOuterContainer">
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
-              value={wfsData.url ? wfsData.url : undefined || ""}
+              value={url ? url : undefined || ""}
               disabled={inProgress}
               onChange={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
-                  //  props.handleUpdateData("url", target.value);
+                  setUrl(target.value);
                 }
               }}>
               WFS URL
             </VSCodeTextField>
+            {error.url && <span className="error-message">{error.url}</span>}
           </section>
           <div id="switchDiv">
             <label className="switch">
@@ -80,29 +125,31 @@ function Wfs({ submitData, inProgress }: PostgreSqlProps) {
             <>
               <section className="component-example">
                 <VSCodeTextField
-                  value={wfsData.user ? wfsData.user : undefined || ""}
+                  value={user ? user : undefined || ""}
                   disabled={inProgress}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
-                      //        props.handleUpdateData("user", target.value);
+                      setUser(target.value);
                     }
                   }}>
                   User
                 </VSCodeTextField>
+                {error.user && <span className="error-message">{error.user}</span>}
               </section>
               <section className="component-example">
                 <VSCodeTextField
-                  value={wfsData.password ? wfsData.password : undefined || ""}
+                  value={password ? password : undefined || ""}
                   disabled={inProgress}
                   onChange={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
-                      //    props.handleUpdateData("password", target.value);
+                      setPassword(target.value);
                     }
                   }}>
                   Password
                 </VSCodeTextField>
+                {error.password && <span className="error-message">{error.password}</span>}
               </section>
             </>
           ) : null}

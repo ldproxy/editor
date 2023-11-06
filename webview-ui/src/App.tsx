@@ -7,7 +7,7 @@ import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
 import Final from "./Final";
 import { BasicData, SchemaTables } from "./utilities/xtracfg";
-import { RecoilRoot, atom, useRecoilState, useRecoilValue } from "recoil";
+import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { currentCountAtom, targetCountAtom, namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
 import { RecoilSync } from "recoil-sync";
@@ -73,7 +73,7 @@ type ResponseType = {
 
 function App() {
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
-  const [wfsData, setWfsData] = useRecoilState<WfsData>(wfsDataAtom);
+  const wfsData = useRecoilValue<WfsData>(wfsDataAtom);
   const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
   const [existingGeopackages, setExistingGeopackages] =
     useRecoilState<string[]>(existingGeopackageAtom);
@@ -151,6 +151,12 @@ function App() {
         types: selectedTables,
         subcommand: "generate",
       });
+    } else if (selectedDataSource === "WFS") {
+      submitData({
+        ...basicData,
+        ...wfsData,
+        subcommand: "generate",
+      });
     }
   };
 
@@ -182,7 +188,10 @@ function App() {
             command: "error",
             text: `Error: Empty Fields`,
           });
-        } else if (response.error || (response.results && response.results[0].status === "ERROR")) {
+        } else if (
+          response.error ||
+          (response.results && response.results[0].status && response.results[0].status === "ERROR")
+        ) {
           setDataProcessing("");
           setGenerateProgress("Analyzing tables");
           if (
@@ -191,6 +200,7 @@ function App() {
               response.results[0] &&
               response.results[0].message &&
               !response.results[0].message.includes("host") &&
+              !response.results[0].message.includes("url") &&
               !response.results[0].message.includes("database") &&
               !response.results[0].message.includes("user") &&
               !response.results[0].message.includes("password")) ||
@@ -210,6 +220,7 @@ function App() {
 
         if (
           response.results &&
+          response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("host") &&
           !response.results[0].message.includes("refused")
@@ -219,6 +230,7 @@ function App() {
           });
         } else if (
           response.results &&
+          response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("database")
         ) {
@@ -227,6 +239,7 @@ function App() {
           });
         } else if (
           response.results &&
+          response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("user name")
         ) {
@@ -235,6 +248,7 @@ function App() {
           });
         } else if (
           response.results &&
+          response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("password")
         ) {
@@ -249,8 +263,17 @@ function App() {
           setError((prevError) => {
             return { ...prevError, id: response.error };
           });
+        } else if (
+          response.results &&
+          response.results[0].status &&
+          response.results[0].status === "ERROR" &&
+          response.results[0].message.includes("url")
+        ) {
+          setError((prevError) => {
+            return { ...prevError, url: response.results[0].message };
+          });
         }
-
+        /*
         if (wfsData.user && wfsData.password) {
           setWfsData((prevWfsData) => {
             const newWfsData = { ...prevWfsData };
@@ -259,6 +282,7 @@ function App() {
             return newWfsData;
           });
         }
+        */
       });
       /*
       socket.addEventListener("close", (event) => {
@@ -285,6 +309,7 @@ function App() {
       dataProcessing === "inProgress" &&
       currentResponse.results &&
       currentResponse.results.length >= 1 &&
+      currentResponse.results[0].status &&
       currentResponse.results[0]?.status === "SUCCESS"
     ) {
       if (currentResponse.details && currentResponse.details.types) {
@@ -295,6 +320,7 @@ function App() {
     } else if (
       dataProcessing === "inProgressGenerating" &&
       currentResponse.results &&
+      currentResponse.results[0].status &&
       currentResponse.results[0].status === "SUCCESS"
     ) {
       if (currentResponse.details && currentResponse.details.new_files) {
@@ -340,7 +366,7 @@ function App() {
               error={error}
             />
           ) : (
-            <Wfs submitData={analyze} inProgress={dataProcessing === "inProgress"} />
+            <Wfs submitData={analyze} inProgress={dataProcessing === "inProgress"} error={error} />
           )}
         </main>
       ) : dataProcessing === "analyzed" ? (

@@ -78,9 +78,9 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
 
   return (
     <div className="frame">
+      <Common error={error} disabled={inProgress} />
       <div className="postgresWfsOuterContainer">
         <div className="postgresWfsInnerContainer">
-          <Common error={error} disabled={inProgress} />
           <section className="component-example">
             <VSCodeTextField
               value={host}
