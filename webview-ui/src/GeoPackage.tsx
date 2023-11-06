@@ -2,11 +2,17 @@ import "./App.css";
 import React, { useEffect } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { BasicData } from "./utilities/xtracfg";
-import { atom, useRecoilState, selector } from "recoil";
+import { atom, useRecoilState, selector, useRecoilValue } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
+
+export const currentlySelectedGPKGAtom = atom({
+  key: "currentlySelectedGPKG",
+  default: "",
+});
 
 export const newGPKGAtom = atom({
   key: "newGPKG",
+  default: "",
 });
 
 export const existingGPKGAtom = atom({
@@ -24,17 +30,14 @@ export const gpkgDataAtom = atom({
   default: {},
 });
 
-export const existingGeopackageAtom = atom({
-  key: "existingGeopackage",
-  default: [""],
-});
-
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",
   get: ({ get }) => {
+    const currentlySelectedGPKG = get(currentlySelectedGPKGAtom);
     const id = get(idAtom);
     const featureProviderType = get(featureProviderTypeAtom);
     return {
+      currentlySelectedGPKG,
       id,
       featureProviderType,
     };
@@ -42,6 +45,7 @@ export const gpkgDataSelector = selector({
 });
 
 export type GpkgData = BasicData & {
+  currentlySelectedGPKG?: string;
   id?: string;
   featureProviderType?: string;
 };
@@ -66,13 +70,24 @@ function GeoPackage({
   submitData,
   selectedDataSource,
   inProgress,
-  existingGeopackages,
   error,
+  existingGeopackages,
 }: GeoPackageProps) {
-  const [gpkgData, setGpkgData] = useRecoilState<GpkgData>(gpkgDataAtom);
-  const [newGPKG, setNewGPKG] = useRecoilState<any>(newGPKGAtom);
+  const gpkgData = useRecoilValue(gpkgDataSelector);
+
+  const [currentlySelectedGPKG, setCurrentlySelectedGPKG] =
+    useRecoilState<string>(currentlySelectedGPKGAtom);
+  const [newGPKG, setNewGPKG] = useRecoilState<string>(newGPKGAtom);
   const [existingGPKG, setExistingGPKG] = useRecoilState<string>(existingGPKGAtom);
   const [filename, setFilename] = useRecoilState<string>(filenameAtom);
+
+  useEffect(() => {
+    if (newGPKG !== "") {
+      setCurrentlySelectedGPKG(newGPKG);
+    } else if (existingGPKG !== "") {
+      setCurrentlySelectedGPKG(existingGPKG);
+    }
+  }, [newGPKG, existingGPKG]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -85,7 +100,6 @@ function GeoPackage({
         const uint8Array = new Uint8Array(buffer);
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
-        //   props.handleUpdateData(file.name, base64String);
       });
     }
   };
@@ -95,6 +109,7 @@ function GeoPackage({
       setNewGPKG("");
       setExistingGPKG("");
       setFilename("");
+      setCurrentlySelectedGPKG("");
     }
   }, [selectedDataSource]);
 
@@ -102,12 +117,14 @@ function GeoPackage({
     setExistingGPKG("");
     setNewGPKG("");
     setFilename("");
+    setCurrentlySelectedGPKG("");
     const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
     if (fileInput) {
       fileInput.value = "";
     }
-    setGpkgData({});
   };
+
+  console.log("newGpkg", currentlySelectedGPKG);
 
   return (
     <>
@@ -120,7 +137,6 @@ function GeoPackage({
           value={existingGPKG}
           onChange={(event) => {
             setExistingGPKG(event.target.value);
-            //  props.handleUpdateData("Geopackage", event.target.value);
           }}
           disabled={inProgress || !!newGPKG}>
           <option value="" hidden>
@@ -152,17 +168,17 @@ function GeoPackage({
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
         <div className="submitAndReset">
+          {existingGPKG || newGPKG ? (
+            <VSCodeButton className="resetButton" disabled={inProgress} onClick={handleReset}>
+              Reset
+            </VSCodeButton>
+          ) : null}
           <VSCodeButton
             className="submitButton"
             onClick={() => submitData(gpkgData)}
             disabled={inProgress}>
             Next
           </VSCodeButton>
-          {existingGPKG || newGPKG ? (
-            <VSCodeButton className="resetButton" onClick={handleReset}>
-              Reset
-            </VSCodeButton>
-          ) : null}
         </div>
       </div>
       {inProgress && (

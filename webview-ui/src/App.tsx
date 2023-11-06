@@ -1,7 +1,7 @@
 import { useEffect, Suspense } from "react";
 import { vscode } from "./utilities/vscode";
 import "./App.css";
-import GeoPackage, { GpkgData, existingGeopackageAtom, gpkgDataAtom } from "./GeoPackage";
+import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
 import Wfs, { WfsData, wfsDataAtom } from "./Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
@@ -15,6 +15,11 @@ import { RecoilSync } from "recoil-sync";
 export const dataProcessingAtom = atom({
   key: "dataProcessing",
   default: "",
+});
+
+export const existingGeopackageAtom = atom({
+  key: "existingGeopackage",
+  default: [""],
 });
 
 export const workspaceAtom = atom({
@@ -69,7 +74,7 @@ type ResponseType = {
 function App() {
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const [wfsData, setWfsData] = useRecoilState<WfsData>(wfsDataAtom);
-  const [gpkgData, setGpkgData] = useRecoilState<GpkgData>(gpkgDataAtom);
+  const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
   const [existingGeopackages, setExistingGeopackages] =
     useRecoilState<string[]>(existingGeopackageAtom);
   const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
