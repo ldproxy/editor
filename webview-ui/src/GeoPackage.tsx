@@ -2,7 +2,8 @@ import "./App.css";
 import React, { useEffect } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { BasicData } from "./utilities/xtracfg";
-import { atom, useRecoilState } from "recoil";
+import { atom, useRecoilState, selector } from "recoil";
+import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 
 export const newGPKGAtom = atom({
   key: "newGPKG",
@@ -28,13 +29,37 @@ export const existingGeopackageAtom = atom({
   default: [""],
 });
 
-export type GpkgData = BasicData & {};
+export const gpkgDataSelector = selector({
+  key: "gpkgDataSelector",
+  get: ({ get }) => {
+    const id = get(idAtom);
+    const featureProviderType = get(featureProviderTypeAtom);
+    return {
+      id,
+      featureProviderType,
+    };
+  },
+});
+
+export type GpkgData = BasicData & {
+  id?: string;
+  featureProviderType?: string;
+};
+
+// export type GpkgData = BasicData & {};
 
 type GeoPackageProps = {
   submitData: (data: Object) => void;
   selectedDataSource: any;
   inProgress: boolean;
   existingGeopackages: string[];
+  error: {
+    id?: string;
+    host?: string;
+    database?: string;
+    user?: string;
+    password?: string;
+  };
 };
 
 function GeoPackage({
@@ -42,6 +67,7 @@ function GeoPackage({
   selectedDataSource,
   inProgress,
   existingGeopackages,
+  error,
 }: GeoPackageProps) {
   const [gpkgData, setGpkgData] = useRecoilState<GpkgData>(gpkgDataAtom);
   const [newGPKG, setNewGPKG] = useRecoilState<any>(newGPKGAtom);
@@ -85,6 +111,7 @@ function GeoPackage({
 
   return (
     <>
+      <Common error={error} disabled={inProgress} />
       <div className="button-container">
         {/* TODO: use VSCodeDropdown */}
         <select

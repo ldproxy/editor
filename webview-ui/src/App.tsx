@@ -1,15 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { vscode } from "./utilities/vscode";
 import "./App.css";
-import GeoPackage, { existingGeopackageAtom } from "./GeoPackage";
+import GeoPackage, { GpkgData, existingGeopackageAtom, gpkgDataAtom } from "./GeoPackage";
 import Wfs, { WfsData, wfsDataAtom } from "./Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
 import Final from "./Final";
 import { BasicData, SchemaTables } from "./utilities/xtracfg";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { RecoilRoot, atom, useRecoilState, useRecoilValue } from "recoil";
 import { currentCountAtom, targetCountAtom, namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
+import { RecoilSync } from "recoil-sync";
 
 export const dataProcessingAtom = atom({
   key: "dataProcessing",
@@ -68,6 +69,7 @@ type ResponseType = {
 function App() {
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const [wfsData, setWfsData] = useRecoilState<WfsData>(wfsDataAtom);
+  const [gpkgData, setGpkgData] = useRecoilState<GpkgData>(gpkgDataAtom);
   const [existingGeopackages, setExistingGeopackages] =
     useRecoilState<string[]>(existingGeopackageAtom);
   const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
@@ -134,6 +136,13 @@ function App() {
       submitData({
         ...basicData,
         ...sqlData,
+        types: selectedTables,
+        subcommand: "generate",
+      });
+    } else if (selectedDataSource === "GPKG") {
+      submitData({
+        ...basicData,
+        ...gpkgData,
         types: selectedTables,
         subcommand: "generate",
       });
@@ -307,6 +316,7 @@ function App() {
   console.log("myError", error);
 
   return (
+    //      <RecoilSync storeKey="storeA" read={async () => ["item one", "item two"]}>
     <>
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
@@ -319,12 +329,13 @@ function App() {
           ) : selectedDataSource === "GPKG" ? (
             <GeoPackage
               selectedDataSource={selectedDataSource}
-              submitData={submitData}
+              submitData={analyze}
               inProgress={dataProcessing === "inProgress"}
               existingGeopackages={existingGeopackages}
+              error={error}
             />
           ) : (
-            <Wfs submitData={submitData} inProgress={dataProcessing === "inProgress"} />
+            <Wfs submitData={analyze} inProgress={dataProcessing === "inProgress"} />
           )}
         </main>
       ) : dataProcessing === "analyzed" ? (
@@ -340,6 +351,7 @@ function App() {
         "An Error Occurred"
       )}
     </>
+    //      </RecoilSync>
   );
 }
 
