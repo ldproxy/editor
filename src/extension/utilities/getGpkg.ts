@@ -39,6 +39,5 @@ async function readAllFilesInDirectory(directoryUri: any) {
       allFiles = allFiles.concat(subDirectoryFiles);
     }
   }
-
   return allFiles;
 }

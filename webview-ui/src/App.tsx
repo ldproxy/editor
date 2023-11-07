@@ -190,13 +190,14 @@ function App() {
           });
         } else if (
           response.error ||
-          (response.results && response.results[0].status && response.results[0].status === "ERROR")
+          (response.results[0] &&
+            response.results[0].status &&
+            response.results[0].status === "ERROR")
         ) {
           setDataProcessing("");
           setGenerateProgress("Analyzing tables");
           if (
             (response &&
-              response.results &&
               response.results[0] &&
               response.results[0].message &&
               !response.results[0].message.includes("host") &&
@@ -205,7 +206,6 @@ function App() {
               !response.results[0].message.includes("user") &&
               !response.results[0].message.includes("password")) ||
             (response &&
-              response.results &&
               response.results[0] &&
               response.results[0].message &&
               response.results[0].message.includes("refused")) ||
@@ -219,7 +219,8 @@ function App() {
         }
 
         if (
-          response.results &&
+          response &&
+          response.results[0] &&
           response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("host") &&
@@ -229,7 +230,8 @@ function App() {
             return { ...prevError, host: response.results[0].message.split(",")[0] };
           });
         } else if (
-          response.results &&
+          response &&
+          response.results[0] &&
           response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("database")
@@ -238,7 +240,8 @@ function App() {
             return { ...prevError, database: response.results[0].message };
           });
         } else if (
-          response.results &&
+          response &&
+          response.results[0] &&
           response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("user name")
@@ -247,7 +250,8 @@ function App() {
             return { ...prevError, user: response.results[0].message };
           });
         } else if (
-          response.results &&
+          response &&
+          response.results[0] &&
           response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("password")
@@ -264,7 +268,8 @@ function App() {
             return { ...prevError, id: response.error };
           });
         } else if (
-          response.results &&
+          response &&
+          response.results[0] &&
           response.results[0].status &&
           response.results[0].status === "ERROR" &&
           response.results[0].message.includes("url")
