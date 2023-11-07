@@ -12,7 +12,7 @@ export const idAtom = atom({
 export const featureProviderTypeAtom = atom({
   key: "featureProviderType",
   default: "PGIS",
-  effects: [syncEffect({ refine: string() })],
+  effects: [syncEffect({ storeKey: "StoreA", refine: string() })],
 });
 
 type CommonProps = {
@@ -25,6 +25,7 @@ type CommonProps = {
 function Common({ disabled, error }: CommonProps) {
   const [id, setId] = useRecoilState(idAtom);
   const [featureProviderType, setFeatureProviderType] = useRecoilState(featureProviderTypeAtom);
+  console.log("featureProviderType", featureProviderType);
 
   return (
     <>

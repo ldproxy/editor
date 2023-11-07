@@ -10,11 +10,13 @@ import { BasicData, SchemaTables } from "./utilities/xtracfg";
 import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { currentCountAtom, targetCountAtom, namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
-import { RecoilSync } from "recoil-sync";
+import { syncEffect } from "recoil-sync";
+import { string } from "@recoiljs/refine";
 
 export const dataProcessingAtom = atom({
   key: "dataProcessing",
   default: "",
+  effects: [syncEffect({ storeKey: "StoreA", refine: string() })],
 });
 
 export const existingGeopackageAtom = atom({
@@ -352,7 +354,7 @@ function App() {
   console.log("myError", error);
 
   return (
-    <RecoilSync storeKey="storeA" read={async () => ["item one", "item two"]}>
+    <div>
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
           {selectedDataSource === "PGIS" ? (
@@ -386,7 +388,7 @@ function App() {
       ) : (
         "An Error Occurred"
       )}
-    </RecoilSync>
+    </div>
   );
 }
 
