@@ -2,7 +2,7 @@ import { useEffect, Suspense } from "react";
 import { vscode } from "./utilities/vscode";
 import "./App.css";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
-import Wfs, { WfsData, wfsDataAtom } from "./Wfs";
+import Wfs, { WfsData, wfsDataSelector } from "./Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
 import Final from "./Final";
@@ -73,7 +73,7 @@ type ResponseType = {
 
 function App() {
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
-  const wfsData = useRecoilValue<WfsData>(wfsDataAtom);
+  const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
   const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
   const [existingGeopackages, setExistingGeopackages] =
     useRecoilState<string[]>(existingGeopackageAtom);
@@ -155,6 +155,7 @@ function App() {
       submitData({
         ...basicData,
         ...wfsData,
+        types: selectedTables,
         subcommand: "generate",
       });
     }
