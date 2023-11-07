@@ -347,8 +347,7 @@ function App() {
   console.log("myError", error);
 
   return (
-    //      <RecoilSync storeKey="storeA" read={async () => ["item one", "item two"]}>
-    <>
+    <RecoilSync storeKey="storeA" read={async () => ["item one", "item two"]}>
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
           {selectedDataSource === "PGIS" ? (
@@ -382,8 +381,7 @@ function App() {
       ) : (
         "An Error Occurred"
       )}
-    </>
-    //      </RecoilSync>
+    </RecoilSync>
   );
 }
 
