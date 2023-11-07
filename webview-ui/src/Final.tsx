@@ -26,9 +26,16 @@ type FinalProps = {
   namesOfCreatedFiles: Array<string>;
   currentTable: string;
   progress: { [key: string]: string[] };
+  fallbackSchema?: string;
 };
 
-const Final = ({ workspace, namesOfCreatedFiles, currentTable, progress }: FinalProps) => {
+const Final = ({
+  workspace,
+  namesOfCreatedFiles,
+  currentTable,
+  progress,
+  fallbackSchema,
+}: FinalProps) => {
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
   const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
 
@@ -56,6 +63,7 @@ const Final = ({ workspace, namesOfCreatedFiles, currentTable, progress }: Final
         progress={progress}
         selectedTable={selectedTables}
         dataProcessed={dataProcessing}
+        fallbackSchema={fallbackSchema}
       />
       {dataProcessing === "generated" ? (
         <div className="final-content">

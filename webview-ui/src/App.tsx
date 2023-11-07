@@ -377,6 +377,7 @@ function App() {
           namesOfCreatedFiles={namesOfCreatedFiles}
           currentTable={currentTable}
           progress={progress}
+          fallbackSchema={gpkgData.database}
         />
       ) : (
         "An Error Occurred"

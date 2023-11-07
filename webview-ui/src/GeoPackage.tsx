@@ -33,11 +33,11 @@ export const gpkgDataAtom = atom({
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",
   get: ({ get }) => {
-    const currentlySelectedGPKG = get(currentlySelectedGPKGAtom);
+    const database = get(currentlySelectedGPKGAtom);
     const id = get(idAtom);
     const featureProviderType = get(featureProviderTypeAtom);
     return {
-      currentlySelectedGPKG,
+      database,
       id,
       featureProviderType,
     };
@@ -45,7 +45,7 @@ export const gpkgDataSelector = selector({
 });
 
 export type GpkgData = BasicData & {
-  currentlySelectedGPKG?: string;
+  database?: string;
   id?: string;
   featureProviderType?: string;
 };

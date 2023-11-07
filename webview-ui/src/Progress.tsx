@@ -7,6 +7,7 @@ type ProgressProps = {
   progress: { [key: string]: string[] };
   selectedTable: SchemaTables;
   dataProcessed: string;
+  fallbackSchema?: string;
 };
 
 type SchemaData = {
@@ -14,7 +15,13 @@ type SchemaData = {
   completedTables: string[];
 };
 
-const Progress = ({ currentTable, progress, selectedTable, dataProcessed }: ProgressProps) => {
+const Progress = ({
+  currentTable,
+  progress,
+  selectedTable,
+  dataProcessed,
+  fallbackSchema,
+}: ProgressProps) => {
   if (Object.keys(progress).length === 0 || Object.keys(selectedTable).length === 0) {
     return null;
   }
@@ -42,7 +49,7 @@ const Progress = ({ currentTable, progress, selectedTable, dataProcessed }: Prog
 
         return (
           <div key={schemaIndex}>
-            <span className="schema-bullet">&#8226; {schema}</span>
+            <span className="schema-bullet">&#8226; {schema || fallbackSchema}</span>
             {completedTables.length === selectedTable[schema].length ? (
               <span className="table-item">✓</span>
             ) : (
