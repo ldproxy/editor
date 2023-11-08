@@ -5,6 +5,7 @@ import { BasicData } from "./utilities/xtracfg";
 import { atom, useRecoilState, selector, useRecoilValue } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncObject, atomSyncString } from "./utilities/recoilSyncWrapper";
+import { vscode } from "./utilities/vscode";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
 
@@ -86,9 +87,28 @@ function GeoPackage({
         const uint8Array = new Uint8Array(buffer);
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
+        if (file.name !== "") {
+          vscode.postMessage({
+            command: "uploadGpkg",
+            text: [base64String, file.name],
+          });
+        }
       });
     }
   };
+
+  window.addEventListener("message", (event) => {
+    const message = event.data;
+
+    switch (message.command) {
+      case "uploadedGpkg":
+        const uploadedGpkg = message.uploadedGpkg;
+        console.log("uploadedGpkg:", uploadedGpkg);
+        break;
+      default:
+        console.log("Upload failed.");
+    }
+  });
 
   useEffect(() => {
     if (selectedDataSource !== "GPKG") {

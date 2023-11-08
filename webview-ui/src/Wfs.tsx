@@ -5,7 +5,7 @@ import {
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import { BasicData } from "./utilities/xtracfg";
-import { useRecoilState, atom, useRecoilValue, selector } from "recoil";
+import { useRecoilState, useRecoilValue, selector } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncString, atomSyncObject, atomSyncBoolean } from "./utilities/recoilSyncWrapper";
 

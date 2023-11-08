@@ -2,6 +2,7 @@ import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vsco
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 import { listGpkgFilesInDirectory } from "../utilities/getGpkg";
+import { uploadedGpkg } from "../utilities/uploadGpkg";
 import * as vscode from "vscode";
 
 const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -171,6 +172,12 @@ export class AutoCreatePanel {
             break;
           case "success":
             await vscode.commands.executeCommand("vscode.open", Uri.file(text));
+            break;
+          case "uploadGpkg":
+            this._panel.webview.postMessage({
+              command: "uploadedGpkg",
+              uploadedGpkg: await uploadedGpkg(text[0], text[1]),
+            });
             break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
