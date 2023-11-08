@@ -1,5 +1,9 @@
 import type { WebviewApi } from "vscode-webview";
 
+export type State = {
+  [key: string]: any;
+};
+
 /**
  * A utility wrapper around the acquireVsCodeApi() function, which enables
  * message passing and state management between the webview and extension
@@ -44,12 +48,12 @@ class VSCodeAPIWrapper {
    *
    * @return The current state or `undefined` if no state has been set.
    */
-  public getState(): unknown | undefined {
+  public getState(): State {
     if (this.vsCodeApi) {
-      return this.vsCodeApi.getState();
+      return this.vsCodeApi.getState() || {};
     } else {
       const state = localStorage.getItem("vscodeState");
-      return state ? JSON.parse(state) : undefined;
+      return state ? JSON.parse(state) : {};
     }
   }
 
@@ -64,7 +68,7 @@ class VSCodeAPIWrapper {
    *
    * @return The new state.
    */
-  public setState<T extends unknown | undefined>(newState: T): T {
+  public setState<T extends State>(newState: T): T {
     if (this.vsCodeApi) {
       return this.vsCodeApi.setState(newState);
     } else {
