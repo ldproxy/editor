@@ -5,16 +5,13 @@ import Progress from "./Progress";
 import { selectedTablesAtom, TableData } from "./Tables";
 import { atom, useRecoilState } from "recoil";
 import { dataProcessingAtom } from "./App";
-import { atomSyncNumber } from "./utilities/recoilSyncWrapper";
+import { atomSyncNumber, atomSyncStringArray } from "./utilities/recoilSyncWrapper";
 
 export const currentCountAtom = atomSyncNumber("currentCount", 0);
 
 export const targetCountAtom = atomSyncNumber("targetCount", 0);
 
-export const namesOfCreatedFilesAtom = atom({
-  key: "namesOfCreatedFiles",
-  default: [""],
-});
+export const namesOfCreatedFilesAtom = atomSyncStringArray("namesOfCreatedFiles", [""]);
 
 type FinalProps = {
   workspace: string;

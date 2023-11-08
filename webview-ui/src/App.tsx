@@ -10,16 +10,13 @@ import { BasicData, SchemaTables } from "./utilities/xtracfg";
 import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { currentCountAtom, targetCountAtom, namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncObject } from "./utilities/recoilSyncWrapper";
+import { atomSyncString, atomSyncObject, atomSyncStringArray } from "./utilities/recoilSyncWrapper";
 import { syncEffect } from "recoil-sync";
-import { string, object, array, number } from "@recoiljs/refine";
+import { object } from "@recoiljs/refine";
 
 export const dataProcessingAtom = atomSyncString("dataProcessing", "");
 
-export const existingGeopackageAtom = atom({
-  key: "existingGeopackage",
-  default: [""],
-});
+export const existingGeopackageAtom = atomSyncStringArray("existingGeopackage", [""]);
 
 export const workspaceAtom = atomSyncString(
   "workspace",

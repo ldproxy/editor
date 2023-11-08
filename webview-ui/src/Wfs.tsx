@@ -7,7 +7,7 @@ import {
 import { BasicData } from "./utilities/xtracfg";
 import { useRecoilState, atom, useRecoilValue, selector } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncObject } from "./utilities/recoilSyncWrapper";
+import { atomSyncString, atomSyncObject, atomSyncBoolean } from "./utilities/recoilSyncWrapper";
 
 export const wfsDataAtom = atomSyncObject("wfsData", {});
 
@@ -56,10 +56,7 @@ type PostgreSqlProps = {
   };
 };
 
-export const isSwitchOnAtom = atom({
-  key: "isSwitchOn",
-  default: false,
-});
+export const isSwitchOnAtom = atomSyncBoolean("isSwitchOn", false);
 
 function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
   const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
