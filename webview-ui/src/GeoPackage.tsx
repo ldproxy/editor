@@ -4,31 +4,17 @@ import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/rea
 import { BasicData } from "./utilities/xtracfg";
 import { atom, useRecoilState, selector, useRecoilValue } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
+import { atomSyncObject, atomSyncString } from "./utilities/recoilSyncWrapper";
 
-export const currentlySelectedGPKGAtom = atom({
-  key: "currentlySelectedGPKG",
-  default: "",
-});
+export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
 
-export const newGPKGAtom = atom({
-  key: "newGPKG",
-  default: "",
-});
+export const newGPKGAtom = atomSyncString("newGPKG", "");
 
-export const existingGPKGAtom = atom({
-  key: "existingGPKG",
-  default: "",
-});
+export const existingGPKGAtom = atomSyncString("existingGPKG", "");
 
-export const filenameAtom = atom({
-  key: "filename",
-  default: "",
-});
+export const filenameAtom = atomSyncString("filename", "");
 
-export const gpkgDataAtom = atom({
-  key: "gpkgData",
-  default: {},
-});
+export const gpkgDataAtom = atomSyncObject("gpkgData", {});
 
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",

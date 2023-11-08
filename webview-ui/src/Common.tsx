@@ -1,19 +1,11 @@
 import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { atom, useRecoilState } from "recoil";
-import { syncEffect } from "recoil-sync";
-import { string } from "@recoiljs/refine";
+import { atomSyncString } from "./utilities/recoilSyncWrapper";
 
-export const idAtom = atom({
-  key: "id",
-  default: "",
-});
+export const idAtom = atomSyncString("id", "");
 
-export const featureProviderTypeAtom = atom({
-  key: "featureProviderType",
-  default: "PGIS",
-  effects: [syncEffect({ storeKey: "StoreA", refine: string() })],
-});
+export const featureProviderTypeAtom = atomSyncString("featureProviderType", "PGIS");
 
 type CommonProps = {
   disabled: boolean;
@@ -25,7 +17,6 @@ type CommonProps = {
 function Common({ disabled, error }: CommonProps) {
   const [id, setId] = useRecoilState(idAtom);
   const [featureProviderType, setFeatureProviderType] = useRecoilState(featureProviderTypeAtom);
-  console.log("featureProviderType", featureProviderType);
 
   return (
     <>

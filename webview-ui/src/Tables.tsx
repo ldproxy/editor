@@ -1,26 +1,18 @@
 import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { dataProcessingAtom } from "./App";
+import { atomSyncString, atomSyncObject } from "./utilities/recoilSyncWrapper";
 
-export const allTablesAtom = atom({
-  key: "allTables",
-  default: {},
-});
+export const allTablesAtom = atomSyncObject("allTables", {});
 
-export const selectedTablesAtom = atom({
-  key: "selectedTables",
-  default: {},
-});
+export const selectedTablesAtom = atomSyncObject("selectedTables", {});
 
 export type TableData = {
   [key: string]: string[];
 };
 
-export const currentTableAtom = atom({
-  key: "currentTable",
-  default: "",
-});
+export const currentTableAtom = atomSyncString("currentTable", "");
 
 type TabelsProps = {
   generateProgress: string;

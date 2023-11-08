@@ -7,26 +7,15 @@ import {
 import { BasicData } from "./utilities/xtracfg";
 import { useRecoilState, atom, useRecoilValue, selector } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
+import { atomSyncString, atomSyncObject } from "./utilities/recoilSyncWrapper";
 
-export const wfsDataAtom = atom({
-  key: "wfsData",
-  default: {},
-});
+export const wfsDataAtom = atomSyncObject("wfsData", {});
 
-export const urlAtom = atom({
-  key: "url",
-  default: "",
-});
+export const urlAtom = atomSyncString("url", "");
 
-const userAtom = atom({
-  key: "user",
-  default: "",
-});
+const userAtom = atomSyncString("user", "");
 
-const passwordAtom = atom({
-  key: "password",
-  default: "",
-});
+const passwordAtom = atomSyncString("password", "");
 
 export const wfsDataSelector = selector({
   key: "wfsDataSelector",

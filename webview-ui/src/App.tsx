@@ -1,4 +1,4 @@
-import { useEffect, Suspense } from "react";
+import { useEffect } from "react";
 import { vscode } from "./utilities/vscode";
 import "./App.css";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
@@ -10,29 +10,23 @@ import { BasicData, SchemaTables } from "./utilities/xtracfg";
 import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { currentCountAtom, targetCountAtom, namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
+import { atomSyncString, atomSyncObject } from "./utilities/recoilSyncWrapper";
 import { syncEffect } from "recoil-sync";
-import { string } from "@recoiljs/refine";
+import { string, object, array, number } from "@recoiljs/refine";
 
-export const dataProcessingAtom = atom({
-  key: "dataProcessing",
-  default: "",
-  effects: [syncEffect({ storeKey: "StoreA", refine: string() })],
-});
+export const dataProcessingAtom = atomSyncString("dataProcessing", "");
 
 export const existingGeopackageAtom = atom({
   key: "existingGeopackage",
   default: [""],
 });
 
-export const workspaceAtom = atom({
-  key: "workspace",
-  default: "c:/Users/p.zahnen/Documents/GitHub/editor/data",
-});
+export const workspaceAtom = atomSyncString(
+  "workspace",
+  "c:/Users/p.zahnen/Documents/GitHub/editor/data"
+);
 
-export const errorAtom = atom({
-  key: "error",
-  default: {},
-});
+export const errorAtom = atomSyncObject("error", {});
 
 export const currentResponseAtom = atom<ResponseType>({
   key: "currentResponse",
@@ -48,17 +42,12 @@ export const currentResponseAtom = atom<ResponseType>({
     },
     results: [],
   },
+  effects: [syncEffect({ storeKey: "StoreA", refine: object({}) })],
 });
 
-export const generateProgressAtom = atom({
-  key: "generateProgress",
-  default: "",
-});
+export const generateProgressAtom = atomSyncString("generateProgress", "");
 
-export const progressAtom = atom({
-  key: "progress",
-  default: {},
-});
+export const progressAtom = atomSyncObject("progress", {});
 
 type ResponseType = {
   error?: string;

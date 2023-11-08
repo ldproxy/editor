@@ -5,28 +5,17 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import "./App.css";
 import { BasicData } from "./utilities/xtracfg";
-import { atom, useRecoilState, useRecoilValue, selector } from "recoil";
+import { useRecoilState, useRecoilValue, selector } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
+import { atomSyncString } from "./utilities/recoilSyncWrapper";
 
-const hostAtom = atom({
-  key: "host",
-  default: "",
-});
+const hostAtom = atomSyncString("host", "");
 
-const databaseAtom = atom({
-  key: "database",
-  default: "",
-});
+const databaseAtom = atomSyncString("database", "");
 
-const userAtom = atom({
-  key: "user",
-  default: "",
-});
+const userAtom = atomSyncString("user", "");
 
-const passwordAtom = atom({
-  key: "password",
-  default: "",
-});
+const passwordAtom = atomSyncString("password", "");
 
 export const sqlDataSelector = selector({
   key: "sqlDataSelector",

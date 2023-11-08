@@ -1,0 +1,59 @@
+---
+id: fdgfg
+createdAt: 1699451490479
+lastModified: 1699451490479
+providerType: feature
+providerSubType: sql
+nativeCrs:
+  code: 25833
+  forceAxisOrder: LON_LAT
+connectionInfo:
+  dialect: GPKG
+  database: functioning.gpkg
+sourcePathDefaults:
+  primaryKey: fid
+  sortKey: fid
+types:
+  ln_wohnnutzung:
+    sourcePath: /ln_wohnnutzung
+    properties:
+      fid:
+        sourcePath: fid
+        type: INTEGER
+        role: ID
+        scope: QUERIES
+      position:
+        sourcePath: position
+        type: GEOMETRY
+        role: PRIMARY_GEOMETRY
+        geometryType: MULTI_POLYGON
+      objid:
+        sourcePath: objid
+        type: STRING
+      beginnt:
+        sourcePath: beginnt
+        type: STRING
+      name:
+        sourcePath: name
+        type: STRING
+      zeitlichkeit:
+        sourcePath: zeitlichkeit
+        type: STRING
+      zustand:
+        sourcePath: zustand
+        type: STRING
+      datumderletztenueberpruefung:
+        sourcePath: datumderletztenueberpruefung
+        type: STRING
+      istweiterenutzung:
+        sourcePath: istweiterenutzung
+        type: STRING
+      ergebnisederueberpruefung:
+        sourcePath: ergebnisederueberpruefung
+        type: STRING
+      mappingannahme:
+        sourcePath: mappingannahme
+        type: INTEGER
+      quellobjektid:
+        sourcePath: quellobjektid
+        type: STRING

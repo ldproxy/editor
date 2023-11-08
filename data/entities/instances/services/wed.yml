@@ -1,0 +1,12 @@
+---
+id: wed
+createdAt: 1699452811157
+lastModified: 1699452811157
+label: wed
+enabled: true
+serviceType: OGC_API
+collections:
+  ln_wohnnutzung:
+    id: ln_wohnnutzung
+    label: ln_wohnnutzung
+    enabled: true

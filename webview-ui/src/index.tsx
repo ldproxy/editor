@@ -3,7 +3,6 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import { RecoilRoot, DefaultValue } from "recoil";
 import { RecoilSync } from "recoil-sync";
-import { RecoilSyncApp } from "./RecoilSync";
 import { vscode } from "./utilities/vscode";
 
 const DEFAULT_VALUE = new DefaultValue();
