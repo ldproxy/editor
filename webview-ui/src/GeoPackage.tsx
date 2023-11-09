@@ -17,6 +17,8 @@ export const filenameAtom = atomSyncString("filename", "");
 
 export const gpkgDataAtom = atomSyncObject("gpkgData", {});
 
+export const stateOfGpkgToUploadAtom = atomSyncString("stateOfGpkgToUpload", "");
+
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",
   get: ({ get }) => {
@@ -67,6 +69,8 @@ function GeoPackage({
   const [newGPKG, setNewGPKG] = useRecoilState<string>(newGPKGAtom);
   const [existingGPKG, setExistingGPKG] = useRecoilState<string>(existingGPKGAtom);
   const [filename, setFilename] = useRecoilState<string>(filenameAtom);
+  const [stateOfGpkgToUpload, setStateOfGpkgToUpload] =
+    useRecoilState<string>(stateOfGpkgToUploadAtom);
 
   useEffect(() => {
     if (newGPKG !== "") {
@@ -79,9 +83,8 @@ function GeoPackage({
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setNewGPKG(file.name);
-      setFilename(file.name);
       console.log("GP", file);
+      setFilename(file.name);
 
       file.arrayBuffer().then((buffer: ArrayBuffer) => {
         const uint8Array = new Uint8Array(buffer);
@@ -104,6 +107,17 @@ function GeoPackage({
       case "uploadedGpkg":
         const uploadedGpkg = message.uploadedGpkg;
         console.log("uploadedGpkg:", uploadedGpkg);
+        setStateOfGpkgToUpload(uploadedGpkg);
+
+        if (uploadedGpkg.includes("Datei erfolgreich geschrieben:")) {
+          setNewGPKG(filename);
+        } else {
+          vscode.postMessage({
+            command: "error",
+            text: uploadedGpkg,
+          });
+        }
+
         break;
       default:
         console.log("Upload failed.");
@@ -116,6 +130,11 @@ function GeoPackage({
       setExistingGPKG("");
       setFilename("");
       setCurrentlySelectedGPKG("");
+      setStateOfGpkgToUpload("");
+      const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
+      if (fileInput) {
+        fileInput.value = "";
+      }
     }
   }, [selectedDataSource]);
 
@@ -123,6 +142,7 @@ function GeoPackage({
     setExistingGPKG("");
     setNewGPKG("");
     setFilename("");
+    setStateOfGpkgToUpload("");
     setCurrentlySelectedGPKG("");
     const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
     if (fileInput) {
@@ -172,7 +192,7 @@ function GeoPackage({
         />
         {filename !== "" && <span id="GpkgName">{filename}</span>}
         <div className="submitAndReset">
-          {existingGPKG || newGPKG ? (
+          {existingGPKG || newGPKG || filename !== "" ? (
             <VSCodeButton className="resetButton" disabled={inProgress} onClick={handleReset}>
               Reset
             </VSCodeButton>
@@ -180,7 +200,9 @@ function GeoPackage({
           <VSCodeButton
             className="submitButton"
             onClick={() => submitData(gpkgData)}
-            disabled={inProgress}>
+            disabled={
+              inProgress || stateOfGpkgToUpload.includes("Fehler beim Schreiben der Datei:")
+            }>
             Next
           </VSCodeButton>
         </div>

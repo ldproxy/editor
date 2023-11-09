@@ -20,7 +20,7 @@ export async function uploadedGpkg(gpkgToUpload: any, filename: string) {
       await vscode.workspace.fs.writeFile(filePath, uint8Array);
       return `Datei erfolgreich geschrieben: ${filePath.fsPath}`;
     } catch (error) {
-      return `Fehler beim Schreiben der Datei: ${error} + ${filename}`;
+      return `Fehler beim Schreiben der Datei. ${error}`;
     }
   }
 }
