@@ -6,7 +6,6 @@ import { useRecoilState, selector, useRecoilValue } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncObject, atomSyncString } from "./utilities/recoilSyncWrapper";
 import { vscode } from "./utilities/vscode";
-import { dataProcessingAtom } from "./App";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
 
@@ -70,16 +69,20 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const [base64String, setBase64String] = useRecoilState<string>(base64StringAtom);
 
   useEffect(() => {
+    if (newGPKG !== "") {
+      setCurrentlySelectedGPKG(newGPKG);
+    }
     if (existingGPKG !== "") {
       setCurrentlySelectedGPKG(existingGPKG);
     }
-  }, [existingGPKG]);
+  }, [existingGPKG, newGPKG]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       console.log("GP", file);
       setFilename(file.name);
+      setNewGPKG(file.name);
 
       file.arrayBuffer().then((buffer: ArrayBuffer) => {
         const uint8Array = new Uint8Array(buffer);
@@ -92,8 +95,6 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
 
   const submitGeoPackage = () => {
     if (existingGPKG === "") {
-      console.log("base64String", base64String);
-      console.log("filename", filename);
       if (filename !== "") {
         vscode.postMessage({
           command: "uploadGpkg",
@@ -111,20 +112,18 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     switch (message.command) {
       case "uploadedGpkg":
         const uploadedGpkg = message.uploadedGpkg;
-        console.log("uploadedGpkg:", uploadedGpkg);
         setStateOfGpkgToUpload(uploadedGpkg);
 
-        if (uploadedGpkg.includes("Datei erfolgreich geschrieben:")) {
-          setNewGPKG(filename);
-          setCurrentlySelectedGPKG(filename);
-          if (gpkgData.database !== "") {
-            submitData(gpkgData);
-          }
-        } else {
+        if (!uploadedGpkg.includes("Datei erfolgreich geschrieben:")) {
           vscode.postMessage({
             command: "error",
             text: uploadedGpkg,
           });
+        } else {
+          console.log(uploadedGpkg);
+          if (gpkgData.database !== "") {
+            submitData(gpkgData);
+          }
         }
         break;
       default:
