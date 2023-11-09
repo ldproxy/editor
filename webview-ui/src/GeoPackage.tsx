@@ -2,7 +2,7 @@ import "./App.css";
 import React, { useEffect } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { BasicData } from "./utilities/xtracfg";
-import { atom, useRecoilState, selector, useRecoilValue } from "recoil";
+import { useRecoilState, selector, useRecoilValue } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncObject, atomSyncString } from "./utilities/recoilSyncWrapper";
 import { vscode } from "./utilities/vscode";
@@ -43,7 +43,6 @@ export type GpkgData = BasicData & {
 
 type GeoPackageProps = {
   submitData: (data: Object) => void;
-  selectedDataSource: any;
   inProgress: boolean;
   existingGeopackages: string[];
   error: {
@@ -55,13 +54,7 @@ type GeoPackageProps = {
   };
 };
 
-function GeoPackage({
-  submitData,
-  selectedDataSource,
-  inProgress,
-  error,
-  existingGeopackages,
-}: GeoPackageProps) {
+function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoPackageProps) {
   const gpkgData = useRecoilValue(gpkgDataSelector);
 
   const [currentlySelectedGPKG, setCurrentlySelectedGPKG] =
@@ -71,6 +64,7 @@ function GeoPackage({
   const [filename, setFilename] = useRecoilState<string>(filenameAtom);
   const [stateOfGpkgToUpload, setStateOfGpkgToUpload] =
     useRecoilState<string>(stateOfGpkgToUploadAtom);
+  const selectedDataSource = useRecoilValue<string>(featureProviderTypeAtom);
 
   useEffect(() => {
     if (newGPKG !== "") {
@@ -201,7 +195,9 @@ function GeoPackage({
             className="submitButton"
             onClick={() => submitData(gpkgData)}
             disabled={
-              inProgress || stateOfGpkgToUpload.includes("Fehler beim Schreiben der Datei:")
+              inProgress ||
+              stateOfGpkgToUpload.includes("Fehler beim Schreiben der Datei") ||
+              !currentlySelectedGPKG
             }>
             Next
           </VSCodeButton>

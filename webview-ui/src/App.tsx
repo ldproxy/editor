@@ -352,7 +352,6 @@ function App() {
             />
           ) : selectedDataSource === "GPKG" ? (
             <GeoPackage
-              selectedDataSource={selectedDataSource}
               submitData={analyze}
               inProgress={dataProcessing === "inProgress"}
               existingGeopackages={existingGeopackages}
