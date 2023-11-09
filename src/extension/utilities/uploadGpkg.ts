@@ -17,10 +17,11 @@ export async function uploadedGpkg(gpkgToUpload: any, filename: string) {
     const filePath = vscode.Uri.joinPath(directoryUri, filename);
 
     try {
+      await vscode.workspace.fs.createDirectory(directoryUri);
       await vscode.workspace.fs.writeFile(filePath, uint8Array);
       return `Datei erfolgreich geschrieben: ${filePath.fsPath}`;
     } catch (error) {
-      return `Fehler beim Schreiben der Datei. ${error}`;
+      return `Error uploading Geopackage. ${error}`;
     }
   }
 }

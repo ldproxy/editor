@@ -115,7 +115,7 @@ const Tables = ({ generateProgress, generate }: TabelsProps) => {
 
   // TODO: use indeterminate={true} for All checkboxes when not all/nothing checked
   return (
-    <div>
+    <>
       <form id="outerContainerCheckboxes">
         {allSchemas.length > 1 && (
           <div id="everything">
@@ -173,7 +173,7 @@ const Tables = ({ generateProgress, generate }: TabelsProps) => {
           <span id="progressText">{generateProgress} ...</span>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

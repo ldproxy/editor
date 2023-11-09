@@ -118,20 +118,6 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     }
   });
 
-  useEffect(() => {
-    if (selectedDataSource !== "GPKG") {
-      setNewGPKG("");
-      setExistingGPKG("");
-      setFilename("");
-      setCurrentlySelectedGPKG("");
-      setStateOfGpkgToUpload("");
-      const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
-      if (fileInput) {
-        fileInput.value = "";
-      }
-    }
-  }, [selectedDataSource]);
-
   const handleReset = () => {
     setExistingGPKG("");
     setNewGPKG("");
@@ -160,11 +146,12 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           <option value="" hidden>
             Choose existing File...
           </option>
-          {existingGeopackages.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
+          {existingGeopackages.length > 0 &&
+            existingGeopackages.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
         </select>
         <span>or</span>
         {!existingGPKG && !inProgress ? (

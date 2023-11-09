@@ -8,7 +8,7 @@ export async function listGpkgFilesInDirectory() {
   const workspaceFolders = vscode.workspace.workspaceFolders;
 
   if (!workspaceFolders || workspaceFolders.length <= 0) {
-    return [];
+    return [""];
   }
 
   try {
@@ -21,7 +21,7 @@ export async function listGpkgFilesInDirectory() {
 
     return gpkgFiles.map((file: string) => path.posix.relative(directoryPath, file));
   } catch (error) {
-    return `Fehler beim Lesen des Verzeichnisses: ${error}`;
+    return ["No Geopackages..."];
   }
 }
 
