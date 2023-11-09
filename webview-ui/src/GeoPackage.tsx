@@ -6,6 +6,7 @@ import { useRecoilState, selector, useRecoilValue } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncObject, atomSyncString } from "./utilities/recoilSyncWrapper";
 import { vscode } from "./utilities/vscode";
+import { dataProcessingAtom } from "./App";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
 
@@ -18,6 +19,8 @@ export const filenameAtom = atomSyncString("filename", "");
 export const gpkgDataAtom = atomSyncObject("gpkgData", {});
 
 export const stateOfGpkgToUploadAtom = atomSyncString("stateOfGpkgToUpload", "");
+
+export const base64StringAtom = atomSyncString("base64String", "");
 
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",
@@ -64,15 +67,13 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const [filename, setFilename] = useRecoilState<string>(filenameAtom);
   const [stateOfGpkgToUpload, setStateOfGpkgToUpload] =
     useRecoilState<string>(stateOfGpkgToUploadAtom);
-  const selectedDataSource = useRecoilValue<string>(featureProviderTypeAtom);
+  const [base64String, setBase64String] = useRecoilState<string>(base64StringAtom);
 
   useEffect(() => {
-    if (newGPKG !== "") {
-      setCurrentlySelectedGPKG(newGPKG);
-    } else if (existingGPKG !== "") {
+    if (existingGPKG !== "") {
       setCurrentlySelectedGPKG(existingGPKG);
     }
-  }, [newGPKG, existingGPKG]);
+  }, [existingGPKG]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,13 +85,23 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         const uint8Array = new Uint8Array(buffer);
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
-        if (file.name !== "") {
-          vscode.postMessage({
-            command: "uploadGpkg",
-            text: [base64String, file.name],
-          });
-        }
+        setBase64String(base64String);
       });
+    }
+  };
+
+  const submitGeoPackage = () => {
+    if (existingGPKG === "") {
+      console.log("base64String", base64String);
+      console.log("filename", filename);
+      if (filename !== "") {
+        vscode.postMessage({
+          command: "uploadGpkg",
+          text: [base64String, filename],
+        });
+      }
+    } else if (newGPKG === "") {
+      submitData(gpkgData);
     }
   };
 
@@ -105,13 +116,16 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
 
         if (uploadedGpkg.includes("Datei erfolgreich geschrieben:")) {
           setNewGPKG(filename);
+          setCurrentlySelectedGPKG(filename);
+          if (gpkgData.database !== "") {
+            submitData(gpkgData);
+          }
         } else {
           vscode.postMessage({
             command: "error",
             text: uploadedGpkg,
           });
         }
-
         break;
       default:
         console.log("Upload failed.");
@@ -124,6 +138,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     setFilename("");
     setStateOfGpkgToUpload("");
     setCurrentlySelectedGPKG("");
+    setBase64String("");
     const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
     if (fileInput) {
       fileInput.value = "";
@@ -142,7 +157,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           onChange={(event) => {
             setExistingGPKG(event.target.value);
           }}
-          disabled={inProgress || !!newGPKG}>
+          disabled={inProgress || !!newGPKG || base64String !== ""}>
           <option value="" hidden>
             Choose existing File...
           </option>
@@ -180,11 +195,11 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           ) : null}
           <VSCodeButton
             className="submitButton"
-            onClick={() => submitData(gpkgData)}
+            onClick={submitGeoPackage}
             disabled={
               inProgress ||
               stateOfGpkgToUpload.includes("Fehler beim Schreiben der Datei") ||
-              !currentlySelectedGPKG
+              (!existingGPKG && base64String === "")
             }>
             Next
           </VSCodeButton>
