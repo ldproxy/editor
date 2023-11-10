@@ -151,11 +151,6 @@ function App() {
 
   const submitData = (data: BasicData) => {
     setError({});
-    if (data.subcommand === "analyze") {
-      setDataProcessing("inProgress");
-    } else if (data.subcommand === "generate") {
-      setDataProcessing("inProgressGenerating");
-    }
 
     try {
       JSON.parse(JSON.stringify(data));
@@ -295,6 +290,15 @@ function App() {
       */
     } catch (error) {
       console.error("Fehler beim JSON-Serialisieren:", error);
+    }
+    if (data.subcommand === "analyze") {
+      setDataProcessing("inProgress");
+    } else if (data.subcommand === "generate" && selectedDataSource === "GPKG") {
+      setTimeout(() => {
+        setDataProcessing("inProgressGenerating");
+      }, 100);
+    } else if (data.subcommand === "generate" && selectedDataSource !== "GPKG") {
+      setDataProcessing("inProgressGenerating");
     }
   };
 

@@ -8,7 +8,7 @@ export async function listGpkgFilesInDirectory() {
   const workspaceFolders = vscode.workspace.workspaceFolders;
 
   if (!workspaceFolders || workspaceFolders.length <= 0) {
-    return [""];
+    return ["No workspace folder..."];
   }
 
   try {

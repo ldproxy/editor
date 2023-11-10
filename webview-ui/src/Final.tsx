@@ -3,7 +3,7 @@ import "./App.css";
 import { vscode } from "./utilities/vscode";
 import Progress from "./Progress";
 import { selectedTablesAtom, TableData } from "./Tables";
-import { atom, useRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { dataProcessingAtom } from "./App";
 import { atomSyncNumber, atomSyncStringArray } from "./utilities/recoilSyncWrapper";
 
