@@ -24,6 +24,7 @@ if (workspaceFolders && workspaceFolders.length > 0) {
 export class AutoCreatePanel {
   public static currentPanel: AutoCreatePanel | undefined;
   private readonly _panel: WebviewPanel;
+  private readonly _extensionUri: Uri;
   private _disposables: Disposable[] = [];
 
   /**
@@ -34,6 +35,7 @@ export class AutoCreatePanel {
    */
   private constructor(panel: WebviewPanel, extensionUri: Uri) {
     this._panel = panel;
+    this._extensionUri = extensionUri;
 
     // Set an event listener to listen for when the panel is disposed (i.e. when the user closes
     // the panel or when the panel is closed programmatically)
@@ -96,6 +98,10 @@ export class AutoCreatePanel {
         disposable.dispose();
       }
     }
+  }
+
+  public reload() {
+    this._panel.webview.html = this._getWebviewContent(this._panel.webview, this._extensionUri);
   }
 
   /**
@@ -169,6 +175,9 @@ export class AutoCreatePanel {
             break;
           case "closeWebview":
             this.dispose();
+            break;
+          case "reloadWebview":
+            this.reload();
             break;
           case "success":
             await vscode.commands.executeCommand("vscode.open", Uri.file(text));

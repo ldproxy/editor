@@ -36,9 +36,10 @@ const Final = ({
   };
 
   const onCreateAnother = () => {
-    // setDataProcessing("");
-    // setSelectedTables({});
     vscode.setState({});
+    vscode.postMessage({
+      command: "reloadWebview",
+    });
   };
 
   const onLinkClick = (file: string) => {
