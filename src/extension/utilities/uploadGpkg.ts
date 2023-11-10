@@ -18,8 +18,13 @@ export async function uploadedGpkg(gpkgToUpload: any, filename: string) {
 
     try {
       await vscode.workspace.fs.createDirectory(directoryUri);
-      await vscode.workspace.fs.writeFile(filePath, uint8Array);
-      return `Datei erfolgreich geschrieben: ${filePath.fsPath}`;
+      try {
+        await vscode.workspace.fs.stat(filePath);
+        return `Geopackage already exists.`;
+      } catch {
+        await vscode.workspace.fs.writeFile(filePath, uint8Array);
+        return `Datei erfolgreich geschrieben: ${filePath.fsPath}`;
+      }
     } catch (error) {
       return `Error uploading Geopackage. ${error}`;
     }

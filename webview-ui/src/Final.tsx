@@ -36,8 +36,9 @@ const Final = ({
   };
 
   const onCreateAnother = () => {
-    setDataProcessing("");
-    setSelectedTables({});
+    // setDataProcessing("");
+    // setSelectedTables({});
+    vscode.setState({});
   };
 
   const onLinkClick = (file: string) => {
