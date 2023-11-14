@@ -1,10 +1,6 @@
 import * as vscode from "vscode";
 import { hoverData } from "./providers";
 
-interface HoverTexts {
-  [key: string]: string;
-}
-
 interface LooseDefinition {
   title?: string;
   description?: string;
@@ -43,17 +39,6 @@ export const hover = () => {
     {
       provideHover(document, position) {
         const word: string = document.getText(document.getWordRangeAtPosition(position));
-
-        /* const hoverTexts: HoverTexts = {
-          hello: "Begrüßung",
-          bye: "Abschied",
-        };
-          if (hoverTexts.hasOwnProperty(word)) {
-          return new vscode.Hover(hoverTexts[word]);
-        }
-
-        return null;
-        */
 
         const definitionsMap: DefinitionsMap = processProperties(hoverData.$defs);
         console.log("definitionsMap", definitionsMap);
