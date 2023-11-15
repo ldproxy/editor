@@ -15,8 +15,7 @@ export function updateDiagnostics(
   document: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
 ): void {
-  console.log("Wird aufgerufen");
-  if (document && path.basename(document.uri.fsPath) === "dvg.yml") {
+  if (document.uri.path.includes("dvg.yml")) {
     const diagnostics: vscode.Diagnostic[] = [];
 
     infoMessages.forEach((info) => {
@@ -38,41 +37,43 @@ export function updateDiagnostics(
             lastKeyIndex = document.getText().indexOf(currentObject);
             console.log("lastKey: " + lastKey);
             console.log("lastKeyIndex: " + lastKeyIndex);
+
+            console.log(`Value ${lastKey} found at position: ${JSON.stringify(currentObject)}`);
+
+            if (lastKey) {
+              const textBeforeIndex = document.getText().substring(0, lastKeyIndex);
+              const lastColonIndex = textBeforeIndex.lastIndexOf(":");
+              if (lastColonIndex !== -1) {
+                const textBeforeColon = textBeforeIndex.substring(0, lastColonIndex).trim();
+                const match = textBeforeColon.match(/(\S+)$/);
+
+                if (match && match.index) {
+                  errorIndex = lastColonIndex - (textBeforeColon.length - match.index);
+                }
+              }
+            }
+
+            const startPosition = document.positionAt(errorIndex ? errorIndex : 0);
+            const endPosition = document.positionAt(
+              errorIndex && lastKey ? errorIndex + lastKey.length : 0
+            );
+
+            if (lastKeyIndex !== -1) {
+              const diagnostic = new vscode.Diagnostic(
+                new vscode.Range(startPosition, endPosition),
+                `${info}`,
+                vscode.DiagnosticSeverity.Error
+              );
+
+              diagnostics.push(diagnostic);
+
+              collection.set(document.uri, diagnostics);
+            }
           } else {
             console.error(`Key "${key}" not found in path "${infoWord}"`);
             break;
           }
         }
-
-        console.log(`Value ${lastKey} found at position: ${JSON.stringify(currentObject)}`);
-
-        if (lastKey) {
-          const textBeforeIndex = document.getText().substring(0, lastKeyIndex);
-          const lastColonIndex = textBeforeIndex.lastIndexOf(":");
-          if (lastColonIndex !== -1) {
-            const textBeforeColon = textBeforeIndex.substring(0, lastColonIndex).trim();
-            const match = textBeforeColon.match(/(\S+)$/);
-
-            if (match && match.index) {
-              errorIndex = lastColonIndex - (textBeforeColon.length - match.index);
-            }
-          }
-        }
-
-        const startPosition = document.positionAt(errorIndex ? errorIndex : 0);
-        const endPosition = document.positionAt(
-          errorIndex && lastKey ? errorIndex + lastKey.length : 0
-        );
-
-        const diagnostic = new vscode.Diagnostic(
-          new vscode.Range(startPosition, endPosition),
-          `${info}`,
-          vscode.DiagnosticSeverity.Error
-        );
-
-        diagnostics.push(diagnostic);
-
-        collection.set(document.uri, diagnostics);
       } catch (e) {
         console.error("Error parsing YAML:", e);
       }
