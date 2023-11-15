@@ -4,6 +4,7 @@ import { SourcesProvider } from "./trees/SourcesProvider";
 import { EntitiesProvider } from "./trees/EntitiesProvider";
 import { hover } from "./LanguageFeatures/Hovering";
 import * as vscode from "vscode";
+import { getDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
 
 export function activate(context: ExtensionContext) {
@@ -20,6 +21,8 @@ export function activate(context: ExtensionContext) {
     "ldproxy-editor.entityTree",
     new EntitiesProvider()
   );
+
+  const getDiagnostic = getDiagnostics();
 
   const hoverFunction = hover();
 

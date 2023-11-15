@@ -1,7 +1,43 @@
 import * as vscode from "vscode";
 import { results } from "./DiagnosticResponse";
-import * as path from "path";
 import * as yaml from "js-yaml";
+
+let workspace = "c:/Users/p.zahnen/Documents/GitHub/editor/data/";
+let diagnostic; // to be named results
+/* const workspaceFolders = vscode.workspace.workspaceFolders;
+if (workspaceFolders && workspaceFolders[0]) {
+  workspace = workspaceFolders[0].uri.fsPath;
+} */
+console.log("workspacee", workspace);
+
+const diagnosticSubmitData = {
+  command: "check",
+  subcommand: "entities",
+  source: workspace,
+  onlyEntities: true,
+  // path: "entities/instances/providers/dvg.yml",
+};
+
+export const getDiagnostics = () => {
+  try {
+    JSON.parse(JSON.stringify(diagnosticSubmitData));
+    const socket = new WebSocket("ws://localhost:8080/sock");
+
+    socket.addEventListener("open", () => {
+      const jsonData = JSON.stringify(diagnosticSubmitData);
+      console.log("Data", jsonData);
+      socket.send(jsonData);
+    });
+
+    socket.addEventListener("message", (event) => {
+      const response = JSON.parse(event.data);
+      diagnostic = response;
+      console.log("Diagnostics vom Server erhalten:", response);
+    });
+  } catch (error) {
+    console.error("Fehler bei Diagnostics:", error);
+  }
+};
 
 const infoMessages = results
   .filter((result) => result.status === "INFO")
