@@ -8,7 +8,6 @@ let diagnostic; // to be named results
 if (workspaceFolders && workspaceFolders[0]) {
   workspace = workspaceFolders[0].uri.fsPath;
 } */
-console.log("workspacee", workspace);
 
 const diagnosticSubmitData = {
   command: "check",
@@ -25,14 +24,12 @@ export const getDiagnostics = () => {
 
     socket.addEventListener("open", () => {
       const jsonData = JSON.stringify(diagnosticSubmitData);
-      console.log("Data", jsonData);
       socket.send(jsonData);
     });
 
     socket.addEventListener("message", (event) => {
       const response = JSON.parse(event.data);
       diagnostic = response;
-      console.log("Diagnostics vom Server erhalten:", response);
     });
   } catch (error) {
     console.error("Fehler bei Diagnostics:", error);
@@ -57,7 +54,6 @@ export function updateDiagnostics(
     infoMessages.forEach((info) => {
       const infoText = info.match(/\$.(.*):/);
       const infoWord = infoText ? infoText[1].trim() : "";
-      console.log("infoWord: " + infoWord);
       try {
         const yamlObject = yaml.load(document.getText());
         const keys = infoWord.split(".");
@@ -71,10 +67,6 @@ export function updateDiagnostics(
             lastKey = key;
             currentObject = currentObject[key];
             lastKeyIndex = document.getText().indexOf(currentObject);
-            console.log("lastKey: " + lastKey);
-            console.log("lastKeyIndex: " + lastKeyIndex);
-
-            console.log(`Value ${lastKey} found at position: ${JSON.stringify(currentObject)}`);
 
             if (lastKey) {
               const textBeforeIndex = document.getText().substring(0, lastKeyIndex);
