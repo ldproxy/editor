@@ -61,11 +61,16 @@ function getPathAtCursor(yamlObject: any, line: number, currentPath: string) {
       }
     }
   }
-  const pathAtCursor = allYamlKeys[line - 1];
-  const pathAtCursorString = pathAtCursor.toString();
-  const pathParts = pathAtCursorString.split(".");
-  pathParts.pop();
-  const newPath = pathParts.join(".");
+  if (allYamlKeys.length > 0) {
+    const indexToUse = Math.min(line - 1, allYamlKeys.length - 1);
+    const pathAtCursor = allYamlKeys[indexToUse];
+    const pathAtCursorString = pathAtCursor.toString();
+    const pathParts = pathAtCursorString.split(".");
+    pathParts.pop();
+    const newPath = pathParts.join(".");
 
-  return newPath;
+    return newPath;
+  } else {
+    return "";
+  }
 }

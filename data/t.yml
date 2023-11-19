@@ -1,0 +1,4 @@
+---
+featureProviderType: WFS
+connectionInfo:
+  connectorType: HTTP
