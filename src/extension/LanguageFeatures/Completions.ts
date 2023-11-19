@@ -13,9 +13,10 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
 
     const yamlObject = yaml.load(document.getText());
     const line = position.line;
+    const column = position.character;
 
     allYamlKeys = [];
-    const pathAtCursor = getPathAtCursor(yamlObject, line, "");
+    const pathAtCursor = getPathAtCursor(yamlObject, line, column, "");
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("allYamlKeys", allYamlKeys);
 
@@ -43,31 +44,42 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
   },
 });
 
-function getPathAtCursor(yamlObject: any, line: number, currentPath: string) {
+function getPathAtCursor(yamlObject: any, line: number, column: number, currentPath: string) {
   if (yamlObject && typeof yamlObject === "object") {
     const keys: string[] = Object.keys(yamlObject);
 
     for (const key of keys) {
       const value = yamlObject[key];
 
-      if (typeof value !== "object") {
+      if (typeof value !== "object" || value === null) {
         const path = currentPath ? `${currentPath}.${key}` : key;
         allYamlKeys.push(path);
       } else if (value && typeof value === "object") {
         const path = currentPath ? `${currentPath}.${key}` : key;
         allYamlKeys.push(path);
 
-        getPathAtCursor(value, line, path);
+        getPathAtCursor(value, line, column, path);
       }
     }
   }
   if (allYamlKeys.length > 0) {
+    let newPath;
     const indexToUse = Math.min(line - 1, allYamlKeys.length - 1);
     const pathAtCursor = allYamlKeys[indexToUse];
     const pathAtCursorString = pathAtCursor.toString();
-    const pathParts = pathAtCursorString.split(".");
-    pathParts.pop();
-    const newPath = pathParts.join(".");
+
+    /* Wenn es noch keinen eingerückten Key gibt, damit die App erkennt, wenn man vorhat dies zu tun 
+    und entsprechende Vorschläge macht.
+    Müsste man dann so natürlich auch noch für eingerücktere Fälle machen. Also dann einfach mehr
+    columns und Punkte.
+    */
+    if (column === 2 && !pathAtCursorString.endsWith(".")) {
+      newPath = pathAtCursorString;
+    } else {
+      const pathParts = pathAtCursorString.split(".");
+      pathParts.pop();
+      newPath = pathParts.join(".");
+    }
 
     return newPath;
   } else {
