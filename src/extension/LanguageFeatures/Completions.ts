@@ -16,7 +16,7 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
     const column = position.character;
 
     allYamlKeys = [];
-    const pathAtCursor = getPathAtCursor(yamlObject, line, column, "");
+    const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("allYamlKeys", allYamlKeys);
 
@@ -38,13 +38,25 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
         "Press `c` to get `console.`"
       );
       return [commitCharacterCompletion];
+    } else if (pathAtCursor === "connectorType.connectionInfo") {
+      const simpleCompletion2 = new vscode.CompletionItem("Klaaaaappt!");
+      return [simpleCompletion2];
+    } else if (pathAtCursor === "connectorType.dudu.connectionInfo") {
+      const simpleCompletion3 = new vscode.CompletionItem("Klaaaaappt immer noch!");
+      return [simpleCompletion3];
     } else {
       return [];
     }
   },
 });
 
-function getPathAtCursor(yamlObject: any, line: number, column: number, currentPath: string) {
+function getPathAtCursor(
+  document: vscode.TextDocument,
+  yamlObject: any,
+  line: number,
+  column: number,
+  currentPath: string
+) {
   if (yamlObject && typeof yamlObject === "object") {
     const keys: string[] = Object.keys(yamlObject);
 
@@ -58,29 +70,39 @@ function getPathAtCursor(yamlObject: any, line: number, column: number, currentP
         const path = currentPath ? `${currentPath}.${key}` : key;
         allYamlKeys.push(path);
 
-        getPathAtCursor(value, line, column, path);
+        getPathAtCursor(document, value, line, column, path);
       }
     }
   }
   if (allYamlKeys.length > 0) {
     let newPath;
+    let columnPathAtCoursorString;
     const indexToUse = Math.min(line - 1, allYamlKeys.length - 1);
     const pathAtCursor = allYamlKeys[indexToUse];
     const pathAtCursorString = pathAtCursor.toString();
 
     /* Wenn es noch keinen eingerückten Key gibt, damit die App erkennt, wenn man vorhat dies zu tun 
     und entsprechende Vorschläge macht.
-    Müsste man dann so natürlich auch noch für eingerücktere Fälle machen. Also dann einfach mehr
-    columns und Punkte.
     */
-    if (column === 2 && !pathAtCursorString.endsWith(".")) {
+    const lineText = document.lineAt(line - 1).text;
+    if (pathAtCursorString.includes(".")) {
+      const lastDotIndex = pathAtCursorString.lastIndexOf(".");
+      const pathPartAfterLastDot = pathAtCursorString.substring(lastDotIndex + 1);
+
+      if (lineText.includes(pathPartAfterLastDot)) {
+        columnPathAtCoursorString = lineText.indexOf(pathPartAfterLastDot);
+      }
+    } else if (lineText.includes(pathAtCursorString)) {
+      columnPathAtCoursorString = lineText.indexOf(pathAtCursorString);
+    }
+
+    if (columnPathAtCoursorString !== undefined && column > columnPathAtCoursorString) {
       newPath = pathAtCursorString;
     } else {
       const pathParts = pathAtCursorString.split(".");
       pathParts.pop();
       newPath = pathParts.join(".");
     }
-
     return newPath;
   } else {
     return "";

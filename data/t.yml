@@ -1,4 +1,7 @@
 ---
 featureProviderType: WFS
-connectionInfo:
-  connectorType: HTTP
+connectorType:
+  bla: bla
+  dudu:
+    bla2: bla2
+    connectionInfo:
