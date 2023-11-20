@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
 import { defineDefs } from "./GetProviders";
+import { buildDataObjectForCompletions } from "./GetProviders";
 
 let allYamlKeys: {}[] = [];
+let completionKeys: {}[];
+let otherCompletions: {}[];
 
 export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
@@ -11,8 +14,12 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
         return undefined;
       }
       */
-    const completionKeys = defineDefs(document)[0];
-    const otherCompletions = defineDefs(document)[1];
+    const specifiedDefs = defineDefs(document)[0];
+    const otherSpecifiedDefs = defineDefs(document)[1];
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      completionKeys = buildDataObjectForCompletions(specifiedDefs);
+      otherCompletions = buildDataObjectForCompletions(otherSpecifiedDefs);
+    }
 
     const yamlObject = yaml.load(document.getText());
     const line = position.line;
@@ -38,17 +45,27 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
     } else if (pathAtCursor === "") {
       const completions: vscode.CompletionItem[] = [];
 
-      completionKeys.forEach((key) => {
-        const completion = new vscode.CompletionItem(key);
-        completions.push(completion);
+      completionKeys.forEach((obj: Record<string, string>) => {
+        const value = obj.key;
+        if (value !== undefined) {
+          const completion = new vscode.CompletionItem(value);
+          completion.kind = vscode.CompletionItemKind.Text;
+          completions.push(completion);
+        }
       });
-      otherCompletions.forEach((key) => {
-        const completion = new vscode.CompletionItem(key);
-        completions.push(completion);
+
+      otherCompletions.forEach((obj: Record<string, string>) => {
+        const value = obj.key;
+        if (value !== undefined) {
+          const completion = new vscode.CompletionItem(value);
+          completion.kind = vscode.CompletionItemKind.Text;
+          completions.push(completion);
+        }
       });
 
       const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
       completions.push(commitCharacterCompletion);
+      console.log("wichtig", completions);
 
       return completions;
     } else if (pathAtCursor === "connectorType.connectionInfo") {

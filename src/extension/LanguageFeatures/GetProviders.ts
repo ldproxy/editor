@@ -57,18 +57,24 @@ export function defineDefs(document: vscode.TextDocument) {
     }
   }
 
-  const completionParentKeys = buildDataObjectForCompletions(specifiedDefs);
-  const otherCompletionParentKeys = buildDataObjectForCompletions(otherSpecifiedDefs);
-  return [completionParentKeys, otherCompletionParentKeys];
+  return [specifiedDefs, otherSpecifiedDefs];
 }
 
 export function buildDataObjectForCompletions(defs: string) {
   const data: Record<string, LooseDefinition> = hoverData.$defs;
   const completionParentKeys = data[defs];
-  let completionWords: string[] = [];
-  if (completionParentKeys && completionParentKeys.properties) {
-    completionWords = Object.keys(completionParentKeys.properties);
+  interface CompletionWordInterface {
+    key: string;
+    ref: string;
   }
-
+  let completionWords: CompletionWordInterface[] = [];
+  if (completionParentKeys && completionParentKeys.properties) {
+    for (const propKey in completionParentKeys.properties) {
+      const key = propKey;
+      const ref = completionParentKeys.properties[propKey].$ref;
+      completionWords.push({ key, ref });
+    }
+  }
+  console.log("completionWords: ", completionWords);
   return completionWords;
 }
