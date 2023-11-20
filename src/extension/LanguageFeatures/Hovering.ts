@@ -71,7 +71,6 @@ function processProperties(
           };
         }
       }
-      //    processProperties(definition.properties, definitionsMap);
     }
   }
 

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
+import { defineDefs } from "./GetProviders";
 
 let allYamlKeys: {}[] = [];
 
@@ -10,6 +11,8 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
         return undefined;
       }
       */
+    const completionKeys = defineDefs(document)[0];
+    const otherCompletions = defineDefs(document)[1];
 
     const yamlObject = yaml.load(document.getText());
     const line = position.line;
@@ -33,16 +36,27 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
 
       return [item1, simpleCompletion];
     } else if (pathAtCursor === "") {
+      const completions: vscode.CompletionItem[] = [];
+
+      completionKeys.forEach((key) => {
+        const completion = new vscode.CompletionItem(key);
+        completions.push(completion);
+      });
+      otherCompletions.forEach((key) => {
+        const completion = new vscode.CompletionItem(key);
+        completions.push(completion);
+      });
+
       const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
-      commitCharacterCompletion.documentation = new vscode.MarkdownString(
-        "Press `c` to get `console.`"
-      );
-      return [commitCharacterCompletion];
+      completions.push(commitCharacterCompletion);
+
+      return completions;
     } else if (pathAtCursor === "connectorType.connectionInfo") {
       const simpleCompletion2 = new vscode.CompletionItem("Klaaaaappt!");
       return [simpleCompletion2];
     } else if (pathAtCursor === "connectorType.dudu.connectionInfo") {
       const simpleCompletion3 = new vscode.CompletionItem("Klaaaaappt immer noch!");
+      simpleCompletion3.documentation = new vscode.MarkdownString("Press `c` to get `console.`");
       return [simpleCompletion3];
     } else {
       return [];
