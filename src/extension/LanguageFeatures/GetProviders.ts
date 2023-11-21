@@ -65,14 +65,19 @@ export function buildDataObjectForCompletions(defs: string) {
   const completionParentKeys = data[defs];
   interface CompletionWordInterface {
     key: string;
-    ref: string;
+    ref: string | undefined;
   }
   let completionWords: CompletionWordInterface[] = [];
   if (completionParentKeys && completionParentKeys.properties) {
     for (const propKey in completionParentKeys.properties) {
       const key = propKey;
-      const ref = completionParentKeys.properties[propKey].$ref;
-      completionWords.push({ key, ref });
+      const ref =
+        completionParentKeys.properties[propKey].$ref ||
+        (completionParentKeys.properties[propKey].additionalProperties &&
+          completionParentKeys.properties[propKey].additionalProperties.$ref);
+      if (key || ref) {
+        completionWords.push({ key, ref });
+      }
     }
   }
   console.log("completionWords: ", completionWords);

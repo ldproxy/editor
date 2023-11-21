@@ -7,6 +7,7 @@ let allYamlKeys: {}[] = [];
 let completionKeys: {}[];
 let otherCompletions: {}[];
 
+// References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const specifiedDefs = defineDefs(document)[0];
@@ -55,6 +56,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
   },
 });
 
+// References from otherSpecifiedDefs
 export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     /*  const linePrefix = document.lineAt(position).text.slice(0, position.character);
@@ -109,6 +111,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
   },
 });
 
+//Examples and Completions for non-indented keys
 export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     /*  const linePrefix = document.lineAt(position).text.slice(0, position.character);
