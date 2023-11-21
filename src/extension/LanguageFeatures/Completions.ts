@@ -7,13 +7,8 @@ let allYamlKeys: {}[] = [];
 let completionKeys: {}[];
 let otherCompletions: {}[];
 
-export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
+export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    /*  const linePrefix = document.lineAt(position).text.slice(0, position.character);
-      if (!linePrefix.endsWith("feature")) {
-        return undefined;
-      }
-      */
     const specifiedDefs = defineDefs(document)[0];
     const otherSpecifiedDefs = defineDefs(document)[1];
     if (specifiedDefs && specifiedDefs.length > 0) {
@@ -28,8 +23,6 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
     allYamlKeys = [];
     const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
     console.log("pathAtCursor: " + pathAtCursor);
-    console.log("allYamlKeys", allYamlKeys);
-    console.log("otherCompletions", otherCompletions);
 
     if (completionKeys && completionKeys.length > 1) {
       const refCompletions: vscode.CompletionItem[] = [];
@@ -56,16 +49,41 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
           }
         }
       });
+      console.log("refCompletions: ", refCompletions);
       return refCompletions;
     }
+  },
+});
+
+export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
+  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    /*  const linePrefix = document.lineAt(position).text.slice(0, position.character);
+      if (!linePrefix.endsWith("feature")) {
+        return undefined;
+      }
+      */
+    const specifiedDefs = defineDefs(document)[0];
+    const otherSpecifiedDefs = defineDefs(document)[1];
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      completionKeys = buildDataObjectForCompletions(specifiedDefs);
+      otherCompletions = buildDataObjectForCompletions(otherSpecifiedDefs);
+    }
+
+    const yamlObject = yaml.load(document.getText());
+    const line = position.line;
+    const column = position.character;
+
+    allYamlKeys = [];
+    const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
+    console.log("pathAtCursor: " + pathAtCursor);
 
     if (otherCompletions && otherCompletions.length > 1) {
-      console.log("teeeeest");
       const otherRefCompletions: vscode.CompletionItem[] = [];
       otherCompletions.forEach((obj: Record<string, string>) => {
         if (obj["ref"] !== undefined) {
           const key = obj.key;
           const value = obj.ref;
+          console.log("teeeeest", key);
           if (key !== undefined && value !== undefined && pathAtCursor === key) {
             const lastSlashIndex = value.lastIndexOf("/");
             const lastPartValue = value.substring(lastSlashIndex + 1);
@@ -85,8 +103,35 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
           }
         }
       });
+      console.log("otherRefCompletions: ", otherRefCompletions);
       return otherRefCompletions;
     }
+  },
+});
+
+export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
+  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    /*  const linePrefix = document.lineAt(position).text.slice(0, position.character);
+      if (!linePrefix.endsWith("feature")) {
+        return undefined;
+      }
+      */
+    const specifiedDefs = defineDefs(document)[0];
+    const otherSpecifiedDefs = defineDefs(document)[1];
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      completionKeys = buildDataObjectForCompletions(specifiedDefs);
+      otherCompletions = buildDataObjectForCompletions(otherSpecifiedDefs);
+    }
+
+    const yamlObject = yaml.load(document.getText());
+    const line = position.line;
+    const column = position.character;
+
+    allYamlKeys = [];
+    const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
+    console.log("pathAtCursor: " + pathAtCursor);
+    console.log("allYamlKeys", allYamlKeys);
+    console.log("otherCompletions", otherCompletions);
 
     if (
       pathAtCursor === "" &&
@@ -162,14 +207,18 @@ function getPathAtCursor(
   if (allYamlKeys.length > 0) {
     let newPath;
     let columnPathAtCoursorString;
-    const indexToUse = Math.min(line - 1, allYamlKeys.length - 1);
+    const indexToUse = Math.min(line - 2, allYamlKeys.length - 1);
     const pathAtCursor = allYamlKeys[indexToUse];
     const pathAtCursorString = pathAtCursor.toString();
+    console.log("pathAtCursorString", pathAtCursorString);
+    console.log("line", line);
+    console.log("indexToUse", indexToUse);
 
     /* Wenn es noch keinen eingerückten Key gibt, damit die App erkennt, wenn man vorhat dies zu tun 
     und entsprechende Vorschläge macht.
     */
     const lineText = document.lineAt(line - 1).text;
+    console.log("lineText", lineText);
     if (pathAtCursorString.includes(".")) {
       const lastDotIndex = pathAtCursorString.lastIndexOf(".");
       const pathPartAfterLastDot = pathAtCursorString.substring(lastDotIndex + 1);

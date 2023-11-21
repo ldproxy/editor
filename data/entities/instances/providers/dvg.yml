@@ -6,6 +6,7 @@ entityStorageVersion: 2
 providerType: FEATURE
 featureProviderType: WFS
 type: Routes
+preferences:
 connectionInfo:
   connectorType: HTTP
   version: 2.0.0
