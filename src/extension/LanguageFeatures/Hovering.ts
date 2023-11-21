@@ -1,9 +1,7 @@
 import * as vscode from "vscode";
 import { hoverData } from "./providers";
 import * as yaml from "js-yaml";
-
-let specifiedDefs: string = "";
-let otherSpecifiedDefs: string = "";
+import { defineDefs } from "./GetProviders";
 
 let providerType = "";
 let featureProviderType = "";
@@ -18,40 +16,6 @@ interface LooseDefinition {
 
 interface DefinitionsMap {
   [key: string]: LooseDefinition;
-}
-
-function defineDefs() {
-  if (
-    (providerType.length > 0 && featureProviderType.length > 0) ||
-    (providerType.length > 0 && providerSubType.length > 0)
-  ) {
-    if (
-      (providerType === "FEATURE" && providerSubType === "WFS") ||
-      (providerType === "FEATURE" && featureProviderType === "WFS")
-    ) {
-      specifiedDefs = "FeatureProviderWfsData";
-    } else if (
-      (providerType === "FEATURE" && providerSubType === "SQL") ||
-      (providerType === "FEATURE" && featureProviderType === "SQL")
-    ) {
-      specifiedDefs = "FeatureProviderSqlData";
-    } else if (providerType === "TILE" && providerSubType === "FEATURES") {
-      specifiedDefs = "TileProviderFeaturesData";
-    } else if (providerType === "TILE" && providerSubType === "MBTILES") {
-      specifiedDefs = "TileProviderMbTilesData";
-    } else if (providerType === "TILE" && providerSubType === "HTTP") {
-      specifiedDefs = "TileProviderHTTPData";
-    }
-  }
-  if (type.length > 0) {
-    if (type === "FEATURE_CHANGES_PG") {
-      otherSpecifiedDefs = "FeatureChangesPgConfiguration";
-    } else if (type === "Routes") {
-      otherSpecifiedDefs = "RoutesConfiguration";
-    } else if (type === "JSON_SCHEMA") {
-      otherSpecifiedDefs = "JsonSchemaConfiguration";
-    }
-  }
 }
 
 function processProperties(
@@ -89,15 +53,26 @@ export const hover = () => {
         type = config["type"];
 
         const word: string = document.getText(document.getWordRangeAtPosition(position));
-        defineDefs();
+        const specifiedDefs = defineDefs(document)[0];
+        const otherSpecifiedDefs = defineDefs(document)[1];
+        let definitionsMap: DefinitionsMap = {};
 
-        let definitionsMap: DefinitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
+        console.log("specifiedDefs, otherSpecifiedDefs", specifiedDefs, otherSpecifiedDefs);
+        if (
+          specifiedDefs &&
+          otherSpecifiedDefs &&
+          otherSpecifiedDefs.length > 0 &&
+          specifiedDefs.length > 0
+        ) {
+          definitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
 
-        definitionsMap = Object.assign(
-          definitionsMap,
-          processProperties(specifiedDefs, hoverData.$defs)
-        );
+          definitionsMap = Object.assign(
+            definitionsMap,
+            processProperties(specifiedDefs, hoverData.$defs)
+          );
+        }
 
+        console.log("definitionsMap", definitionsMap);
         if (definitionsMap.hasOwnProperty(word) && definitionsMap[word].description !== "") {
           const hoverText = `${definitionsMap[word].title}: ${definitionsMap[word].description}`;
           return new vscode.Hover(hoverText);

@@ -85,7 +85,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         if (obj["ref"] !== undefined) {
           const key = obj.key;
           const value = obj.ref;
-          console.log("teeeeest", key);
           if (key !== undefined && value !== undefined && pathAtCursor === key) {
             const lastSlashIndex = value.lastIndexOf("/");
             const lastPartValue = value.substring(lastSlashIndex + 1);
@@ -143,8 +142,6 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
       completionKeys.length > 1 &&
       otherCompletions.length > 1
     ) {
-      console.log("tatüta");
-
       const completions: vscode.CompletionItem[] = [];
 
       completionKeys.forEach((obj: Record<string, string>) => {
@@ -167,7 +164,6 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
 
       const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
       completions.push(commitCharacterCompletion);
-      console.log("wichtig", completions);
 
       return completions;
     } else if (pathAtCursor === "connectorType.connectionInfo") {
@@ -209,13 +205,16 @@ function getPathAtCursor(
   }
   if (allYamlKeys.length > 0) {
     let newPath;
+    let indexToUse;
     let columnPathAtCoursorString;
-    const indexToUse = Math.min(line - 2, allYamlKeys.length - 1);
+    if (line - 2 < 0) {
+      indexToUse = 0;
+    } else {
+      indexToUse = Math.min(line - 2, allYamlKeys.length - 1);
+    }
     const pathAtCursor = allYamlKeys[indexToUse];
     const pathAtCursorString = pathAtCursor.toString();
     console.log("pathAtCursorString", pathAtCursorString);
-    console.log("line", line);
-    console.log("indexToUse", indexToUse);
 
     /* Wenn es noch keinen eingerückten Key gibt, damit die App erkennt, wenn man vorhat dies zu tun 
     und entsprechende Vorschläge macht.
