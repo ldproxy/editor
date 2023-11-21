@@ -29,20 +29,74 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
     const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("allYamlKeys", allYamlKeys);
+    console.log("otherCompletions", otherCompletions);
 
-    if (pathAtCursor === "connectionInfo") {
-      const item1 = new vscode.CompletionItem("featureProviderType");
-      item1.kind = vscode.CompletionItemKind.Field;
+    if (completionKeys && completionKeys.length > 1) {
+      const refCompletions: vscode.CompletionItem[] = [];
+      completionKeys.forEach((obj: Record<string, string>) => {
+        if (obj["ref"] !== undefined) {
+          const key = obj.key;
+          const value = obj.ref;
+          if (key !== undefined && value !== undefined && pathAtCursor === key) {
+            const lastSlashIndex = value.lastIndexOf("/");
+            const lastPartValue = value.substring(lastSlashIndex + 1);
+            const completionWords = buildDataObjectForCompletions(lastPartValue);
+            completionWords.forEach((obj) => {
+              const valueObj = obj.key;
+              if (valueObj !== undefined) {
+                const completion = new vscode.CompletionItem(valueObj);
+                completion.kind = vscode.CompletionItemKind.Text;
+                completion.command = {
+                  command: "editor.action.ldproxy: Create new entities",
+                  title: "Re-trigger completions...",
+                };
+                refCompletions.push(completion);
+              }
+            });
+          }
+        }
+      });
+      return refCompletions;
+    }
 
-      item1.command = {
-        command: "editor.action.ldproxy: Create new entities",
-        title: "Re-trigger completions...",
-      };
+    if (otherCompletions && otherCompletions.length > 1) {
+      console.log("teeeeest");
+      const otherRefCompletions: vscode.CompletionItem[] = [];
+      otherCompletions.forEach((obj: Record<string, string>) => {
+        if (obj["ref"] !== undefined) {
+          const key = obj.key;
+          const value = obj.ref;
+          if (key !== undefined && value !== undefined && pathAtCursor === key) {
+            const lastSlashIndex = value.lastIndexOf("/");
+            const lastPartValue = value.substring(lastSlashIndex + 1);
+            const completionWords = buildDataObjectForCompletions(lastPartValue);
+            completionWords.forEach((obj) => {
+              const valueObj = obj.key;
+              if (valueObj !== undefined) {
+                const completion = new vscode.CompletionItem(valueObj);
+                completion.kind = vscode.CompletionItemKind.Text;
+                completion.command = {
+                  command: "editor.action.ldproxy: Create new entities",
+                  title: "Re-trigger completions...",
+                };
+                otherRefCompletions.push(completion);
+              }
+            });
+          }
+        }
+      });
+      return otherRefCompletions;
+    }
 
-      const simpleCompletion = new vscode.CompletionItem("Hellooooo World!");
+    if (
+      pathAtCursor === "" &&
+      completionKeys &&
+      otherCompletions &&
+      completionKeys.length > 1 &&
+      otherCompletions.length > 1
+    ) {
+      console.log("tatüta");
 
-      return [item1, simpleCompletion];
-    } else if (pathAtCursor === "") {
       const completions: vscode.CompletionItem[] = [];
 
       completionKeys.forEach((obj: Record<string, string>) => {
