@@ -6,7 +6,7 @@ import { hover } from "./LanguageFeatures/Hovering";
 import * as vscode from "vscode";
 import { getDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
-import { provider1, provider2, provider3 } from "./LanguageFeatures/Completions";
+import { provider1, provider2 } from "./LanguageFeatures/Completions";
 
 export function activate(context: ExtensionContext) {
   const showAutoCreate = commands.registerCommand("ldproxy-editor.showAutoCreate", () => {
@@ -27,7 +27,7 @@ export function activate(context: ExtensionContext) {
 
   const hoverFunction = hover();
 
-  context.subscriptions.push(provider1, provider2, provider3);
+  context.subscriptions.push(provider1, provider2);
 
   const collection = vscode.languages.createDiagnosticCollection("test");
   if (vscode.window.activeTextEditor) {

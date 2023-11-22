@@ -1,20 +1,49 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-import { defineDefs } from "./GetProviders";
-import { buildDataObjectForCompletions } from "./GetProviders";
+import { hoverData } from "./providers";
+import { defineDefs, processProperties, findObjectsWithRef } from "./GetProviders";
+
+interface LooseDefinition {
+  title?: string;
+  description?: string;
+  [key: string]: any;
+}
+
+interface DefinitionsMap {
+  [key: string]: LooseDefinition;
+}
 
 let allYamlKeys: {}[] = [];
-let completionKeys: {}[];
-let otherCompletions: {}[];
+let definitionsMap: DefinitionsMap = {};
+let allRefs: string[] | undefined = [];
 
 // References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const specifiedDefs = defineDefs(document)[0];
     const otherSpecifiedDefs = defineDefs(document)[1];
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      completionKeys = buildDataObjectForCompletions(specifiedDefs);
-      otherCompletions = buildDataObjectForCompletions(otherSpecifiedDefs);
+
+    if (
+      specifiedDefs &&
+      otherSpecifiedDefs &&
+      otherSpecifiedDefs.length > 0 &&
+      specifiedDefs.length > 0
+    ) {
+      definitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
+
+      definitionsMap = Object.assign(
+        definitionsMap,
+        processProperties(specifiedDefs, hoverData.$defs)
+      );
+    }
+    if (definitionsMap && Object.keys(definitionsMap).length > 0) {
+      allRefs = findObjectsWithRef(definitionsMap);
+    }
+
+    if (allRefs && allRefs.length > 0) {
+      allRefs.map((ref) => {
+        definitionsMap = Object.assign(definitionsMap, processProperties(ref, hoverData.$defs));
+      });
     }
 
     const yamlObject = yaml.load(document.getText());
@@ -25,104 +54,69 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
     const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
     console.log("pathAtCursor: " + pathAtCursor);
 
-    if (completionKeys && completionKeys.length > 1) {
+    if (definitionsMap) {
       const refCompletions: vscode.CompletionItem[] = [];
-      completionKeys.forEach((obj: Record<string, string>) => {
-        if (obj["ref"] !== undefined) {
-          const key = obj.key;
-          const value = obj.ref;
-          if (key !== undefined && value !== undefined && pathAtCursor === key) {
-            const lastSlashIndex = value.lastIndexOf("/");
-            const lastPartValue = value.substring(lastSlashIndex + 1);
-            const completionWords = buildDataObjectForCompletions(lastPartValue);
-            completionWords.forEach((obj) => {
-              const valueObj = obj.key;
-              if (valueObj !== undefined) {
-                const completion = new vscode.CompletionItem(valueObj);
-                completion.kind = vscode.CompletionItemKind.Text;
-                completion.command = {
-                  command: "editor.action.ldproxy: Create new entities",
-                  title: "Re-trigger completions...",
-                };
-                refCompletions.push(completion);
+      for (const key in definitionsMap) {
+        if (definitionsMap.hasOwnProperty(key)) {
+          const obj = definitionsMap[key];
+          if (obj["ref"] !== undefined) {
+            const title = obj.title;
+            const value = obj.ref;
+            if (title !== undefined && value !== undefined && pathAtCursor === title) {
+              for (const key2 in definitionsMap) {
+                if (definitionsMap.hasOwnProperty(key2)) {
+                  const obj2 = definitionsMap[key2];
+                  if (obj2.groupname === value) {
+                    const finalValue = obj2.title;
+                    if (finalValue !== undefined) {
+                      const completion = new vscode.CompletionItem(finalValue);
+                      completion.kind = vscode.CompletionItemKind.Text;
+                      completion.command = {
+                        command: "editor.action.ldproxy: Create new entities",
+                        title: "Re-trigger completions...",
+                      };
+                      refCompletions.push(completion);
+                    }
+                  }
+                }
               }
-            });
+            }
           }
         }
-      });
+      }
       console.log("refCompletions: ", refCompletions);
       return refCompletions;
     }
   },
 });
 
-// References from otherSpecifiedDefs
+//Examples and Completions for non-indented keys
 export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    /*  const linePrefix = document.lineAt(position).text.slice(0, position.character);
-      if (!linePrefix.endsWith("feature")) {
-        return undefined;
-      }
-      */
     const specifiedDefs = defineDefs(document)[0];
     const otherSpecifiedDefs = defineDefs(document)[1];
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      completionKeys = buildDataObjectForCompletions(specifiedDefs);
-      otherCompletions = buildDataObjectForCompletions(otherSpecifiedDefs);
+
+    if (
+      specifiedDefs &&
+      otherSpecifiedDefs &&
+      otherSpecifiedDefs.length > 0 &&
+      specifiedDefs.length > 0
+    ) {
+      definitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
+
+      definitionsMap = Object.assign(
+        definitionsMap,
+        processProperties(specifiedDefs, hoverData.$defs)
+      );
+    }
+    if (definitionsMap && Object.keys(definitionsMap).length > 0) {
+      allRefs = findObjectsWithRef(definitionsMap);
     }
 
-    const yamlObject = yaml.load(document.getText());
-    const line = position.line;
-    const column = position.character;
-
-    allYamlKeys = [];
-    const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
-    console.log("pathAtCursor: " + pathAtCursor);
-
-    if (otherCompletions && otherCompletions.length > 1) {
-      const otherRefCompletions: vscode.CompletionItem[] = [];
-      otherCompletions.forEach((obj: Record<string, string>) => {
-        if (obj["ref"] !== undefined) {
-          const key = obj.key;
-          const value = obj.ref;
-          if (key !== undefined && value !== undefined && pathAtCursor === key) {
-            const lastSlashIndex = value.lastIndexOf("/");
-            const lastPartValue = value.substring(lastSlashIndex + 1);
-            const completionWords = buildDataObjectForCompletions(lastPartValue);
-            completionWords.forEach((obj) => {
-              const valueObj = obj.key;
-              if (valueObj !== undefined) {
-                const completion = new vscode.CompletionItem(valueObj);
-                completion.kind = vscode.CompletionItemKind.Text;
-                completion.command = {
-                  command: "editor.action.ldproxy: Create new entities",
-                  title: "Re-trigger completions...",
-                };
-                otherRefCompletions.push(completion);
-              }
-            });
-          }
-        }
+    if (allRefs && allRefs.length > 0) {
+      allRefs.map((ref) => {
+        definitionsMap = Object.assign(definitionsMap, processProperties(ref, hoverData.$defs));
       });
-      console.log("otherRefCompletions: ", otherRefCompletions);
-      return otherRefCompletions;
-    }
-  },
-});
-
-//Examples and Completions for non-indented keys
-export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
-  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    /*  const linePrefix = document.lineAt(position).text.slice(0, position.character);
-      if (!linePrefix.endsWith("feature")) {
-        return undefined;
-      }
-      */
-    const specifiedDefs = defineDefs(document)[0];
-    const otherSpecifiedDefs = defineDefs(document)[1];
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      completionKeys = buildDataObjectForCompletions(specifiedDefs);
-      otherCompletions = buildDataObjectForCompletions(otherSpecifiedDefs);
     }
 
     const yamlObject = yaml.load(document.getText());
@@ -133,34 +127,21 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
     const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("allYamlKeys", allYamlKeys);
-    console.log("otherCompletions", otherCompletions);
 
-    if (
-      pathAtCursor === "" &&
-      completionKeys &&
-      otherCompletions &&
-      completionKeys.length > 1 &&
-      otherCompletions.length > 1
-    ) {
+    if (pathAtCursor === "" && definitionsMap) {
       const completions: vscode.CompletionItem[] = [];
 
-      completionKeys.forEach((obj: Record<string, string>) => {
-        const value = obj.key;
-        if (value !== undefined) {
-          const completion = new vscode.CompletionItem(value);
-          completion.kind = vscode.CompletionItemKind.Text;
-          completions.push(completion);
+      for (const key in definitionsMap) {
+        if (definitionsMap.hasOwnProperty(key)) {
+          const obj = definitionsMap[key];
+          const value = obj.title;
+          if (value !== undefined) {
+            const completion = new vscode.CompletionItem(value);
+            completion.kind = vscode.CompletionItemKind.Text;
+            completions.push(completion);
+          }
         }
-      });
-
-      otherCompletions.forEach((obj: Record<string, string>) => {
-        const value = obj.key;
-        if (value !== undefined) {
-          const completion = new vscode.CompletionItem(value);
-          completion.kind = vscode.CompletionItemKind.Text;
-          completions.push(completion);
-        }
-      });
+      }
 
       const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
       completions.push(commitCharacterCompletion);

@@ -8,6 +8,10 @@ interface LooseDefinition {
   [key: string]: any;
 }
 
+interface DefinitionsMap {
+  [key: string]: LooseDefinition;
+}
+
 let specifiedDefs: string = "";
 let otherSpecifiedDefs: string = "";
 
@@ -60,26 +64,72 @@ export function defineDefs(document: vscode.TextDocument) {
   return [specifiedDefs, otherSpecifiedDefs];
 }
 
-export function buildDataObjectForCompletions(defs: string) {
-  const data: Record<string, LooseDefinition> = hoverData.$defs;
-  const completionParentKeys = data[defs];
-  interface CompletionWordInterface {
-    key: string;
-    ref: string | undefined;
-  }
-  let completionWords: CompletionWordInterface[] = [];
-  if (completionParentKeys && completionParentKeys.properties) {
-    for (const propKey in completionParentKeys.properties) {
-      const key = propKey;
-      const ref =
-        completionParentKeys.properties[propKey].$ref ||
-        (completionParentKeys.properties[propKey].additionalProperties &&
-          completionParentKeys.properties[propKey].additionalProperties.$ref);
-      if (key || ref) {
-        completionWords.push({ key, ref });
+export function processProperties(
+  defs: string,
+  definitions: Record<string, LooseDefinition>,
+  definitionsMap: DefinitionsMap = {}
+) {
+  console.log("def", defs);
+  let lastPartValue = "";
+  if (defs !== "") {
+    const definition = definitions[defs];
+    if (definition && definition.properties) {
+      for (const propKey in definition.properties) {
+        const propDefinition = definition.properties[propKey];
+        if (propDefinition.title || propDefinition.description) {
+          const reference =
+            propDefinition.$ref ||
+            (propDefinition.additionalProperties && propDefinition.additionalProperties.$ref);
+          if (reference && reference.length > 0) {
+            const lastSlashIndex = reference.lastIndexOf("/");
+            lastPartValue = reference.substring(lastSlashIndex + 1);
+          }
+          definitionsMap[propKey] = {
+            groupname: defs,
+            title: propDefinition.title,
+            description: propDefinition.description,
+            ref: lastPartValue,
+          };
+        }
       }
     }
   }
-  console.log("completionWords: ", completionWords);
-  return completionWords;
+
+  return definitionsMap;
+}
+
+export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
+  let lastPartValueArray: string[] | undefined = [];
+  for (const key in definitionsMap) {
+    const obj = definitionsMap[key];
+    if (typeof obj === "object" && obj["ref"] !== undefined) {
+      const value = obj.ref;
+      if (value) {
+        const lastSlashIndex = value.lastIndexOf("/");
+        const lastPartValue: string = value.substring(lastSlashIndex + 1);
+        lastPartValueArray.push(lastPartValue);
+        console.log("valueeeeeeeeee", lastPartValue);
+
+        const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
+        if (Object.keys(nestedDefinitionsMap).length === Object.keys(definitionsMap).length) {
+          lastPartValueArray = lastPartValueArray.concat(findObjectsWithRef(nestedDefinitionsMap));
+        }
+      }
+    }
+    if (typeof obj === "object" && obj["additionalProperties"] !== undefined) {
+      const value = obj.additionalProperties.$ref;
+      if (value) {
+        const lastSlashIndex = value.lastIndexOf("/");
+        const lastPartValue: string = value.substring(lastSlashIndex + 1);
+        lastPartValueArray.push(lastPartValue);
+        console.log("valueeeeeeeeee", lastPartValue);
+
+        const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
+        if (Object.keys(nestedDefinitionsMap).length === Object.keys(definitionsMap).length) {
+          lastPartValueArray = lastPartValueArray.concat(findObjectsWithRef(nestedDefinitionsMap));
+        }
+      }
+    }
+  }
+  return lastPartValueArray;
 }
