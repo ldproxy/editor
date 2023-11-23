@@ -69,7 +69,6 @@ export function processProperties(
   definitions: Record<string, LooseDefinition>,
   definitionsMap: DefinitionsMap = {}
 ) {
-  console.log("def", defs);
   let lastPartValue = "";
   if (defs !== "") {
     const definition = definitions[defs];
@@ -108,7 +107,6 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
         const lastSlashIndex = value.lastIndexOf("/");
         const lastPartValue: string = value.substring(lastSlashIndex + 1);
         lastPartValueArray.push(lastPartValue);
-        console.log("valueeeeeeeeee", lastPartValue);
 
         const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
         if (Object.keys(nestedDefinitionsMap).length === Object.keys(definitionsMap).length) {
@@ -122,7 +120,6 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
         const lastSlashIndex = value.lastIndexOf("/");
         const lastPartValue: string = value.substring(lastSlashIndex + 1);
         lastPartValueArray.push(lastPartValue);
-        console.log("valueeeeeeeeee", lastPartValue);
 
         const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
         if (Object.keys(nestedDefinitionsMap).length === Object.keys(definitionsMap).length) {

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as yaml from "js-yaml";
 import { hoverData } from "./providers";
 import { defineDefs, processProperties, findObjectsWithRef } from "./GetProviders";
+import { findPathInDocument } from "../utilities/findPathInDoc";
 
 interface LooseDefinition {
   title?: string;
@@ -13,7 +14,7 @@ interface DefinitionsMap {
   [key: string]: LooseDefinition;
 }
 
-let allYamlKeys: {}[] = [];
+let allYamlKeys: { path: string; index: number | null }[] = [];
 let definitionsMap: DefinitionsMap = {};
 let allRefs: string[] | undefined = [];
 
@@ -84,7 +85,6 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
           }
         }
       }
-      console.log("refCompletions: ", refCompletions);
       return refCompletions;
     }
   },
@@ -175,52 +175,49 @@ function getPathAtCursor(
 
       if (typeof value !== "object" || value === null) {
         const path = currentPath ? `${currentPath}.${key}` : key;
-        allYamlKeys.push(path);
+        const index = findPathInDocument(document, path);
+
+        allYamlKeys = [...allYamlKeys, { path, index }];
       } else if (value && typeof value === "object") {
         const path = currentPath ? `${currentPath}.${key}` : key;
-        allYamlKeys.push(path);
+        const index = findPathInDocument(document, path);
+
+        allYamlKeys = [...allYamlKeys, { path, index }];
 
         getPathAtCursor(document, value, line, column, path);
       }
     }
   }
   if (allYamlKeys.length > 0) {
-    let newPath;
     let indexToUse;
-    let columnPathAtCoursorString;
     if (line - 2 < 0) {
       indexToUse = 0;
     } else {
       indexToUse = Math.min(line - 2, allYamlKeys.length - 1);
     }
-    const pathAtCursor = allYamlKeys[indexToUse];
-    const pathAtCursorString = pathAtCursor.toString();
-    console.log("pathAtCursorString", pathAtCursorString);
-
-    /* Wenn es noch keinen eingerückten Key gibt, damit die App erkennt, wenn man vorhat dies zu tun 
-    und entsprechende Vorschläge macht.
-    */
-    const lineText = document.lineAt(line - 1).text;
-    console.log("lineText", lineText);
-    if (pathAtCursorString.includes(".")) {
-      const lastDotIndex = pathAtCursorString.lastIndexOf(".");
-      const pathPartAfterLastDot = pathAtCursorString.substring(lastDotIndex + 1);
-
-      if (lineText.includes(pathPartAfterLastDot)) {
-        columnPathAtCoursorString = lineText.indexOf(pathPartAfterLastDot);
+    console.log("richtigeLine?", allYamlKeys[indexToUse]);
+    function getPathAtCursorString(
+      indexToUse: number,
+      column: number,
+      allYamlKeys: { path: string; index: number | null }[]
+    ): string {
+      for (let i = indexToUse; i >= 0; i--) {
+        const obj = allYamlKeys[i];
+        console.log("obji", obj.path, obj.index, "column", column);
+        if (obj.index !== null && obj.index < column) {
+          console.log("obipath", obj.path);
+          return obj.path;
+        }
       }
-    } else if (lineText.includes(pathAtCursorString)) {
-      columnPathAtCoursorString = lineText.indexOf(pathAtCursorString);
+      return "";
     }
 
-    if (columnPathAtCoursorString !== undefined && column > columnPathAtCoursorString) {
-      newPath = pathAtCursorString;
-    } else {
-      const pathParts = pathAtCursorString.split(".");
-      pathParts.pop();
-      newPath = pathParts.join(".");
-    }
-    return newPath;
+    const pathAtCursorString =
+      column > 0 ? getPathAtCursorString(indexToUse, column, allYamlKeys) : "";
+
+    console.log("column", column);
+    console.log("lineeee", line);
+    return pathAtCursorString;
   } else {
     return "";
   }
