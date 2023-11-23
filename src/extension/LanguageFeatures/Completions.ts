@@ -134,15 +134,17 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       for (const key in definitionsMap) {
         if (definitionsMap.hasOwnProperty(key)) {
           const obj = definitionsMap[key];
-          const value = obj.title;
-          if (value !== undefined) {
-            const completion = new vscode.CompletionItem(value);
-            completion.kind = vscode.CompletionItemKind.Text;
-            completions.push(completion);
+          console.log("objobj", obj);
+          if (!obj.ref) {
+            const value = obj.title;
+            if (value !== undefined) {
+              const completion = new vscode.CompletionItem(value);
+              completion.kind = vscode.CompletionItemKind.Text;
+              completions.push(completion);
+            }
           }
         }
       }
-
       const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
       completions.push(commitCharacterCompletion);
 
@@ -195,7 +197,6 @@ function getPathAtCursor(
     } else {
       indexToUse = Math.min(line - 2, allYamlKeys.length - 1);
     }
-    console.log("richtigeLine?", allYamlKeys[indexToUse]);
     function getPathAtCursorString(
       indexToUse: number,
       column: number,
@@ -203,9 +204,7 @@ function getPathAtCursor(
     ): string {
       for (let i = indexToUse; i >= 0; i--) {
         const obj = allYamlKeys[i];
-        console.log("obji", obj.path, obj.index, "column", column);
         if (obj.index !== null && obj.index < column) {
-          console.log("obipath", obj.path);
           return obj.path;
         }
       }
