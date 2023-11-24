@@ -14,10 +14,25 @@ interface DefinitionsMap {
   [key: string]: LooseDefinition;
 }
 
-let allYamlKeys: { path: string; index: number | null }[] = [];
 let definitionsMap: DefinitionsMap = {};
 let allRefs: string[] | undefined = [];
+let allYamlKeys: { path: string; index: number | null }[] = [];
 
+function getDefintionsMap(specifiedDefs: string, otherSpecifiedDefs: string) {
+  definitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
+
+  definitionsMap = Object.assign(definitionsMap, processProperties(specifiedDefs, hoverData.$defs));
+
+  if (definitionsMap && Object.keys(definitionsMap).length > 0) {
+    allRefs = findObjectsWithRef(definitionsMap);
+  }
+
+  if (allRefs && allRefs.length > 0) {
+    allRefs.map((ref) => {
+      definitionsMap = Object.assign(definitionsMap, processProperties(ref, hoverData.$defs));
+    });
+  }
+}
 // References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
@@ -30,21 +45,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
       otherSpecifiedDefs.length > 0 &&
       specifiedDefs.length > 0
     ) {
-      definitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
-
-      definitionsMap = Object.assign(
-        definitionsMap,
-        processProperties(specifiedDefs, hoverData.$defs)
-      );
-    }
-    if (definitionsMap && Object.keys(definitionsMap).length > 0) {
-      allRefs = findObjectsWithRef(definitionsMap);
-    }
-
-    if (allRefs && allRefs.length > 0) {
-      allRefs.map((ref) => {
-        definitionsMap = Object.assign(definitionsMap, processProperties(ref, hoverData.$defs));
-      });
+      getDefintionsMap(specifiedDefs, otherSpecifiedDefs);
     }
 
     const yamlObject = yaml.load(document.getText());
@@ -53,14 +54,16 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
 
     allYamlKeys = [];
     const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
+
     console.log("pathAtCursor: " + pathAtCursor);
+    console.log("allYamlKeys", allYamlKeys);
 
     if (definitionsMap) {
       const refCompletions: vscode.CompletionItem[] = [];
       for (const key in definitionsMap) {
         if (definitionsMap.hasOwnProperty(key)) {
           const obj = definitionsMap[key];
-          if (obj["ref"] !== undefined) {
+          if (obj["ref"] !== "") {
             const title = obj.title;
             const value = obj.ref;
             if (title !== undefined && value !== undefined && pathAtCursor === title) {
@@ -71,6 +74,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                     const finalValue = obj2.title;
                     if (
                       finalValue !== undefined &&
+                      allYamlKeys &&
                       !allYamlKeys.some((key) => key.path === `${title}.${finalValue}`)
                     ) {
                       const completion = new vscode.CompletionItem(finalValue);
@@ -105,21 +109,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       otherSpecifiedDefs.length > 0 &&
       specifiedDefs.length > 0
     ) {
-      definitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
-
-      definitionsMap = Object.assign(
-        definitionsMap,
-        processProperties(specifiedDefs, hoverData.$defs)
-      );
-    }
-    if (definitionsMap && Object.keys(definitionsMap).length > 0) {
-      allRefs = findObjectsWithRef(definitionsMap);
-    }
-
-    if (allRefs && allRefs.length > 0) {
-      allRefs.map((ref) => {
-        definitionsMap = Object.assign(definitionsMap, processProperties(ref, hoverData.$defs));
-      });
+      getDefintionsMap(specifiedDefs, otherSpecifiedDefs);
     }
 
     const yamlObject = yaml.load(document.getText());
@@ -128,6 +118,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
 
     allYamlKeys = [];
     const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
+
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("allYamlKeys", allYamlKeys);
 
@@ -142,6 +133,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
             const value = obj.title;
             if (
               value !== undefined &&
+              allYamlKeys &&
               !allYamlKeys.some((key) => key.path === `${value}` && key.index === 0)
             ) {
               const completion = new vscode.CompletionItem(value);
@@ -168,7 +160,80 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
   },
 });
 
-function getPathAtCursor(
+// additionalReferences from specifiedDefs
+export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
+  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    const specifiedDefs = defineDefs(document)[0];
+    const otherSpecifiedDefs = defineDefs(document)[1];
+
+    if (
+      specifiedDefs &&
+      otherSpecifiedDefs &&
+      otherSpecifiedDefs.length > 0 &&
+      specifiedDefs.length > 0
+    ) {
+      getDefintionsMap(specifiedDefs, otherSpecifiedDefs);
+    }
+
+    const yamlObject = yaml.load(document.getText());
+    const line = position.line;
+    const column = position.character;
+
+    allYamlKeys = [];
+    const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
+
+    console.log("pathAtCursor: " + pathAtCursor);
+    console.log("allYamlKeys", allYamlKeys);
+
+    if (definitionsMap) {
+      const refCompletions: vscode.CompletionItem[] = [];
+      for (const key in definitionsMap) {
+        if (definitionsMap.hasOwnProperty(key)) {
+          const obj = definitionsMap[key];
+          if (obj["addRef"] !== "") {
+            console.log("zz", obj);
+            const title = obj.title;
+            const value = obj.addRef;
+            if (
+              title !== undefined &&
+              value !== undefined &&
+              new RegExp(`${title}\\.\\w*$`).test(pathAtCursor)
+            ) {
+              for (const key2 in definitionsMap) {
+                if (definitionsMap.hasOwnProperty(key2)) {
+                  const obj2 = definitionsMap[key2];
+
+                  if (obj2.groupname === value) {
+                    const finalValue = obj2.title;
+
+                    if (
+                      finalValue !== undefined &&
+                      allYamlKeys &&
+                      !allYamlKeys.some(
+                        (key) => key.path === `${title}\\.\\b\\w+\\b\\.${finalValue}`
+                      )
+                    ) {
+                      const completion = new vscode.CompletionItem(finalValue);
+                      completion.kind = vscode.CompletionItemKind.Text;
+                      completion.command = {
+                        command: "editor.action.ldproxy: Create new entities",
+                        title: "Re-trigger completions...",
+                      };
+                      refCompletions.push(completion);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return refCompletions;
+    }
+  },
+});
+
+export function getPathAtCursor(
   document: vscode.TextDocument,
   yamlObject: any,
   line: number,
@@ -191,7 +256,6 @@ function getPathAtCursor(
         const index = findPathInDocument(document, path);
 
         allYamlKeys = [...allYamlKeys, { path, index }];
-
         getPathAtCursor(document, value, line, column, path);
       }
     }

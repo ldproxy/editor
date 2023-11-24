@@ -70,24 +70,33 @@ export function processProperties(
   definitionsMap: DefinitionsMap = {}
 ) {
   let lastPartValue = "";
+  let lastPartValueAddRed = "";
+  console.log("defs", defs);
   if (defs !== "") {
     const definition = definitions[defs];
     if (definition && definition.properties) {
       for (const propKey in definition.properties) {
         const propDefinition = definition.properties[propKey];
         if (propDefinition.title || propDefinition.description) {
-          const reference =
-            propDefinition.$ref ||
-            (propDefinition.additionalProperties && propDefinition.additionalProperties.$ref);
+          const reference = propDefinition.$ref;
           if (reference && reference.length > 0) {
             const lastSlashIndex = reference.lastIndexOf("/");
             lastPartValue = reference.substring(lastSlashIndex + 1);
           }
+
+          const additionalReference =
+            propDefinition.additionalProperties && propDefinition.additionalProperties.$ref;
+          if (additionalReference && additionalReference.length > 0) {
+            const lastSlashIndex = additionalReference.lastIndexOf("/");
+            lastPartValueAddRed = additionalReference.substring(lastSlashIndex + 1);
+          }
+
           definitionsMap[propKey] = {
             groupname: defs,
             title: propDefinition.title,
             description: propDefinition.description,
             ref: lastPartValue,
+            addRef: lastPartValueAddRed,
           };
         }
       }
@@ -101,7 +110,7 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
   let lastPartValueArray: string[] | undefined = [];
   for (const key in definitionsMap) {
     const obj = definitionsMap[key];
-    if (typeof obj === "object" && obj["ref"] !== undefined) {
+    if (typeof obj === "object" && obj["ref"] !== "") {
       const value = obj.ref;
       if (value) {
         const lastSlashIndex = value.lastIndexOf("/");
@@ -114,8 +123,8 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
         }
       }
     }
-    if (typeof obj === "object" && obj["additionalProperties"] !== undefined) {
-      const value = obj.additionalProperties.$ref;
+    if (typeof obj === "object" && obj["addRef"] !== "") {
+      const value = obj.addRef;
       if (value) {
         const lastSlashIndex = value.lastIndexOf("/");
         const lastPartValue: string = value.substring(lastSlashIndex + 1);
