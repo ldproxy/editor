@@ -67,7 +67,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
           if (obj["ref"] !== "") {
             const title = obj.title;
             const value = obj.ref;
-            if (title !== undefined && value !== undefined && pathAtCursor === title) {
+            if (title !== undefined && value !== undefined && pathAtCursor.endsWith(title)) {
               for (const key2 in definitionsMap) {
                 if (definitionsMap.hasOwnProperty(key2)) {
                   const obj2 = definitionsMap[key2];
