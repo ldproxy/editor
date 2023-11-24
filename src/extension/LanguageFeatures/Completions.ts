@@ -69,7 +69,10 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                   const obj2 = definitionsMap[key2];
                   if (obj2.groupname === value) {
                     const finalValue = obj2.title;
-                    if (finalValue !== undefined) {
+                    if (
+                      finalValue !== undefined &&
+                      !allYamlKeys.some((key) => key.path === `${title}.${finalValue}`)
+                    ) {
                       const completion = new vscode.CompletionItem(finalValue);
                       completion.kind = vscode.CompletionItemKind.Text;
                       completion.command = {
@@ -137,7 +140,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
           console.log("objobj", obj);
           if (!obj.ref) {
             const value = obj.title;
-            if (value !== undefined) {
+            if (
+              value !== undefined &&
+              !allYamlKeys.some((key) => key.path === `${value}` && key.index === 0)
+            ) {
               const completion = new vscode.CompletionItem(value);
               completion.kind = vscode.CompletionItemKind.Text;
               completions.push(completion);
