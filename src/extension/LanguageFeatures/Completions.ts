@@ -28,6 +28,7 @@ function getDefintionsMap(specifiedDefs: string, otherSpecifiedDefs: string) {
   }
 
   if (allRefs && allRefs.length > 0) {
+    console.log("allRefs", allRefs);
     allRefs.map((ref) => {
       definitionsMap = Object.assign(definitionsMap, processProperties(ref, hoverData.$defs));
     });
@@ -209,8 +210,8 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                     if (
                       finalValue !== undefined &&
                       allYamlKeys &&
-                      !allYamlKeys.some(
-                        (key) => key.path === `${title}\\.\\b\\w+\\b\\.${finalValue}`
+                      !allYamlKeys.some((key) =>
+                        new RegExp(`${title}\\.\\b\\w+\\b\\.${finalValue}`).test(key.path)
                       )
                     ) {
                       const completion = new vscode.CompletionItem(finalValue);

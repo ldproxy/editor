@@ -102,40 +102,54 @@ export function processProperties(
       }
     }
   }
-
   return definitionsMap;
 }
 
 export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
-  let lastPartValueArray: string[] | undefined = [];
-  for (const key in definitionsMap) {
-    const obj = definitionsMap[key];
-    if (typeof obj === "object" && obj["ref"] !== "") {
-      const value = obj.ref;
-      if (value) {
-        const lastSlashIndex = value.lastIndexOf("/");
-        const lastPartValue: string = value.substring(lastSlashIndex + 1);
-        lastPartValueArray.push(lastPartValue);
+  let lastPartValueArray: string[] = [];
+  let hasNewReferences = true;
 
-        const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
-        if (Object.keys(nestedDefinitionsMap).length === Object.keys(definitionsMap).length) {
-          lastPartValueArray = lastPartValueArray.concat(findObjectsWithRef(nestedDefinitionsMap));
+  while (hasNewReferences) {
+    hasNewReferences = false;
+
+    for (const key in definitionsMap) {
+      const obj = definitionsMap[key];
+
+      if (typeof obj === "object" && obj["ref"] !== "") {
+        const value = obj.ref;
+
+        if (value) {
+          const lastSlashIndex = value.lastIndexOf("/");
+          const lastPartValue: string = value.substring(lastSlashIndex + 1);
+
+          if (!lastPartValueArray.includes(lastPartValue)) {
+            lastPartValueArray.push(lastPartValue);
+            hasNewReferences = true;
+
+            const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
+            definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
+          }
         }
       }
-    }
-    if (typeof obj === "object" && obj["addRef"] !== "") {
-      const value = obj.addRef;
-      if (value) {
-        const lastSlashIndex = value.lastIndexOf("/");
-        const lastPartValue: string = value.substring(lastSlashIndex + 1);
-        lastPartValueArray.push(lastPartValue);
 
-        const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
-        if (Object.keys(nestedDefinitionsMap).length === Object.keys(definitionsMap).length) {
-          lastPartValueArray = lastPartValueArray.concat(findObjectsWithRef(nestedDefinitionsMap));
+      if (typeof obj === "object" && obj["addRef"] !== "") {
+        const value = obj.addRef;
+
+        if (value) {
+          const lastSlashIndex = value.lastIndexOf("/");
+          const lastPartValue: string = value.substring(lastSlashIndex + 1);
+
+          if (!lastPartValueArray.includes(lastPartValue)) {
+            lastPartValueArray.push(lastPartValue);
+            hasNewReferences = true;
+
+            const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
+            definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
+          }
         }
       }
     }
   }
+
   return lastPartValueArray;
 }
