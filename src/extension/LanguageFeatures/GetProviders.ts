@@ -72,6 +72,7 @@ export function processProperties(
   let lastPartValue = "";
   let lastPartValueAddRed = "";
   console.log("defs", defs);
+
   if (defs !== "") {
     const definition = definitions[defs];
     if (definition && definition.properties) {
@@ -79,7 +80,7 @@ export function processProperties(
         const propDefinition = definition.properties[propKey];
         if (propDefinition.title || propDefinition.description) {
           const reference = propDefinition.$ref;
-          if (reference && reference.length > 0) {
+          if (reference && reference.length > 0 && reference !== undefined) {
             const lastSlashIndex = reference.lastIndexOf("/");
             lastPartValue = reference.substring(lastSlashIndex + 1);
           }
@@ -98,6 +99,8 @@ export function processProperties(
             ref: lastPartValue,
             addRef: lastPartValueAddRed,
           };
+          lastPartValue = "";
+          lastPartValueAddRed = "";
         }
       }
     }
