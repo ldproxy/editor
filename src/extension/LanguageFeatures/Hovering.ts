@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { hoverData } from "./providers";
-import { defineDefs, processProperties, findObjectsWithRef } from "./GetProviders";
+import { processProperties, findObjectsWithRef } from "./GetProviders";
+import { defineDefs } from "./DefineDefs";
 
 interface LooseDefinition {
   title?: string;
@@ -18,23 +19,14 @@ export const hover = () => {
     {
       provideHover(document, position) {
         const word: string = document.getText(document.getWordRangeAtPosition(position));
-        const specifiedDefs = defineDefs(document)[0];
-        const otherSpecifiedDefs = defineDefs(document)[1];
+        const specifiedDefs: string[] = defineDefs(document);
         let definitionsMap: DefinitionsMap = {};
         let allRefs: string[] | undefined = [];
 
-        if (
-          specifiedDefs &&
-          otherSpecifiedDefs &&
-          otherSpecifiedDefs.length > 0 &&
-          specifiedDefs.length > 0
-        ) {
-          definitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
-
-          definitionsMap = Object.assign(
-            definitionsMap,
-            processProperties(specifiedDefs, hoverData.$defs)
-          );
+        if (specifiedDefs && specifiedDefs.length > 0) {
+          specifiedDefs.map((def) => {
+            definitionsMap = Object.assign(definitionsMap, processProperties(def, hoverData.$defs));
+          });
         }
         if (definitionsMap && Object.keys(definitionsMap).length > 0) {
           allRefs = findObjectsWithRef(definitionsMap);

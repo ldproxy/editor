@@ -19,10 +19,10 @@ let definitionsMap: DefinitionsMap = {};
 let allRefs: string[] | undefined = [];
 let allYamlKeys: { path: string; index: number | null }[] = [];
 
-function getDefintionsMap(specifiedDefs: string, otherSpecifiedDefs: string) {
-  definitionsMap = processProperties(otherSpecifiedDefs, hoverData.$defs);
-
-  definitionsMap = Object.assign(definitionsMap, processProperties(specifiedDefs, hoverData.$defs));
+function getDefintionsMap(specifiedDefs: string[]) {
+  specifiedDefs.map((def) => {
+    definitionsMap = Object.assign(definitionsMap, processProperties(def, hoverData.$defs));
+  });
 
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
     allRefs = findObjectsWithRef(definitionsMap);
@@ -38,16 +38,10 @@ function getDefintionsMap(specifiedDefs: string, otherSpecifiedDefs: string) {
 // References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const specifiedDefs = defineDefs(document)[0];
-    const otherSpecifiedDefs = defineDefs(document)[1];
+    const specifiedDefs = defineDefs(document);
 
-    if (
-      specifiedDefs &&
-      otherSpecifiedDefs &&
-      otherSpecifiedDefs.length > 0 &&
-      specifiedDefs.length > 0
-    ) {
-      getDefintionsMap(specifiedDefs, otherSpecifiedDefs);
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      getDefintionsMap(specifiedDefs);
     }
 
     const yamlObject = yaml.load(document.getText());
@@ -102,16 +96,10 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
 //Examples and Completions for non-indented keys
 export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const specifiedDefs = defineDefs(document)[0];
-    const otherSpecifiedDefs = defineDefs(document)[1];
+    const specifiedDefs = defineDefs(document);
 
-    if (
-      specifiedDefs &&
-      otherSpecifiedDefs &&
-      otherSpecifiedDefs.length > 0 &&
-      specifiedDefs.length > 0
-    ) {
-      getDefintionsMap(specifiedDefs, otherSpecifiedDefs);
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      getDefintionsMap(specifiedDefs);
     }
 
     const yamlObject = yaml.load(document.getText());
@@ -165,16 +153,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
 // additionalReferences from specifiedDefs
 export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const specifiedDefs = defineDefs(document)[0];
-    const otherSpecifiedDefs = defineDefs(document)[1];
+    const specifiedDefs = defineDefs(document);
 
-    if (
-      specifiedDefs &&
-      otherSpecifiedDefs &&
-      otherSpecifiedDefs.length > 0 &&
-      specifiedDefs.length > 0
-    ) {
-      getDefintionsMap(specifiedDefs, otherSpecifiedDefs);
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      getDefintionsMap(specifiedDefs);
     }
 
     const yamlObject = yaml.load(document.getText());
