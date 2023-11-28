@@ -64,10 +64,9 @@ export const hover = () => {
             if (def === wordInDefinitionsMap.groupname) {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
-            } else {
-              return null;
             }
           });
+
           console.log("definitionsMap", definitionsMap);
           return hoverResult;
         } else if (pathInYaml && pathInYaml.index > 0) {
@@ -89,8 +88,6 @@ export const hover = () => {
             ) {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
-            } else {
-              return null;
             }
           }
 
@@ -101,14 +98,13 @@ export const hover = () => {
           ) {
             wordInDefinitionsMap = definitionsMap[lastKey];
             const possibleAddRefWord = definitionsMap[thirdLastKey];
+
             if (
               possibleAddRefWord.addRef !== "" &&
               possibleAddRefWord.addRef === wordInDefinitionsMap.groupname
             ) {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
-            } else {
-              return null;
             }
           }
 
