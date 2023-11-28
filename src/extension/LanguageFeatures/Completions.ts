@@ -75,6 +75,9 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                     ) {
                       const completion = new vscode.CompletionItem(finalValue);
                       completion.kind = vscode.CompletionItemKind.Text;
+                      if (obj2.description !== "") {
+                        completion.documentation = new vscode.MarkdownString(obj2.description);
+                      }
                       completion.command = {
                         command: "editor.action.ldproxy: Create new entities",
                         title: "Re-trigger completions...",
@@ -118,7 +121,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       for (const key in definitionsMap) {
         if (definitionsMap.hasOwnProperty(key)) {
           const obj = definitionsMap[key];
-          console.log("objobj", obj);
           if (!obj.ref) {
             const value = obj.title;
             if (
@@ -128,6 +130,9 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
             ) {
               const completion = new vscode.CompletionItem(value);
               completion.kind = vscode.CompletionItemKind.Text;
+              if (obj.description !== "") {
+                completion.documentation = new vscode.MarkdownString(obj.description);
+              }
               completions.push(completion);
             }
           }
@@ -137,9 +142,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       completions.push(commitCharacterCompletion);
 
       return completions;
-    } else if (pathAtCursor === "connectorType.connectionInfo") {
-      const simpleCompletion2 = new vscode.CompletionItem("Klaaaaappt!");
-      return [simpleCompletion2];
     } else if (pathAtCursor === "connectorType.dudu.connectionInfo") {
       const simpleCompletion3 = new vscode.CompletionItem("Klaaaaappt immer noch!");
       simpleCompletion3.documentation = new vscode.MarkdownString("Press `c` to get `console.`");
@@ -199,6 +201,9 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                     ) {
                       const completion = new vscode.CompletionItem(finalValue);
                       completion.kind = vscode.CompletionItemKind.Text;
+                      if (obj2.description !== "") {
+                        completion.documentation = new vscode.MarkdownString(obj2.description);
+                      }
                       completion.command = {
                         command: "editor.action.ldproxy: Create new entities",
                         title: "Re-trigger completions...",
