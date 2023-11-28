@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { results } from "./DiagnosticResponse";
 import * as yaml from "js-yaml";
+import { findPathInDocument } from "../utilitiesLanguageFeatures/findPathInDoc";
 
 let workspace = "c:/Users/p.zahnen/Documents/GitHub/editor/data/";
 let diagnostic; // to be named results
@@ -8,6 +9,13 @@ let diagnostic; // to be named results
 if (workspaceFolders && workspaceFolders[0]) {
   workspace = workspaceFolders[0].uri.fsPath;
 } */
+
+let yamlKeysDiagnostic: { path: string; index: number; lineOfPath: number | null }[] = [];
+const currentDocument = vscode.window.activeTextEditor?.document;
+if (currentDocument) {
+  const yamlObject: any = yaml.load(currentDocument.getText());
+  getAllYamlPaths(currentDocument, yamlObject, "");
+}
 
 const diagnosticSubmitData = {
   command: "check",
@@ -48,6 +56,7 @@ export function updateDiagnostics(
   document: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
 ): void {
+  console.log("sss", yamlKeysDiagnostic);
   if (document.uri.path.includes("dvg.yml")) {
     const diagnostics: vscode.Diagnostic[] = [];
 
@@ -55,52 +64,41 @@ export function updateDiagnostics(
       const infoText = info.match(/\$.(.*):/);
       const infoWord = infoText ? infoText[1].trim() : "";
       try {
-        const yamlObject = yaml.load(document.getText());
         const keys = infoWord.split(".");
-        let lastKey: string | undefined;
+        const lastKey: string = keys[keys.length - 1];
         let lastKeyIndex: number | undefined;
-        let errorIndex: number | undefined;
 
-        let currentObject: any = yamlObject;
-        for (const key of keys) {
-          if (currentObject[key] !== undefined) {
-            lastKey = key;
-            currentObject = currentObject[key];
-            lastKeyIndex = document.getText().indexOf(currentObject);
+        let lineOfPath: number | null = 0;
 
-            if (lastKey) {
-              const textBeforeIndex = document.getText().substring(0, lastKeyIndex);
-              const lastColonIndex = textBeforeIndex.lastIndexOf(":");
-              if (lastColonIndex !== -1) {
-                const textBeforeColon = textBeforeIndex.substring(0, lastColonIndex).trim();
-                const match = textBeforeColon.match(/(\S+)$/);
+        const foundItem = yamlKeysDiagnostic.find((item) => item.path === infoWord);
+        if (foundItem) {
+          lineOfPath = foundItem.lineOfPath;
+        }
+        if (lineOfPath && lineOfPath !== 0) {
+          const lineText = document.lineAt(lineOfPath).text;
+          if (lineText.includes(lastKey)) {
+            const keyIndex = lineText.indexOf(lastKey);
+            const lineTextIndex = document.offsetAt(new vscode.Position(lineOfPath, 0));
 
-                if (match && match.index) {
-                  errorIndex = lastColonIndex - (textBeforeColon.length - match.index);
-                }
-              }
-            }
+            lastKeyIndex = lineTextIndex + keyIndex;
+          }
 
-            const startPosition = document.positionAt(errorIndex ? errorIndex : 0);
-            const endPosition = document.positionAt(
-              errorIndex && lastKey ? errorIndex + lastKey.length : 0
+          const startPosition = document.positionAt(lastKeyIndex ? lastKeyIndex : 0);
+          const endPosition = document.positionAt(lastKeyIndex ? lastKeyIndex + lastKey.length : 0);
+
+          if (lastKeyIndex !== -1) {
+            const diagnostic = new vscode.Diagnostic(
+              new vscode.Range(startPosition, endPosition),
+              `${info}`,
+              vscode.DiagnosticSeverity.Error
             );
 
-            if (lastKeyIndex !== -1) {
-              const diagnostic = new vscode.Diagnostic(
-                new vscode.Range(startPosition, endPosition),
-                `${info}`,
-                vscode.DiagnosticSeverity.Error
-              );
+            diagnostics.push(diagnostic);
 
-              diagnostics.push(diagnostic);
-
-              collection.set(document.uri, diagnostics);
-            }
-          } else {
-            console.error(`Key "${key}" not found in path "${infoWord}"`);
-            break;
+            collection.set(document.uri, diagnostics);
           }
+        } else {
+          console.error(`Key "${lastKey}" not found in path "${infoWord}"`);
         }
       } catch (e) {
         console.error("Error parsing YAML:", e);
@@ -108,5 +106,39 @@ export function updateDiagnostics(
     });
   } else {
     collection.clear();
+  }
+}
+
+export function getAllYamlPaths(
+  document: vscode.TextDocument,
+  yamlObject: any,
+  currentPath: string
+) {
+  if (yamlObject && typeof yamlObject === "object") {
+    const keys: string[] = Object.keys(yamlObject);
+
+    for (const key of keys) {
+      const value = yamlObject[key];
+
+      if (typeof value !== "object" || value === null) {
+        const path = currentPath ? `${currentPath}.${key}` : key;
+
+        const results = findPathInDocument(document, path);
+        if (results && results.column !== undefined && results.lineOfPath !== undefined) {
+          const { column, lineOfPath } = results;
+
+          yamlKeysDiagnostic = [...yamlKeysDiagnostic, { path, index: column, lineOfPath }];
+        }
+      } else if (value && typeof value === "object") {
+        const path = currentPath ? `${currentPath}.${key}` : key;
+        const results = findPathInDocument(document, path);
+        if (results && results.column !== undefined && results.lineOfPath !== undefined) {
+          const { column, lineOfPath } = results;
+
+          yamlKeysDiagnostic = [...yamlKeysDiagnostic, { path, index: column, lineOfPath }];
+        }
+        getAllYamlPaths(document, value, path);
+      }
+    }
   }
 }

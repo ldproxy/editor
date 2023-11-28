@@ -17,7 +17,7 @@ interface DefinitionsMap {
 
 let definitionsMap: DefinitionsMap = {};
 let allRefs: string[] | undefined = [];
-let allYamlKeys: { path: string; index: number | null }[] = [];
+export let allYamlKeys: { path: string; index: number; line: number | null }[] = [];
 
 function getDefintionsMap(specifiedDefs: string[]) {
   specifiedDefs.map((def) => {
@@ -237,14 +237,20 @@ export function getPathAtCursor(
 
       if (typeof value !== "object" || value === null) {
         const path = currentPath ? `${currentPath}.${key}` : key;
-        const index = findPathInDocument(document, path);
+        const result = findPathInDocument(document, path);
 
-        allYamlKeys = [...allYamlKeys, { path, index }];
+        if (result && result.column !== undefined && result.lineOfPath !== undefined) {
+          const { column, lineOfPath } = result;
+          allYamlKeys = [...allYamlKeys, { path, index: column, line: lineOfPath }];
+        }
       } else if (value && typeof value === "object") {
         const path = currentPath ? `${currentPath}.${key}` : key;
-        const index = findPathInDocument(document, path);
+        const result = findPathInDocument(document, path);
 
-        allYamlKeys = [...allYamlKeys, { path, index }];
+        if (result && result.column !== undefined && result.lineOfPath !== undefined) {
+          const { column, lineOfPath } = result;
+          allYamlKeys = [...allYamlKeys, { path, index: column, line: lineOfPath }];
+        }
         getPathAtCursor(document, value, line, column, path);
       }
     }

@@ -1,6 +1,9 @@
 import * as vscode from "vscode";
 
-export function findPathInDocument(document: vscode.TextDocument, fullPath: string): number | null {
+export function findPathInDocument(
+  document: vscode.TextDocument,
+  fullPath: string
+): { column?: number; lineOfPath?: number } | null {
   const lines: string[] = document.getText().split("\n");
   const pathParts = fullPath.split(".");
 
@@ -23,8 +26,8 @@ export function findPathInDocument(document: vscode.TextDocument, fullPath: stri
     }
 
     if (!found) {
-      return null; // Teil des Pfades nicht gefunden
+      return null;
     }
   }
-  return column;
+  return { column, lineOfPath: line };
 }
