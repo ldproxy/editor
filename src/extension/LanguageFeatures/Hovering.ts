@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { hoverData } from "./providers";
-import { processProperties, findObjectsWithRef } from "./GetProviders";
-import { defineDefs } from "./DefineDefs";
+import { hoverData } from "../utilitiesLanguageFeatures/providers";
+import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
+import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 
 interface LooseDefinition {
   title?: string;

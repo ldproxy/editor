@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-import { hoverData } from "./providers";
-import { processProperties, findObjectsWithRef } from "./GetProviders";
-import { defineDefs } from "./DefineDefs";
-import { findPathInDocument } from "../utilities/findPathInDoc";
+import { hoverData } from "../utilitiesLanguageFeatures/providers";
+import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
+import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
+import { findPathInDocument } from "../utilitiesLanguageFeatures/findPathInDoc";
 
 interface LooseDefinition {
   title?: string;
