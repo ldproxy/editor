@@ -1,0 +1,17 @@
+---
+store:
+  mode: READ_Write
+server:
+  externalUrl: ${EXTERNAL_URL:-https://demo.ldproxy.net}
+backgroundTasks:
+  maxThreads: 8
+logging:
+  level: OFF
+  sqlQueries: OFF
+  sqlResults: OFF
+  stackTraces: ON
+  appenders:
+    - type: console
+      timeZone: Europe/Berlin
+  loggers:
+    de.ii: INFO

@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-import { hoverData } from "./providers";
+// import { hoverData } from "./providers";
+import { services } from "./services";
 
 interface LooseDefinition {
   title?: string;
@@ -14,7 +15,7 @@ interface Conditions {
 }
 
 function extractConditions() {
-  const json = hoverData;
+  const json = services;
   const conditions: Conditions[] = [];
   if (!json) {
     return [];

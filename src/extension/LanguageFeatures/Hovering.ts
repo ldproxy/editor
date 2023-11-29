@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { hoverData } from "../utilitiesLanguageFeatures/providers";
+// import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { findPathInDocument } from "../utilitiesLanguageFeatures/findPathInDoc";
 import * as yaml from "js-yaml";
-import { allYamlKeys } from "./Completions";
+import { services } from "../utilitiesLanguageFeatures/services";
 
 let yamlKeysHover: { path: string; index: number; lineOfPath: number | null }[] = [];
 const currentDocument = vscode.window.activeTextEditor?.document;
@@ -25,10 +25,10 @@ interface DefinitionsMap {
 
 export const hover = () => {
   vscode.languages.registerHoverProvider(
-    { language: "yaml", pattern: "**/dvg.yml" },
+    // { language: "yaml", pattern: "**/dvg.yml" },
+    { language: "yaml" },
     {
       provideHover(document, position) {
-        const word: string = document.getText(document.getWordRangeAtPosition(position));
         const lineOfWord: number = position.line;
         const specifiedDefs: string[] = defineDefs(document);
         let definitionsMap: DefinitionsMap = {};
@@ -36,7 +36,7 @@ export const hover = () => {
 
         if (specifiedDefs && specifiedDefs.length > 0) {
           specifiedDefs.map((def) => {
-            definitionsMap = Object.assign(definitionsMap, processProperties(def, hoverData.$defs));
+            definitionsMap = Object.assign(definitionsMap, processProperties(def, services.$defs));
           });
         }
         if (definitionsMap && Object.keys(definitionsMap).length > 0) {
@@ -45,7 +45,7 @@ export const hover = () => {
 
         if (allRefs && allRefs.length > 0) {
           allRefs.map((ref) => {
-            definitionsMap = Object.assign(definitionsMap, processProperties(ref, hoverData.$defs));
+            definitionsMap = Object.assign(definitionsMap, processProperties(ref, services.$defs));
           });
         }
 

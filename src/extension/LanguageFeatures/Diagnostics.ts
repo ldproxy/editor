@@ -57,7 +57,7 @@ export function updateDiagnostics(
   collection: vscode.DiagnosticCollection
 ): void {
   console.log("sss", yamlKeysDiagnostic);
-  if (document.uri.path.includes("dvg.yml")) {
+  if (document.uri.path.includes("ogc_api.yml")) {
     const diagnostics: vscode.Diagnostic[] = [];
 
     infoMessages.forEach((info) => {
@@ -119,8 +119,46 @@ export function getAllYamlPaths(
 
     for (const key of keys) {
       const value = yamlObject[key];
+      console.log("hhh", key, value);
 
-      if (typeof value !== "object" || value === null) {
+      if (Array.isArray(value)) {
+        const arrayPath = currentPath ? `${currentPath}.${key}` : key;
+        console.log("ooo", arrayPath);
+        const arrayResults = findPathInDocument(document, arrayPath);
+        if (
+          arrayResults &&
+          arrayResults.column !== undefined &&
+          arrayResults.lineOfPath !== undefined
+        ) {
+          const { column, lineOfPath } = arrayResults;
+          yamlKeysDiagnostic = [
+            ...yamlKeysDiagnostic,
+            { path: arrayPath, index: column, lineOfPath: lineOfPath },
+          ];
+        }
+
+        if (value.length > 1) {
+          for (let i = 0, length = value.length; i < length; i++) {
+            const object = value[i];
+            const keysOfObject = Object.keys(object);
+            for (const keyOfObject of keysOfObject) {
+              const path = currentPath
+                ? `${currentPath}.${key}.${keyOfObject}`
+                : `${key}.${keyOfObject}`;
+
+              const results = findPathInDocument(document, path);
+              if (results && results.column !== undefined && results.lineOfPath !== undefined) {
+                const { column, lineOfPath } = results;
+
+                yamlKeysDiagnostic = [
+                  ...yamlKeysDiagnostic,
+                  { path, index: column - 2, lineOfPath },
+                ];
+              }
+            }
+          }
+        }
+      } else if (typeof value !== "object" || value === null) {
         const path = currentPath ? `${currentPath}.${key}` : key;
 
         const results = findPathInDocument(document, path);

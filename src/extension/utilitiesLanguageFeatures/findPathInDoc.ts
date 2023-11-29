@@ -14,8 +14,11 @@ export function findPathInDocument(
     let found = false;
 
     while (line < lines.length) {
+      let index = -1;
       const correctLine = document.lineAt(line).text;
-      const index = correctLine.indexOf(part);
+      if (correctLine.includes(`${part}:`)) {
+        index = correctLine.indexOf(part);
+      }
       if (index !== -1) {
         column = index;
         found = true;

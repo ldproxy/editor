@@ -1,4 +1,5 @@
-import { hoverData } from "./providers";
+// import { hoverData } from "./providers";
+import { services } from "./services";
 
 interface LooseDefinition {
   title?: string;
@@ -75,7 +76,7 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
             lastPartValueArray.push(lastPartValue);
             hasNewReferences = true;
 
-            const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
+            const nestedDefinitionsMap = processProperties(lastPartValue, services.$defs);
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
           }
         }
@@ -92,13 +93,13 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
             lastPartValueArray.push(lastPartValue);
             hasNewReferences = true;
 
-            const nestedDefinitionsMap = processProperties(lastPartValue, hoverData.$defs);
+            const nestedDefinitionsMap = processProperties(lastPartValue, services.$defs);
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
           }
         }
       }
     }
   }
-
+  console.log("lastPartValueArray", lastPartValueArray);
   return lastPartValueArray;
 }

@@ -1,9 +1,10 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-import { hoverData } from "../utilitiesLanguageFeatures/providers";
+// import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { findPathInDocument } from "../utilitiesLanguageFeatures/findPathInDoc";
+import { services } from "../utilitiesLanguageFeatures/services";
 
 interface LooseDefinition {
   title?: string;
@@ -21,7 +22,7 @@ export let allYamlKeys: { path: string; index: number; line: number | null }[] =
 
 function getDefintionsMap(specifiedDefs: string[]) {
   specifiedDefs.map((def) => {
-    definitionsMap = Object.assign(definitionsMap, processProperties(def, hoverData.$defs));
+    definitionsMap = Object.assign(definitionsMap, processProperties(def, services.$defs));
   });
 
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
@@ -31,7 +32,7 @@ function getDefintionsMap(specifiedDefs: string[]) {
   if (allRefs && allRefs.length > 0) {
     console.log("allRefs", allRefs);
     allRefs.map((ref) => {
-      definitionsMap = Object.assign(definitionsMap, processProperties(ref, hoverData.$defs));
+      definitionsMap = Object.assign(definitionsMap, processProperties(ref, services.$defs));
     });
   }
 }

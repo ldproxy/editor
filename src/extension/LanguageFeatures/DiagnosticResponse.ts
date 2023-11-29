@@ -24,4 +24,9 @@ export const results = [
     status: "INFO",
     message: "  - $.connectionInfo.method: is redundant and can be removed",
   },
+  // test:
+  {
+    status: "INFO",
+    message: "  - $.metadata.contactName: is redundant and can be removed",
+  },
 ];
