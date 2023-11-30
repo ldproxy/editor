@@ -89,7 +89,7 @@ function matchesCondition(
   condition: Record<string, { const: string }>
 ): boolean {
   let allConditionsMet = true;
-
+  console.log("aaaconfig", config);
   for (const key in condition) {
     const conditionEntry = condition[key];
     const conditionValue = conditionEntry?.const;

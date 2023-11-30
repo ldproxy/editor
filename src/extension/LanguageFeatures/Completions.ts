@@ -18,7 +18,12 @@ interface DefinitionsMap {
 
 let definitionsMap: DefinitionsMap = {};
 let allRefs: string[] | undefined = [];
-export let allYamlKeys: { path: string; index: number; lineOfPath: number | null }[] = [];
+export let allYamlKeys: {
+  path: string;
+  index: number;
+  lineOfPath: number | null;
+  arrayIndex?: number;
+}[] = [];
 
 function getDefintionsMap(specifiedDefs: string[]) {
   specifiedDefs.map((def) => {
@@ -261,7 +266,10 @@ export function getPathAtCursor(
               if (results && results.column !== undefined && results.lineOfPath !== undefined) {
                 const { column, lineOfPath } = results;
 
-                allYamlKeys = [...allYamlKeys, { path, index: column - 2, lineOfPath }];
+                allYamlKeys = [
+                  ...allYamlKeys,
+                  { path, index: column - 2, lineOfPath, arrayIndex: i },
+                ];
               }
             }
           }
