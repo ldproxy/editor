@@ -59,7 +59,7 @@ function extractConditions() {
       }
     }
   }
-
+  console.log("conditions", conditions);
   return conditions;
 }
 
@@ -96,10 +96,32 @@ function matchesCondition(
     const lowerCasedConditionValue = conditionValue?.toLowerCase();
 
     if (lowerCasedConditionValue !== undefined) {
-      const configValue = config[key];
-      const lowerCasedConfigValue = configValue?.toLowerCase();
+      function getConfigValues(obj: any, targetKey: string): any[] {
+        const values: any[] = [];
 
-      if (lowerCasedConfigValue !== lowerCasedConditionValue) {
+        if (typeof obj === "object") {
+          if (Array.isArray(obj)) {
+            for (let i = 0; i < obj.length; i++) {
+              values.push(...getConfigValues(obj[i], targetKey));
+            }
+          } else {
+            for (const currentKey in obj) {
+              if (currentKey === targetKey) {
+                values.push(obj[currentKey]);
+              } else {
+                values.push(...getConfigValues(obj[currentKey], targetKey));
+              }
+            }
+          }
+        }
+
+        return values;
+      }
+
+      const configValues = getConfigValues(config, key);
+      const lowerCasedConfigValues = configValues.map((value: any) => value?.toLowerCase());
+
+      if (!lowerCasedConfigValues.includes(lowerCasedConditionValue)) {
         allConditionsMet = false;
       }
     }
