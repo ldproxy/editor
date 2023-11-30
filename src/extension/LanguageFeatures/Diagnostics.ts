@@ -123,7 +123,6 @@ export function getAllYamlPaths(
 
       if (Array.isArray(value)) {
         const arrayPath = currentPath ? `${currentPath}.${key}` : key;
-        console.log("ooo", arrayPath);
         const arrayResults = findPathInDocument(document, arrayPath);
         if (
           arrayResults &&
@@ -145,8 +144,9 @@ export function getAllYamlPaths(
               const path = currentPath
                 ? `${currentPath}.${key}.${keyOfObject}`
                 : `${key}.${keyOfObject}`;
-
-              const results = findPathInDocument(document, path);
+              console.log("pathi", path);
+              const results = findPathInDocument(document, path, object[keyOfObject]);
+              console.log("results", results);
               if (results && results.column !== undefined && results.lineOfPath !== undefined) {
                 const { column, lineOfPath } = results;
 
@@ -160,8 +160,7 @@ export function getAllYamlPaths(
         }
       } else if (typeof value !== "object" || value === null) {
         const path = currentPath ? `${currentPath}.${key}` : key;
-
-        const results = findPathInDocument(document, path);
+        const results = findPathInDocument(document, path, value);
         if (results && results.column !== undefined && results.lineOfPath !== undefined) {
           const { column, lineOfPath } = results;
 
