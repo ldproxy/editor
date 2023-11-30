@@ -89,6 +89,7 @@ function matchesCondition(
   condition: Record<string, { const: string }>
 ): boolean {
   let allConditionsMet = true;
+  const finalPath: string[] = [];
   console.log("aaaconfig", config);
   for (const key in condition) {
     const conditionEntry = condition[key];
@@ -96,20 +97,24 @@ function matchesCondition(
     const lowerCasedConditionValue = conditionValue?.toLowerCase();
 
     if (lowerCasedConditionValue !== undefined) {
-      function getConfigValues(obj: any, targetKey: string): any[] {
-        const values: any[] = [];
+      function getConfigValues(obj: any, targetKey: string, path: string): any[] {
+        const values: { value: any; path?: string }[] = [];
 
         if (typeof obj === "object") {
           if (Array.isArray(obj)) {
             for (let i = 0; i < obj.length; i++) {
-              values.push(...getConfigValues(obj[i], targetKey));
+              const newPath = path ? `${path}.${targetKey}[${i}]` : `${targetKey}[${i}]`;
+              values.push(...getConfigValues(obj[i], targetKey, newPath));
             }
           } else {
             for (const currentKey in obj) {
               if (currentKey === targetKey) {
-                values.push(obj[currentKey]);
+                const newPath = path ? `${path}.${currentKey}` : `${currentKey}`;
+                finalPath.push(newPath);
+                values.push({ value: obj[currentKey], path: newPath });
               } else {
-                values.push(...getConfigValues(obj[currentKey], targetKey));
+                const newPath = path ? `${path}.${currentKey}` : `${currentKey}`;
+                values.push(...getConfigValues(obj[currentKey], targetKey, newPath));
               }
             }
           }
@@ -118,7 +123,7 @@ function matchesCondition(
         return values;
       }
 
-      const configValues = getConfigValues(config, key);
+      const [{ value: configValues }] = getConfigValues(config, key, "");
       const lowerCasedConfigValues = configValues.map((value: any) => value?.toLowerCase());
 
       if (!lowerCasedConfigValues.includes(lowerCasedConditionValue)) {
@@ -126,6 +131,6 @@ function matchesCondition(
       }
     }
   }
-
+  console.log("finalPath", finalPath);
   return allConditionsMet;
 }
