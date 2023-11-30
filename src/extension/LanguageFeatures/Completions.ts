@@ -18,7 +18,7 @@ interface DefinitionsMap {
 
 let definitionsMap: DefinitionsMap = {};
 let allRefs: string[] | undefined = [];
-export let allYamlKeys: { path: string; index: number; line: number | null }[] = [];
+export let allYamlKeys: { path: string; index: number; lineOfPath: number | null }[] = [];
 
 function getDefintionsMap(specifiedDefs: string[]) {
   specifiedDefs.map((def) => {
@@ -235,14 +235,44 @@ export function getPathAtCursor(
 
     for (const key of keys) {
       const value = yamlObject[key];
+      if (Array.isArray(value)) {
+        const arrayPath = currentPath ? `${currentPath}.${key}` : key;
+        const arrayResults = findPathInDocument(document, arrayPath);
+        if (
+          arrayResults &&
+          arrayResults.column !== undefined &&
+          arrayResults.lineOfPath !== undefined
+        ) {
+          const { column, lineOfPath } = arrayResults;
+          allYamlKeys = [...allYamlKeys, { path: arrayPath, index: column, lineOfPath }];
+        }
 
-      if (typeof value !== "object" || value === null) {
+        if (value.length > 1) {
+          for (let i = 0, length = value.length; i < length; i++) {
+            const object = value[i];
+            const keysOfObject = Object.keys(object);
+            for (const keyOfObject of keysOfObject) {
+              const path = currentPath
+                ? `${currentPath}.${key}.${keyOfObject}`
+                : `${key}.${keyOfObject}`;
+              console.log("pathi", path);
+              const results = findPathInDocument(document, path, object[keyOfObject]);
+              console.log("results", results);
+              if (results && results.column !== undefined && results.lineOfPath !== undefined) {
+                const { column, lineOfPath } = results;
+
+                allYamlKeys = [...allYamlKeys, { path, index: column - 2, lineOfPath }];
+              }
+            }
+          }
+        }
+      } else if (typeof value !== "object" || value === null) {
         const path = currentPath ? `${currentPath}.${key}` : key;
         const result = findPathInDocument(document, path);
 
         if (result && result.column !== undefined && result.lineOfPath !== undefined) {
           const { column, lineOfPath } = result;
-          allYamlKeys = [...allYamlKeys, { path, index: column, line: lineOfPath }];
+          allYamlKeys = [...allYamlKeys, { path, index: column, lineOfPath }];
         }
       } else if (value && typeof value === "object") {
         const path = currentPath ? `${currentPath}.${key}` : key;
@@ -250,7 +280,7 @@ export function getPathAtCursor(
 
         if (result && result.column !== undefined && result.lineOfPath !== undefined) {
           const { column, lineOfPath } = result;
-          allYamlKeys = [...allYamlKeys, { path, index: column, line: lineOfPath }];
+          allYamlKeys = [...allYamlKeys, { path, index: column, lineOfPath }];
         }
         getPathAtCursor(document, value, line, column, path);
       }

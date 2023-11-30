@@ -147,11 +147,45 @@ export function getAllYamlPaths(
 
     for (const key of keys) {
       const value = yamlObject[key];
+      console.log("hhh", key, value);
 
-      if (typeof value !== "object" || value === null) {
+      if (Array.isArray(value)) {
+        const arrayPath = currentPath ? `${currentPath}.${key}` : key;
+        const arrayResults = findPathInDocument(document, arrayPath);
+        if (
+          arrayResults &&
+          arrayResults.column !== undefined &&
+          arrayResults.lineOfPath !== undefined
+        ) {
+          const { column, lineOfPath } = arrayResults;
+          yamlKeysHover = [
+            ...yamlKeysHover,
+            { path: arrayPath, index: column, lineOfPath: lineOfPath },
+          ];
+        }
+
+        if (value.length > 1) {
+          for (let i = 0, length = value.length; i < length; i++) {
+            const object = value[i];
+            const keysOfObject = Object.keys(object);
+            for (const keyOfObject of keysOfObject) {
+              const path = currentPath
+                ? `${currentPath}.${key}.${keyOfObject}`
+                : `${key}.${keyOfObject}`;
+              console.log("pathi", path);
+              const results = findPathInDocument(document, path, object[keyOfObject]);
+              console.log("results", results);
+              if (results && results.column !== undefined && results.lineOfPath !== undefined) {
+                const { column, lineOfPath } = results;
+
+                yamlKeysHover = [...yamlKeysHover, { path, index: column - 2, lineOfPath }];
+              }
+            }
+          }
+        }
+      } else if (typeof value !== "object" || value === null) {
         const path = currentPath ? `${currentPath}.${key}` : key;
-
-        const results = findPathInDocument(document, path);
+        const results = findPathInDocument(document, path, value);
         if (results && results.column !== undefined && results.lineOfPath !== undefined) {
           const { column, lineOfPath } = results;
 

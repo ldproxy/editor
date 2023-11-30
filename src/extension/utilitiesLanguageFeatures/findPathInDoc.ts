@@ -11,31 +11,25 @@ export function findPathInDocument(
   let column = 0;
 
   if (value !== undefined) {
-    console.log("zizi", fullPath, value);
   }
   for (const part of pathParts) {
     let found = false;
 
     while (line < lines.length) {
       const correctLine = document.lineAt(line).text;
-      console.log("Current Line:", correctLine);
 
       let index = -1;
 
       if (pathParts.indexOf(part) === pathParts.length - 1) {
         if (value !== undefined && correctLine.includes(part) && correctLine.includes(value)) {
-          console.log("uuuu2", correctLine, part, value);
           index = correctLine.indexOf(part);
         } else if (value === undefined && correctLine.includes(`${part}:`)) {
-          console.log("kkkk2", correctLine, part, value);
           index = correctLine.indexOf(part);
         }
       } else {
         if (value !== undefined && correctLine.includes(part) && correctLine.includes(value)) {
-          console.log("uuuu", correctLine, part, value);
           index = correctLine.indexOf(part);
         } else if (correctLine.includes(`${part}:`)) {
-          console.log("kkkk", correctLine, part, value);
           index = correctLine.indexOf(part);
         }
       }
