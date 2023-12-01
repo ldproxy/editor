@@ -120,41 +120,47 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
 
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("allYamlKeys", allYamlKeys);
+    const completions: vscode.CompletionItem[] = [];
 
-    if (pathAtCursor === "" && definitionsMap) {
-      const completions: vscode.CompletionItem[] = [];
-
-      for (const key in definitionsMap) {
-        if (definitionsMap.hasOwnProperty(key)) {
-          const obj = definitionsMap[key];
-          if (!obj.ref) {
-            const value = obj.title;
-            if (
-              value !== undefined &&
-              allYamlKeys &&
-              !allYamlKeys.some((key) => key.path === `${value}` && key.index === 0)
-            ) {
-              const completion = new vscode.CompletionItem(value);
-              completion.kind = vscode.CompletionItemKind.Text;
-              if (obj.description !== "") {
-                completion.documentation = new vscode.MarkdownString(obj.description);
+    specifiedDefs.forEach((defObj) => {
+      const ref = defObj.ref;
+      const path = defObj.finalPath;
+      const pathSplit = path.split(".");
+      const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
+      console.log("specifiedDefsPath: " + specifiedDefsPath);
+      if (
+        !specifiedDefsPath.includes("[") &&
+        pathAtCursor === specifiedDefsPath &&
+        definitionsMap
+      ) {
+        for (const key in definitionsMap) {
+          if (definitionsMap.hasOwnProperty(key)) {
+            const obj = definitionsMap[key];
+            if (obj.groupname === ref) {
+              const value = obj.title;
+              if (
+                value !== undefined &&
+                allYamlKeys &&
+                !allYamlKeys.some((key) => {
+                  const fullPath = specifiedDefsPath ? `${specifiedDefsPath}.${value}` : value;
+                  return key.path === fullPath;
+                })
+              ) {
+                const completion = new vscode.CompletionItem(value);
+                completion.kind = vscode.CompletionItemKind.Text;
+                if (obj.description !== "") {
+                  completion.documentation = new vscode.MarkdownString(obj.description);
+                }
+                completions.push(completion);
               }
-              completions.push(completion);
             }
           }
         }
+        const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
+        completions.push(commitCharacterCompletion);
       }
-      const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
-      completions.push(commitCharacterCompletion);
-
-      return completions;
-    } else if (pathAtCursor === "connectorType.dudu.connectionInfo") {
-      const simpleCompletion3 = new vscode.CompletionItem("Klaaaaappt immer noch!");
-      simpleCompletion3.documentation = new vscode.MarkdownString("Press `c` to get `console.`");
-      return [simpleCompletion3];
-    } else {
-      return [];
-    }
+    });
+    return completions;
   },
 });
 
