@@ -27,6 +27,6 @@ export const results = [
   // test:
   {
     status: "INFO",
-    message: "  - $.metadata.contactName: is redundant and can be removed",
+    message: "  - $.api.buildingBlock: is redundant and can be removed",
   },
 ];

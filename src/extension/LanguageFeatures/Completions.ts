@@ -176,7 +176,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         line <= maxLine &&
         definitionsMap
       ) {
-        console.log("jo");
         for (const key in definitionsMap) {
           if (definitionsMap.hasOwnProperty(key)) {
             const obj = definitionsMap[key];
@@ -191,7 +190,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
                   return key.path === fullPath;
                 })
               ) {
-                console.log("huhu");
                 const completion = new vscode.CompletionItem(value);
                 completion.kind = vscode.CompletionItemKind.Text;
                 if (obj.description !== "") {

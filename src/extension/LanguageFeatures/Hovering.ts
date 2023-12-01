@@ -5,8 +5,17 @@ import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { findPathInDocument } from "../utilitiesLanguageFeatures/findPathInDoc";
 import * as yaml from "js-yaml";
 import { services } from "../utilitiesLanguageFeatures/services";
+import {
+  extractIndexFromPath,
+  getLinesForArrayIndex,
+} from "../utilitiesLanguageFeatures/completionsForArray";
 
-let yamlKeysHover: { path: string; index: number; lineOfPath: number | null }[] = [];
+let yamlKeysHover: {
+  path: string;
+  index: number;
+  lineOfPath: number | null;
+  arrayIndex?: number;
+}[] = [];
 const currentDocument = vscode.window.activeTextEditor?.document;
 if (currentDocument) {
   const yamlObject: any = yaml.load(currentDocument.getText());
@@ -53,66 +62,102 @@ export const hover = () => {
         }
 
         const pathInYaml = yamlKeysHover.find((item) => item.lineOfPath === lineOfWord);
+        const pathSplit = pathInYaml?.path.split(".");
+        const pathInYamlToUse = pathSplit?.slice(0, -1).join(".");
+        const pathInYamlLastKey = pathSplit?.slice(-1)[0];
         let wordInDefinitionsMap: LooseDefinition = {};
         let hoverResult: vscode.Hover | undefined;
-
-        if (pathInYaml?.index === 0) {
+        specifiedDefs.forEach((defObj) => {
+          const ref = defObj.ref;
+          const path = defObj.finalPath;
+          const pathSplit = path.split(".");
+          const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
+          const pathForArray = pathSplit.slice(0, -2).join(".");
+          const arrayIndex = extractIndexFromPath(path);
+          const possibleLines = getLinesForArrayIndex(yamlKeysHover, arrayIndex ? arrayIndex : 0);
+          const minLine = Math.min(...possibleLines);
+          const maxLine = Math.max(...possibleLines);
+          if (pathInYaml) {
+          }
           if (
+            !specifiedDefsPath.includes("[") &&
+            pathInYamlToUse === specifiedDefsPath &&
+            definitionsMap &&
+            pathInYaml &&
             definitionsMap.hasOwnProperty(pathInYaml.path) &&
             definitionsMap[pathInYaml.path].description !== ""
           ) {
             wordInDefinitionsMap = definitionsMap[pathInYaml.path];
-          }
-          specifiedDefs.forEach((def) => {
-            if (def.ref === wordInDefinitionsMap.groupname) {
+
+            if (ref === wordInDefinitionsMap.groupname) {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
             }
-          });
-
-          console.log("definitionsMap", definitionsMap);
-          return hoverResult;
-        } else if (pathInYaml && pathInYaml.index > 0) {
-          const pathInYamlParts = pathInYaml.path.split(".");
-          const lastKey = pathInYamlParts[pathInYamlParts.length - 1];
-          const secondLastKey = pathInYamlParts[pathInYamlParts.length - 2];
-          const thirdLastKey = pathInYamlParts[pathInYamlParts.length - 3];
-
-          if (
-            definitionsMap.hasOwnProperty(secondLastKey) &&
-            definitionsMap.hasOwnProperty(lastKey) &&
-            definitionsMap[lastKey].description !== ""
+          } else if (
+            specifiedDefsPath.includes("[") &&
+            pathInYamlToUse === pathForArray &&
+            lineOfWord >= minLine &&
+            lineOfWord <= maxLine &&
+            definitionsMap &&
+            pathInYaml &&
+            pathInYamlLastKey &&
+            definitionsMap.hasOwnProperty(pathInYamlLastKey) &&
+            definitionsMap[pathInYamlLastKey].description !== "" &&
+            definitionsMap[pathInYamlLastKey].groupname === ref
           ) {
-            wordInDefinitionsMap = definitionsMap[lastKey];
-            const possibleRefWord = definitionsMap[secondLastKey];
-            if (
-              possibleRefWord.ref !== "" &&
-              possibleRefWord.ref === wordInDefinitionsMap.groupname
-            ) {
-              const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
-              hoverResult = new vscode.Hover(hoverText);
-            }
-          }
+            wordInDefinitionsMap = definitionsMap[pathInYamlLastKey];
 
-          if (
-            definitionsMap.hasOwnProperty(thirdLastKey) &&
-            definitionsMap.hasOwnProperty(lastKey) &&
-            definitionsMap[lastKey].description !== ""
-          ) {
-            wordInDefinitionsMap = definitionsMap[lastKey];
-            const possibleAddRefWord = definitionsMap[thirdLastKey];
+            const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
+            hoverResult = new vscode.Hover(hoverText);
+          } else {
+            const pathInYamlParts = pathInYaml?.path.split(".");
+            let lastKey = "";
+            let secondLastKey = "";
+            let thirdLastKey = "";
+            if (pathInYamlParts) {
+              lastKey = pathInYamlParts[pathInYamlParts.length - 1];
+              secondLastKey = pathInYamlParts[pathInYamlParts.length - 2];
+              thirdLastKey = pathInYamlParts[pathInYamlParts.length - 3];
+            }
+            if (
+              definitionsMap.hasOwnProperty(secondLastKey) &&
+              definitionsMap.hasOwnProperty(lastKey) &&
+              definitionsMap[lastKey].description !== ""
+            ) {
+              wordInDefinitionsMap = definitionsMap[lastKey];
+              const possibleRefWord = definitionsMap[secondLastKey];
+              if (
+                possibleRefWord.ref !== "" &&
+                possibleRefWord.ref === wordInDefinitionsMap.groupname
+              ) {
+                const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
+                hoverResult = new vscode.Hover(hoverText);
+              }
+            }
 
             if (
-              possibleAddRefWord.addRef !== "" &&
-              possibleAddRefWord.addRef === wordInDefinitionsMap.groupname
+              definitionsMap.hasOwnProperty(thirdLastKey) &&
+              definitionsMap.hasOwnProperty(lastKey) &&
+              definitionsMap[lastKey].description !== ""
             ) {
-              const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
-              hoverResult = new vscode.Hover(hoverText);
+              wordInDefinitionsMap = definitionsMap[lastKey];
+              const possibleAddRefWord = definitionsMap[thirdLastKey];
+
+              if (
+                possibleAddRefWord.addRef !== "" &&
+                possibleAddRefWord.addRef === wordInDefinitionsMap.groupname
+              ) {
+                const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
+                hoverResult = new vscode.Hover(hoverText);
+              }
             }
+            console.log("jjj", specifiedDefs);
+            return hoverResult;
           }
-          console.log("jjj", specifiedDefs);
-          return hoverResult;
-        }
+        });
+
+        console.log("definitionsMap", definitionsMap);
+        return hoverResult;
       },
     }
   );
@@ -181,7 +226,10 @@ export function getAllYamlPaths(
               if (results && results.column !== undefined && results.lineOfPath !== undefined) {
                 const { column, lineOfPath } = results;
 
-                yamlKeysHover = [...yamlKeysHover, { path, index: column - 2, lineOfPath }];
+                yamlKeysHover = [
+                  ...yamlKeysHover,
+                  { path, index: column, lineOfPath, arrayIndex: i },
+                ];
               }
             }
           }
