@@ -5,6 +5,10 @@ import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatu
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { findPathInDocument } from "../utilitiesLanguageFeatures/findPathInDoc";
 import { services } from "../utilitiesLanguageFeatures/services";
+import {
+  extractIndexFromPath,
+  getLinesForArrayIndex,
+} from "../utilitiesLanguageFeatures/completionsForArray";
 
 interface LooseDefinition {
   title?: string;
@@ -127,7 +131,14 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       const path = defObj.finalPath;
       const pathSplit = path.split(".");
       const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
-      console.log("specifiedDefsPath: " + specifiedDefsPath);
+      const pathForArray = pathSplit.slice(0, -2).join(".");
+      const arrayIndex = extractIndexFromPath(path);
+      const possibleLines = getLinesForArrayIndex(allYamlKeys, arrayIndex ? arrayIndex : 0);
+      const minLine = Math.min(...possibleLines);
+      const maxLine = Math.max(...possibleLines);
+
+      console.log("iii", line >= minLine && line <= maxLine);
+
       if (
         !specifiedDefsPath.includes("[") &&
         pathAtCursor === specifiedDefsPath &&
@@ -146,6 +157,41 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
                   return key.path === fullPath;
                 })
               ) {
+                const completion = new vscode.CompletionItem(value);
+                completion.kind = vscode.CompletionItemKind.Text;
+                if (obj.description !== "") {
+                  completion.documentation = new vscode.MarkdownString(obj.description);
+                }
+                completions.push(completion);
+              }
+            }
+          }
+        }
+        const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
+        completions.push(commitCharacterCompletion);
+      } else if (
+        specifiedDefsPath.includes("[") &&
+        pathAtCursor === pathForArray &&
+        line >= minLine &&
+        line <= maxLine &&
+        definitionsMap
+      ) {
+        console.log("jo");
+        for (const key in definitionsMap) {
+          if (definitionsMap.hasOwnProperty(key)) {
+            const obj = definitionsMap[key];
+            if (obj.groupname === ref) {
+              console.log("ref", ref);
+              const value = obj.title;
+              if (
+                value !== undefined &&
+                allYamlKeys &&
+                !allYamlKeys.some((key) => {
+                  const fullPath = pathForArray ? `${pathForArray}.${value}` : value;
+                  return key.path === fullPath;
+                })
+              ) {
+                console.log("huhu");
                 const completion = new vscode.CompletionItem(value);
                 completion.kind = vscode.CompletionItemKind.Text;
                 if (obj.description !== "") {
@@ -272,10 +318,7 @@ export function getPathAtCursor(
               if (results && results.column !== undefined && results.lineOfPath !== undefined) {
                 const { column, lineOfPath } = results;
 
-                allYamlKeys = [
-                  ...allYamlKeys,
-                  { path, index: column - 2, lineOfPath, arrayIndex: i },
-                ];
+                allYamlKeys = [...allYamlKeys, { path, index: column, lineOfPath, arrayIndex: i }];
               }
             }
           }
@@ -314,6 +357,7 @@ export function getPathAtCursor(
     ): string {
       for (let i = indexToUse; i >= 0; i--) {
         const obj = allYamlKeys[i];
+        console.log("neu", obj, "indexToUse", indexToUse, "column", column);
         if (obj.index !== null && obj.index < column) {
           return obj.path;
         }
