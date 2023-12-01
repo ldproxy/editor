@@ -30,13 +30,16 @@ export const hover = () => {
     {
       provideHover(document, position) {
         const lineOfWord: number = position.line;
-        const specifiedDefs: string[] = defineDefs(document);
+        const specifiedDefs: { ref: string; finalPath: string }[] = defineDefs(document);
         let definitionsMap: DefinitionsMap = {};
         let allRefs: string[] | undefined = [];
 
         if (specifiedDefs && specifiedDefs.length > 0) {
           specifiedDefs.map((def) => {
-            definitionsMap = Object.assign(definitionsMap, processProperties(def, services.$defs));
+            definitionsMap = Object.assign(
+              definitionsMap,
+              processProperties(def.ref, services.$defs)
+            );
           });
         }
         if (definitionsMap && Object.keys(definitionsMap).length > 0) {
@@ -61,7 +64,7 @@ export const hover = () => {
             wordInDefinitionsMap = definitionsMap[pathInYaml.path];
           }
           specifiedDefs.forEach((def) => {
-            if (def === wordInDefinitionsMap.groupname) {
+            if (def.ref === wordInDefinitionsMap.groupname) {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
             }
@@ -107,7 +110,7 @@ export const hover = () => {
               hoverResult = new vscode.Hover(hoverText);
             }
           }
-
+          console.log("jjj", specifiedDefs);
           return hoverResult;
         }
       },

@@ -72,11 +72,15 @@ export function defineDefs(document: vscode.TextDocument) {
   const conditions = extractConditions();
   console.log("conditions", conditions);
 
-  let specifiedDefs: string[] = [];
+  let specifiedDefs: { ref: string; finalPath: string }[] = [];
 
   for (const { condition, ref } of conditions) {
-    if (condition && ref && matchesCondition(config, condition)) {
-      specifiedDefs.push(ref);
+    if (condition) {
+      const { allConditionsMet, finalPath } = matchesCondition(config, condition);
+
+      if (ref && allConditionsMet) {
+        specifiedDefs.push({ ref, finalPath });
+      }
     }
   }
 
@@ -87,10 +91,9 @@ export function defineDefs(document: vscode.TextDocument) {
 function matchesCondition(
   config: LooseDefinition,
   condition: Record<string, { const: string }>
-): boolean {
-  let allConditionsMet = true;
-  const finalPath: string[] = [];
-  console.log("aaaconfig", config);
+): { allConditionsMet: boolean; finalPath: string } {
+  let allConditionsMet = false;
+  let finalPath = "";
   for (const key in condition) {
     const conditionEntry = condition[key];
     const conditionValue = conditionEntry?.const;
@@ -110,8 +113,7 @@ function matchesCondition(
             for (const currentKey in obj) {
               if (currentKey === targetKey) {
                 const newPath = path ? `${path}.${currentKey}` : `${currentKey}`;
-                finalPath.push(newPath);
-                values.push({ value: obj[currentKey], path: newPath });
+                values.push({ value: obj[currentKey].toLowerCase(), path: newPath });
               } else {
                 const newPath = path ? `${path}.${currentKey}` : `${currentKey}`;
                 values.push(...getConfigValues(obj[currentKey], targetKey, newPath));
@@ -119,18 +121,18 @@ function matchesCondition(
             }
           }
         }
-
         return values;
       }
 
-      const [{ value: configValues }] = getConfigValues(config, key, "");
-      const lowerCasedConfigValues = configValues.map((value: any) => value?.toLowerCase());
-
-      if (!lowerCasedConfigValues.includes(lowerCasedConditionValue)) {
-        allConditionsMet = false;
-      }
+      const configValuesResultArray = getConfigValues(config, key, "");
+      console.log("configValuesResultArray", configValuesResultArray);
+      configValuesResultArray.map((object: any) => {
+        if (object.value?.includes(lowerCasedConditionValue)) {
+          allConditionsMet = true;
+          finalPath = object.path;
+        }
+      });
     }
   }
-  console.log("finalPath", finalPath);
-  return allConditionsMet;
+  return { allConditionsMet, finalPath };
 }

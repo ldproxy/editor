@@ -25,9 +25,9 @@ export let allYamlKeys: {
   arrayIndex?: number;
 }[] = [];
 
-function getDefintionsMap(specifiedDefs: string[]) {
+function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
   specifiedDefs.map((def) => {
-    definitionsMap = Object.assign(definitionsMap, processProperties(def, services.$defs));
+    definitionsMap = Object.assign(definitionsMap, processProperties(def.ref, services.$defs));
   });
 
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
