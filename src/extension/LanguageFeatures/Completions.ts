@@ -343,7 +343,7 @@ export function getPathAtCursor(
     if (line - 2 < 0) {
       indexToUse = 0;
     } else {
-      indexToUse = Math.min(line - 3, allYamlKeys.length - 1);
+      indexToUse = Math.min(line - 2, allYamlKeys.length - 1);
     }
     function getPathAtCursorString(
       indexToUse: number,
