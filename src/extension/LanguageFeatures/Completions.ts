@@ -31,7 +31,10 @@ export let allYamlKeys: {
 
 function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
   specifiedDefs.map((def) => {
-    definitionsMap = Object.assign(definitionsMap, processProperties(def.ref, services.$defs));
+    definitionsMap = Object.assign(
+      definitionsMap,
+      processProperties(def.ref, services.$defs, definitionsMap)
+    );
   });
 
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
@@ -41,7 +44,10 @@ function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
   if (allRefs && allRefs.length > 0) {
     console.log("allRefs", allRefs);
     allRefs.map((ref) => {
-      definitionsMap = Object.assign(definitionsMap, processProperties(ref, services.$defs));
+      definitionsMap = Object.assign(
+        definitionsMap,
+        processProperties(ref, services.$defs, definitionsMap)
+      );
     });
   }
 }
@@ -346,7 +352,7 @@ export function getPathAtCursor(
     if (line - 2 < 0) {
       indexToUse = 0;
     } else {
-      indexToUse = Math.min(line - 2, allYamlKeys.length - 1);
+      indexToUse = Math.min(line - 3, allYamlKeys.length - 1);
     }
     function getPathAtCursorString(
       indexToUse: number,

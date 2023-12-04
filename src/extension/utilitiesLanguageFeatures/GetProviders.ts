@@ -39,13 +39,22 @@ export function processProperties(
             lastPartValueAddRed = additionalReference.substring(lastSlashIndex + 1);
           }
 
-          definitionsMap[propKey] = {
+          let uniqueKey = propKey;
+          let counter = 1;
+
+          while (definitionsMap[uniqueKey]) {
+            uniqueKey = propKey + counter;
+            counter++;
+          }
+
+          definitionsMap[uniqueKey] = {
             groupname: defs,
             title: propDefinition.title,
             description: propDefinition.description,
             ref: lastPartValue,
             addRef: lastPartValueAddRed,
           };
+
           lastPartValue = "";
           lastPartValueAddRed = "";
         }
@@ -76,7 +85,11 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
             lastPartValueArray.push(lastPartValue);
             hasNewReferences = true;
 
-            const nestedDefinitionsMap = processProperties(lastPartValue, services.$defs);
+            const nestedDefinitionsMap = processProperties(
+              lastPartValue,
+              services.$defs,
+              definitionsMap
+            );
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
           }
         }
@@ -93,7 +106,11 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
             lastPartValueArray.push(lastPartValue);
             hasNewReferences = true;
 
-            const nestedDefinitionsMap = processProperties(lastPartValue, services.$defs);
+            const nestedDefinitionsMap = processProperties(
+              lastPartValue,
+              services.$defs,
+              definitionsMap
+            );
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
           }
         }

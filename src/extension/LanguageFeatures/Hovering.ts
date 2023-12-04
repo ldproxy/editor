@@ -47,7 +47,7 @@ export const hover = () => {
           specifiedDefs.map((def) => {
             definitionsMap = Object.assign(
               definitionsMap,
-              processProperties(def.ref, services.$defs)
+              processProperties(def.ref, services.$defs, definitionsMap)
             );
           });
         }
@@ -57,7 +57,10 @@ export const hover = () => {
 
         if (allRefs && allRefs.length > 0) {
           allRefs.map((ref) => {
-            definitionsMap = Object.assign(definitionsMap, processProperties(ref, services.$defs));
+            definitionsMap = Object.assign(
+              definitionsMap,
+              processProperties(ref, services.$defs, definitionsMap)
+            );
           });
         }
 
@@ -68,6 +71,7 @@ export const hover = () => {
         let wordInDefinitionsMap: LooseDefinition = {};
         let hoverResult: vscode.Hover | undefined;
         specifiedDefs.forEach((defObj) => {
+          console.log("jjjj", defObj);
           const ref = defObj.ref;
           const path = defObj.finalPath;
           const pathSplit = path.split(".");
@@ -84,12 +88,17 @@ export const hover = () => {
             pathInYamlToUse === specifiedDefsPath &&
             definitionsMap &&
             pathInYaml &&
-            definitionsMap.hasOwnProperty(pathInYaml.path) &&
-            definitionsMap[pathInYaml.path].description !== ""
+            definitionsMap.hasOwnProperty(pathInYaml.path)
           ) {
-            wordInDefinitionsMap = definitionsMap[pathInYaml.path];
+            for (const key in definitionsMap) {
+              const obj = definitionsMap[key];
+              if (obj.title === pathInYaml.path && ref === obj.groupname) {
+                wordInDefinitionsMap = obj;
+                break;
+              }
+            }
 
-            if (ref === wordInDefinitionsMap.groupname) {
+            if (wordInDefinitionsMap && wordInDefinitionsMap.description !== "") {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
             }
@@ -101,14 +110,24 @@ export const hover = () => {
             definitionsMap &&
             pathInYaml &&
             pathInYamlLastKey &&
-            definitionsMap.hasOwnProperty(pathInYamlLastKey) &&
-            definitionsMap[pathInYamlLastKey].description !== "" &&
-            definitionsMap[pathInYamlLastKey].groupname === ref
+            definitionsMap.hasOwnProperty(pathInYamlLastKey)
           ) {
-            wordInDefinitionsMap = definitionsMap[pathInYamlLastKey];
+            for (const key in definitionsMap) {
+              const obj = definitionsMap[key];
+              if (
+                obj.title === pathInYamlLastKey &&
+                ref === obj.groupname &&
+                definitionsMap[pathInYamlLastKey].description !== ""
+              ) {
+                wordInDefinitionsMap = obj;
+                break;
+              }
+            }
 
-            const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
-            hoverResult = new vscode.Hover(hoverText);
+            if (wordInDefinitionsMap) {
+              const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
+              hoverResult = new vscode.Hover(hoverText);
+            }
           } else {
             const pathInYamlParts = pathInYaml?.path.split(".");
             let lastKey = "";
@@ -121,15 +140,31 @@ export const hover = () => {
             }
             if (
               definitionsMap.hasOwnProperty(secondLastKey) &&
-              definitionsMap.hasOwnProperty(lastKey) &&
-              definitionsMap[lastKey].description !== ""
+              definitionsMap.hasOwnProperty(lastKey)
             ) {
-              wordInDefinitionsMap = definitionsMap[lastKey];
-              const possibleRefWord = definitionsMap[secondLastKey];
-              if (
-                possibleRefWord.ref !== "" &&
-                possibleRefWord.ref === wordInDefinitionsMap.groupname
-              ) {
+              for (const key in definitionsMap) {
+                const obj = definitionsMap[key];
+                if (obj.title === lastKey && definitionsMap[lastKey].description !== "") {
+                  wordInDefinitionsMap = obj;
+                  break;
+                }
+              }
+              const testi = definitionsMap[lastKey];
+              console.log("lastCase", wordInDefinitionsMap, testi);
+              let possibleRefWord;
+              for (const key in definitionsMap) {
+                const obj = definitionsMap[key];
+                if (
+                  obj.title === secondLastKey &&
+                  obj.ref !== "" &&
+                  obj.ref === wordInDefinitionsMap.groupname
+                ) {
+                  possibleRefWord = obj;
+                  break;
+                }
+              }
+              console.log("secondLastCase2", possibleRefWord);
+              if (possibleRefWord && wordInDefinitionsMap) {
                 const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
                 hoverResult = new vscode.Hover(hoverText);
               }
@@ -137,16 +172,34 @@ export const hover = () => {
 
             if (
               definitionsMap.hasOwnProperty(thirdLastKey) &&
-              definitionsMap.hasOwnProperty(lastKey) &&
-              definitionsMap[lastKey].description !== ""
+              definitionsMap.hasOwnProperty(lastKey)
             ) {
-              wordInDefinitionsMap = definitionsMap[lastKey];
-              const possibleAddRefWord = definitionsMap[thirdLastKey];
-
-              if (
-                possibleAddRefWord.addRef !== "" &&
-                possibleAddRefWord.addRef === wordInDefinitionsMap.groupname
-              ) {
+              for (const key in definitionsMap) {
+                const obj = definitionsMap[key];
+                if (
+                  obj.title === lastKey &&
+                  obj.ref !== "" &&
+                  ref === obj.groupname &&
+                  obj.description !== ""
+                ) {
+                  wordInDefinitionsMap = obj;
+                  break;
+                }
+              }
+              let possibleAddRefWord;
+              for (const key in definitionsMap) {
+                const obj = definitionsMap[key];
+                if (
+                  obj.title === thirdLastKey &&
+                  obj.addRef !== "" &&
+                  wordInDefinitionsMap.groupname === obj.addRef
+                ) {
+                  possibleAddRefWord = obj;
+                  break;
+                }
+              }
+              console.log("thirdLastCase", possibleAddRefWord);
+              if (wordInDefinitionsMap && possibleAddRefWord) {
                 const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
                 hoverResult = new vscode.Hover(hoverText);
               }
