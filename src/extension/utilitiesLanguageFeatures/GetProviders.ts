@@ -42,7 +42,10 @@ export function processProperties(
           let uniqueKey = propKey;
           let counter = 1;
 
-          while (definitionsMap[uniqueKey]) {
+          while (
+            (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].groupname !== defs) ||
+            (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].title !== propDefinition.title)
+          ) {
             uniqueKey = propKey + counter;
             counter++;
           }

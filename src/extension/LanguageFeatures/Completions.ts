@@ -21,6 +21,7 @@ interface DefinitionsMap {
 }
 
 let definitionsMap: DefinitionsMap = {};
+let specifiedDefs: { ref: string; finalPath: string }[];
 let allRefs: string[] | undefined = [];
 export let allYamlKeys: {
   path: string;
@@ -29,37 +30,37 @@ export let allYamlKeys: {
   arrayIndex?: number;
 }[] = [];
 
+const currentDocument = vscode.window.activeTextEditor?.document;
+if (currentDocument) {
+  specifiedDefs = defineDefs(currentDocument);
+
+  if (specifiedDefs && specifiedDefs.length > 0) {
+    getDefintionsMap(specifiedDefs);
+  }
+}
+
 function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
   specifiedDefs.map((def) => {
-    definitionsMap = Object.assign(
-      definitionsMap,
-      processProperties(def.ref, services.$defs, definitionsMap)
-    );
+    definitionsMap = processProperties(def.ref, services.$defs, definitionsMap);
   });
-
+  console.log("111", specifiedDefs);
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
     allRefs = findObjectsWithRef(definitionsMap);
+    console.log("222", allRefs);
   }
 
   if (allRefs && allRefs.length > 0) {
-    console.log("allRefs", allRefs);
     allRefs.map((ref) => {
-      definitionsMap = Object.assign(
-        definitionsMap,
-        processProperties(ref, services.$defs, definitionsMap)
-      );
+      definitionsMap = {
+        ...definitionsMap,
+        ...processProperties(ref, services.$defs, definitionsMap),
+      };
     });
   }
 }
 // References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const specifiedDefs = defineDefs(document);
-
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      getDefintionsMap(specifiedDefs);
-    }
-
     const yamlObject = yaml.load(document.getText());
     const line = position.line;
     const column = position.character;
@@ -69,6 +70,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
 
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("allYamlKeys", allYamlKeys);
+    console.log("bbb", definitionsMap);
 
     if (definitionsMap) {
       const refCompletions: vscode.CompletionItem[] = [];
@@ -89,6 +91,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                       allYamlKeys &&
                       !allYamlKeys.some((key) => key.path === `${title}.${finalValue}`)
                     ) {
+                      console.log("ccc", refCompletions);
                       const completion = new vscode.CompletionItem(finalValue);
                       completion.kind = vscode.CompletionItemKind.Text;
                       if (obj2.description !== "") {
@@ -115,12 +118,6 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
 //Examples and Completions for non-indented keys
 export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const specifiedDefs = defineDefs(document);
-
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      getDefintionsMap(specifiedDefs);
-    }
-
     const yamlObject = yaml.load(document.getText());
     const line = position.line;
     const column = position.character;
@@ -217,12 +214,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
 // additionalReferences from specifiedDefs
 export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const specifiedDefs = defineDefs(document);
-
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      getDefintionsMap(specifiedDefs);
-    }
-
     const yamlObject = yaml.load(document.getText());
     const line = position.line;
     const column = position.character;
