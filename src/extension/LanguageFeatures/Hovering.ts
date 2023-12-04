@@ -21,6 +21,7 @@ if (currentDocument) {
   const yamlObject: any = yaml.load(currentDocument.getText());
   getAllYamlPaths(currentDocument, yamlObject, "");
 }
+console.log("yamlKeysHover", yamlKeysHover);
 
 interface LooseDefinition {
   title?: string;
@@ -176,12 +177,7 @@ export const hover = () => {
             ) {
               for (const key in definitionsMap) {
                 const obj = definitionsMap[key];
-                if (
-                  obj.title === lastKey &&
-                  obj.ref !== "" &&
-                  ref === obj.groupname &&
-                  obj.description !== ""
-                ) {
+                if (obj.title === lastKey && obj.description !== "") {
                   wordInDefinitionsMap = obj;
                   break;
                 }

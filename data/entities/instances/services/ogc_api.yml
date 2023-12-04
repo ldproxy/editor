@@ -28,5 +28,4 @@ api:
     suppressGlobalCrsList: true
 collections:
   bla:
-    additionalLinks: tzui
-    description: tzu
+    persistentUriTemplate: tzu
