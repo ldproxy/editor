@@ -7,6 +7,7 @@ import * as vscode from "vscode";
 import { getDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { provider1, provider2, provider3 } from "./LanguageFeatures/Completions";
+import { getAllYamlPaths } from "./utilitiesLanguageFeatures/GetYamlKeys";
 
 export function activate(context: ExtensionContext) {
   const showAutoCreate = commands.registerCommand("ldproxy-editor.showAutoCreate", () => {

@@ -29,9 +29,7 @@ export function getAllYamlPaths(
         ) {
           const { column, lineOfPath } = arrayResults;
           //  yamlKeysHover = [{ path: arrayPath, index: column, lineOfPath: lineOfPath }];
-          const existing = yamlKeys.find(
-            (item) => item.path === arrayPath && item.lineOfPath === lineOfPath
-          );
+          const existing = yamlKeys.find((item) => item.path === arrayPath);
           if (!existing) {
             yamlKeys.push({ path: arrayPath, index: column, lineOfPath: lineOfPath });
           }
@@ -53,7 +51,7 @@ export function getAllYamlPaths(
 
                 // yamlKeysHover = [{ path, index: column, lineOfPath, arrayIndex: i }];
                 const existing = yamlKeys.find(
-                  (item) => item.path === path && item.lineOfPath === lineOfPath
+                  (item) => item.path === path && item.arrayIndex === i
                 );
                 if (!existing) {
                   yamlKeys.push({ path, index: column, lineOfPath, arrayIndex: i });
@@ -68,9 +66,7 @@ export function getAllYamlPaths(
         if (results && results.column !== undefined && results.lineOfPath !== undefined) {
           const { column, lineOfPath } = results;
 
-          const existing = yamlKeys.find(
-            (item) => item.path === path && item.lineOfPath === lineOfPath
-          );
+          const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
             yamlKeys.push({ path, index: column, lineOfPath });
           }
@@ -82,9 +78,7 @@ export function getAllYamlPaths(
           const { column, lineOfPath } = results;
 
           // yamlKeysHover = [...yamlKeysHover, { path, index: column, lineOfPath }];
-          const existing = yamlKeys.find(
-            (item) => item.path === path && item.lineOfPath === lineOfPath
-          );
+          const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
             yamlKeys.push({ path, index: column, lineOfPath });
           }

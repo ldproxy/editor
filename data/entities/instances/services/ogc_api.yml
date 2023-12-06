@@ -4,7 +4,9 @@ security:
   enabled: false
 accessControl:
   enabled: false
+
 metadata:
+  attribution: ij
   contactName: interactive instruments GmbH
   contactEmail: mail@interactive-instruments.de
   publisherName: interactive instruments GmbH

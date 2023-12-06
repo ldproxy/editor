@@ -10,30 +10,6 @@ import {
   getLinesForArrayIndex,
 } from "../utilitiesLanguageFeatures/completionsForArray";
 
-export let allYamlKeys: {
-  path: string;
-  index: number;
-  lineOfPath: number;
-  arrayIndex?: number;
-}[] = [];
-
-let yamlObject;
-let line;
-let column;
-const document = vscode.window.activeTextEditor?.document;
-const position = vscode.window.activeTextEditor?.selection.active;
-let pathAtCursor: string;
-if (document && position) {
-  yamlObject = yaml.load(document.getText());
-  line = position.line;
-  column = position.character;
-
-  if (yamlObject) {
-    allYamlKeys = getAllYamlPaths(document, yamlObject, "");
-  }
-}
-console.log("allYamlKeys", allYamlKeys);
-
 interface LooseDefinition {
   title?: string;
   description?: string;
@@ -79,6 +55,19 @@ function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
 // References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    let allYamlKeys: {
+      path: string;
+      index: number;
+      lineOfPath: number;
+      arrayIndex?: number;
+    }[] = [];
+
+    const yamlObject = yaml.load(document.getText());
+    allYamlKeys = getAllYamlPaths(document, yamlObject, "");
+    const line = position.line;
+    const column = position.character;
+    const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
+
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("bbb", definitionsMap);
 
@@ -96,6 +85,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                   const obj2 = definitionsMap[key2];
                   if (obj2.groupname === value) {
                     const finalValue = obj2.title;
+                    console.log("allYamlKeys: ", allYamlKeys);
                     if (
                       finalValue !== undefined &&
                       allYamlKeys &&
@@ -128,11 +118,20 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
 //Examples and Completions for non-indented keys
 export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    let allYamlKeys: {
+      path: string;
+      index: number;
+      lineOfPath: number;
+      arrayIndex?: number;
+    }[] = [];
+
+    const yamlObject = yaml.load(document.getText());
+    allYamlKeys = getAllYamlPaths(document, yamlObject, "");
     const line = position.line;
     const column = position.character;
+    const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
 
-    const pathAtCursor = getPathAtCursor(line, column);
-
+    console.log("allYamlKeys: ", allYamlKeys);
     console.log("pathAtCursor: " + pathAtCursor);
     const completions: vscode.CompletionItem[] = [];
 
@@ -221,11 +220,20 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
 // additionalReferences from specifiedDefs
 export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    let allYamlKeys: {
+      path: string;
+      index: number;
+      lineOfPath: number;
+      arrayIndex?: number;
+    }[] = [];
+
+    const yamlObject = yaml.load(document.getText());
+    allYamlKeys = getAllYamlPaths(document, yamlObject, "");
     const line = position.line;
     const column = position.character;
+    const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
 
-    const pathAtCursor = getPathAtCursor(line, column);
-
+    console.log("allYamlKeys: ", allYamlKeys);
     console.log("pathAtCursor: " + pathAtCursor);
 
     if (definitionsMap) {
@@ -279,7 +287,16 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
   },
 });
 
-export function getPathAtCursor(line: number, column: number) {
+export function getPathAtCursor(
+  allYamlKeys: {
+    path: string;
+    index: number;
+    lineOfPath: number;
+    arrayIndex?: number;
+  }[],
+  line: number,
+  column: number
+) {
   if (allYamlKeys.length > 0) {
     let indexToUse;
     if (line - 2 < 0) {
