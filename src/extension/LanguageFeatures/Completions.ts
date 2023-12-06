@@ -3,12 +3,36 @@ import * as yaml from "js-yaml";
 // import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
-import { findPathInDocument } from "../utilitiesLanguageFeatures/findPathInDoc";
 import { services } from "../utilitiesLanguageFeatures/services";
+import { getAllYamlPaths } from "../utilitiesLanguageFeatures/GetYamlKeys";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
 } from "../utilitiesLanguageFeatures/completionsForArray";
+
+export let allYamlKeys: {
+  path: string;
+  index: number;
+  lineOfPath: number;
+  arrayIndex?: number;
+}[] = [];
+
+let yamlObject;
+let line;
+let column;
+const document = vscode.window.activeTextEditor?.document;
+const position = vscode.window.activeTextEditor?.selection.active;
+let pathAtCursor: string;
+if (document && position) {
+  yamlObject = yaml.load(document.getText());
+  line = position.line;
+  column = position.character;
+
+  if (yamlObject) {
+    allYamlKeys = getAllYamlPaths(document, yamlObject, "");
+  }
+}
+console.log("allYamlKeys", allYamlKeys);
 
 interface LooseDefinition {
   title?: string;
@@ -23,12 +47,6 @@ interface DefinitionsMap {
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 let allRefs: string[] | undefined = [];
-export let allYamlKeys: {
-  path: string;
-  index: number;
-  lineOfPath: number | null;
-  arrayIndex?: number;
-}[] = [];
 
 const currentDocument = vscode.window.activeTextEditor?.document;
 if (currentDocument) {
@@ -61,15 +79,7 @@ function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
 // References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const yamlObject = yaml.load(document.getText());
-    const line = position.line;
-    const column = position.character;
-
-    allYamlKeys = [];
-    const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
-
     console.log("pathAtCursor: " + pathAtCursor);
-    console.log("allYamlKeys", allYamlKeys);
     console.log("bbb", definitionsMap);
 
     if (definitionsMap) {
@@ -118,15 +128,12 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
 //Examples and Completions for non-indented keys
 export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const yamlObject = yaml.load(document.getText());
     const line = position.line;
     const column = position.character;
 
-    allYamlKeys = [];
-    const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
+    const pathAtCursor = getPathAtCursor(line, column);
 
     console.log("pathAtCursor: " + pathAtCursor);
-    console.log("allYamlKeys", allYamlKeys);
     const completions: vscode.CompletionItem[] = [];
 
     specifiedDefs.forEach((defObj) => {
@@ -140,7 +147,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       const minLine = Math.min(...possibleLines);
       const maxLine = Math.max(...possibleLines);
 
-      console.log("iii", line >= minLine && line <= maxLine);
+      console.log("püp", minLine, maxLine);
 
       if (
         !specifiedDefsPath.includes("[") &&
@@ -214,15 +221,12 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
 // additionalReferences from specifiedDefs
 export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const yamlObject = yaml.load(document.getText());
     const line = position.line;
     const column = position.character;
 
-    allYamlKeys = [];
-    const pathAtCursor = getPathAtCursor(document, yamlObject, line, column, "");
+    const pathAtCursor = getPathAtCursor(line, column);
 
     console.log("pathAtCursor: " + pathAtCursor);
-    console.log("allYamlKeys", allYamlKeys);
 
     if (definitionsMap) {
       const refCompletions: vscode.CompletionItem[] = [];
@@ -275,81 +279,31 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
   },
 });
 
-export function getPathAtCursor(
-  document: vscode.TextDocument,
-  yamlObject: any,
-  line: number,
-  column: number,
-  currentPath: string
-) {
-  if (yamlObject && typeof yamlObject === "object") {
-    const keys: string[] = Object.keys(yamlObject);
-
-    for (const key of keys) {
-      const value = yamlObject[key];
-      if (Array.isArray(value)) {
-        const arrayPath = currentPath ? `${currentPath}.${key}` : key;
-        const arrayResults = findPathInDocument(document, arrayPath);
-        if (
-          arrayResults &&
-          arrayResults.column !== undefined &&
-          arrayResults.lineOfPath !== undefined
-        ) {
-          const { column, lineOfPath } = arrayResults;
-          allYamlKeys = [...allYamlKeys, { path: arrayPath, index: column, lineOfPath }];
-        }
-
-        if (value.length > 1) {
-          for (let i = 0, length = value.length; i < length; i++) {
-            const object = value[i];
-            const keysOfObject = Object.keys(object);
-            for (const keyOfObject of keysOfObject) {
-              const path = currentPath
-                ? `${currentPath}.${key}.${keyOfObject}`
-                : `${key}.${keyOfObject}`;
-              console.log("pathi", path);
-              const results = findPathInDocument(document, path, object[keyOfObject]);
-              console.log("results", results);
-              if (results && results.column !== undefined && results.lineOfPath !== undefined) {
-                const { column, lineOfPath } = results;
-
-                allYamlKeys = [...allYamlKeys, { path, index: column, lineOfPath, arrayIndex: i }];
-              }
-            }
-          }
-        }
-      } else if (typeof value !== "object" || value === null) {
-        const path = currentPath ? `${currentPath}.${key}` : key;
-        const result = findPathInDocument(document, path);
-
-        if (result && result.column !== undefined && result.lineOfPath !== undefined) {
-          const { column, lineOfPath } = result;
-          allYamlKeys = [...allYamlKeys, { path, index: column, lineOfPath }];
-        }
-      } else if (value && typeof value === "object") {
-        const path = currentPath ? `${currentPath}.${key}` : key;
-        const result = findPathInDocument(document, path);
-
-        if (result && result.column !== undefined && result.lineOfPath !== undefined) {
-          const { column, lineOfPath } = result;
-          allYamlKeys = [...allYamlKeys, { path, index: column, lineOfPath }];
-        }
-        getPathAtCursor(document, value, line, column, path);
-      }
-    }
-  }
+export function getPathAtCursor(line: number, column: number) {
   if (allYamlKeys.length > 0) {
     let indexToUse;
     if (line - 2 < 0) {
       indexToUse = 0;
     } else {
-      indexToUse = Math.min(line - 2, allYamlKeys.length - 1);
+      indexToUse = Math.min(line, allYamlKeys.length - 1);
     }
     function getPathAtCursorString(
       indexToUse: number,
       column: number,
-      allYamlKeys: { path: string; index: number | null }[]
+      allYamlKeys: { path: string; index: number | null; lineOfPath: number }[]
     ): string {
+      let foundObj = allYamlKeys.find((obj) => obj.lineOfPath === line);
+      while (!foundObj && line > 0) {
+        line--;
+
+        foundObj = allYamlKeys.find((obj) => obj.lineOfPath === line);
+      }
+      console.log("foundObj", foundObj);
+      if (foundObj) {
+        indexToUse = allYamlKeys.indexOf(foundObj);
+        console.log("iii", indexToUse);
+      }
+
       for (let i = indexToUse; i >= 0; i--) {
         const obj = allYamlKeys[i];
         console.log("neu", obj, "indexToUse", indexToUse, "column", column);

@@ -2,26 +2,13 @@ import * as vscode from "vscode";
 // import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
-import { findPathInDocument } from "../utilitiesLanguageFeatures/findPathInDoc";
+import { getAllYamlPaths } from "../utilitiesLanguageFeatures/GetYamlKeys";
 import * as yaml from "js-yaml";
 import { services } from "../utilitiesLanguageFeatures/services";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
 } from "../utilitiesLanguageFeatures/completionsForArray";
-
-let yamlKeysHover: {
-  path: string;
-  index: number;
-  lineOfPath: number | null;
-  arrayIndex?: number;
-}[] = [];
-const currentDocument = vscode.window.activeTextEditor?.document;
-if (currentDocument) {
-  const yamlObject: any = yaml.load(currentDocument.getText());
-  getAllYamlPaths(currentDocument, yamlObject, "");
-}
-console.log("yamlKeysHover", yamlKeysHover);
 
 interface LooseDefinition {
   title?: string;
@@ -39,6 +26,18 @@ export const hover = () => {
     { language: "yaml" },
     {
       provideHover(document, position) {
+        let yamlKeysHover: {
+          path: string;
+          index: number;
+          lineOfPath: number | null;
+          arrayIndex?: number;
+        }[] = [];
+
+        const yamlObject: any = yaml.load(document.getText());
+        yamlKeysHover = getAllYamlPaths(document, yamlObject, "");
+
+        console.log("yamlKeysHover", yamlKeysHover);
+
         const lineOfWord: number = position.line;
         const specifiedDefs: { ref: string; finalPath: string }[] = defineDefs(document);
         let definitionsMap: DefinitionsMap = {};
@@ -233,74 +232,3 @@ Wenn das Wort in definitionsMap gefunden wurde, soll die Beschreibung nur angeze
 3. letzte Teil des Pfades in definitionsMap ein addRef hat. Das Wort muss in der DefinitionsMap dann den groupname 
 dieses addRefs haben.
 */
-
-export function getAllYamlPaths(
-  document: vscode.TextDocument,
-  yamlObject: any,
-  currentPath: string
-) {
-  if (yamlObject && typeof yamlObject === "object") {
-    const keys: string[] = Object.keys(yamlObject);
-
-    for (const key of keys) {
-      const value = yamlObject[key];
-      console.log("hhh", key, value);
-
-      if (Array.isArray(value)) {
-        const arrayPath = currentPath ? `${currentPath}.${key}` : key;
-        const arrayResults = findPathInDocument(document, arrayPath);
-        if (
-          arrayResults &&
-          arrayResults.column !== undefined &&
-          arrayResults.lineOfPath !== undefined
-        ) {
-          const { column, lineOfPath } = arrayResults;
-          yamlKeysHover = [
-            ...yamlKeysHover,
-            { path: arrayPath, index: column, lineOfPath: lineOfPath },
-          ];
-        }
-
-        if (value.length > 1) {
-          for (let i = 0, length = value.length; i < length; i++) {
-            const object = value[i];
-            const keysOfObject = Object.keys(object);
-            for (const keyOfObject of keysOfObject) {
-              const path = currentPath
-                ? `${currentPath}.${key}.${keyOfObject}`
-                : `${key}.${keyOfObject}`;
-              console.log("pathi", path);
-              const results = findPathInDocument(document, path, object[keyOfObject]);
-              console.log("results", results);
-              if (results && results.column !== undefined && results.lineOfPath !== undefined) {
-                const { column, lineOfPath } = results;
-
-                yamlKeysHover = [
-                  ...yamlKeysHover,
-                  { path, index: column, lineOfPath, arrayIndex: i },
-                ];
-              }
-            }
-          }
-        }
-      } else if (typeof value !== "object" || value === null) {
-        const path = currentPath ? `${currentPath}.${key}` : key;
-        const results = findPathInDocument(document, path, value);
-        if (results && results.column !== undefined && results.lineOfPath !== undefined) {
-          const { column, lineOfPath } = results;
-
-          yamlKeysHover = [...yamlKeysHover, { path, index: column, lineOfPath }];
-        }
-      } else if (value && typeof value === "object") {
-        const path = currentPath ? `${currentPath}.${key}` : key;
-        const results = findPathInDocument(document, path);
-        if (results && results.column !== undefined && results.lineOfPath !== undefined) {
-          const { column, lineOfPath } = results;
-
-          yamlKeysHover = [...yamlKeysHover, { path, index: column, lineOfPath }];
-        }
-        getAllYamlPaths(document, value, path);
-      }
-    }
-  }
-}
