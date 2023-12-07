@@ -28,7 +28,25 @@ interface DefinitionsMap {
   [key: string]: LooseDefinition;
 }
 
-export const hover = (yamlKeysHover: YamlKeysHover[]) => {
+let yamlKeysHover: {
+  path: string;
+  index: number;
+  lineOfPath: number;
+  arrayIndex?: number;
+}[];
+
+export function getKeys(
+  yamlkeys: {
+    path: string;
+    index: number;
+    lineOfPath: number;
+    arrayIndex?: number;
+  }[]
+) {
+  yamlKeysHover = yamlkeys;
+}
+
+export const hover = () => {
   vscode.languages.registerHoverProvider(
     // { language: "yaml", pattern: "**/dvg.yml" },
     { language: "yaml" },

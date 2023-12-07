@@ -9,6 +9,7 @@ import { getDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { provider1, provider2, provider3, getKeys } from "./LanguageFeatures/Completions";
 import { getAllYamlPaths } from "./utilitiesLanguageFeatures/GetYamlKeys";
+import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
 
 export let allYamlKeys: {
   path: string;
@@ -31,6 +32,7 @@ export function activate(context: ExtensionContext) {
     "ldproxy-editor.entityTree",
     new EntitiesProvider()
   );
+  hover();
 
   function updateYamlKeysHover() {
     const document = vscode.window.activeTextEditor?.document;
@@ -39,7 +41,7 @@ export function activate(context: ExtensionContext) {
 
       if (vscode.window.activeTextEditor) {
         allYamlKeys = getAllYamlPaths(document, yamlObject, "");
-        hover(allYamlKeys);
+        getHoverKeys(allYamlKeys);
         getKeys(allYamlKeys);
         //  const getDiagnostic = getDiagnostics();
 
