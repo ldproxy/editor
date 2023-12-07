@@ -87,5 +87,7 @@ export function getAllYamlPaths(
       }
     }
   }
+  yamlKeys.sort((a, b) => a.lineOfPath - b.lineOfPath);
+
   return yamlKeys;
 }
