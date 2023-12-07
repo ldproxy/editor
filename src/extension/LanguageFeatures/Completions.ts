@@ -1,14 +1,21 @@
 import * as vscode from "vscode";
-import * as yaml from "js-yaml";
 // import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { services } from "../utilitiesLanguageFeatures/services";
 import { getAllYamlPaths } from "../utilitiesLanguageFeatures/GetYamlKeys";
+// import { allYamlKeys } from "..";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
 } from "../utilitiesLanguageFeatures/completionsForArray";
+
+let allYamlKeys: {
+  path: string;
+  index: number;
+  lineOfPath: number;
+  arrayIndex?: number;
+}[];
 
 interface LooseDefinition {
   title?: string;
@@ -33,6 +40,17 @@ if (currentDocument) {
   }
 }
 
+export function getKeys(
+  yamlkeys: {
+    path: string;
+    index: number;
+    lineOfPath: number;
+    arrayIndex?: number;
+  }[]
+) {
+  allYamlKeys = yamlkeys;
+}
+
 function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
   specifiedDefs.map((def) => {
     definitionsMap = processProperties(def.ref, services.$defs, definitionsMap);
@@ -55,15 +73,6 @@ function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
 // References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    let allYamlKeys: {
-      path: string;
-      index: number;
-      lineOfPath: number;
-      arrayIndex?: number;
-    }[] = [];
-
-    const yamlObject = yaml.load(document.getText());
-    allYamlKeys = getAllYamlPaths(document, yamlObject, "");
     const line = position.line;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
@@ -118,15 +127,6 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
 //Examples and Completions for non-indented keys
 export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    let allYamlKeys: {
-      path: string;
-      index: number;
-      lineOfPath: number;
-      arrayIndex?: number;
-    }[] = [];
-
-    const yamlObject = yaml.load(document.getText());
-    allYamlKeys = getAllYamlPaths(document, yamlObject, "");
     const line = position.line;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
@@ -220,15 +220,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
 // additionalReferences from specifiedDefs
 export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    let allYamlKeys: {
-      path: string;
-      index: number;
-      lineOfPath: number;
-      arrayIndex?: number;
-    }[] = [];
-
-    const yamlObject = yaml.load(document.getText());
-    allYamlKeys = getAllYamlPaths(document, yamlObject, "");
     const line = position.line;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);

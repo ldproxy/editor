@@ -1,13 +1,13 @@
 ---
 serviceType: OGC_API
+apiVersion: v1
 security:
   enabled: false
 accessControl:
   enabled: false
-
 metadata:
-  attribution: ij
   contactName: interactive instruments GmbH
+  contactPhone: 123
   contactEmail: mail@interactive-instruments.de
   publisherName: interactive instruments GmbH
   publisherUrl: https://www.interactive-instruments.de/

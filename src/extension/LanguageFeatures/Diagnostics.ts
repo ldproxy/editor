@@ -2,6 +2,14 @@ import * as vscode from "vscode";
 import { results } from "./DiagnosticResponse";
 import * as yaml from "js-yaml";
 import { getAllYamlPaths } from "../utilitiesLanguageFeatures/GetYamlKeys";
+import { allYamlKeys as yamlKeysDiagnostic } from "..";
+
+interface YamlKeysDiagnostic {
+  path: string;
+  index: number;
+  lineOfPath: number;
+  arrayIndex?: number;
+}
 
 let workspace = "c:/Users/p.zahnen/Documents/GitHub/editor/data/";
 let diagnostic; // to be named results
@@ -10,17 +18,7 @@ if (workspaceFolders && workspaceFolders[0]) {
   workspace = workspaceFolders[0].uri.fsPath;
 } */
 
-let yamlKeysDiagnostic: {
-  path: string;
-  index: number;
-  lineOfPath: number | null;
-  arrayIndex?: number;
-}[] = [];
 const currentDocument = vscode.window.activeTextEditor?.document;
-if (currentDocument) {
-  const yamlObject: any = yaml.load(currentDocument.getText());
-  yamlKeysDiagnostic = getAllYamlPaths(currentDocument, yamlObject, "");
-}
 
 const diagnosticSubmitData = {
   command: "check",
@@ -58,6 +56,7 @@ const infoMessages = results
   });
 
 export function updateDiagnostics(
+  yamlKeysDiagnostic: YamlKeysDiagnostic[],
   document: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
 ): void {

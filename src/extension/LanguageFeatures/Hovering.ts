@@ -5,10 +5,18 @@ import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { getAllYamlPaths } from "../utilitiesLanguageFeatures/GetYamlKeys";
 import * as yaml from "js-yaml";
 import { services } from "../utilitiesLanguageFeatures/services";
+// import { allYamlKeys as yamlKeysHover } from "..";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
 } from "../utilitiesLanguageFeatures/completionsForArray";
+
+interface YamlKeysHover {
+  path: string;
+  index: number;
+  lineOfPath: number;
+  arrayIndex?: number;
+}
 
 interface LooseDefinition {
   title?: string;
@@ -20,22 +28,12 @@ interface DefinitionsMap {
   [key: string]: LooseDefinition;
 }
 
-export const hover = () => {
+export const hover = (yamlKeysHover: YamlKeysHover[]) => {
   vscode.languages.registerHoverProvider(
     // { language: "yaml", pattern: "**/dvg.yml" },
     { language: "yaml" },
     {
       provideHover(document, position) {
-        let yamlKeysHover: {
-          path: string;
-          index: number;
-          lineOfPath: number | null;
-          arrayIndex?: number;
-        }[] = [];
-
-        const yamlObject: any = yaml.load(document.getText());
-        yamlKeysHover = getAllYamlPaths(document, yamlObject, "");
-
         console.log("yamlKeysHover", yamlKeysHover);
 
         const lineOfWord: number = position.line;
