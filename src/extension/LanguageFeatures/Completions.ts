@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { services } from "../utilitiesLanguageFeatures/services";
-import { getAllYamlPaths } from "../utilitiesLanguageFeatures/GetYamlKeys";
+import { getNextLineOfPath } from "../utilitiesLanguageFeatures/GetLineOfNextPath";
 // import { allYamlKeys } from "..";
 import {
   extractIndexFromPath,
@@ -143,10 +143,11 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       const pathForArray = pathSplit.slice(0, -2).join(".");
       const arrayIndex = extractIndexFromPath(path);
       const possibleLines = getLinesForArrayIndex(allYamlKeys, arrayIndex ? arrayIndex : 0);
-      const minLine = Math.min(...possibleLines);
+      const minLine = Math.min(...possibleLines) - 1;
       const maxLine = Math.max(...possibleLines);
+      const lineOfNextPath = getNextLineOfPath(allYamlKeys, maxLine, arrayIndex);
 
-      console.log("püp", minLine, maxLine);
+      console.log("püp", minLine, lineOfNextPath, line);
 
       if (
         !specifiedDefsPath.includes("[") &&
@@ -182,7 +183,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         specifiedDefsPath.includes("[") &&
         pathAtCursor === pathForArray &&
         line >= minLine &&
-        line <= maxLine &&
+        line <= lineOfNextPath &&
         definitionsMap
       ) {
         for (const key in definitionsMap) {
