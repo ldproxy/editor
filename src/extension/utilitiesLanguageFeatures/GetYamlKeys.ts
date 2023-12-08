@@ -1,16 +1,16 @@
 import { findPathInDocument } from "./findPathInDoc";
 import * as vscode from "vscode";
 
-let yamlKeys: {
-  path: string;
-  index: number;
-  lineOfPath: number;
-  arrayIndex?: number;
-}[] = [];
 export function getAllYamlPaths(
   document: vscode.TextDocument,
   yamlObject: any,
-  currentPath: string
+  currentPath: string,
+  yamlKeys: {
+    path: string;
+    index: number;
+    lineOfPath: number;
+    arrayIndex?: number;
+  }[] = []
 ) {
   if (yamlObject && typeof yamlObject === "object") {
     const keys: string[] = Object.keys(yamlObject);
@@ -83,7 +83,7 @@ export function getAllYamlPaths(
             yamlKeys.push({ path, index: column, lineOfPath });
           }
         }
-        getAllYamlPaths(document, value, path);
+        getAllYamlPaths(document, value, path, yamlKeys);
       }
     }
   }

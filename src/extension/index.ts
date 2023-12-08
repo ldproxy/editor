@@ -40,6 +40,7 @@ export function activate(context: ExtensionContext) {
       const yamlObject = yaml.load(document.getText());
 
       if (vscode.window.activeTextEditor) {
+        allYamlKeys = [];
         allYamlKeys = getAllYamlPaths(document, yamlObject, "");
         getHoverKeys(allYamlKeys);
         getKeys(allYamlKeys);

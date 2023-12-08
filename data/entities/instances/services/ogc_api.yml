@@ -1,6 +1,5 @@
 ---
 serviceType: OGC_API
-apiVersion: v1
 autoPersist: true
 security:
   enabled: false
