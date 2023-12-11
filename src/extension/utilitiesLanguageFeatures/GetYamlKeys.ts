@@ -91,3 +91,18 @@ export function getAllYamlPaths(
 
   return yamlKeys;
 }
+
+function getLineNumber(documentText: any, offset: number) {
+  const lines = documentText.split("\n");
+  let currentOffset = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    currentOffset += lines[i].length + 1; // +1 for the newline character
+    if (currentOffset > offset) {
+      return i + 1; // Adding 1 to convert from zero-based to one-based line number
+    }
+  }
+
+  // If the offset is beyond the end of the document
+  return lines.length + 1;
+}

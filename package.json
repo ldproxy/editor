@@ -83,9 +83,8 @@
     "ts-loader": "^9.5.0",
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",
-    "webpack-cli": "^4.10.0"
-  },
-  "dependencies": {
-    "js-yaml": "^4.1.0"
+    "webpack-cli": "^4.10.0",
+    "js-yaml": "^4.1.0",
+    "yaml": "^2.3.4"
   }
 }

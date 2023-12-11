@@ -143,7 +143,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       const pathForArray = pathSplit.slice(0, -2).join(".");
       const arrayIndex = extractIndexFromPath(path);
       const possibleLines = getLinesForArrayIndex(allYamlKeys, arrayIndex ? arrayIndex : 0);
-      const minLine = Math.min(...possibleLines) - 1;
+      const minLine = Math.min(...possibleLines);
       const maxLine = Math.max(...possibleLines);
       const lineOfNextPath = getNextLineOfPath(allYamlKeys, maxLine, arrayIndex);
 
@@ -183,7 +183,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         specifiedDefsPath.includes("[") &&
         pathAtCursor === pathForArray &&
         line >= minLine &&
-        line <= lineOfNextPath &&
+        line < lineOfNextPath &&
         definitionsMap
       ) {
         for (const key in definitionsMap) {

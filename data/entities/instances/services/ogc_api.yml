@@ -21,7 +21,6 @@ api:
     apiCatalogDescription: "The APIs below are available as examples for Web APIs that can be set up with <a href='https://github.com/interactive-instruments/ldproxy'>ldproxy</a>."
     googleSiteVerification: "yuwTgzFB7GK6hyPpwJmlyaMtwxbk49mCzUO5JnKNy-w"
     additionalApis: sdsd
-
   - buildingBlock: HTML
     noIndexEnabled: false
     legalName: Legal Notice

@@ -27,6 +27,6 @@ export function getLinesForArrayIndex(
       lines.push(obj.lineOfPath);
     }
   }
-
+  console.log("ttt", lines);
   return lines;
 }

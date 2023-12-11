@@ -10,6 +10,7 @@ import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { provider1, provider2, provider3, getKeys } from "./LanguageFeatures/Completions";
 import { getAllYamlPaths } from "./utilitiesLanguageFeatures/GetYamlKeys";
 import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
+import { Parser } from "yaml";
 
 export let allYamlKeys: {
   path: string;
@@ -34,14 +35,22 @@ export function activate(context: ExtensionContext) {
   );
   hover();
 
+  const yamlObject: any[] = [];
+
   function updateYamlKeysHover() {
     const document = vscode.window.activeTextEditor?.document;
     if (document) {
-      const yamlObject = yaml.load(document.getText());
+      const formerYamlObject = yaml.load(document.getText());
+      console.log("formerYamlObject", formerYamlObject);
+
+      for (const token of new Parser().parse(document.getText())) {
+        yamlObject.push(token);
+      }
+      console.log("yamlObject", yamlObject[0].value.items);
 
       if (vscode.window.activeTextEditor) {
         allYamlKeys = [];
-        allYamlKeys = getAllYamlPaths(document, yamlObject, "");
+        allYamlKeys = getAllYamlPaths(document, yamlObject[0].value.items, "");
         getHoverKeys(allYamlKeys);
         getKeys(allYamlKeys);
         //  const getDiagnostic = getDiagnostics();
@@ -53,20 +62,14 @@ export function activate(context: ExtensionContext) {
 
   updateYamlKeysHover();
 
-  const document = vscode.window.activeTextEditor?.document;
-  let yamlObject: any;
-  if (document) {
-    yamlObject = yaml.load(document.getText());
-
-    context.subscriptions.push(
-      vscode.workspace.onDidChangeTextDocument((event) => {
-        const activeEditor = vscode.window.activeTextEditor;
-        if (activeEditor && event.document === activeEditor.document) {
-          updateYamlKeysHover();
-        }
-      })
-    );
-  }
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      const activeEditor = vscode.window.activeTextEditor;
+      if (activeEditor && event.document === activeEditor.document) {
+        updateYamlKeysHover();
+      }
+    })
+  );
 
   const collection = vscode.languages.createDiagnosticCollection("test");
   if (vscode.window.activeTextEditor) {
