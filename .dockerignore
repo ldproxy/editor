@@ -1,0 +1,20 @@
+# This file contains all the files/directories that should
+
+# be ignored (i.e. not included) in the final packaged extension.
+
+# Ignore extension configs
+
+.vscode/\*\*
+
+# Ignore test files
+
+.vscode-test/**
+dist/test/**
+
+# Ignore all webview-ui files except the build directory
+
+webview-ui/node_modules/\*\*
+
+# Ignore Misc
+
+node_modules/\*\*
