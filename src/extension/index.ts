@@ -50,7 +50,8 @@ export function activate(context: ExtensionContext) {
 
       if (vscode.window.activeTextEditor) {
         allYamlKeys = [];
-        allYamlKeys = getAllYamlPaths(document, yamlObject[0].value.items, "");
+        allYamlKeys = getAllYamlPaths(document.getText(), yamlObject[0].value.items, "");
+        console.log("aktuell", allYamlKeys);
         getHoverKeys(allYamlKeys);
         getKeys(allYamlKeys);
         //  const getDiagnostic = getDiagnostics();

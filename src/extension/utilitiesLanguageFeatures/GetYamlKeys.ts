@@ -2,7 +2,7 @@ import { findPathInDocument } from "./findPathInDoc";
 import * as vscode from "vscode";
 
 export function getAllYamlPaths(
-  document: vscode.TextDocument,
+  document: string,
   yamlObject: any,
   currentPath: string,
   yamlKeys: {
@@ -13,79 +13,106 @@ export function getAllYamlPaths(
   }[] = []
 ) {
   if (yamlObject && typeof yamlObject === "object") {
-    const keys: string[] = Object.keys(yamlObject);
-
-    for (const key of keys) {
-      const value = yamlObject[key];
-      console.log("hhh", key, value);
-
-      if (Array.isArray(value)) {
-        const arrayPath = currentPath ? `${currentPath}.${key}` : key;
-        const arrayResults = findPathInDocument(document, arrayPath);
-        if (
-          arrayResults &&
-          arrayResults.column !== undefined &&
-          arrayResults.lineOfPath !== undefined
-        ) {
-          const { column, lineOfPath } = arrayResults;
-          //  yamlKeysHover = [{ path: arrayPath, index: column, lineOfPath: lineOfPath }];
-          const existing = yamlKeys.find((item) => item.path === arrayPath);
+    yamlObject.forEach((object: any) => {
+      console.log("objjjj22", object);
+      if (
+        object &&
+        object.key &&
+        object.key.value &&
+        object.value &&
+        object.value.items[0] &&
+        object.value.items[0].start[0] &&
+        object.value.items[0].start[0].source &&
+        object.value.items[0].start[0].source === "-"
+      ) {
+        console.log("huhuuu");
+        const path: string = currentPath
+          ? `${currentPath}.${object.key.source}`
+          : object.key.source;
+        const line: number = getLineNumber(document, object.key.offset);
+        const column: number = object.key.indent;
+        if (line !== undefined && column !== undefined) {
+          const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
-            yamlKeys.push({ path: arrayPath, index: column, lineOfPath: lineOfPath });
+            yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
-
-        if (value.length > 1) {
-          for (let i = 0, length = value.length; i < length; i++) {
-            const object = value[i];
-            const keysOfObject = Object.keys(object);
-            for (const keyOfObject of keysOfObject) {
-              const path = currentPath
-                ? `${currentPath}.${key}.${keyOfObject}`
-                : `${key}.${keyOfObject}`;
-              console.log("pathi", path);
-              const results = findPathInDocument(document, path, object[keyOfObject]);
-              console.log("results", results);
-              if (results && results.column !== undefined && results.lineOfPath !== undefined) {
-                const { column, lineOfPath } = results;
-
-                // yamlKeysHover = [{ path, index: column, lineOfPath, arrayIndex: i }];
-                const existing = yamlKeys.find(
-                  (item) => item.path === path && item.arrayIndex === i
-                );
-                if (!existing) {
-                  yamlKeys.push({ path, index: column, lineOfPath, arrayIndex: i });
-                }
+        object.value.items.forEach((array: any) => {
+          array.values.items.forEach((object2: any) => {
+            const path: string = object.key.source
+              ? `${object.key.source}.${object2.key.source}`
+              : object2.key.source;
+            const line: number = getLineNumber(document, object2.key.offset);
+            const column: number = object2.key.indent;
+            if (line !== undefined && column !== undefined) {
+              const existing = yamlKeys.find((item) => item.path === path);
+              if (!existing) {
+                yamlKeys.push({ path, index: column, lineOfPath: line });
               }
             }
+          });
+        });
+      } else if (
+        object &&
+        object.key &&
+        object.key.source &&
+        object.value &&
+        typeof object.value === "object" &&
+        "source" in object.value
+      ) {
+        console.log("object.value.source", object.value.source);
+        console.log("docuu", document);
+        const path: string = currentPath
+          ? `${currentPath}.${object.key.source}`
+          : object.key.source;
+        console.log("pathzz", object.key.source);
+        const line: number = getLineNumber(document, object.key.offset);
+        const column: number = object.key.indent;
+        console.log("ccll", column, line);
+        if (line !== undefined && column !== undefined) {
+          const existing = yamlKeys.find((item) => item.path === path);
+          console.log("eee", existing);
+          if (!existing) {
+            yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
-      } else if (typeof value !== "object" || value === null) {
-        const path = currentPath ? `${currentPath}.${key}` : key;
-        const results = findPathInDocument(document, path, value);
-        if (results && results.column !== undefined && results.lineOfPath !== undefined) {
-          const { column, lineOfPath } = results;
-
+      } else if (
+        object &&
+        object.key &&
+        object.key.source &&
+        object.value &&
+        !object.value.source &&
+        object.value.items[0] &&
+        object.value.items[0].start[0] &&
+        object.value.items[0].start[0] &&
+        object.value.items[0].start[0].source &&
+        object.value.items[0].start[0].source !== "-"
+      ) {
+        console.log("wroong");
+        const path = currentPath ? `${currentPath}.${object.key.source}` : object.key.source;
+        const line: number = getLineNumber(document, object.key.offset);
+        const column: number = object.key.indent;
+        if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
-            yamlKeys.push({ path, index: column, lineOfPath });
+            yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
-      } else if (value && typeof value === "object") {
-        const path = currentPath ? `${currentPath}.${key}` : key;
-        const results = findPathInDocument(document, path);
-        if (results && results.column !== undefined && results.lineOfPath !== undefined) {
-          const { column, lineOfPath } = results;
-
-          // yamlKeysHover = [...yamlKeysHover, { path, index: column, lineOfPath }];
-          const existing = yamlKeys.find((item) => item.path === path);
-          if (!existing) {
-            yamlKeys.push({ path, index: column, lineOfPath });
+        object.value.items.forEach((item: any) => {
+          const path = object.key.source
+            ? `${object.key.source}.${item.key.source}`
+            : item.key.source;
+          const line: number = getLineNumber(document, item.key.offset);
+          const column: number = item.key.indent;
+          if (line !== undefined && column !== undefined) {
+            const existing = yamlKeys.find((item) => item.path === path);
+            if (!existing) {
+              yamlKeys.push({ path, index: column, lineOfPath: line });
+            }
           }
-        }
-        getAllYamlPaths(document, value, path, yamlKeys);
+        });
       }
-    }
+    });
   }
   yamlKeys.sort((a, b) => a.lineOfPath - b.lineOfPath);
 
