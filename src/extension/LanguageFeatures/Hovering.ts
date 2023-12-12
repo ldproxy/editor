@@ -94,12 +94,12 @@ export const hover = () => {
           const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
           const pathForArray = pathSplit.slice(0, -2).join(".");
           const startOfArray = extractIndexFromPath(path);
-          const possibleLines = getLinesForArrayIndex(
+          const minLine = getLinesForArrayIndex(
             yamlKeysHover,
-            startOfArray ? startOfArray : 0
+            startOfArray ? startOfArray : 0,
+            specifiedDefsPath
           );
-          const minLine = Math.min(...possibleLines);
-          const maxLine = Math.max(...possibleLines);
+          const maxLine = 2;
           if (pathInYaml) {
           }
           if (
@@ -124,6 +124,8 @@ export const hover = () => {
           } else if (
             specifiedDefsPath.includes("[") &&
             pathInYamlToUse === pathForArray &&
+            minLine &&
+            maxLine &&
             lineOfWord >= minLine &&
             lineOfWord <= maxLine &&
             definitionsMap &&

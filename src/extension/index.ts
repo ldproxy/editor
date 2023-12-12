@@ -16,6 +16,7 @@ export let allYamlKeys: {
   path: string;
   index: number;
   lineOfPath: number;
+  startOfArray?: number;
   arrayIndex?: number;
 }[] = [];
 

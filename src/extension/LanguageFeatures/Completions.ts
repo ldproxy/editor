@@ -3,11 +3,10 @@ import * as vscode from "vscode";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { services } from "../utilitiesLanguageFeatures/services";
-import { getNextLineOfPath } from "../utilitiesLanguageFeatures/GetLineOfNextPath";
-// import { allYamlKeys } from "..";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
+  getMaxLine,
 } from "../utilitiesLanguageFeatures/completionsForArray";
 
 let allYamlKeys: {
@@ -15,6 +14,7 @@ let allYamlKeys: {
   index: number;
   lineOfPath: number;
   startOfArray?: number;
+  arrayIndex?: number;
 }[];
 
 interface LooseDefinition {
@@ -127,7 +127,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
 //Examples and Completions for non-indented keys
 export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const line = position.line;
+    const line = position.line + 1;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
 
@@ -141,13 +141,19 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       const pathSplit = path.split(".");
       const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
       const pathForArray = pathSplit.slice(0, -2).join(".");
-      const startOfArray = extractIndexFromPath(path);
-      const possibleLines = getLinesForArrayIndex(allYamlKeys, startOfArray ? startOfArray : 0);
-      const minLine = Math.min(...possibleLines);
-      const maxLine = Math.max(...possibleLines);
-      const lineOfNextPath = getNextLineOfPath(allYamlKeys, maxLine, startOfArray);
-
-      console.log("püp", minLine, lineOfNextPath, line);
+      const arrayIndex = extractIndexFromPath(path);
+      const minLine = getLinesForArrayIndex(
+        allYamlKeys,
+        arrayIndex ? arrayIndex : 0,
+        specifiedDefsPath
+      );
+      let maxLine: number | undefined;
+      if (minLine) {
+        maxLine = getMaxLine(allYamlKeys, minLine);
+      }
+      console.log("patti", path);
+      console.log("kiop", specifiedDefsPath, pathForArray);
+      console.log("püp", minLine, maxLine, line);
 
       if (
         !specifiedDefsPath.includes("[") &&
@@ -182,8 +188,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       } else if (
         specifiedDefsPath.includes("[") &&
         pathAtCursor === pathForArray &&
+        minLine !== undefined &&
         line >= minLine &&
-        line < lineOfNextPath &&
+        maxLine !== undefined &&
+        line < maxLine &&
         definitionsMap
       ) {
         for (const key in definitionsMap) {
@@ -221,7 +229,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
 // additionalReferences from specifiedDefs
 export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const line = position.line;
+    const line = position.line + 1;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
 
@@ -285,6 +293,7 @@ export function getPathAtCursor(
     index: number;
     lineOfPath: number;
     startOfArray?: number;
+    arrayIndex?: number;
   }[],
   line: number,
   column: number

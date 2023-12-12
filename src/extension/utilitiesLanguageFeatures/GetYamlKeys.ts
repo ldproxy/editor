@@ -7,6 +7,7 @@ export function getAllYamlPaths(
     index: number;
     lineOfPath: number;
     startOfArray?: number;
+    arrayIndex?: number;
   }[] = []
 ) {
   if (yamlObject && typeof yamlObject === "object") {
@@ -33,7 +34,12 @@ export function getAllYamlPaths(
             yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
+        let arrayIndex = -1;
+
+        console.log("llk", object.value);
         object.value.items.forEach((array: any) => {
+          arrayIndex++;
+          console.log("arraaay", array);
           const arrayStartOffset = array.start[0].offset;
           let startOfArray: number;
           if (arrayStartOffset) {
@@ -57,6 +63,7 @@ export function getAllYamlPaths(
                       index: column,
                       lineOfPath: line,
                       startOfArray,
+                      arrayIndex,
                     });
                   }
                 }
