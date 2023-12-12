@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import { syncEffect } from "recoil-sync";
-import { string, object, array, number, bool } from "@recoiljs/refine";
+import { string, array, number, bool, custom, asType } from "@recoiljs/refine";
 
 export function atomSyncString(keyValue: string, defaultValue: string) {
   return atom({
@@ -10,11 +10,19 @@ export function atomSyncString(keyValue: string, defaultValue: string) {
   });
 }
 
-export function atomSyncObject(keyValue: string, defaultValue: object) {
+export function atomSyncObject<T extends object>(keyValue: string, defaultValue: T) {
   return atom({
     key: keyValue,
     default: defaultValue,
-    effects: [syncEffect({ storeKey: "StoreA", refine: object({}) })],
+    effects: [
+      syncEffect({
+        storeKey: "StoreA",
+        refine: asType(
+          custom((obj) => obj),
+          (obj) => obj as T
+        ),
+      }),
+    ],
   });
 }
 
