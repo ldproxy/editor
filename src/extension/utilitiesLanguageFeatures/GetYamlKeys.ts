@@ -58,7 +58,8 @@ export function getAllYamlPaths(
         object.key.source &&
         object.value &&
         typeof object.value === "object" &&
-        "source" in object.value
+        "source" in object.value &&
+        !object.value.items
       ) {
         console.log("object.value.source", object.value.source);
         console.log("docuu", document);
@@ -79,14 +80,11 @@ export function getAllYamlPaths(
       } else if (
         object &&
         object.key &&
-        object.key.source &&
+        typeof object.key === "object" &&
+        "source" in object.key &&
         object.value &&
         !object.value.source &&
-        object.value.items[0] &&
-        object.value.items[0].start[0] &&
-        object.value.items[0].start[0] &&
-        object.value.items[0].start[0].source &&
-        object.value.items[0].start[0].source !== "-"
+        object.value.items[0]
       ) {
         console.log("wroong");
         const path = currentPath ? `${currentPath}.${object.key.source}` : object.key.source;
@@ -98,16 +96,19 @@ export function getAllYamlPaths(
             yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
+
         object.value.items.forEach((item: any) => {
-          const path = object.key.source
-            ? `${object.key.source}.${item.key.source}`
-            : item.key.source;
-          const line: number = getLineNumber(document, item.key.offset);
-          const column: number = item.key.indent;
-          if (line !== undefined && column !== undefined) {
-            const existing = yamlKeys.find((item) => item.path === path);
-            if (!existing) {
-              yamlKeys.push({ path, index: column, lineOfPath: line });
+          if (item && item.key && item.key.source) {
+            const path = object.key.source
+              ? `${object.key.source}.${item.key.source}`
+              : item.key.source;
+            const line: number = getLineNumber(document, item.key.offset);
+            const column: number = item.key.indent;
+            if (line !== undefined && column !== undefined) {
+              const existing = yamlKeys.find((item) => item.path === path);
+              if (!existing) {
+                yamlKeys.push({ path, index: column, lineOfPath: line });
+              }
             }
           }
         });
