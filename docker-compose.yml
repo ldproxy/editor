@@ -1,0 +1,12 @@
+services:
+  editor:
+#    image: codercom/code-server:latest
+    build: .
+    ports:
+      - 8080:8080
+    volumes:
+      - ./data:/data
+#      - ./docker/.local:/home/coder/.local
+#      - ./docker/.config:/home/coder/.config
+#      - ./docker/workspace:/home/coder/project
+
