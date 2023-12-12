@@ -1,4 +1,5 @@
 import type { WebviewApi } from "vscode-webview";
+import { DEV } from "./constants";
 
 export type State = {
   [key: string]: any;
@@ -34,10 +35,26 @@ class VSCodeAPIWrapper {
    */
   public postMessage(message: unknown) {
     if (this.vsCodeApi) {
+      if (DEV) {
+        console.log("sending to vscode", message);
+      }
+
       this.vsCodeApi.postMessage(message);
     } else {
       console.log(message);
     }
+  }
+
+  public listen(handler: (data: any) => void) {
+    window.addEventListener("message", (event) => {
+      const message = event.data;
+
+      if (DEV) {
+        console.log("received from xtracfg", message);
+      }
+
+      handler(message);
+    });
   }
 
   /**
