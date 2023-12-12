@@ -7,9 +7,7 @@ import {
 import { BasicData } from "./utilities/xtracfg";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncObject, atomSyncBoolean } from "./utilities/recoilSyncWrapper";
-
-export const wfsDataAtom = atomSyncObject("wfsData", {});
+import { atomSyncString, atomSyncBoolean } from "./utilities/recoilSyncWrapper";
 
 export const urlAtom = atomSyncString("url", "");
 
