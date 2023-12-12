@@ -19,35 +19,7 @@
         "category": "ldproxy",
         "icon": "$(add)"
       }
-    ],
-    "views": {
-      "explorer": [
-        {
-          "id": "ldproxy-editor.storeTree",
-          "name": "Sources"
-        },
-        {
-          "id": "ldproxy-editor.entityTree",
-          "name": "Entities"
-        }
-      ]
-    },
-    "menus": {
-      "view/title": [
-        {
-          "when": "view == ldproxy-editor.storeTree",
-          "command": "ldproxy-editor.showAutoCreate",
-          "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "when": "view == ldproxy-editor.storeTree && viewItem == folder",
-          "command": "ldproxy-editor.showAutoCreate",
-          "group": "inline"
-        }
-      ]
-    }
+    ]
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",
