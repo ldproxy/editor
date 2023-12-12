@@ -64,7 +64,7 @@ export class AutoCreatePanel {
         // Panel view type
         "ldproxy-editor.showAutoCreate",
         // Panel title
-        "Create entities",
+        "Create new entities",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
