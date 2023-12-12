@@ -16,14 +16,14 @@ export function getLinesForArrayIndex(
     path: string;
     index: number;
     lineOfPath: number | null;
-    arrayIndex?: number;
+    startOfArray?: number;
   }[],
-  arrayIndex: number
+  startArray: number
 ): number[] {
   const lines: number[] = [];
 
   for (const obj of allYamlKeys) {
-    if (obj.lineOfPath && obj.arrayIndex === arrayIndex) {
+    if (obj.lineOfPath && obj.startOfArray === startArray) {
       lines.push(obj.lineOfPath);
     }
   }

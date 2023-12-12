@@ -6,7 +6,7 @@ export function getAllYamlPaths(
     path: string;
     index: number;
     lineOfPath: number;
-    arrayIndex?: number;
+    startOfArray?: number;
   }[] = []
 ) {
   if (yamlObject && typeof yamlObject === "object") {
@@ -35,9 +35,9 @@ export function getAllYamlPaths(
         }
         object.value.items.forEach((array: any) => {
           const arrayStartOffset = array.start[0].offset;
-          let arrayStart: number;
+          let startOfArray: number;
           if (arrayStartOffset) {
-            arrayStart = getLineNumber(document, arrayStartOffset);
+            startOfArray = getLineNumber(document, arrayStartOffset);
           }
           if (array && array.value && array.value.items) {
             array.value.items.forEach((object2: any) => {
@@ -56,7 +56,7 @@ export function getAllYamlPaths(
                       path,
                       index: column,
                       lineOfPath: line,
-                      arrayIndex: arrayStart,
+                      startOfArray,
                     });
                   }
                 }
@@ -76,6 +76,7 @@ export function getAllYamlPaths(
         const path: string = currentPath
           ? `${currentPath}.${object.key.source}`
           : object.key.source;
+        console.log("importa", object.key);
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
         if (line !== undefined && column !== undefined) {

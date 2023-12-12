@@ -35,15 +35,14 @@ export function activate(context: ExtensionContext) {
   );
   hover();
 
-  const yamlObject: any[] = [];
-
   function updateYamlKeysHover() {
     const document = vscode.window.activeTextEditor?.document;
     if (document) {
-      const formerYamlObject = yaml.load(document.getText());
-      console.log("formerYamlObject", formerYamlObject);
+      const yamlObject: any[] = [];
 
       for (const token of new Parser().parse(document.getText())) {
+        console.log("documento", document?.getText());
+        console.log("token", token);
         yamlObject.push(token);
       }
       console.log("yamlObject", yamlObject[0].value.items);

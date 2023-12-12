@@ -13,7 +13,7 @@ metadata:
   publisherUrl: https://www.interactive-instruments.de/
   publisherLogoUrl: https://www.interactive-instruments.de/wp-content/uploads/2017/05/ii-icon.png
   keywords:
-    - ldproxy
+    - ldproxyo
 apiValidation: NONE
 api:
   - buildingBlock: FOUNDATION

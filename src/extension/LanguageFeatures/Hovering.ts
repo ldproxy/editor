@@ -15,7 +15,7 @@ interface YamlKeysHover {
   path: string;
   index: number;
   lineOfPath: number;
-  arrayIndex?: number;
+  startOfArray?: number;
 }
 
 interface LooseDefinition {
@@ -32,7 +32,7 @@ let yamlKeysHover: {
   path: string;
   index: number;
   lineOfPath: number;
-  arrayIndex?: number;
+  startOfArray?: number;
 }[];
 
 export function getKeys(
@@ -40,7 +40,7 @@ export function getKeys(
     path: string;
     index: number;
     lineOfPath: number;
-    arrayIndex?: number;
+    startOfArray?: number;
   }[]
 ) {
   yamlKeysHover = yamlkeys;
@@ -93,8 +93,11 @@ export const hover = () => {
           const pathSplit = path.split(".");
           const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
           const pathForArray = pathSplit.slice(0, -2).join(".");
-          const arrayIndex = extractIndexFromPath(path);
-          const possibleLines = getLinesForArrayIndex(yamlKeysHover, arrayIndex ? arrayIndex : 0);
+          const startOfArray = extractIndexFromPath(path);
+          const possibleLines = getLinesForArrayIndex(
+            yamlKeysHover,
+            startOfArray ? startOfArray : 0
+          );
           const minLine = Math.min(...possibleLines);
           const maxLine = Math.max(...possibleLines);
           if (pathInYaml) {

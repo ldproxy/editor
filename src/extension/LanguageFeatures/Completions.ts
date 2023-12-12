@@ -14,7 +14,7 @@ let allYamlKeys: {
   path: string;
   index: number;
   lineOfPath: number;
-  arrayIndex?: number;
+  startOfArray?: number;
 }[];
 
 interface LooseDefinition {
@@ -45,7 +45,7 @@ export function getKeys(
     path: string;
     index: number;
     lineOfPath: number;
-    arrayIndex?: number;
+    startOfArray?: number;
   }[]
 ) {
   allYamlKeys = yamlkeys;
@@ -73,7 +73,7 @@ function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
 // References from specifieDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const line = position.line;
+    const line = position.line + 1;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
 
@@ -141,11 +141,11 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       const pathSplit = path.split(".");
       const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
       const pathForArray = pathSplit.slice(0, -2).join(".");
-      const arrayIndex = extractIndexFromPath(path);
-      const possibleLines = getLinesForArrayIndex(allYamlKeys, arrayIndex ? arrayIndex : 0);
+      const startOfArray = extractIndexFromPath(path);
+      const possibleLines = getLinesForArrayIndex(allYamlKeys, startOfArray ? startOfArray : 0);
       const minLine = Math.min(...possibleLines);
       const maxLine = Math.max(...possibleLines);
-      const lineOfNextPath = getNextLineOfPath(allYamlKeys, maxLine, arrayIndex);
+      const lineOfNextPath = getNextLineOfPath(allYamlKeys, maxLine, startOfArray);
 
       console.log("püp", minLine, lineOfNextPath, line);
 
@@ -284,7 +284,7 @@ export function getPathAtCursor(
     path: string;
     index: number;
     lineOfPath: number;
-    arrayIndex?: number;
+    startOfArray?: number;
   }[],
   line: number,
   column: number
