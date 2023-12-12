@@ -1,6 +1,3 @@
-import { findPathInDocument } from "./findPathInDoc";
-import * as vscode from "vscode";
-
 export function getAllYamlPaths(
   document: string,
   yamlObject: any,
@@ -14,18 +11,17 @@ export function getAllYamlPaths(
 ) {
   if (yamlObject && typeof yamlObject === "object") {
     yamlObject.forEach((object: any) => {
-      console.log("objjjj22", object);
       if (
         object &&
         object.key &&
-        object.key.value &&
+        object.key.source &&
         object.value &&
+        object.value.items &&
         object.value.items[0] &&
         object.value.items[0].start[0] &&
         object.value.items[0].start[0].source &&
         object.value.items[0].start[0].source === "-"
       ) {
-        console.log("huhuuu");
         const path: string = currentPath
           ? `${currentPath}.${object.key.source}`
           : object.key.source;
@@ -38,19 +34,35 @@ export function getAllYamlPaths(
           }
         }
         object.value.items.forEach((array: any) => {
-          array.values.items.forEach((object2: any) => {
-            const path: string = object.key.source
-              ? `${object.key.source}.${object2.key.source}`
-              : object2.key.source;
-            const line: number = getLineNumber(document, object2.key.offset);
-            const column: number = object2.key.indent;
-            if (line !== undefined && column !== undefined) {
-              const existing = yamlKeys.find((item) => item.path === path);
-              if (!existing) {
-                yamlKeys.push({ path, index: column, lineOfPath: line });
+          const arrayStartOffset = array.start[0].offset;
+          let arrayStart: number;
+          if (arrayStartOffset) {
+            arrayStart = getLineNumber(document, arrayStartOffset);
+          }
+          if (array && array.value && array.value.items) {
+            array.value.items.forEach((object2: any) => {
+              if (object2 && object2.key && object2.key.source) {
+                const path: string = object.key.source
+                  ? `${object.key.source}.${object2.key.source}`
+                  : object2.key.source;
+                const line: number = getLineNumber(document, object2.key.offset);
+                const column: number = object2.key.indent;
+                if (line !== undefined && column !== undefined) {
+                  const existing = yamlKeys.find(
+                    (item) => item.path === path && item.lineOfPath === line
+                  );
+                  if (!existing) {
+                    yamlKeys.push({
+                      path,
+                      index: column,
+                      lineOfPath: line,
+                      arrayIndex: arrayStart,
+                    });
+                  }
+                }
               }
-            }
-          });
+            });
+          }
         });
       } else if (
         object &&
@@ -61,18 +73,13 @@ export function getAllYamlPaths(
         "source" in object.value &&
         !object.value.items
       ) {
-        console.log("object.value.source", object.value.source);
-        console.log("docuu", document);
         const path: string = currentPath
           ? `${currentPath}.${object.key.source}`
           : object.key.source;
-        console.log("pathzz", object.key.source);
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
-        console.log("ccll", column, line);
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
-          console.log("eee", existing);
           if (!existing) {
             yamlKeys.push({ path, index: column, lineOfPath: line });
           }
@@ -86,7 +93,6 @@ export function getAllYamlPaths(
         !object.value.source &&
         object.value.items[0]
       ) {
-        console.log("wroong");
         const path = currentPath ? `${currentPath}.${object.key.source}` : object.key.source;
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
