@@ -20,7 +20,7 @@ function Common({ disabled, error }: CommonProps) {
 
   return (
     <>
-      <h3>Create new service</h3>
+      <h3>Create new entities</h3>
       <section className="component-example">
         <div className="input-container">
           <VSCodeTextField
