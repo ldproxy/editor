@@ -1,5 +1,5 @@
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
+
 import { SchemaTables } from "./utilities/xtracfg";
 
 type ProgressProps = {

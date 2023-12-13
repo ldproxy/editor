@@ -6,9 +6,9 @@ import { uploadedGpkg } from "../utilities/uploadGpkg";
 import * as vscode from "vscode";
 
 const workspaceFolders = vscode.workspace.workspaceFolders;
-let workspace: string;
+let workspace: Uri;
 if (workspaceFolders && workspaceFolders.length > 0) {
-  workspace = workspaceFolders[0].uri.fsPath;
+  workspace = workspaceFolders[0].uri;
 }
 
 /**
@@ -165,7 +165,10 @@ export class AutoCreatePanel {
             window.showErrorMessage(text);
             break;
           case "onLoad":
-            this._panel.webview.postMessage({ command: "setWorkspace", workspaceRoot: workspace });
+            this._panel.webview.postMessage({
+              command: "setWorkspace",
+              workspaceRoot: workspace.fsPath,
+            });
             break;
           case "setExistingGpkg":
             this._panel.webview.postMessage({
@@ -180,7 +183,8 @@ export class AutoCreatePanel {
             this.reload();
             break;
           case "success":
-            await vscode.commands.executeCommand("vscode.open", Uri.file(text));
+            const fileUri = workspace.with({ path: text });
+            await vscode.commands.executeCommand("vscode.open", fileUri);
             break;
           case "uploadGpkg":
             this._panel.webview.postMessage({

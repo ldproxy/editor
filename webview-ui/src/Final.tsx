@@ -1,9 +1,9 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
+import { useRecoilValue } from "recoil";
+
 import { vscode } from "./utilities/vscode";
 import Progress from "./Progress";
 import { selectedTablesAtom, TableData } from "./Tables";
-import { useRecoilValue } from "recoil";
 import { dataProcessingAtom } from "./App";
 import { atomSyncStringArray } from "./utilities/recoilSyncWrapper";
 
@@ -63,11 +63,7 @@ const Final = ({
             {namesOfCreatedFiles.map((file, index) => {
               return (
                 <li key={index}>
-                  <a
-                    key={index}
-                    href={`${workspace}/${file}`}
-                    className="final-link"
-                    onClick={() => onLinkClick(file)}>
+                  <a key={index} className="final-link" onClick={() => onLinkClick(file)}>
                     {file}
                   </a>
                 </li>

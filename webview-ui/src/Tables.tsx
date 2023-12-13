@@ -1,8 +1,9 @@
 import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
 import { useRecoilState, useRecoilValue } from "recoil";
+
 import { dataProcessingAtom } from "./App";
 import { atomSyncString, atomSyncObject } from "./utilities/recoilSyncWrapper";
+import { DEV } from "./utilities/constants";
 
 export const allTablesAtom = atomSyncObject<TableData>("allTables", {});
 
@@ -111,7 +112,9 @@ const Tables = ({ generateProgress, generate }: TabelsProps) => {
     return true;
   };
 
-  console.log("selectedTables", selectedTables, allSchemas, allTables);
+  if (DEV) {
+    console.log("selectedTables", selectedTables, allSchemas, allTables);
+  }
 
   // TODO: use indeterminate={true} for All checkboxes when not all/nothing checked
   return (

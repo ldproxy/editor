@@ -1,6 +1,6 @@
 import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
-import { atom, useRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
+
 import { atomSyncString } from "./utilities/recoilSyncWrapper";
 
 export const idAtom = atomSyncString("id", "");

@@ -54,7 +54,7 @@ function App() {
     subcommand: "analyze",
     source: workspace,
     verbose: true,
-    debug: true,
+    debug: DEV,
   };
 
   useEffect(() => {
@@ -100,8 +100,6 @@ function App() {
       response.results && response.results.length > 0 && response.results[0].status === "INFO";
     const details = response.details || {};
 
-    console.log("HANDLE SUCCESS", isSuccess, isProgress, dataProcessing, details);
-
     if (isSuccess) {
       if (details.types) {
         setAllTables(details.types);
@@ -112,8 +110,6 @@ function App() {
 
       // need to use updater since dataProcessing is bound on first render
       setDataProcessing((prev) => {
-        console.log("DP", prev);
-
         if (prev === "" || prev === "inProgress") {
           return "analyzed";
         }

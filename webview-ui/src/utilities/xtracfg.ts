@@ -143,7 +143,11 @@ const ensureOpen = (): Promise<WebSocket> => {
   }
 
   if (!_socket || _socket.CLOSED || _socket.CLOSING) {
-    _socket = new WebSocket("ws://localhost:8080/sock");
+    if (DEV) {
+      _socket = new WebSocket("ws://localhost:8081/sock");
+    } else {
+      _socket = new WebSocket(`ws://${window.location.host}/proxy/8081/`);
+    }
   }
 
   return new Promise((resolve, reject) => {
