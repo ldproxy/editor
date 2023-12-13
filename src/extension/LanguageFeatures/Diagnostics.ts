@@ -1,8 +1,5 @@
 import * as vscode from "vscode";
 import { results } from "./DiagnosticResponse";
-import * as yaml from "js-yaml";
-import { getAllYamlPaths } from "../utilitiesLanguageFeatures/GetYamlKeys";
-import { allYamlKeys as yamlKeysDiagnostic } from "..";
 
 interface YamlKeysDiagnostic {
   path: string;
@@ -17,8 +14,6 @@ let diagnostic; // to be named results
 if (workspaceFolders && workspaceFolders[0]) {
   workspace = workspaceFolders[0].uri.fsPath;
 } */
-
-const currentDocument = vscode.window.activeTextEditor?.document;
 
 const diagnosticSubmitData = {
   command: "check",

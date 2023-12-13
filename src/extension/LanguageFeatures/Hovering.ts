@@ -2,21 +2,13 @@ import * as vscode from "vscode";
 // import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
-import { getAllYamlPaths } from "../utilitiesLanguageFeatures/GetYamlKeys";
-import * as yaml from "js-yaml";
 import { services } from "../utilitiesLanguageFeatures/services";
 // import { allYamlKeys as yamlKeysHover } from "..";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
+  getMaxLine,
 } from "../utilitiesLanguageFeatures/completionsForArray";
-
-interface YamlKeysHover {
-  path: string;
-  index: number;
-  lineOfPath: number;
-  startOfArray?: number;
-}
 
 interface LooseDefinition {
   title?: string;
@@ -54,7 +46,7 @@ export const hover = () => {
       provideHover(document, position) {
         console.log("yamlKeysHover", yamlKeysHover);
 
-        const lineOfWord: number = position.line;
+        const lineOfWord: number = position.line + 1;
         const specifiedDefs: { ref: string; finalPath: string }[] = defineDefs(document);
         let definitionsMap: DefinitionsMap = {};
         let allRefs: string[] | undefined = [];
@@ -79,7 +71,6 @@ export const hover = () => {
             );
           });
         }
-
         const pathInYaml = yamlKeysHover.find((item) => item.lineOfPath === lineOfWord);
         const pathSplit = pathInYaml?.path.split(".");
         const pathInYamlToUse = pathSplit?.slice(0, -1).join(".");
@@ -93,13 +84,16 @@ export const hover = () => {
           const pathSplit = path.split(".");
           const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
           const pathForArray = pathSplit.slice(0, -2).join(".");
-          const startOfArray = extractIndexFromPath(path);
+          const arrayIndex = extractIndexFromPath(path);
           const minLine = getLinesForArrayIndex(
             yamlKeysHover,
-            startOfArray ? startOfArray : 0,
+            arrayIndex ? arrayIndex : 0,
             specifiedDefsPath
           );
-          const maxLine = 2;
+          let maxLine: number | undefined;
+          if (minLine) {
+            maxLine = getMaxLine(yamlKeysHover, minLine);
+          }
           if (pathInYaml) {
           }
           if (
@@ -127,7 +121,7 @@ export const hover = () => {
             minLine &&
             maxLine &&
             lineOfWord >= minLine &&
-            lineOfWord <= maxLine &&
+            lineOfWord < maxLine &&
             definitionsMap &&
             pathInYaml &&
             pathInYamlLastKey &&
