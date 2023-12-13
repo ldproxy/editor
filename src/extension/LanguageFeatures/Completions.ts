@@ -70,13 +70,12 @@ function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
     });
   }
 }
-// References from specifieDefs
+// References from specifiedDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
-
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("bbb", definitionsMap);
 
@@ -303,11 +302,13 @@ export function getPathAtCursor(
     } else {
       indexToUse = Math.min(line, allYamlKeys.length - 1);
     }
+    console.log("indexToUse: ", indexToUse);
     function getPathAtCursorString(
       indexToUse: number,
       column: number,
       allYamlKeys: { path: string; index: number | null; lineOfPath: number }[]
     ): string {
+      console.log("lineInFucntion", line);
       let foundObj = allYamlKeys.find((obj) => obj.lineOfPath === line);
       while (!foundObj && line > 0) {
         line--;

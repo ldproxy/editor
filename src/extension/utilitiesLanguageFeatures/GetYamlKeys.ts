@@ -80,27 +80,6 @@ export function getAllYamlPaths(
       } else if (
         object &&
         object.key &&
-        object.key.source &&
-        object.value &&
-        typeof object.value === "object" &&
-        "source" in object.value &&
-        !object.value.items
-      ) {
-        const path: string = currentPath
-          ? `${currentPath}.${object.key.source}`
-          : object.key.source;
-        console.log("importa", object.key);
-        const line: number = getLineNumber(document, object.key.offset);
-        const column: number = object.key.indent;
-        if (line !== undefined && column !== undefined) {
-          const existing = yamlKeys.find((item) => item.path === path);
-          if (!existing) {
-            yamlKeys.push({ path, index: column, lineOfPath: line });
-          }
-        }
-      } else if (
-        object &&
-        object.key &&
         typeof object.key === "object" &&
         "source" in object.key &&
         object.value &&
@@ -132,6 +111,19 @@ export function getAllYamlPaths(
             }
           }
         });
+      } else if (object && object.key && object.key.source) {
+        const path: string = currentPath
+          ? `${currentPath}.${object.key.source}`
+          : object.key.source;
+        console.log("importa", object.key);
+        const line: number = getLineNumber(document, object.key.offset);
+        const column: number = object.key.indent;
+        if (line !== undefined && column !== undefined) {
+          const existing = yamlKeys.find((item) => item.path === path);
+          if (!existing) {
+            yamlKeys.push({ path, index: column, lineOfPath: line });
+          }
+        }
       }
     });
   }
