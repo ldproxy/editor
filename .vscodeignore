@@ -33,3 +33,5 @@ vsc-extension-quickstart.md
 
 docker/**
 node_modules/**
+.coder/**
+data/**
