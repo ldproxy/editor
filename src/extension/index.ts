@@ -1,5 +1,4 @@
 import { commands, window, ExtensionContext } from "vscode";
-import * as yaml from "js-yaml";
 import { AutoCreatePanel } from "./panels/AutoCreatePanel";
 import { SourcesProvider } from "./trees/SourcesProvider";
 import { EntitiesProvider } from "./trees/EntitiesProvider";
@@ -35,6 +34,7 @@ export function activate(context: ExtensionContext) {
     new EntitiesProvider()
   );
   hover();
+  const collection = vscode.languages.createDiagnosticCollection("test");
 
   function updateYamlKeysHover() {
     const document = vscode.window.activeTextEditor?.document;
@@ -54,6 +54,7 @@ export function activate(context: ExtensionContext) {
         console.log("aktuell", allYamlKeys);
         getHoverKeys(allYamlKeys);
         getKeys(allYamlKeys);
+        updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
         //  const getDiagnostic = getDiagnostics();
 
         context.subscriptions.push(provider1, provider2, provider3);
@@ -72,14 +73,10 @@ export function activate(context: ExtensionContext) {
     })
   );
 
-  const collection = vscode.languages.createDiagnosticCollection("test");
-  if (vscode.window.activeTextEditor) {
-    updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
-  }
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor) {
-        updateDiagnostics(allYamlKeys, editor.document, collection);
+        updateYamlKeysHover();
       }
     })
   );

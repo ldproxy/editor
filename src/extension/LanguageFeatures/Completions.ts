@@ -151,9 +151,8 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       if (minLine) {
         maxLine = getMaxLine(allYamlKeys, minLine);
       }
-      console.log("patti", path);
-      console.log("kiop", specifiedDefsPath, pathForArray);
-      console.log("püp", minLine, maxLine, line);
+
+      console.log("minmax", minLine, maxLine, line);
 
       if (
         !specifiedDefsPath.includes("[") &&

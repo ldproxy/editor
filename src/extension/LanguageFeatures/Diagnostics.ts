@@ -56,7 +56,7 @@ export function updateDiagnostics(
   collection: vscode.DiagnosticCollection
 ): void {
   console.log("sss", yamlKeysDiagnostic);
-  if (document.uri.path.includes("ogc_api.yml")) {
+  if (document.uri.path.includes(".yml")) {
     const diagnostics: vscode.Diagnostic[] = [];
 
     infoMessages.forEach((info) => {
