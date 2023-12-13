@@ -67,6 +67,7 @@ export function updateDiagnostics(
     infoMessages.forEach((info) => {
       const infoText = info.match(/\$.(.*):/);
       const infoWord = infoText ? infoText[1].trim() : "";
+      console.log("infoWord", infoWord);
       try {
         const keys = infoWord.split(".");
         const lastKey: string = keys[keys.length - 1];
@@ -75,11 +76,14 @@ export function updateDiagnostics(
         let lineOfPath: number | null = 0;
 
         const foundItem = yamlKeysDiagnostic.find((item) => item.path === infoWord);
+        console.log("foundItem", foundItem);
         if (foundItem) {
-          lineOfPath = foundItem.lineOfPath;
+          lineOfPath = foundItem.lineOfPath - 1;
         }
+        console.log("lineOfPath", lineOfPath);
         if (lineOfPath && lineOfPath !== 0) {
           const lineText = document.lineAt(lineOfPath).text;
+          console.log("lineText", lineText);
           if (lineText.includes(lastKey)) {
             const keyIndex = lineText.indexOf(lastKey);
             const lineTextIndex = document.offsetAt(new vscode.Position(lineOfPath, 0));
