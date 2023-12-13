@@ -26,8 +26,8 @@ export function getLinesForArrayIndex(
   const pathToUse = path.replace(/\[\d+\]/g, "");
 
   for (const obj of allYamlKeys) {
-    if (obj.lineOfPath && obj.arrayIndex === index && obj.path === pathToUse) {
-      line = obj.lineOfPath;
+    if (obj.startOfArray && obj.arrayIndex === index && obj.path === pathToUse) {
+      line = obj.startOfArray;
     }
   }
   console.log("ttt", line);
@@ -47,8 +47,19 @@ export function getMaxLine(
   }[],
   minLine: number
 ): number | undefined {
-  const myItem = allYamlKeys.find((item) => item.lineOfPath === minLine);
-
+  let myItem:
+    | {
+        path: string;
+        index: number;
+        lineOfPath: number | null;
+        startOfArray?: number;
+        arrayIndex?: number;
+      }
+    | undefined = undefined;
+  while (!myItem) {
+    myItem = allYamlKeys.find((item) => item.lineOfPath === minLine);
+    minLine++;
+  }
   let startIndex = 0;
   if (myItem) {
     startIndex = allYamlKeys.findIndex((item) => item === myItem);
@@ -61,7 +72,7 @@ export function getMaxLine(
       console.log("currentItem", currentItem);
       if (
         (myItem && currentItem.startOfArray !== myItem.startOfArray) ||
-        (myItem && !currentItem.arrayIndex)
+        (myItem && !currentItem.hasOwnProperty("arrayIndex"))
       ) {
         if (currentItem.startOfArray) {
           return currentItem.startOfArray;

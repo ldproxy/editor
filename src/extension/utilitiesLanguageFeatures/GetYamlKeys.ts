@@ -20,8 +20,7 @@ export function getAllYamlPaths(
         object.value.items &&
         object.value.items[0] &&
         object.value.items[0].start[0] &&
-        object.value.items[0].start[0].source &&
-        object.value.items[0].start[0].source === "-"
+        object.value.items[0].start[0].source
       ) {
         const path: string = currentPath
           ? `${currentPath}.${object.key.source}`
@@ -40,7 +39,14 @@ export function getAllYamlPaths(
         object.value.items.forEach((array: any) => {
           arrayIndex++;
           console.log("arraaay", array);
-          const arrayStartOffset = array.start[0].offset;
+          let arrayStartOffset;
+
+          for (const item of array.start) {
+            if (item.source === "-") {
+              arrayStartOffset = item.offset;
+              break;
+            }
+          }
           let startOfArray: number;
           if (arrayStartOffset) {
             startOfArray = getLineNumber(document, arrayStartOffset);
@@ -139,9 +145,9 @@ function getLineNumber(documentText: any, offset: number) {
   let currentOffset = 0;
 
   for (let i = 0; i < lines.length; i++) {
-    currentOffset += lines[i].length + 1; // +1 for the newline character
+    currentOffset += lines[i].length + 1;
     if (currentOffset > offset) {
-      return i + 1; // Adding 1 to convert from zero-based to one-based line number
+      return i + 1;
     }
   }
 

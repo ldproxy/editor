@@ -187,7 +187,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         completions.push(commitCharacterCompletion);
       } else if (
         specifiedDefsPath.includes("[") &&
-        pathAtCursor === pathForArray &&
         minLine !== undefined &&
         line >= minLine &&
         maxLine !== undefined &&
