@@ -50,7 +50,7 @@ class VSCodeAPIWrapper {
       const message = event.data;
 
       if (DEV) {
-        console.log("received from xtracfg", message);
+        console.log("received from vscode", message);
       }
 
       handler(message);

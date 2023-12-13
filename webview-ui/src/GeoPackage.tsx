@@ -1,11 +1,12 @@
-import "./App.css";
 import React, { useEffect } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { BasicData } from "./utilities/xtracfg";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
+
+import { BasicData } from "./utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncString } from "./utilities/recoilSyncWrapper";
 import { vscode } from "./utilities/vscode";
+import { DEV } from "./utilities/constants";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
 
@@ -78,7 +79,9 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      console.log("GP", file);
+      if (DEV) {
+        console.log("GP", file);
+      }
       setFilename(file.name);
       setNewGPKG(file.name);
 
@@ -118,14 +121,14 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             text: uploadedGpkg,
           });
         } else {
-          console.log(uploadedGpkg);
+          if (DEV) {
+            console.log(uploadedGpkg);
+          }
           if (gpkgData.database !== "") {
             submitData(gpkgData);
           }
         }
         break;
-      default:
-        console.log("Upload failed.");
     }
   });
 
