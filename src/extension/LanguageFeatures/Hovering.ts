@@ -1,8 +1,7 @@
 import * as vscode from "vscode";
 // import { hoverData } from "../utilitiesLanguageFeatures/providers";
-import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
-import { services } from "../utilitiesLanguageFeatures/services";
+import { getDefintionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 // import { allYamlKeys as yamlKeysHover } from "..";
 import {
   extractIndexFromPath,
@@ -27,6 +26,18 @@ let yamlKeysHover: {
   startOfArray?: number;
 }[];
 
+let specifiedDefs: { ref: string; finalPath: string }[];
+let definitionsMap: DefinitionsMap = {};
+
+export function getSchemaMapHovering() {
+  const currentDocument = vscode.window.activeTextEditor?.document;
+  if (currentDocument) {
+    specifiedDefs = defineDefs(currentDocument);
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      definitionsMap = getDefintionsMap(specifiedDefs);
+    }
+  }
+}
 export function getKeys(
   yamlkeys: {
     path: string;
@@ -47,30 +58,7 @@ export const hover = () => {
         console.log("yamlKeysHover", yamlKeysHover);
 
         const lineOfWord: number = position.line + 1;
-        const specifiedDefs: { ref: string; finalPath: string }[] = defineDefs(document);
-        let definitionsMap: DefinitionsMap = {};
-        let allRefs: string[] | undefined = [];
 
-        if (specifiedDefs && specifiedDefs.length > 0) {
-          specifiedDefs.map((def) => {
-            definitionsMap = Object.assign(
-              definitionsMap,
-              processProperties(def.ref, services.$defs, definitionsMap)
-            );
-          });
-        }
-        if (definitionsMap && Object.keys(definitionsMap).length > 0) {
-          allRefs = findObjectsWithRef(definitionsMap);
-        }
-
-        if (allRefs && allRefs.length > 0) {
-          allRefs.map((ref) => {
-            definitionsMap = Object.assign(
-              definitionsMap,
-              processProperties(ref, services.$defs, definitionsMap)
-            );
-          });
-        }
         const pathInYaml = yamlKeysHover.find((item) => item.lineOfPath === lineOfWord);
         const pathSplit = pathInYaml?.path.split(".");
         const pathInYamlToUse = pathSplit?.slice(0, -1).join(".");

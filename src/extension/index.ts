@@ -10,6 +10,8 @@ import { provider1, provider2, provider3, getKeys } from "./LanguageFeatures/Com
 import { getAllYamlPaths } from "./utilitiesLanguageFeatures/GetYamlKeys";
 import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
 import { Parser } from "yaml";
+import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
+import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
 
 export let allYamlKeys: {
   path: string;
@@ -63,6 +65,8 @@ export function activate(context: ExtensionContext) {
   }
 
   updateYamlKeysHover();
+  getSchemaMapCompletions();
+  getSchemaMapHovering();
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
@@ -77,6 +81,8 @@ export function activate(context: ExtensionContext) {
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor) {
         updateYamlKeysHover();
+        getSchemaMapCompletions();
+        getSchemaMapHovering();
       }
     })
   );

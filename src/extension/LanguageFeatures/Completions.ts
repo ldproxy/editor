@@ -1,13 +1,12 @@
 import * as vscode from "vscode";
 // import { hoverData } from "../utilitiesLanguageFeatures/providers";
-import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
-import { services } from "../utilitiesLanguageFeatures/services";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
   getMaxLine,
 } from "../utilitiesLanguageFeatures/completionsForArray";
+import { getDefintionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 
 let allYamlKeys: {
   path: string;
@@ -29,14 +28,14 @@ interface DefinitionsMap {
 
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
-let allRefs: string[] | undefined = [];
 
-const currentDocument = vscode.window.activeTextEditor?.document;
-if (currentDocument) {
-  specifiedDefs = defineDefs(currentDocument);
-
-  if (specifiedDefs && specifiedDefs.length > 0) {
-    getDefintionsMap(specifiedDefs);
+export function getSchemaMapCompletions() {
+  const currentDocument = vscode.window.activeTextEditor?.document;
+  if (currentDocument) {
+    specifiedDefs = defineDefs(currentDocument);
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      definitionsMap = getDefintionsMap(specifiedDefs);
+    }
   }
 }
 
@@ -49,26 +48,6 @@ export function getKeys(
   }[]
 ) {
   allYamlKeys = yamlkeys;
-}
-
-function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
-  specifiedDefs.map((def) => {
-    definitionsMap = processProperties(def.ref, services.$defs, definitionsMap);
-  });
-  console.log("111", specifiedDefs);
-  if (definitionsMap && Object.keys(definitionsMap).length > 0) {
-    allRefs = findObjectsWithRef(definitionsMap);
-    console.log("222", allRefs);
-  }
-
-  if (allRefs && allRefs.length > 0) {
-    allRefs.map((ref) => {
-      definitionsMap = {
-        ...definitionsMap,
-        ...processProperties(ref, services.$defs, definitionsMap),
-      };
-    });
-  }
 }
 // References from specifiedDefs
 export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
