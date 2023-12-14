@@ -9,7 +9,8 @@ export function getAllYamlPaths(
     startOfArray?: number;
     arrayIndex?: number;
   }[] = [],
-  arrayIndex: number = -1
+  arrayIndex: number = -1,
+  startOfArray?: number
 ) {
   if (yamlObject && typeof yamlObject === "object") {
     yamlObject.forEach((object: any) => {
@@ -78,7 +79,7 @@ export function getAllYamlPaths(
                   console.log("object2", [object2], path);
                   getAllYamlPaths(document, [object2], path, yamlKeys, -1);
                 } else if (object2.value && object2.value.items) {
-                  getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex);
+                  getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex, startOfArray);
                 }
               }
             });
@@ -99,7 +100,9 @@ export function getAllYamlPaths(
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
-            if (arrayIndex && arrayIndex >= 0) {
+            if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+              yamlKeys.push({ path, index: column, lineOfPath: line, startOfArray, arrayIndex });
+            } else if (arrayIndex && arrayIndex >= 0) {
               yamlKeys.push({ path, index: column, lineOfPath: line, arrayIndex });
             } else {
               yamlKeys.push({ path, index: column, lineOfPath: line });
@@ -115,7 +118,15 @@ export function getAllYamlPaths(
             if (line !== undefined && column !== undefined) {
               const existing = yamlKeys.find((item) => item.path === path2);
               if (!existing) {
-                if (arrayIndex && arrayIndex >= 0) {
+                if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+                  yamlKeys.push({
+                    path: path2,
+                    index: column,
+                    lineOfPath: line,
+                    startOfArray,
+                    arrayIndex,
+                  });
+                } else if (arrayIndex && arrayIndex >= 0) {
                   yamlKeys.push({ path: path2, index: column, lineOfPath: line, arrayIndex });
                 } else {
                   yamlKeys.push({ path: path2, index: column, lineOfPath: line });
@@ -139,7 +150,9 @@ export function getAllYamlPaths(
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
-            if (arrayIndex && arrayIndex >= 0) {
+            if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+              yamlKeys.push({ path, index: column, lineOfPath: line, startOfArray, arrayIndex });
+            } else if (arrayIndex && arrayIndex >= 0) {
               yamlKeys.push({ path, index: column, lineOfPath: line, arrayIndex });
             } else {
               yamlKeys.push({ path, index: column, lineOfPath: line });
