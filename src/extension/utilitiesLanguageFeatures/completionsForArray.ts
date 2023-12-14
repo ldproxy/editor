@@ -41,7 +41,7 @@ export function getMaxLine(
   allYamlKeys: {
     path: string;
     index: number;
-    lineOfPath: number | null;
+    lineOfPath: number | undefined;
     startOfArray?: number;
     arrayIndex?: number;
   }[],
@@ -51,7 +51,7 @@ export function getMaxLine(
     | {
         path: string;
         index: number;
-        lineOfPath: number | null;
+        lineOfPath: number | undefined;
         startOfArray?: number;
         arrayIndex?: number;
       }
@@ -70,15 +70,12 @@ export function getMaxLine(
     for (let i = startIndex; i < allYamlKeys.length; i++) {
       const currentItem = allYamlKeys[i];
       console.log("currentItem", currentItem);
-      if (
-        (myItem && currentItem.startOfArray !== myItem.startOfArray) ||
-        (myItem && !currentItem.hasOwnProperty("arrayIndex"))
-      ) {
-        if (currentItem.startOfArray) {
-          return currentItem.startOfArray;
-        } else if (currentItem.lineOfPath) {
-          return currentItem.lineOfPath;
-        }
+      if (myItem && currentItem.startOfArray !== myItem.startOfArray) {
+        return currentItem.startOfArray;
+      } else if (myItem && currentItem.index !== myItem.index) {
+        return currentItem.lineOfPath;
+      } else if (myItem && !currentItem.hasOwnProperty("arrayIndex")) {
+        return currentItem.lineOfPath;
       }
     }
   }

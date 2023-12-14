@@ -72,7 +72,7 @@ export function getAllYamlPaths(
                 }
                 if (object2.value && object2.value.items) {
                   console.log("object2", [object2], path);
-                  getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex);
+                  getAllYamlPaths(document, [object2], path, yamlKeys, -1);
                 }
               }
             });
