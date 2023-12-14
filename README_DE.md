@@ -41,7 +41,7 @@ Wenn Sie die [Befehlspalette](https://code.visualstudio.com/docs/getstarted/user
 
 Er ermöglicht es Ihnen, automatisch Provider- und Service-Konfigurationen aus _PostgreSQL/PostGIS_, _GeoPackage_ und _WFS_ Datenquellen zu generieren.
 
-> [!NOTE]
+> [!HINWEIS]
 > Wenn Sie versuchen, auf eine _PostgreSQL_-Datenbank auf demselben Host zuzugreifen, auf dem der Docker-Container läuft, müssen Sie `host.docker.internal` anstelle von `localhost` verwenden.
 
 ![](screenshot.png)
