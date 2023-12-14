@@ -70,9 +70,15 @@ export function getAllYamlPaths(
                     });
                   }
                 }
-                if (object2.value && object2.value.items) {
+                if (
+                  object2.value &&
+                  object2.value.items &&
+                  object2.value.items[0].start.length > 0
+                ) {
                   console.log("object2", [object2], path);
                   getAllYamlPaths(document, [object2], path, yamlKeys, -1);
+                } else if (object2.value && object2.value.items) {
+                  getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex);
                 }
               }
             });
@@ -93,7 +99,11 @@ export function getAllYamlPaths(
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
-            yamlKeys.push({ path, index: column, lineOfPath: line });
+            if (arrayIndex && arrayIndex >= 0) {
+              yamlKeys.push({ path, index: column, lineOfPath: line, arrayIndex });
+            } else {
+              yamlKeys.push({ path, index: column, lineOfPath: line });
+            }
           }
         }
 
@@ -105,7 +115,11 @@ export function getAllYamlPaths(
             if (line !== undefined && column !== undefined) {
               const existing = yamlKeys.find((item) => item.path === path2);
               if (!existing) {
-                yamlKeys.push({ path: path2, index: column, lineOfPath: line });
+                if (arrayIndex && arrayIndex >= 0) {
+                  yamlKeys.push({ path: path2, index: column, lineOfPath: line, arrayIndex });
+                } else {
+                  yamlKeys.push({ path: path2, index: column, lineOfPath: line });
+                }
               }
             }
             if (item.value && item.value.items) {
@@ -125,7 +139,11 @@ export function getAllYamlPaths(
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
-            yamlKeys.push({ path, index: column, lineOfPath: line });
+            if (arrayIndex && arrayIndex >= 0) {
+              yamlKeys.push({ path, index: column, lineOfPath: line, arrayIndex });
+            } else {
+              yamlKeys.push({ path, index: column, lineOfPath: line });
+            }
           }
         }
       }
