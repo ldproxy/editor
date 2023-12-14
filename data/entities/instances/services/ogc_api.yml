@@ -31,4 +31,7 @@ api:
     suppressGlobalCrsList: true
 collections:
   bla:
-    persistentUriTemplate: tzu
+    persistentUriTemplate:
+      3d_gebaeudemodelle:
+        about: hjk
+defaultExtent: true

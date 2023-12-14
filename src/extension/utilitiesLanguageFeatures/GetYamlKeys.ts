@@ -1,3 +1,5 @@
+let arrayIndex = -1;
+
 export function getAllYamlPaths(
   document: string,
   yamlObject: any,
@@ -33,9 +35,7 @@ export function getAllYamlPaths(
             yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
-        let arrayIndex = -1;
 
-        console.log("llk", object.value);
         object.value.items.forEach((array: any) => {
           arrayIndex++;
           console.log("arraaay", array);
@@ -54,24 +54,27 @@ export function getAllYamlPaths(
           if (array && array.value && array.value.items) {
             array.value.items.forEach((object2: any) => {
               if (object2 && object2.key && object2.key.source) {
-                const path: string = object.key.source
-                  ? `${object.key.source}.${object2.key.source}`
-                  : object2.key.source;
+                console.log("object2", object2);
+                const path2: string = `${path}.${object2.key.source}`;
                 const line: number = getLineNumber(document, object2.key.offset);
                 const column: number = object2.key.indent;
                 if (line !== undefined && column !== undefined) {
                   const existing = yamlKeys.find(
-                    (item) => item.path === path && item.lineOfPath === line
+                    (item) => item.path === path2 && item.lineOfPath === line
                   );
                   if (!existing) {
                     yamlKeys.push({
-                      path,
+                      path: path2,
                       index: column,
                       lineOfPath: line,
                       startOfArray,
                       arrayIndex,
                     });
                   }
+                }
+                if (object2.value && object2.value.items) {
+                  console.log("object2", [object2], path);
+                  getAllYamlPaths(document, [object2], path, yamlKeys);
                 }
               }
             });
@@ -98,20 +101,23 @@ export function getAllYamlPaths(
 
         object.value.items.forEach((item: any) => {
           if (item && item.key && item.key.source) {
-            const path = object.key.source
-              ? `${object.key.source}.${item.key.source}`
-              : item.key.source;
+            const path2 = `${path}.${item.key.source}`;
             const line: number = getLineNumber(document, item.key.offset);
             const column: number = item.key.indent;
             if (line !== undefined && column !== undefined) {
-              const existing = yamlKeys.find((item) => item.path === path);
+              const existing = yamlKeys.find((item) => item.path === path2);
               if (!existing) {
-                yamlKeys.push({ path, index: column, lineOfPath: line });
+                yamlKeys.push({ path: path2, index: column, lineOfPath: line });
               }
+            }
+            if (item.value && item.value.items) {
+              console.log("item", item.value.items, path2);
+              getAllYamlPaths(document, item.value.items, path2, yamlKeys);
             }
           }
         });
       } else if (object && object.key && object.key.source) {
+        console.log("sooo", object);
         const path: string = currentPath
           ? `${currentPath}.${object.key.source}`
           : object.key.source;

@@ -1,5 +1,3 @@
-import * as vscode from "vscode";
-import { defineDefs } from "./DefineDefs";
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
 import { services } from "../utilitiesLanguageFeatures/services";
 

@@ -5,3 +5,14 @@ connectorType:
   dudu:
     bla2: bla2
     connectionInfo:
+      - 3d_gebaeudemodelle: sdf
+        bezugspunktDach: zui
+about: sdf
+api:
+  - buildingBlock: COLLECTIONS
+    additionalApiss: asa
+    additionalLinks:
+      - rel: kjkj
+        additionalApis:
+          - type: text/html
+            zero: jk
