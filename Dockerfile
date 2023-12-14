@@ -9,9 +9,9 @@ FROM ghcr.io/ldproxy/xtracfg:next as xtracfg
 
 FROM codercom/code-server:latest
 
-COPY --from=extension /src/dist/ldproxy-editor.vsix /
-COPY --from=extension /src/startup.sh /entrypoint.d/
-COPY --from=xtracfg /xtracfg /usr/bin/
+COPY --chmod=0644 --from=extension /src/dist/ldproxy-editor.vsix /
+COPY --chmod=0755 --from=extension /src/startup.sh /entrypoint.d/
+COPY --chmod=0755 --from=xtracfg /xtracfg /usr/bin/
 
 VOLUME /home/coder
 VOLUME /data
