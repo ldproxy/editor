@@ -1,4 +1,4 @@
-# Editor
+# ldproxy Editor
 
 A [VS Code](https://code.visualstudio.com) extension that supports you in creating and updating [ldproxy](https://docs.ldproxy.net) configurations.
 
