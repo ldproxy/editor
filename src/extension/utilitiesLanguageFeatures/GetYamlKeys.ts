@@ -1,5 +1,3 @@
-let arrayIndex = -1;
-
 export function getAllYamlPaths(
   document: string,
   yamlObject: any,
@@ -10,7 +8,8 @@ export function getAllYamlPaths(
     lineOfPath: number;
     startOfArray?: number;
     arrayIndex?: number;
-  }[] = []
+  }[] = [],
+  arrayIndex: number = -1
 ) {
   if (yamlObject && typeof yamlObject === "object") {
     yamlObject.forEach((object: any) => {
@@ -35,7 +34,6 @@ export function getAllYamlPaths(
             yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
-
         object.value.items.forEach((array: any) => {
           arrayIndex++;
           console.log("arraaay", array);
@@ -74,7 +72,7 @@ export function getAllYamlPaths(
                 }
                 if (object2.value && object2.value.items) {
                   console.log("object2", [object2], path);
-                  getAllYamlPaths(document, [object2], path, yamlKeys);
+                  getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex);
                 }
               }
             });

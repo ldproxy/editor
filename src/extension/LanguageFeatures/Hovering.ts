@@ -83,6 +83,11 @@ export const hover = () => {
             maxLine = getMaxLine(yamlKeysHover, minLine);
           }
           if (pathInYaml) {
+            console.log("hoverPathForArray", pathForArray);
+            console.log("hoverMinMax", minLine, maxLine, lineOfWord);
+            console.log("hoverSpecifiedPath", specifiedDefsPath);
+            console.log("hoverPathToUse", pathInYamlToUse);
+            console.log("hoverpathInYamlLastKey", pathInYamlLastKey);
           }
           if (
             !specifiedDefsPath.includes("[") &&
