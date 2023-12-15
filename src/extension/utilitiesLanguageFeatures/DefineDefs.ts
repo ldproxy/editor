@@ -77,7 +77,7 @@ export function defineDefs(document: vscode.TextDocument) {
   for (const { condition, ref } of conditions) {
     if (condition) {
       const { allConditionsMet, finalPath } = matchesCondition(config, condition);
-
+      console.log("allConditionsMet", finalPath, allConditionsMet, ref);
       if (ref && allConditionsMet) {
         specifiedDefs.push({ ref, finalPath });
       }
@@ -127,12 +127,14 @@ function matchesCondition(
       const configValuesResultArray = getConfigValues(config, key, "");
       console.log("configValuesResultArray", configValuesResultArray);
       configValuesResultArray.map((object: any) => {
-        if (object.value?.includes(lowerCasedConditionValue)) {
+        if (object.value === lowerCasedConditionValue) {
           allConditionsMet = true;
           finalPath = object.path;
+          console.log("before", finalPath, allConditionsMet);
         }
       });
     }
   }
+  console.log("ijij", finalPath, allConditionsMet);
   return { allConditionsMet, finalPath };
 }
