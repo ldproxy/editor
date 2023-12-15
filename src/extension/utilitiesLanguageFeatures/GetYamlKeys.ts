@@ -109,9 +109,19 @@ export function getAllYamlPaths(
             }
           }
         }
-
+        console.log("ursprung", object);
         object.value.items.forEach((item: any) => {
-          if (item && item.key && item.key.source) {
+          console.log("hierum", item);
+          if (
+            item.value &&
+            item.value.items &&
+            item.value.items[0] &&
+            item.value.items[0].start &&
+            item.value.items[0].start[0]
+          ) {
+            console.log("arrayitem", [item]);
+            getAllYamlPaths(document, [item], "", yamlKeys);
+          } else if (item && item.key && item.key.source) {
             const path2 = `${path}.${item.key.source}`;
             const line: number = getLineNumber(document, item.key.offset);
             const column: number = item.key.indent;
@@ -133,6 +143,7 @@ export function getAllYamlPaths(
                 }
               }
             }
+
             if (item.value && item.value.items) {
               console.log("item", item.value.items, path2);
               getAllYamlPaths(document, item.value.items, path2, yamlKeys);
