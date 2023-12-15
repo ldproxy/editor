@@ -76,11 +76,14 @@ export function defineDefs(document: vscode.TextDocument) {
 
   for (const { condition, ref } of conditions) {
     if (condition) {
-      const { allConditionsMet, finalPath } = matchesCondition(config, condition);
-      console.log("allConditionsMet", finalPath, allConditionsMet, ref);
-      if (ref && allConditionsMet) {
-        specifiedDefs.push({ ref, finalPath });
-      }
+      const resultObject = matchesCondition(config, condition);
+      resultObject.forEach((item: { allConditionsMet: boolean; finalPath: string }) => {
+        const { allConditionsMet, finalPath } = item;
+        if (ref && allConditionsMet && finalPath !== "") {
+          console.log("allConditionsMet", finalPath, allConditionsMet, ref);
+          specifiedDefs.push({ ref, finalPath });
+        }
+      });
     }
   }
 
@@ -91,10 +94,14 @@ export function defineDefs(document: vscode.TextDocument) {
 function matchesCondition(
   config: LooseDefinition,
   condition: Record<string, { const: string }>
-): { allConditionsMet: boolean; finalPath: string } {
-  let allConditionsMet = false;
-  let finalPath = "";
+): { allConditionsMet: boolean; finalPath: string }[] {
+  let returnObjects: { allConditionsMet: boolean; finalPath: string }[] = [
+    { allConditionsMet: false, finalPath: "" },
+  ];
+
   for (const key in condition) {
+    let allConditionsMet: boolean = false;
+    let finalPath: string = "";
     const conditionEntry = condition[key];
     const conditionValue = conditionEntry?.const;
     const lowerCasedConditionValue = conditionValue?.toLowerCase();
@@ -130,11 +137,10 @@ function matchesCondition(
         if (object.value === lowerCasedConditionValue) {
           allConditionsMet = true;
           finalPath = object.path;
-          console.log("before", finalPath, allConditionsMet);
+          returnObjects.push({ allConditionsMet, finalPath });
         }
       });
     }
   }
-  console.log("ijij", finalPath, allConditionsMet);
-  return { allConditionsMet, finalPath };
+  return returnObjects;
 }
