@@ -120,7 +120,11 @@ export function getAllYamlPaths(
             item.value.items[0].start[0]
           ) {
             console.log("arrayitem", [item], path);
-            getAllYamlPaths(document, [item], path, yamlKeys);
+            if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+              getAllYamlPaths(document, [item], path, yamlKeys, arrayIndex, startOfArray);
+            } else {
+              getAllYamlPaths(document, [item], path, yamlKeys);
+            }
           } else if (item && item.key && item.key.source) {
             const path2 = `${path}.${item.key.source}`;
             const line: number = getLineNumber(document, item.key.offset);
@@ -146,7 +150,18 @@ export function getAllYamlPaths(
 
             if (item.value && item.value.items) {
               console.log("item", item.value.items, path2);
-              getAllYamlPaths(document, item.value.items, path2, yamlKeys);
+              if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+                getAllYamlPaths(
+                  document,
+                  item.value.items,
+                  path2,
+                  yamlKeys,
+                  arrayIndex,
+                  startOfArray
+                );
+              } else {
+                getAllYamlPaths(document, item.value.items, path2, yamlKeys);
+              }
             }
           }
         });
