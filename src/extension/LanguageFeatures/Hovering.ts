@@ -132,7 +132,7 @@ export const hover = () => {
               }
             }
 
-            if (wordInDefinitionsMap) {
+            if (wordInDefinitionsMap && wordInDefinitionsMap.description !== "") {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
             }
@@ -172,7 +172,7 @@ export const hover = () => {
                 }
               }
               console.log("secondLastCase2", possibleRefWord);
-              if (possibleRefWord && wordInDefinitionsMap) {
+              if (possibleRefWord && wordInDefinitionsMap && wordInDefinitionsMap.description) {
                 const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
                 hoverResult = new vscode.Hover(hoverText);
               }
@@ -202,7 +202,7 @@ export const hover = () => {
                 }
               }
               console.log("thirdLastCase", possibleAddRefWord);
-              if (wordInDefinitionsMap && possibleAddRefWord) {
+              if (wordInDefinitionsMap && possibleAddRefWord && wordInDefinitionsMap.description) {
                 const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
                 hoverResult = new vscode.Hover(hoverText);
               }
