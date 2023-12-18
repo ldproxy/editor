@@ -64,17 +64,22 @@ export function getMaxLine(
   if (myItem) {
     startIndex = allYamlKeys.findIndex((item) => item === myItem);
   }
-  console.log("startIndex", myItem);
 
   if (startIndex > 0) {
     for (let i = startIndex; i < allYamlKeys.length; i++) {
+      console.log("startIndex", startIndex, myItem);
       const currentItem = allYamlKeys[i];
       console.log("currentItem", currentItem);
       if (
         (myItem && currentItem.startOfArray !== myItem.startOfArray) ||
-        (myItem && !currentItem.hasOwnProperty("arrayIndex"))
+        (myItem && !currentItem.hasOwnProperty("arrayIndex")) ||
+        (myItem && i === allYamlKeys.length - 1)
       ) {
-        if (currentItem.startOfArray) {
+        console.log("iiii", i);
+        if (i === allYamlKeys.length - 1 && currentItem && currentItem.lineOfPath) {
+          console.log("landet hier", currentItem.lineOfPath);
+          return currentItem.lineOfPath + 2;
+        } else if (currentItem.startOfArray) {
           return currentItem.startOfArray;
         } else if (currentItem.lineOfPath) {
           return currentItem.lineOfPath;
