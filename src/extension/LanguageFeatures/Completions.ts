@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-// import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import {
   extractIndexFromPath,

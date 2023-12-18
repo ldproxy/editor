@@ -119,8 +119,8 @@ export function getAllYamlPaths(
             item.value.items[0].start &&
             item.value.items[0].start[0]
           ) {
-            console.log("arrayitem", [item]);
-            getAllYamlPaths(document, [item], "", yamlKeys);
+            console.log("arrayitem", [item], path);
+            getAllYamlPaths(document, [item], path, yamlKeys);
           } else if (item && item.key && item.key.source) {
             const path2 = `${path}.${item.key.source}`;
             const line: number = getLineNumber(document, item.key.offset);

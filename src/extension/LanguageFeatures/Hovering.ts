@@ -1,8 +1,6 @@
 import * as vscode from "vscode";
-// import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
 import { getDefintionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
-// import { allYamlKeys as yamlKeysHover } from "..";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
@@ -89,6 +87,7 @@ export const hover = () => {
             console.log("hoverSpecifiedPath", specifiedDefsPath);
             console.log("hoverPathToUse", pathInYamlToUse);
             console.log("hoverpathInYamlLastKey", pathInYamlLastKey);
+            console.log("hoverPathInYaml", pathInYaml);
           }
           if (
             !specifiedDefsPath.includes("[") &&
