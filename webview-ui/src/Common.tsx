@@ -1,6 +1,6 @@
 import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
-import { atom, useRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
+
 import { atomSyncString } from "./utilities/recoilSyncWrapper";
 
 export const idAtom = atomSyncString("id", "");
@@ -20,7 +20,7 @@ function Common({ disabled, error }: CommonProps) {
 
   return (
     <>
-      <h3>Create new service</h3>
+      <h3>Create new entities</h3>
       <section className="component-example">
         <div className="input-container">
           <VSCodeTextField

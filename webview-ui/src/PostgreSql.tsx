@@ -3,9 +3,9 @@ import {
   VSCodeTextField,
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
-import { BasicData } from "./utilities/xtracfg";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
+
+import { BasicData } from "./utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncString } from "./utilities/recoilSyncWrapper";
 
@@ -13,9 +13,9 @@ const hostAtom = atomSyncString("host", "");
 
 const databaseAtom = atomSyncString("database", "");
 
-const userAtom = atomSyncString("user", "");
+export const userAtom = atomSyncString("user", "");
 
-const passwordAtom = atomSyncString("password", "");
+export const passwordAtom = atomSyncString("password", "");
 
 export const sqlDataSelector = selector({
   key: "sqlDataSelector",

@@ -1,5 +1,5 @@
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
+
 import { SchemaTables } from "./utilities/xtracfg";
 
 type ProgressProps = {
@@ -49,7 +49,7 @@ const Progress = ({
 
         return (
           <div key={schemaIndex}>
-            <span className="schema-bullet">&#8226; {schema || fallbackSchema}</span>
+            <span className="schema-bullet">{schema || fallbackSchema}</span>
             {completedTables.length === selectedTable[schema].length ? (
               <span className="table-item">✓</span>
             ) : (
@@ -62,15 +62,15 @@ const Progress = ({
                 {progress[schema]?.map((table, tableIndex) => {
                   if (table !== currentTable.split(".")[1]) {
                     return (
-                      <div key={tableIndex}>
+                      <li key={tableIndex}>
                         <span className="table-item">✓ {table}</span>
-                      </div>
+                      </li>
                     );
                   } else if (dataProcessed === "generated") {
                     return (
-                      <div key={tableIndex}>
+                      <li key={tableIndex}>
                         <span className="table-item">✓ {table}</span>
-                      </div>
+                      </li>
                     );
                   }
                   return null;
@@ -79,10 +79,10 @@ const Progress = ({
                 !Object.values(progress).flat().includes(currentTable) &&
                 currentTable.split(".")[0] === schema &&
                 dataProcessed !== "generated" ? (
-                  <div className="spinnerTable">
+                  <li className="spinnerTable">
                     <VSCodeProgressRing className="progressRing2" />
                     <span className="table-item"> {currentTable.split(".")[1]}</span>
-                  </div>
+                  </li>
                 ) : null}
               </ul>
             )}

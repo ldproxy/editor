@@ -4,6 +4,7 @@ import App from "./App";
 import { RecoilRoot, DefaultValue } from "recoil";
 import { RecoilSync } from "recoil-sync";
 import { vscode } from "./utilities/vscode";
+import { DEBUG_RECOIL } from "./utilities/constants";
 
 const DEFAULT_VALUE = new DefaultValue();
 
@@ -15,14 +16,20 @@ ReactDOM.render(
         read={(key) => {
           const state = vscode.getState();
           const value = state[key] || DEFAULT_VALUE;
-          console.log("getting key", key, state, value);
+
+          if (DEBUG_RECOIL) {
+            console.log("RECOIL getting key", key, state, value);
+          }
 
           return value;
         }}
         write={({ diff }) => {
           const state = vscode.getState();
           const newState = { ...state, ...Object.fromEntries(diff) };
-          console.log("writing diff", diff, state, newState);
+
+          if (DEBUG_RECOIL) {
+            console.log("RECOIL writing diff", diff, state, newState);
+          }
 
           vscode.setState(newState);
         }}>

@@ -1,21 +1,20 @@
-import "./App.css";
 import {
   VSCodeTextField,
   VSCodeButton,
   VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
-import { BasicData } from "./utilities/xtracfg";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
-import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncObject, atomSyncBoolean } from "./utilities/recoilSyncWrapper";
 
-export const wfsDataAtom = atomSyncObject("wfsData", {});
+import { BasicData } from "./utilities/xtracfg";
+import Common, { idAtom, featureProviderTypeAtom } from "./Common";
+import { atomSyncString, atomSyncBoolean } from "./utilities/recoilSyncWrapper";
+import { DEV } from "./utilities/constants";
 
 export const urlAtom = atomSyncString("url", "");
 
-const userAtom = atomSyncString("user", "");
+const userAtom = atomSyncString("userWFS", "");
 
-const passwordAtom = atomSyncString("password", "");
+const passwordAtom = atomSyncString("passwordWFS", "");
 
 export const wfsDataSelector = selector({
   key: "wfsDataSelector",
@@ -74,7 +73,9 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
     }
   };
 
-  console.log("wfsData", wfsData);
+  if (DEV) {
+    console.log("wfsData", wfsData);
+  }
 
   return (
     <div className="frame">

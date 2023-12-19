@@ -1,15 +1,11 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
+import { useRecoilValue } from "recoil";
+
 import { vscode } from "./utilities/vscode";
 import Progress from "./Progress";
 import { selectedTablesAtom, TableData } from "./Tables";
-import { useRecoilState } from "recoil";
 import { dataProcessingAtom } from "./App";
-import { atomSyncNumber, atomSyncStringArray } from "./utilities/recoilSyncWrapper";
-
-export const currentCountAtom = atomSyncNumber("currentCount", 0);
-
-export const targetCountAtom = atomSyncNumber("targetCount", 0);
+import { atomSyncStringArray } from "./utilities/recoilSyncWrapper";
 
 export const namesOfCreatedFilesAtom = atomSyncStringArray("namesOfCreatedFiles", [""]);
 
@@ -28,8 +24,8 @@ const Final = ({
   progress,
   fallbackSchema,
 }: FinalProps) => {
-  const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
-  const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
+  const selectedTables = useRecoilValue<TableData>(selectedTablesAtom);
+  const dataProcessing = useRecoilValue<string>(dataProcessingAtom);
 
   const onClose = () => {
     vscode.postMessage({ command: "closeWebview" });
@@ -52,6 +48,7 @@ const Final = ({
 
   return (
     <div className="final-container">
+      <h3 className="final-title">Progress</h3>
       <Progress
         currentTable={currentTable}
         progress={progress}
@@ -61,16 +58,12 @@ const Final = ({
       />
       {dataProcessing === "generated" ? (
         <div className="final-content">
-          <h2 className="final-title">The following files were created.</h2>
+          <h3 className="final-title">The following files were created</h3>
           <ul>
             {namesOfCreatedFiles.map((file, index) => {
               return (
                 <li key={index}>
-                  <a
-                    key={index}
-                    href={`${workspace}/${file}`}
-                    className="final-link"
-                    onClick={() => onLinkClick(file)}>
+                  <a key={index} className="final-link" onClick={() => onLinkClick(file)}>
                     {file}
                   </a>
                 </li>
@@ -78,11 +71,11 @@ const Final = ({
             })}
           </ul>
           <div className="final-buttons">
-            <VSCodeButton className="final-dismiss" onClick={onClose}>
-              Dismiss
-            </VSCodeButton>
             <VSCodeButton className="final-create-another" onClick={onCreateAnother}>
               Create Another
+            </VSCodeButton>
+            <VSCodeButton className="final-dismiss" onClick={onClose}>
+              Close
             </VSCodeButton>
           </div>
         </div>
