@@ -151,30 +151,33 @@ export const hover = () => {
               definitionsMap.hasOwnProperty(secondLastKey) &&
               definitionsMap.hasOwnProperty(lastKey)
             ) {
+              let matchingObjects = [];
+
               for (const key in definitionsMap) {
                 const obj = definitionsMap[key];
-                if (obj.title === lastKey && definitionsMap[lastKey].description !== "") {
-                  wordInDefinitionsMap = obj;
-                  break;
+                if (obj.title === lastKey && obj.description !== "") {
+                  matchingObjects.push(obj);
                 }
               }
-              const testi = definitionsMap[lastKey];
-              console.log("lastCase", wordInDefinitionsMap, testi);
+
               let possibleRefWord;
+              let matchingObject;
               for (const key in definitionsMap) {
                 const obj = definitionsMap[key];
-                if (
-                  obj.title === secondLastKey &&
-                  obj.ref !== "" &&
-                  obj.ref === wordInDefinitionsMap.groupname
-                ) {
-                  possibleRefWord = obj;
-                  break;
+                if (obj.title === secondLastKey && obj.ref !== "") {
+                  matchingObject = matchingObjects.find(
+                    (matchingObj) => matchingObj.groupname === obj.ref
+                  );
+
+                  if (matchingObject) {
+                    possibleRefWord = obj;
+                    break;
+                  }
                 }
               }
-              console.log("secondLastCase2", possibleRefWord);
-              if (possibleRefWord && wordInDefinitionsMap && wordInDefinitionsMap.description) {
-                const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
+              console.log("secRef", matchingObject);
+              if (matchingObject && possibleRefWord && matchingObject.description) {
+                const hoverText = `${matchingObject.title}: ${matchingObject.description}`;
                 hoverResult = new vscode.Hover(hoverText);
               }
             }
