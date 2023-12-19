@@ -151,8 +151,6 @@ export const hover = () => {
               definitionsMap.hasOwnProperty(secondLastKey) &&
               definitionsMap.hasOwnProperty(lastKey)
             ) {
-              console.log("klkladdRef", thirdLastKey, lastKey);
-
               for (const key in definitionsMap) {
                 const obj = definitionsMap[key];
                 if (obj.title === lastKey && definitionsMap[lastKey].description !== "") {
@@ -185,28 +183,35 @@ export const hover = () => {
               definitionsMap.hasOwnProperty(thirdLastKey) &&
               definitionsMap.hasOwnProperty(lastKey)
             ) {
+              console.log("klkladdRef", thirdLastKey, lastKey);
+
+              let matchingObjects = [];
+
               for (const key in definitionsMap) {
                 const obj = definitionsMap[key];
                 if (obj.title === lastKey && obj.description !== "") {
-                  wordInDefinitionsMap = obj;
-                  break;
+                  matchingObjects.push(obj);
                 }
               }
+
               let possibleAddRefWord;
+              let matchingObject;
               for (const key in definitionsMap) {
                 const obj = definitionsMap[key];
-                if (
-                  obj.title === thirdLastKey &&
-                  obj.addRef !== "" &&
-                  wordInDefinitionsMap.groupname === obj.addRef
-                ) {
-                  possibleAddRefWord = obj;
-                  break;
+                if (obj.title === thirdLastKey && obj.addRef !== "") {
+                  matchingObject = matchingObjects.find(
+                    (matchingObj) => matchingObj.groupname === obj.addRef
+                  );
+
+                  if (matchingObject) {
+                    possibleAddRefWord = obj;
+                    break;
+                  }
                 }
               }
-              console.log("thirdLastCase", possibleAddRefWord);
-              if (wordInDefinitionsMap && possibleAddRefWord && wordInDefinitionsMap.description) {
-                const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
+              console.log("thirdLastCase", matchingObject);
+              if (matchingObject && possibleAddRefWord && matchingObject.description) {
+                const hoverText = `${matchingObject.title}: ${matchingObject.description}`;
                 hoverResult = new vscode.Hover(hoverText);
               }
             }

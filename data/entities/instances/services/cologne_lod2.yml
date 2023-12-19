@@ -84,9 +84,6 @@ api:
     withOutline: true
     polygonOrientationNotGuaranteed: true
     meshQuantization: true
-    collections:
-      bla:
-        persistentUriTemplate: tzu
     transformations:
       function:
         codelist: BuildingFunctionType
