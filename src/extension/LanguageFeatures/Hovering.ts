@@ -145,11 +145,14 @@ export const hover = () => {
               lastKey = pathInYamlParts[pathInYamlParts.length - 1];
               secondLastKey = pathInYamlParts[pathInYamlParts.length - 2];
               thirdLastKey = pathInYamlParts[pathInYamlParts.length - 3];
+              console.log("klkladdRef1", thirdLastKey, lastKey);
             }
             if (
               definitionsMap.hasOwnProperty(secondLastKey) &&
               definitionsMap.hasOwnProperty(lastKey)
             ) {
+              console.log("klkladdRef", thirdLastKey, lastKey);
+
               for (const key in definitionsMap) {
                 const obj = definitionsMap[key];
                 if (obj.title === lastKey && definitionsMap[lastKey].description !== "") {

@@ -32,11 +32,43 @@ export function processProperties(
             lastPartValue = reference.substring(lastSlashIndex + 1);
           }
 
+          let referenceInConditionLastPart;
+          if (
+            propDefinition &&
+            propDefinition.allOf &&
+            propDefinition.allOf[0] &&
+            propDefinition.allOf[0].then &&
+            propDefinition.allOf[0].then.items &&
+            propDefinition.allOf[0].then.items.$ref
+          ) {
+            const ref = propDefinition.allOf[0].then.items.$ref;
+            if (ref && ref.length > 0 && ref !== undefined) {
+              const lastSlashIndex = ref.lastIndexOf("/");
+              referenceInConditionLastPart = ref.substring(lastSlashIndex + 1);
+            }
+          }
+
           const additionalReference =
             propDefinition.additionalProperties && propDefinition.additionalProperties.$ref;
           if (additionalReference && additionalReference.length > 0) {
             const lastSlashIndex = additionalReference.lastIndexOf("/");
             lastPartValueAddRed = additionalReference.substring(lastSlashIndex + 1);
+          }
+
+          let additionalReferenceInConditionLastPart;
+          if (
+            propDefinition.additionalProperties &&
+            propDefinition.additionalProperties.allOf &&
+            propDefinition.additionalProperties.allOf[0] &&
+            propDefinition.additionalProperties.allOf[0].then &&
+            propDefinition.additionalProperties.allOf[0].then.items &&
+            propDefinition.additionalProperties.allOf[0].then.items.$ref
+          ) {
+            const ref = propDefinition.additionalProperties.allOf[0].then.items.$ref;
+            if (ref && ref.length > 0 && ref !== undefined) {
+              const lastSlashIndex = ref.lastIndexOf("/");
+              additionalReferenceInConditionLastPart = ref.substring(lastSlashIndex + 1);
+            }
           }
 
           let uniqueKey = propKey;
@@ -54,8 +86,18 @@ export function processProperties(
             groupname: defs,
             title: propDefinition.title,
             description: propDefinition.description,
-            ref: lastPartValue,
-            addRef: lastPartValueAddRed,
+            ref:
+              lastPartValue !== ""
+                ? lastPartValue
+                : referenceInConditionLastPart
+                ? referenceInConditionLastPart
+                : "",
+            addRef:
+              lastPartValueAddRed !== ""
+                ? lastPartValueAddRed
+                : additionalReferenceInConditionLastPart
+                ? additionalReferenceInConditionLastPart
+                : "",
           };
 
           lastPartValue = "";
