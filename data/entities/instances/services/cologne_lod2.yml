@@ -162,6 +162,7 @@ collections:
         transformations:
           function:
             codelist: BuildingFunctionType
+            asLink: rtzu
           roofType:
             codelist: RoofType
           bezugspunktDach:

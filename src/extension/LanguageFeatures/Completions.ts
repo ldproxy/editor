@@ -225,31 +225,93 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
               value !== undefined &&
               new RegExp(`${title}\\.\\w*$`).test(pathAtCursor)
             ) {
+              let arrayIndex: number | undefined = -1;
+              let addRefOfObjInArray: string | undefined = "";
+              let refinedObjPath: string | undefined;
+              let objPath: string | undefined;
+              let foundObj:
+                | {
+                    path: string;
+                    index: number;
+                    lineOfPath: number;
+                    startOfArray?: number | undefined;
+                    arrayIndex?: number | undefined;
+                  }
+                | undefined;
+              for (let i = line; i >= 0; i--) {
+                foundObj = allYamlKeys.find((obj) => {
+                  const lastDotIndex = obj.path.lastIndexOf(".");
+                  const pathAfterLastDot = obj.path.substring(lastDotIndex + 1);
+                  return obj.lineOfPath === i && pathAfterLastDot === title;
+                });
+                if (foundObj) {
+                  console.log("foundObj: ", foundObj, foundObj?.arrayIndex);
+
+                  break;
+                }
+              }
+              if (foundObj && foundObj.arrayIndex && foundObj.path) {
+                arrayIndex = foundObj.arrayIndex;
+                objPath = foundObj.path;
+                const partsInObjPath = objPath.split(".").slice(0, -1);
+                refinedObjPath = partsInObjPath.join(".");
+                console.log("aaarrayIndex: ", arrayIndex);
+              }
+              let relevantRefs = [""];
+
+              if (arrayIndex !== -1 && refinedObjPath) {
+                relevantRefs = specifiedDefs
+                  .filter(
+                    (obj) =>
+                      obj.finalPath.includes(`[${arrayIndex}]`) &&
+                      obj.finalPath.split(".").slice(0, -2).join(".") === refinedObjPath
+                  )
+                  .map((obj) => obj.ref);
+
+                relevantRefs.forEach((ref) => {
+                  if (obj.groupname === ref) {
+                    console.log("objiii", obj.addRef);
+                    addRefOfObjInArray = obj.addRef;
+                  }
+                });
+              }
+
               for (const key2 in definitionsMap) {
                 if (definitionsMap.hasOwnProperty(key2)) {
                   const obj2 = definitionsMap[key2];
 
-                  if (obj2.groupname === value) {
-                    const finalValue = obj2.title;
+                  let finalValue: string = "";
+                  if (
+                    addRefOfObjInArray !== "" &&
+                    addRefOfObjInArray !== undefined &&
+                    obj2.groupname === addRefOfObjInArray &&
+                    obj2.title
+                  ) {
+                    console.log("addRefOfObjInArray: ", addRefOfObjInArray);
 
-                    if (
-                      finalValue !== undefined &&
-                      allYamlKeys &&
-                      !allYamlKeys.some((key) =>
-                        new RegExp(`${title}\\.\\b\\w+\\b\\.${finalValue}`).test(key.path)
-                      )
-                    ) {
-                      const completion = new vscode.CompletionItem(finalValue);
-                      completion.kind = vscode.CompletionItemKind.Text;
-                      if (obj2.description !== "") {
-                        completion.documentation = new vscode.MarkdownString(obj2.description);
-                      }
-                      completion.command = {
-                        command: "editor.action.ldproxy: Create new entities",
-                        title: "Re-trigger completions...",
-                      };
-                      refCompletions.push(completion);
+                    finalValue = obj2.title;
+                  } else if (arrayIndex === -1 && obj2 && obj2.title && obj2.groupname === value) {
+                    console.log("ohoh");
+                    finalValue = obj2.title;
+                  }
+                  console.log("finalValue: ", finalValue);
+                  if (
+                    finalValue !== "" &&
+                    allYamlKeys &&
+                    !allYamlKeys.some((key) =>
+                      new RegExp(`${title}\\.\\b\\w+\\b\\.${finalValue}`).test(key.path)
+                    )
+                  ) {
+                    const completion = new vscode.CompletionItem(finalValue);
+                    completion.kind = vscode.CompletionItemKind.Text;
+                    if (obj2.description !== "") {
+                      completion.documentation = new vscode.MarkdownString(obj2.description);
                     }
+                    completion.command = {
+                      command: "editor.action.ldproxy: Create new entities",
+                      title: "Re-trigger completions...",
+                    };
+                    refCompletions.push(completion);
                   }
                 }
               }
