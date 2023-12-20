@@ -1,6 +1,7 @@
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
+import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
 import { services } from "../utilitiesLanguageFeatures/services";
-// import { hoverData } from "./providers";
+import { hoverData } from "./providers";
 
 interface DefinitionsMap {
   [key: string]: LooseDefinition;
@@ -13,11 +14,20 @@ interface LooseDefinition {
 }
 
 export function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
+  let currentFilePath = getCurrentFilePath();
+  let serviceOrProvider: string | undefined;
+  if (currentFilePath) {
+    serviceOrProvider = servicesOrProviders(currentFilePath);
+  }
   let definitionsMap: DefinitionsMap = {};
 
   let allRefs: string[] | undefined = [];
   specifiedDefs.map((def) => {
-    definitionsMap = processProperties(def.ref, services.$defs, definitionsMap);
+    if (serviceOrProvider && serviceOrProvider === "services") {
+      definitionsMap = processProperties(def.ref, services.$defs, definitionsMap);
+    } else if (serviceOrProvider && serviceOrProvider === "providers") {
+      definitionsMap = processProperties(def.ref, hoverData.$defs, definitionsMap);
+    }
   });
   console.log("111", specifiedDefs);
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
@@ -27,10 +37,17 @@ export function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string
 
   if (allRefs && allRefs.length > 0) {
     allRefs.map((ref) => {
-      definitionsMap = {
-        ...definitionsMap,
-        ...processProperties(ref, services.$defs, definitionsMap),
-      };
+      if (serviceOrProvider && serviceOrProvider === "services") {
+        definitionsMap = {
+          ...definitionsMap,
+          ...processProperties(ref, services.$defs, definitionsMap),
+        };
+      } else if (serviceOrProvider && serviceOrProvider === "providers") {
+        definitionsMap = {
+          ...definitionsMap,
+          ...processProperties(ref, hoverData.$defs, definitionsMap),
+        };
+      }
     });
   }
   return definitionsMap;

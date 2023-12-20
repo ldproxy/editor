@@ -1,5 +1,6 @@
-// import { hoverData } from "./providers";
+import { hoverData } from "./providers";
 import { services } from "./services";
+import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
 
 interface LooseDefinition {
   title?: string;
@@ -110,6 +111,11 @@ export function processProperties(
 }
 
 export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
+  let currentFilePath = getCurrentFilePath();
+  let serviceOrProvider: string | undefined;
+  if (currentFilePath) {
+    serviceOrProvider = servicesOrProviders(currentFilePath);
+  }
   let lastPartValueArray: string[] = [];
   let hasNewReferences = true;
 
@@ -130,11 +136,20 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
             lastPartValueArray.push(lastPartValue);
             hasNewReferences = true;
 
-            const nestedDefinitionsMap = processProperties(
-              lastPartValue,
-              services.$defs,
-              definitionsMap
-            );
+            let nestedDefinitionsMap;
+            if (serviceOrProvider && serviceOrProvider === "services") {
+              nestedDefinitionsMap = processProperties(
+                lastPartValue,
+                services.$defs,
+                definitionsMap
+              );
+            } else if (serviceOrProvider && serviceOrProvider === "providers") {
+              nestedDefinitionsMap = processProperties(
+                lastPartValue,
+                hoverData.$defs,
+                definitionsMap
+              );
+            }
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
           }
         }
@@ -151,11 +166,20 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
             lastPartValueArray.push(lastPartValue);
             hasNewReferences = true;
 
-            const nestedDefinitionsMap = processProperties(
-              lastPartValue,
-              services.$defs,
-              definitionsMap
-            );
+            let nestedDefinitionsMap;
+            if (serviceOrProvider && serviceOrProvider === "services") {
+              nestedDefinitionsMap = processProperties(
+                lastPartValue,
+                services.$defs,
+                definitionsMap
+              );
+            } else if (serviceOrProvider && serviceOrProvider === "providers") {
+              nestedDefinitionsMap = processProperties(
+                lastPartValue,
+                hoverData.$defs,
+                definitionsMap
+              );
+            }
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
           }
         }

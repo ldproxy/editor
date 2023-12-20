@@ -12,6 +12,7 @@ import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
 import { Parser } from "yaml";
 import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
 import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
+import { extractConditions } from "./utilitiesLanguageFeatures/DefineDefs";
 
 export let allYamlKeys: {
   path: string;
@@ -58,6 +59,7 @@ export function activate(context: ExtensionContext) {
         getKeys(allYamlKeys);
         updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
         //  const getDiagnostic = getDiagnostics();
+        extractConditions();
 
         context.subscriptions.push(provider1, provider2, provider3);
       }

@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-// import { hoverData } from "./providers";
+import { hoverData } from "./providers";
 import { services } from "./services";
+import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
 
 interface LooseDefinition {
   title?: string;
@@ -14,8 +15,19 @@ interface Conditions {
   ref?: string;
 }
 
-function extractConditions() {
-  const json = services;
+export function extractConditions() {
+  let currentFilePath = getCurrentFilePath();
+  let serviceOrProvider: string | undefined;
+  if (currentFilePath) {
+    serviceOrProvider = servicesOrProviders(currentFilePath);
+  }
+  console.log("serviceOrProvider", serviceOrProvider);
+  let json;
+  if (serviceOrProvider && serviceOrProvider === "services") {
+    json = services;
+  } else if (serviceOrProvider && serviceOrProvider === "providers") {
+    json = hoverData;
+  }
   const conditions: Conditions[] = [];
   if (!json) {
     return [];
