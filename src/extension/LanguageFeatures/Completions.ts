@@ -6,6 +6,7 @@ import {
   getMaxLine,
 } from "../utilitiesLanguageFeatures/completionsForArray";
 import { getDefintionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
+import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
 
 let allYamlKeys: {
   path: string;
@@ -32,8 +33,9 @@ export function getSchemaMapCompletions() {
   const currentDocument = vscode.window.activeTextEditor?.document;
   if (currentDocument) {
     specifiedDefs = defineDefs(currentDocument);
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      definitionsMap = getDefintionsMap(specifiedDefs);
+    const uniqueDefs = removeDuplicates(specifiedDefs);
+    if (uniqueDefs && uniqueDefs.length > 0) {
+      definitionsMap = getDefintionsMap(uniqueDefs);
     }
   }
 }
@@ -111,8 +113,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
     console.log("allYamlKeys: ", allYamlKeys);
     console.log("pathAtCursor: " + pathAtCursor);
     const completions: vscode.CompletionItem[] = [];
+    const uniqueDefs = removeDuplicates(specifiedDefs);
+    console.log("uniqueDefs", uniqueDefs);
 
-    specifiedDefs.forEach((defObj) => {
+    uniqueDefs.forEach((defObj) => {
       const ref = defObj.ref;
       const path = defObj.finalPath;
       const pathSplit = path.split(".");
@@ -130,6 +134,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       }
 
       console.log("minmax", minLine, maxLine, line);
+      console.log("speziu", specifiedDefsPath, pathAtCursor);
 
       if (
         !specifiedDefsPath.includes("[") &&

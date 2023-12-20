@@ -82,14 +82,15 @@ export function defineDefs(document: vscode.TextDocument) {
   }
 
   const conditions = extractConditions();
-  console.log("conditions", conditions);
 
   let specifiedDefs: { ref: string; finalPath: string }[] = [];
 
   for (const { condition, ref } of conditions) {
     if (condition) {
       const resultObject = matchesCondition(config, condition);
+      console.log("returnObjects", resultObject);
       resultObject.forEach((item: { allConditionsMet: boolean; finalPath: string }) => {
+        console.log("item", item);
         const { allConditionsMet, finalPath } = item;
         if (ref && allConditionsMet && finalPath !== "") {
           console.log("allConditionsMet", finalPath, allConditionsMet, ref);
@@ -110,16 +111,19 @@ function matchesCondition(
   let returnObjects: { allConditionsMet: boolean; finalPath: string }[] = [
     { allConditionsMet: false, finalPath: "" },
   ];
+  let allConditionsMet: boolean = false;
+  let finalPath: string = "";
 
   for (const key in condition) {
-    let allConditionsMet: boolean = false;
-    let finalPath: string = "";
     const conditionEntry = condition[key];
     const conditionValue = conditionEntry?.const;
     const lowerCasedConditionValue = conditionValue?.toLowerCase();
+    let keyConditionMet = false;
+    console.log("lowerCasedConditionValue", lowerCasedConditionValue);
 
     if (lowerCasedConditionValue !== undefined) {
       function getConfigValues(obj: any, targetKey: string, path: string): any[] {
+        console.log("targetKey", targetKey);
         const values: { value: any; path?: string }[] = [];
 
         if (typeof obj === "object") {
@@ -147,12 +151,23 @@ function matchesCondition(
       console.log("configValuesResultArray", configValuesResultArray);
       configValuesResultArray.map((object: any) => {
         if (object.value === lowerCasedConditionValue) {
-          allConditionsMet = true;
+          keyConditionMet = true;
           finalPath = object.path;
-          returnObjects.push({ allConditionsMet, finalPath });
         }
       });
+      if (!keyConditionMet) {
+        allConditionsMet = false;
+        break;
+      } else {
+        allConditionsMet = true;
+      }
     }
   }
+  if (allConditionsMet) {
+    returnObjects.push({ allConditionsMet, finalPath });
+  } else {
+    returnObjects.push({ allConditionsMet: false, finalPath: "" });
+  }
+
   return returnObjects;
 }
