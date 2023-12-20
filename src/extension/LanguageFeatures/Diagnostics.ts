@@ -63,19 +63,36 @@ export function updateDiagnostics(
     infoMessages.forEach((info) => {
       const infoText = info.match(/\$.(.*):/);
       const infoWord = infoText ? infoText[1].trim() : "";
+      const infoWordWithoutIndex = infoWord.replace(/\[\d+\]/g, "");
       console.log("infoWord", infoWord);
       try {
         const keys = infoWord.split(".");
         const lastKey: string = keys[keys.length - 1];
+        const match = infoWord.match(/\[(\d+)\]/);
+        let index: number | null = null;
+        if (match && match[1]) {
+          index = parseInt(match[1], 10);
+        }
         let lastKeyIndex: number | undefined;
 
         let lineOfPath: number | null = 0;
-
-        const foundItem = yamlKeysDiagnostic.find((item) => item.path === infoWord);
-        console.log("foundItem", foundItem);
-        if (foundItem) {
-          lineOfPath = foundItem.lineOfPath - 1;
+        console.log("indi", index);
+        if (index !== null) {
+          const foundItem = yamlKeysDiagnostic.find(
+            (item) => item.path === infoWordWithoutIndex && item.arrayIndex === index
+          );
+          console.log("foundItem", foundItem);
+          if (foundItem) {
+            lineOfPath = foundItem.lineOfPath - 1;
+          }
+        } else {
+          const foundItem = yamlKeysDiagnostic.find((item) => item.path === infoWord);
+          console.log("foundItem", foundItem);
+          if (foundItem) {
+            lineOfPath = foundItem.lineOfPath - 1;
+          }
         }
+
         console.log("lineOfPath", lineOfPath);
         if (lineOfPath && lineOfPath !== 0) {
           const lineText = document.lineAt(lineOfPath).text;

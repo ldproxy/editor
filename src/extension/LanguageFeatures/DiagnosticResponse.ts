@@ -27,6 +27,6 @@ export const testresults = [
   // test:
   {
     status: "INFO",
-    message: "  - $.api.buildingBlock: is redundant and can be removed",
+    message: "  - $.api[1].buildingBlock: is redundant and can be removed",
   },
 ];
