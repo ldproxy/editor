@@ -123,7 +123,6 @@ function matchesCondition(
 
     if (lowerCasedConditionValue !== undefined) {
       function getConfigValues(obj: any, targetKey: string, path: string): any[] {
-        console.log("targetKey", targetKey);
         const values: { value: any; path?: string }[] = [];
 
         if (typeof obj === "object") {

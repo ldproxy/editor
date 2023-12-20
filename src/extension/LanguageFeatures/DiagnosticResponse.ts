@@ -1,4 +1,4 @@
-export const results = [
+export const testresults = [
   {
     status: "WARNING",
     message:

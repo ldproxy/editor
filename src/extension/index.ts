@@ -58,7 +58,7 @@ export function activate(context: ExtensionContext) {
         getHoverKeys(allYamlKeys);
         getKeys(allYamlKeys);
         updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
-        //  const getDiagnostic = getDiagnostics();
+        getDiagnostics();
         extractConditions();
 
         context.subscriptions.push(provider1, provider2, provider3);

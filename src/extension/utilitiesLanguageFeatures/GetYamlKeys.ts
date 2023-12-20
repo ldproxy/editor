@@ -13,6 +13,7 @@ export function getAllYamlPaths(
   startOfArray?: number
 ) {
   if (yamlObject && typeof yamlObject === "object") {
+    console.log("yamlObject", yamlObject);
     yamlObject.forEach((object: any) => {
       if (
         object &&
@@ -25,8 +26,8 @@ export function getAllYamlPaths(
         object.value.items[0].start[0].source
       ) {
         const path: string = currentPath
-          ? `${currentPath}.${object.key.source}`
-          : object.key.source;
+          ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
+          : object.key.source.replace(/\./g, "/");
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
         if (line !== undefined && column !== undefined) {
@@ -54,7 +55,7 @@ export function getAllYamlPaths(
             array.value.items.forEach((object2: any) => {
               if (object2 && object2.key && object2.key.source) {
                 console.log("object2", object2);
-                const path2: string = `${path}.${object2.key.source}`;
+                const path2: string = `${path}.${object2.key.source.replace(/\./g, "/")}`;
                 const line: number = getLineNumber(document, object2.key.offset);
                 const column: number = object2.key.indent;
                 if (line !== undefined && column !== undefined) {
@@ -94,7 +95,9 @@ export function getAllYamlPaths(
         !object.value.source &&
         object.value.items[0]
       ) {
-        const path = currentPath ? `${currentPath}.${object.key.source}` : object.key.source;
+        const path = currentPath
+          ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
+          : object.key.source.replace(/\./g, "/");
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
         if (line !== undefined && column !== undefined) {
@@ -126,7 +129,8 @@ export function getAllYamlPaths(
               getAllYamlPaths(document, [item], path, yamlKeys);
             }
           } else if (item && item.key && item.key.source) {
-            const path2 = `${path}.${item.key.source}`;
+            const keyWithoutDot = item.key.source.replace(/\./g, "/");
+            const path2 = `${path}.${keyWithoutDot}`;
             const line: number = getLineNumber(document, item.key.offset);
             const column: number = item.key.indent;
             if (line !== undefined && column !== undefined) {
@@ -168,8 +172,8 @@ export function getAllYamlPaths(
       } else if (object && object.key && object.key.source) {
         console.log("sooo", object);
         const path: string = currentPath
-          ? `${currentPath}.${object.key.source}`
-          : object.key.source;
+          ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
+          : object.key.source.replace(/\./g, "/");
         console.log("importa", object.key);
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;

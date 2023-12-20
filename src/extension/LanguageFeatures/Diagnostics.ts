@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { results } from "./DiagnosticResponse";
+import { testresults } from "./DiagnosticResponse";
 
 interface YamlKeysDiagnostic {
   path: string;
@@ -9,24 +9,24 @@ interface YamlKeysDiagnostic {
 }
 
 let workspace = "c:/Users/p.zahnen/Documents/GitHub/editor/data/";
-let diagnostic; // to be named results
-/* const workspaceFolders = vscode.workspace.workspaceFolders;
+let results = testresults; // to be named results
+const workspaceFolders = vscode.workspace.workspaceFolders;
 if (workspaceFolders && workspaceFolders[0]) {
   workspace = workspaceFolders[0].uri.fsPath;
-} */
+}
 
 const diagnosticSubmitData = {
   command: "check",
   subcommand: "entities",
   source: workspace,
   onlyEntities: true,
-  // path: "entities/instances/providers/dvg.yml",
+  path: "entities/instances/services/cfg.yml",
 };
 
 export const getDiagnostics = () => {
   try {
     JSON.parse(JSON.stringify(diagnosticSubmitData));
-    const socket = new WebSocket("ws://localhost:8080/sock");
+    const socket = new WebSocket("ws://localhost:8081/sock");
 
     socket.addEventListener("open", () => {
       const jsonData = JSON.stringify(diagnosticSubmitData);
@@ -35,7 +35,8 @@ export const getDiagnostics = () => {
 
     socket.addEventListener("message", (event) => {
       const response = JSON.parse(event.data);
-      diagnostic = response;
+      results = response;
+      console.log("responsee1", response);
     });
   } catch (error) {
     console.error("Fehler bei Diagnostics:", error);
