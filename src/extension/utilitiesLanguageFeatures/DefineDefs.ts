@@ -108,64 +108,53 @@ function matchesCondition(
   config: LooseDefinition,
   condition: Record<string, { const: string }>
 ): { allConditionsMet: boolean; finalPath: string }[] {
-  let returnObjects: { allConditionsMet: boolean; finalPath: string }[] = [
-    { allConditionsMet: false, finalPath: "" },
-  ];
-  let allConditionsMet: boolean = false;
-  let finalPath: string = "";
+  let returnObjects: { allConditionsMet: boolean; finalPath: string }[] = [];
+  let allConditionsMet: boolean = true;
 
   for (const key in condition) {
     const conditionEntry = condition[key];
     const conditionValue = conditionEntry?.const;
     const lowerCasedConditionValue = conditionValue?.toLowerCase();
-    let keyConditionMet = false;
-    console.log("lowerCasedConditionValue", lowerCasedConditionValue);
 
     if (lowerCasedConditionValue !== undefined) {
-      function getConfigValues(obj: any, targetKey: string, path: string): any[] {
-        const values: { value: any; path?: string }[] = [];
+      const matchingPaths: string[] = [];
 
+      function getConfigValues(obj: any, targetKey: string, path: string): void {
         if (typeof obj === "object") {
           if (Array.isArray(obj)) {
             for (let i = 0; i < obj.length; i++) {
               const newPath = path ? `${path}.${targetKey}[${i}]` : `${targetKey}[${i}]`;
-              values.push(...getConfigValues(obj[i], targetKey, newPath));
+              getConfigValues(obj[i], targetKey, newPath);
             }
           } else {
             for (const currentKey in obj) {
+              const newPath = path ? `${path}.${currentKey}` : `${currentKey}`;
               if (currentKey === targetKey) {
-                const newPath = path ? `${path}.${currentKey}` : `${currentKey}`;
-                values.push({ value: obj[currentKey].toLowerCase(), path: newPath });
-              } else {
-                const newPath = path ? `${path}.${currentKey}` : `${currentKey}`;
-                values.push(...getConfigValues(obj[currentKey], targetKey, newPath));
+                if (obj[currentKey].toLowerCase() === lowerCasedConditionValue) {
+                  matchingPaths.push(newPath);
+                }
               }
+              getConfigValues(obj[currentKey], targetKey, newPath);
             }
           }
         }
-        return values;
       }
 
-      const configValuesResultArray = getConfigValues(config, key, "");
-      console.log("configValuesResultArray", configValuesResultArray);
-      configValuesResultArray.map((object: any) => {
-        if (object.value === lowerCasedConditionValue) {
-          keyConditionMet = true;
-          finalPath = object.path;
-        }
-      });
-      if (!keyConditionMet) {
+      getConfigValues(config, key, "");
+
+      if (matchingPaths.length === 0) {
         allConditionsMet = false;
         break;
-      } else {
-        allConditionsMet = true;
       }
+
+      matchingPaths.forEach((path) => {
+        returnObjects.push({ allConditionsMet: true, finalPath: path });
+      });
     }
   }
-  if (allConditionsMet) {
-    returnObjects.push({ allConditionsMet, finalPath });
-  } else {
-    returnObjects.push({ allConditionsMet: false, finalPath: "" });
+
+  if (!allConditionsMet) {
+    returnObjects = [{ allConditionsMet: false, finalPath: "" }];
   }
 
   return returnObjects;

@@ -1,20 +1,20 @@
-interface SpecifiedDef {
-  ref: string;
-  finalPath: string;
-  // Weitere Eigenschaften
-}
+export function removeDuplicates(
+  specifiedDefs: { ref: string; finalPath: string }[]
+): { ref: string; finalPath: string }[] {
+  let uniquePaths: { ref: string; finalPath: string }[] = [];
 
-export function removeDuplicates(specifiedDefs: SpecifiedDef[]): SpecifiedDef[] {
-  const uniqueSet = new Set<string>();
-
-  const filteredDefs = specifiedDefs.filter((def) => {
-    const key = `${def.ref}-${def.finalPath}`;
-    if (uniqueSet.has(key)) {
-      return false;
+  specifiedDefs.forEach((def) => {
+    const { ref, finalPath } = def;
+    const refExists = uniquePaths.find((obj) => obj.ref === ref);
+    if (refExists) {
+      if (finalPath.includes(".")) {
+        console.log("hahaha");
+        uniquePaths.push({ ref, finalPath });
+      }
+    } else {
+      uniquePaths.push({ ref, finalPath });
     }
-    uniqueSet.add(key);
-    return true;
   });
 
-  return filteredDefs;
+  return uniquePaths;
 }
