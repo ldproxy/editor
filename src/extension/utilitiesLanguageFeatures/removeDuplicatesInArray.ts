@@ -8,7 +8,6 @@ export function removeDuplicates(
     const refExists = uniquePaths.find((obj) => obj.ref === ref);
     if (refExists) {
       if (finalPath.includes(".")) {
-        console.log("hahaha");
         uniquePaths.push({ ref, finalPath });
       }
     } else {
