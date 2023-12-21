@@ -10,10 +10,10 @@ interface YamlKeysDiagnostic {
 
 let workspace = "c:/Users/p.zahnen/Documents/GitHub/editor/data/";
 let results = testresults; // to be named results
-const workspaceFolders = vscode.workspace.workspaceFolders;
+/* const workspaceFolders = vscode.workspace.workspaceFolders;
 if (workspaceFolders && workspaceFolders[0]) {
   workspace = workspaceFolders[0].uri.fsPath;
-}
+} */
 
 const diagnosticSubmitData = {
   command: "check",
@@ -36,6 +36,7 @@ export const getDiagnostics = () => {
     socket.addEventListener("message", (event) => {
       const response = JSON.parse(event.data);
       results = response;
+      console.log("workspace2:", workspace + "entities/instances/services/cfg.yml");
       console.log("responsee1", response);
     });
   } catch (error) {

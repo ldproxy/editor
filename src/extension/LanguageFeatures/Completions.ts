@@ -81,7 +81,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                     ) {
                       console.log("ccc", refCompletions);
                       const completion = new vscode.CompletionItem(finalValue);
-                      completion.kind = vscode.CompletionItemKind.Text;
+                      completion.kind = vscode.CompletionItemKind.Method;
                       if (obj2.description !== "") {
                         completion.documentation = new vscode.MarkdownString(obj2.description);
                       }
@@ -155,7 +155,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
                 })
               ) {
                 const completion = new vscode.CompletionItem(value);
-                completion.kind = vscode.CompletionItemKind.Text;
+                completion.kind = vscode.CompletionItemKind.Method;
                 if (obj.description !== "") {
                   completion.documentation = new vscode.MarkdownString(obj.description);
                 }
@@ -189,7 +189,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
                 })
               ) {
                 const completion = new vscode.CompletionItem(value);
-                completion.kind = vscode.CompletionItemKind.Text;
+                completion.kind = vscode.CompletionItemKind.Method;
                 if (obj.description !== "") {
                   completion.documentation = new vscode.MarkdownString(obj.description);
                 }
@@ -308,7 +308,7 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                     )
                   ) {
                     const completion = new vscode.CompletionItem(finalValue);
-                    completion.kind = vscode.CompletionItemKind.Text;
+                    completion.kind = vscode.CompletionItemKind.Method;
                     if (obj2.description !== "") {
                       completion.documentation = new vscode.MarkdownString(obj2.description);
                     }

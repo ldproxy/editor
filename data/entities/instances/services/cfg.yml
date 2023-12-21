@@ -1,6 +1,7 @@
 ---
 store:
   mode: READ_Write
+  mode: khj
 server:
   externalUrl: ${EXTERNAL_URL:-https://demo.ldproxy.net}
 backgroundTasks:
