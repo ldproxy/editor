@@ -2,7 +2,6 @@ import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatu
 import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
 import { services } from "../utilitiesLanguageFeatures/services";
 import { hoverData } from "./providers";
-import { getEnums } from "./getEnums";
 
 interface DefinitionsMap {
   [key: string]: LooseDefinition;
@@ -51,6 +50,5 @@ export function getDefintionsMap(specifiedDefs: { ref: string; finalPath: string
       }
     });
   }
-  getEnums(allRefs, specifiedDefs);
   return definitionsMap;
 }

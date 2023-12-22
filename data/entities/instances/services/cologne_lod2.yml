@@ -41,6 +41,7 @@ api:
         title: Download 3D building model LoD2-DE NRW
         href: "https://www.opengeodata.nrw.de/produkte/geobasis/3dg/lod2_gml/lod2_gml/"
         hreflang: de
+  - buildingBlock: Crud
   - buildingBlock: FEATURES_CORE
     defaultCrs: CRS84h
     maximumPageSize: 10000

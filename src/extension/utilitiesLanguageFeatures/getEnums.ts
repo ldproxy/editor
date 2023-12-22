@@ -1,33 +1,29 @@
-import { services } from "./services";
+export function buildEnumArray(definitions: any): { key: string; enum: string }[] {
+  let localEnumArray: { key: string; enum: string }[] = [];
 
-let enumArray: { key: string; enum: string }[] = [];
-export function getEnums(allRefs: string[], specifiedDefs: { ref: string; finalPath: string }[]) {
-  allRefs.forEach((ref) => {
-    enumArray = buildEnumArray(ref, services.$defs, enumArray);
-  });
-  specifiedDefs.forEach((def) => {
-    enumArray = buildEnumArray(def.ref, services.$defs, enumArray);
-  });
-  console.log("enumArray: ", enumArray);
-  return enumArray;
-}
+  for (const key in definitions) {
+    const definition = definitions[key];
 
-function buildEnumArray(
-  ref: string,
-  definitions: any,
-  existingEnumArray: { key: string; enum: string }[]
-): { key: string; enum: string }[] {
-  console.log("refEnum", ref);
-  let localEnumArray: { key: string; enum: string }[] = existingEnumArray;
-  if (ref !== "") {
-    const definition = definitions[ref];
     if (definition && definition.anyOf && definition.anyOf[0] && definition.anyOf[0].properties) {
-      console.log("definition.properties", definition.anyOf[0].properties);
-      for (const propKey in definition.anyOf[0].properties) {
-        const propDefinition = definition.anyOf[0].properties[propKey];
-        console.log("propDefinition", propDefinition);
+      definition.anyOf.forEach((item: any) => {
+        for (const propKey in item.properties) {
+          const propDefinition = item.properties[propKey];
+          if (propDefinition && propDefinition.hasOwnProperty("enum")) {
+            propDefinition.enum.forEach((enumValue: string) => {
+              const existing = localEnumArray.find(
+                (existingEnum) => existingEnum.key === propKey && existingEnum.enum === enumValue
+              );
+              if (existing === undefined) {
+                localEnumArray.push({ key: propKey, enum: enumValue });
+              }
+            });
+          }
+        }
+      });
+    } else if (definition && definition.properties) {
+      for (const propKey in definition.properties) {
+        const propDefinition = definition.properties[propKey];
         if (propDefinition && propDefinition.hasOwnProperty("enum")) {
-          console.log("propDefinition.enum", propDefinition.enum);
           propDefinition.enum.forEach((enumValue: string) => {
             const existing = localEnumArray.find(
               (existingEnum) => existingEnum.key === propKey && existingEnum.enum === enumValue
@@ -40,5 +36,6 @@ function buildEnumArray(
       }
     }
   }
+
   return localEnumArray;
 }
