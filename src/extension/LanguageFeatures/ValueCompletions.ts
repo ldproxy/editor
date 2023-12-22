@@ -1,10 +1,27 @@
 import { services } from "../utilitiesLanguageFeatures/services";
+import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import * as vscode from "vscode";
 import { buildEnumArray } from "../utilitiesLanguageFeatures/getEnums";
+import {
+  getCurrentFilePath,
+  servicesOrProviders,
+} from "../utilitiesLanguageFeatures/servicesOrProviders";
 
 export const provider4 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const enumArray: { key: string; enum: string }[] = buildEnumArray(services.$defs);
+    let currentFilePath = getCurrentFilePath();
+    let serviceOrProvider: string | undefined;
+    if (currentFilePath) {
+      serviceOrProvider = servicesOrProviders(currentFilePath);
+    }
+
+    let enumArray: { key: string; enum: string }[] = [];
+    if (serviceOrProvider && serviceOrProvider === "services") {
+      enumArray = buildEnumArray(services.$defs);
+    } else if (serviceOrProvider && serviceOrProvider === "providers") {
+      enumArray = buildEnumArray(hoverData.$defs);
+    }
+
     console.log("enumArray", enumArray);
     const line = position.line;
     const keyAtCursor = findKeyForValueCompletion(line, document, position);
