@@ -137,6 +137,9 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       if (minLine) {
         maxLine = getMaxLine(allYamlKeys, minLine);
       }
+      const keyAtStartOfArray = allYamlKeys.find((key) => key.lineOfPath === minLine);
+      console.log("keyAtStartOfArray: ", keyAtStartOfArray);
+      const columnOfArray = keyAtStartOfArray ? keyAtStartOfArray.index : 0;
 
       console.log("minmax", minLine, maxLine, line);
       console.log("speziu", specifiedDefsPath, pathAtCursor);
@@ -177,8 +180,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         line >= minLine &&
         maxLine !== undefined &&
         line < maxLine &&
-        definitionsMap
+        definitionsMap &&
+        column === columnOfArray
       ) {
+        console.log("columnOfArray", columnOfArray);
         for (const key in definitionsMap) {
           if (definitionsMap.hasOwnProperty(key)) {
             const obj = definitionsMap[key];
