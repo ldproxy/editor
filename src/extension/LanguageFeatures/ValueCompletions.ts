@@ -45,7 +45,10 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
               command: "editor.action.ldproxy: Create new entities",
               title: "Re-trigger completions...",
             };
-            valueCompletions.push(completion);
+            const existing = valueCompletions.find((existingComp) => existingComp.label === myEnum);
+            if (existing === undefined) {
+              valueCompletions.push(completion);
+            }
           }
         }
       });

@@ -89,7 +89,12 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                         command: "editor.action.ldproxy: Create new entities",
                         title: "Re-trigger completions...",
                       };
-                      refCompletions.push(completion);
+                      const existing = refCompletions.find(
+                        (existingComp) => existingComp.label === finalValue
+                      );
+                      if (existing === undefined) {
+                        refCompletions.push(completion);
+                      }
                     }
                   }
                 }
@@ -193,7 +198,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
                 if (obj.description !== "") {
                   completion.documentation = new vscode.MarkdownString(obj.description);
                 }
-                completions.push(completion);
+                const existing = completions.find((existingComp) => existingComp.label === value);
+                if (existing === undefined) {
+                  completions.push(completion);
+                }
               }
             }
           }
@@ -316,7 +324,12 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                       command: "editor.action.ldproxy: Create new entities",
                       title: "Re-trigger completions...",
                     };
-                    refCompletions.push(completion);
+                    const existing = refCompletions.find(
+                      (existingComp) => existingComp.label === finalValue
+                    );
+                    if (existing === undefined) {
+                      refCompletions.push(completion);
+                    }
                   }
                 }
               }
