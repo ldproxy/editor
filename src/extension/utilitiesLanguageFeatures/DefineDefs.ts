@@ -1,14 +1,6 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-import { hoverData } from "./providers";
-import { services } from "./services";
-import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
-
-interface LooseDefinition {
-  title?: string;
-  description?: string;
-  [key: string]: any;
-}
+import { getSchema, DefinitionsMap, LooseDefinition } from "./schema";
 
 interface Conditions {
   condition?: Record<string, any>;
@@ -16,26 +8,18 @@ interface Conditions {
 }
 
 export function extractConditions() {
-  let currentFilePath = getCurrentFilePath();
-  let serviceOrProvider: string | undefined;
-  if (currentFilePath) {
-    serviceOrProvider = servicesOrProviders(currentFilePath);
-  }
-  console.log("serviceOrProvider", serviceOrProvider);
-  let json;
-  if (serviceOrProvider && serviceOrProvider === "services") {
-    json = services;
-  } else if (serviceOrProvider && serviceOrProvider === "providers") {
-    json = hoverData;
-  }
-  const conditions: Conditions[] = [];
-  if (!json) {
+  const schema = getSchema();
+
+  if (!schema) {
     return [];
   }
-  console.log("coonfig", json);
+
+  console.log("coonfig", schema);
+  const conditions: Conditions[] = [];
+
   // Überprüfen, ob es ein allOf-Array in der obersten Ebene gibt
-  if (json.allOf) {
-    for (const condition of json.allOf) {
+  if (schema.allOf) {
+    for (const condition of schema.allOf) {
       if (condition.if && condition.if.properties) {
         const ref = condition.then?.$ref;
         if (ref) {
@@ -48,8 +32,8 @@ export function extractConditions() {
     }
   }
 
-  if (json.$defs) {
-    const defs = json.$defs as Record<string, LooseDefinition>;
+  if (schema.$defs) {
+    const defs = schema.$defs as DefinitionsMap;
 
     for (const key in defs) {
       if (defs.hasOwnProperty(key)) {
