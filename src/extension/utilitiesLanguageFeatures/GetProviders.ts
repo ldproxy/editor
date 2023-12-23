@@ -99,6 +99,7 @@ export function processProperties(
                 : additionalReferenceInConditionLastPart
                 ? additionalReferenceInConditionLastPart
                 : "",
+            deprecated: propDefinition.deprecated,
           };
 
           lastPartValue = "";

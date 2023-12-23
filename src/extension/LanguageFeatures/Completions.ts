@@ -76,6 +76,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                     console.log("allYamlKeys: ", allYamlKeys);
                     if (
                       finalValue !== undefined &&
+                      obj2.deprecated !== true &&
                       allYamlKeys &&
                       !allYamlKeys.some((key) => key.path === `${title}.${finalValue}`)
                     ) {
@@ -156,6 +157,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
               const value = obj.title;
               if (
                 value !== undefined &&
+                obj.deprecated !== true &&
                 allYamlKeys &&
                 !allYamlKeys.some((key) => {
                   const fullPath = specifiedDefsPath ? `${specifiedDefsPath}.${value}` : value;
@@ -192,6 +194,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
               const value = obj.title;
               if (
                 value !== undefined &&
+                obj.deprecated !== true &&
                 allYamlKeys &&
                 !allYamlKeys.some((key) => {
                   const fullPath = pathForArray ? `${pathForArray}.${value}` : value;
@@ -315,6 +318,7 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                   console.log("finalValue: ", finalValue);
                   if (
                     finalValue !== "" &&
+                    obj2.deprecated !== true &&
                     allYamlKeys &&
                     !allYamlKeys.some((key) =>
                       new RegExp(`${title}\\.\\b\\w+\\b\\.${finalValue}`).test(key.path)
