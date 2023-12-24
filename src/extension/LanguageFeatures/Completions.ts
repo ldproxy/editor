@@ -56,8 +56,12 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
     const line = position.line + 1;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
+    const currentStartOfArray = allYamlKeys.find(
+      (item) => item.lineOfPath === line - 1
+    )?.startOfArray;
     console.log("pathAtCursor: " + pathAtCursor);
     console.log("bbb", definitionsMap);
+    console.log("currentArrayIndex: " + currentStartOfArray);
 
     if (definitionsMap) {
       const refCompletions: vscode.CompletionItem[] = [];
@@ -78,7 +82,19 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                       finalValue !== undefined &&
                       obj2.deprecated !== true &&
                       allYamlKeys &&
-                      !allYamlKeys.some((key) => key.path === `${title}.${finalValue}`)
+                      !allYamlKeys.some((key) => {
+                        if (
+                          key.hasOwnProperty("startOfArray") &&
+                          key.startOfArray === currentStartOfArray &&
+                          key.path.includes(`${title}.${finalValue}`)
+                        ) {
+                          return true;
+                        } else if (key.hasOwnProperty("startOfArray")) {
+                          return false;
+                        } else {
+                          return key.path === `${title}.${finalValue}`;
+                        }
+                      })
                     ) {
                       console.log("ccc", refCompletions);
                       const completion = new vscode.CompletionItem(finalValue);
@@ -143,7 +159,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       const columnOfArray = keyAtStartOfArray ? keyAtStartOfArray.index : 0;
 
       console.log("minmax", minLine, maxLine, line);
-      console.log("speziu", specifiedDefsPath, pathAtCursor);
+      console.log("speziu2", specifiedDefsPath, pathAtCursor);
 
       if (
         !specifiedDefsPath.includes("[") &&
@@ -186,6 +202,8 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         column === columnOfArray
       ) {
         console.log("columnOfArray", columnOfArray);
+        console.log("speziu", specifiedDefsPath, pathAtCursor);
+
         for (const key in definitionsMap) {
           if (definitionsMap.hasOwnProperty(key)) {
             const obj = definitionsMap[key];

@@ -19,11 +19,11 @@ export function getDefintionsMap(
   console.log("111", specifiedDefs);
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
     allRefs = findObjectsWithRef(definitionsMap);
-    console.log("222", allRefs);
   }
 
   if (allRefs && allRefs.length > 0) {
-    allRefs.map((ref) => {
+    allRefs.forEach((ref) => {
+      console.log("222", ref);
       definitionsMap = {
         ...definitionsMap,
         ...processProperties(ref, schemaDefs, definitionsMap),

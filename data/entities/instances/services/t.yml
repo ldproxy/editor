@@ -16,3 +16,5 @@ api:
         additionalApis:
           - type: text/html
             zero: jk
+metadata:
+  licenseName: "Datenlizenz Deutschland - Zero – Version 2.0"

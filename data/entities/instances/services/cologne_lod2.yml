@@ -117,7 +117,6 @@ api:
       purge: false
       maxThreads: 1
   - buildingBlock: TILES
-
     enabled: true
     maxLevel: 2
   - buildingBlock: FLATGEOBUF

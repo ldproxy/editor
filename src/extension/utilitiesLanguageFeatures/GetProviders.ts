@@ -11,7 +11,8 @@ export function processProperties(
 
   if (defs !== "") {
     const definition = schemaDefs[defs];
-    if (definition && definition.properties) {
+    if (definition && definition.properties && Object.keys(definition.properties).length > 0) {
+      console.log("uiop", definition.anyOf);
       for (const propKey in definition.properties) {
         const propDefinition = definition.properties[propKey];
         if (propDefinition.title || propDefinition.description) {
@@ -94,6 +95,28 @@ export function processProperties(
           lastPartValueAddRed = "";
         }
       }
+    } else if (definition && definition.hasOwnProperty("anyOf")) {
+      definition.anyOf.forEach((anyOfItem: any) => {
+        for (const propKey in anyOfItem.properties) {
+          console.log("propDefinitionMy", propKey);
+
+          let uniqueKey = propKey;
+          let counter = 1;
+
+          while (
+            (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].groupname !== defs) ||
+            (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].title !== propKey)
+          ) {
+            uniqueKey = propKey + counter;
+            counter++;
+          }
+          console.log("MyUniqueKey", uniqueKey);
+          definitionsMap[uniqueKey] = {
+            groupname: defs,
+            title: propKey,
+          };
+        }
+      });
     }
   }
   return definitionsMap;
