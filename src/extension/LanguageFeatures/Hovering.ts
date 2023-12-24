@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
-import { getDefintionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
+import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
@@ -27,12 +27,12 @@ let yamlKeysHover: {
 let specifiedDefs: { ref: string; finalPath: string }[];
 let definitionsMap: DefinitionsMap = {};
 
-export function getSchemaMapHovering() {
+export async function getSchemaMapHovering() {
   const currentDocument = vscode.window.activeTextEditor?.document;
   if (currentDocument) {
-    specifiedDefs = defineDefs(currentDocument);
+    specifiedDefs = await defineDefs(currentDocument);
     if (specifiedDefs && specifiedDefs.length > 0) {
-      definitionsMap = getDefintionsMap(specifiedDefs);
+      definitionsMap = await getDefinitionsMap(specifiedDefs);
     }
   }
 }

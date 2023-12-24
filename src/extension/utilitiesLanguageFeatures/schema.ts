@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { services } from "./services";
 import { hoverData } from "./providers";
+import { newXtracfg } from "../utilities/xtracfg";
 
 export interface DefinitionsMap {
   [key: string]: LooseDefinition;
@@ -12,26 +13,81 @@ export interface LooseDefinition {
   [key: string]: any;
 }
 
-export const getSchema = (): LooseDefinition | undefined => {
-  let currentFilePath = getCurrentFilePath();
-  let serviceOrProvider: string | undefined;
-  if (currentFilePath) {
-    serviceOrProvider = servicesOrProviders(currentFilePath);
-  }
+const xtracfg = newXtracfg();
 
-  let schema = undefined;
+let allSchemas: Promise<DefinitionsMap>;
 
-  if (serviceOrProvider && serviceOrProvider === "services") {
-    schema = services;
-  } else if (serviceOrProvider && serviceOrProvider === "providers") {
-    schema = hoverData;
-  }
+const fileTypes: {
+  [key: string]: {
+    result: Promise<string>;
+    resolve: (fileType: string) => void;
+    reject: (reason: string) => void;
+  };
+} = {};
 
-  return schema;
+let workspace = "";
+const workspaceFolders = vscode.workspace.workspaceFolders;
+if (workspaceFolders && workspaceFolders[0]) {
+  workspace = workspaceFolders[0].uri.fsPath;
+}
+
+//TODO: is called 3 times
+export const initSchemas = () => {
+  console.log("INIT SCHEMAS");
+
+  let res: (value: DefinitionsMap) => void, rej;
+  allSchemas = new Promise((resolve, reject) => {
+    res = resolve;
+    rej = reject;
+  });
+
+  //TODO: reject on error
+  xtracfg.listen(
+    (response) => {
+      console.log("RESP", response);
+      if (response.details && response.details.path && response.details.fileType) {
+        if (Object.hasOwn(fileTypes, response.details.path)) {
+          console.log("FOUND");
+          fileTypes[response.details.path].resolve(response.details.fileType);
+        }
+      } else if (
+        response.results &&
+        response.results[0] &&
+        response.results[0].message === "schemas" &&
+        response.details
+      ) {
+        let schemas: DefinitionsMap = {};
+
+        Object.keys(response.details).forEach((key) => {
+          if (response.details) {
+            schemas[key] = JSON.parse(response.details[key]);
+          }
+        });
+        console.log("SCHEMAS", schemas);
+        res(schemas);
+      }
+    },
+    (error) => {
+      console.error("ERR", error);
+    }
+  );
+
+  xtracfg.send({ command: "schemas", source: workspace, verbose: true, debug: true });
 };
 
-export const getSchemaDefs = (): DefinitionsMap | undefined => {
-  const schema = getSchema();
+export const getSchema = async (): Promise<LooseDefinition | undefined> => {
+  const schemas = await allSchemas;
+  const fileType = await getCurrentFileType();
+
+  if (!schemas || !fileType) {
+    return undefined;
+  }
+
+  return schemas[fileType];
+};
+
+export const getSchemaDefs = async (): Promise<DefinitionsMap | undefined> => {
+  const schema = await getSchema();
 
   if (!schema) {
     return undefined;
@@ -40,17 +96,55 @@ export const getSchemaDefs = (): DefinitionsMap | undefined => {
   return schema.$defs;
 };
 
-function getCurrentFilePath(): string | undefined {
+const getCurrentFilePath = (relative: boolean = false): string | undefined => {
   const activeTextEditor = vscode.window.activeTextEditor;
-  if (activeTextEditor) {
-    return activeTextEditor.document.uri.path;
-  }
-  return undefined;
-}
 
-function servicesOrProviders(currentFilePath: string) {
-  const splitPath = currentFilePath.split("/");
-  if (splitPath.length >= 2) {
-    return splitPath[splitPath.length - 2];
+  if (activeTextEditor) {
+    const path = activeTextEditor.document.uri.fsPath;
+
+    if (!relative) {
+      return path;
+    }
+    if (relative && path.startsWith(workspace)) {
+      return path.substring(workspace.length + 1);
+    }
   }
-}
+
+  return undefined;
+};
+
+const getCurrentFileType = async (): Promise<string | undefined> => {
+  const currentFilePath = getCurrentFilePath(true);
+
+  if (!currentFilePath) {
+    return undefined;
+  }
+
+  if (!Object.hasOwn(fileTypes, currentFilePath)) {
+    const fileType: any = {};
+    fileType.result = new Promise((resolve, reject) => {
+      fileType.resolve = resolve;
+      fileType.reject = reject;
+    });
+
+    fileTypes[currentFilePath] = fileType;
+
+    xtracfg.send({
+      command: "file_type",
+      source: workspace,
+      path: currentFilePath,
+      verbose: true,
+      debug: true,
+    });
+  }
+
+  return fileTypes[currentFilePath].result;
+
+  /*const splitPath = currentFilePath.split("/");
+
+  if (splitPath.length < 2) {
+    return undefined;
+  }
+
+  return splitPath[splitPath.length - 2];*/
+};

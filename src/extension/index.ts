@@ -14,6 +14,7 @@ import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
 import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
 import { extractConditions } from "./utilitiesLanguageFeatures/DefineDefs";
 import { provider4 } from "./LanguageFeatures/ValueCompletions";
+import { initSchemas } from "./utilitiesLanguageFeatures/schema";
 
 export let allYamlKeys: {
   path: string;
@@ -24,6 +25,7 @@ export let allYamlKeys: {
 }[] = [];
 
 export function activate(context: ExtensionContext) {
+  console.log("ACTIVATE", context.extension.id, context.extension.isActive);
   const showAutoCreate = commands.registerCommand("ldproxy-editor.showAutoCreate", () => {
     AutoCreatePanel.render(context.extensionUri);
   });
@@ -37,6 +39,8 @@ export function activate(context: ExtensionContext) {
     "ldproxy-editor.entityTree",
     new EntitiesProvider()
   );
+
+  initSchemas();
   hover();
   const collection = vscode.languages.createDiagnosticCollection("test");
 

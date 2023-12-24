@@ -16,6 +16,9 @@
     "vscode": "^1.82.2"
   },
   "browser": "./dist/extension.js",
+  "activationEvents": [
+    "*"
+  ],
   "contributes": {
     "commands": [
       {
@@ -62,8 +65,8 @@
     "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/extension/test/suite/index.js",
     "pretest": "npm run compile-web",
     "vscode:prepublish": "VITE_DEV=false npm run build:webview && npm run package-web",
-    "compile-web": "webpack",
-    "watch-web": "webpack --watch",
+    "compile-web": "webpack --mode development",
+    "watch-web": "webpack --mode development --watch",
     "package-web": "webpack --mode production --devtool hidden-source-map",
     "package": "vsce package -o dist/ldproxy-editor.vsix -t web --pre-release",
     "lint": "eslint src --ext ts"
@@ -79,8 +82,10 @@
     "@typescript-eslint/parser": "^6.7.5",
     "@vscode/test-web": "^0.0.22",
     "@vscode/vsce": "^2.21.1",
+    "async-mutex": "^0.4.0",
     "eslint": "^8.51.0",
     "glob": "^7.2.3",
+    "js-yaml": "^4.1.0",
     "mocha": "^9.2.2",
     "path-browserify": "^1.0.1",
     "prettier": "^2.8.8",
@@ -89,7 +94,7 @@
     "typescript": "^5.2.2",
     "webpack": "^5.88.2",
     "webpack-cli": "^4.10.0",
-    "js-yaml": "^4.1.0",
     "yaml": "^2.3.4"
-  }
+  },
+  "dependencies": {}
 }
