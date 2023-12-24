@@ -1,4 +1,4 @@
-import { getSchemaDefs, DefinitionsMap } from "./schema";
+import { getSchemaDefs, DefinitionsMap } from "./schemas";
 
 export function processProperties(
   defs: string,

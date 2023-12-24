@@ -1,5 +1,5 @@
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
-import { getSchemaDefs, DefinitionsMap } from "./schema";
+import { getSchemaDefs, DefinitionsMap } from "./schemas";
 
 export async function getDefinitionsMap(
   specifiedDefs: { ref: string; finalPath: string }[]

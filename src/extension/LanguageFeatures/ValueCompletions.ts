@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { buildEnumArray } from "../utilitiesLanguageFeatures/getEnums";
-import { getSchemaDefs } from "../utilitiesLanguageFeatures/schema";
+import { getSchemaDefs } from "../utilitiesLanguageFeatures/schemas";
 
 export const provider4 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {

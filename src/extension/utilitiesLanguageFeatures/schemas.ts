@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
-import { services } from "./services";
-import { hoverData } from "./providers";
 import { newXtracfg } from "../utilities/xtracfg";
+import { getCurrentFilePath, getWorkspacePath } from "../utilities/paths";
 
 export interface DefinitionsMap {
   [key: string]: LooseDefinition;
@@ -24,12 +23,6 @@ const fileTypes: {
     reject: (reason: string) => void;
   };
 } = {};
-
-let workspace = "";
-const workspaceFolders = vscode.workspace.workspaceFolders;
-if (workspaceFolders && workspaceFolders[0]) {
-  workspace = workspaceFolders[0].uri.fsPath;
-}
 
 //TODO: is called 3 times
 export const initSchemas = () => {
@@ -72,7 +65,7 @@ export const initSchemas = () => {
     }
   );
 
-  xtracfg.send({ command: "schemas", source: workspace, verbose: true, debug: true });
+  xtracfg.send({ command: "schemas", source: getWorkspacePath(), verbose: true, debug: true });
 };
 
 export const getSchema = async (): Promise<LooseDefinition | undefined> => {
@@ -96,25 +89,8 @@ export const getSchemaDefs = async (): Promise<DefinitionsMap | undefined> => {
   return schema.$defs;
 };
 
-const getCurrentFilePath = (relative: boolean = false): string | undefined => {
-  const activeTextEditor = vscode.window.activeTextEditor;
-
-  if (activeTextEditor) {
-    const path = activeTextEditor.document.uri.fsPath;
-
-    if (!relative) {
-      return path;
-    }
-    if (relative && path.startsWith(workspace)) {
-      return path.substring(workspace.length + 1);
-    }
-  }
-
-  return undefined;
-};
-
 const getCurrentFileType = async (): Promise<string | undefined> => {
-  const currentFilePath = getCurrentFilePath(true);
+  const currentFilePath = getCurrentFilePath();
 
   if (!currentFilePath) {
     return undefined;
@@ -131,7 +107,7 @@ const getCurrentFileType = async (): Promise<string | undefined> => {
 
     xtracfg.send({
       command: "file_type",
-      source: workspace,
+      source: getWorkspacePath(),
       path: currentFilePath,
       verbose: true,
       debug: true,
@@ -139,12 +115,4 @@ const getCurrentFileType = async (): Promise<string | undefined> => {
   }
 
   return fileTypes[currentFilePath].result;
-
-  /*const splitPath = currentFilePath.split("/");
-
-  if (splitPath.length < 2) {
-    return undefined;
-  }
-
-  return splitPath[splitPath.length - 2];*/
 };

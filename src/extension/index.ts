@@ -14,7 +14,7 @@ import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
 import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
 import { extractConditions } from "./utilitiesLanguageFeatures/DefineDefs";
 import { provider4 } from "./LanguageFeatures/ValueCompletions";
-import { initSchemas } from "./utilitiesLanguageFeatures/schema";
+import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
 
 export let allYamlKeys: {
   path: string;

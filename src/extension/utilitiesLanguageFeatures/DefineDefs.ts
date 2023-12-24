@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-import { getSchema, DefinitionsMap, LooseDefinition } from "./schema";
+import { getSchema, DefinitionsMap, LooseDefinition } from "./schemas";
 
 interface Conditions {
   condition?: Record<string, any>;
