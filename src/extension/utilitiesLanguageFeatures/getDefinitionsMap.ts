@@ -1,10 +1,10 @@
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
-import { getSchemaDefs, DefinitionsMap } from "./schema";
+import { getSchemaDefs, DefinitionsMap } from "./schemas";
 
-export function getDefintionsMap(
+export async function getDefinitionsMap(
   specifiedDefs: { ref: string; finalPath: string }[]
-): DefinitionsMap {
-  const schemaDefs = getSchemaDefs();
+): Promise<DefinitionsMap> {
+  const schemaDefs = await getSchemaDefs();
 
   if (!schemaDefs) {
     return {};
@@ -18,7 +18,8 @@ export function getDefintionsMap(
   });
   console.log("111", specifiedDefs);
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
-    allRefs = findObjectsWithRef(definitionsMap);
+    allRefs = await findObjectsWithRef(definitionsMap);
+    console.log("222", allRefs);
   }
 
   if (allRefs && allRefs.length > 0) {

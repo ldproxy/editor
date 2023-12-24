@@ -5,7 +5,7 @@ import {
   getLinesForArrayIndex,
   getMaxLine,
 } from "../utilitiesLanguageFeatures/completionsForArray";
-import { getDefintionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
+import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
 
 let allYamlKeys: {
@@ -29,13 +29,13 @@ interface DefinitionsMap {
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 
-export function getSchemaMapCompletions() {
+export async function getSchemaMapCompletions() {
   const currentDocument = vscode.window.activeTextEditor?.document;
   if (currentDocument) {
-    specifiedDefs = defineDefs(currentDocument);
+    specifiedDefs = await defineDefs(currentDocument);
     const uniqueDefs = removeDuplicates(specifiedDefs);
     if (uniqueDefs && uniqueDefs.length > 0) {
-      definitionsMap = getDefintionsMap(uniqueDefs);
+      definitionsMap = await getDefinitionsMap(uniqueDefs);
     }
   }
 }

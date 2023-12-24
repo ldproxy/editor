@@ -1,4 +1,4 @@
-import { getSchemaDefs, DefinitionsMap } from "./schema";
+import { getSchemaDefs, DefinitionsMap } from "./schemas";
 
 export function processProperties(
   defs: string,
@@ -122,8 +122,8 @@ export function processProperties(
   return definitionsMap;
 }
 
-export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
-  const schemaDefs = getSchemaDefs();
+export async function findObjectsWithRef(definitionsMap: DefinitionsMap): Promise<string[]> {
+  const schemaDefs = await getSchemaDefs();
   let lastPartValueArray: string[] = [];
   let hasNewReferences = true;
 

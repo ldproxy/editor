@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-import { getSchema, DefinitionsMap, LooseDefinition } from "./schema";
+import { getSchema, DefinitionsMap, LooseDefinition } from "./schemas";
 
 interface Conditions {
   condition?: Record<string, any>;
   ref?: string;
 }
 
-export function extractConditions() {
-  const schema = getSchema();
+export async function extractConditions() {
+  const schema = await getSchema();
 
   if (!schema) {
     return [];
@@ -59,13 +59,13 @@ export function extractConditions() {
   return conditions;
 }
 
-export function defineDefs(document: vscode.TextDocument) {
+export async function defineDefs(document: vscode.TextDocument) {
   const config = yaml.load(document.getText()) as LooseDefinition;
   if (!config) {
     return [];
   }
 
-  const conditions = extractConditions();
+  const conditions = await extractConditions();
 
   let specifiedDefs: { ref: string; finalPath: string }[] = [];
 

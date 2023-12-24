@@ -4,7 +4,7 @@ import { SourcesProvider } from "./trees/SourcesProvider";
 import { EntitiesProvider } from "./trees/EntitiesProvider";
 import { hover } from "./LanguageFeatures/Hovering";
 import * as vscode from "vscode";
-import { getDiagnostics } from "./LanguageFeatures/Diagnostics";
+import { initDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { provider1, provider2, provider3, getKeys } from "./LanguageFeatures/Completions";
 import { getAllYamlPaths } from "./utilitiesLanguageFeatures/GetYamlKeys";
@@ -14,6 +14,7 @@ import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
 import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
 import { extractConditions } from "./utilitiesLanguageFeatures/DefineDefs";
 import { provider4 } from "./LanguageFeatures/ValueCompletions";
+import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
 
 export let allYamlKeys: {
   path: string;
@@ -24,6 +25,7 @@ export let allYamlKeys: {
 }[] = [];
 
 export function activate(context: ExtensionContext) {
+  console.log("ACTIVATE", context.extension.id, context.extension.isActive);
   const showAutoCreate = commands.registerCommand("ldproxy-editor.showAutoCreate", () => {
     AutoCreatePanel.render(context.extensionUri);
   });
@@ -37,6 +39,9 @@ export function activate(context: ExtensionContext) {
     "ldproxy-editor.entityTree",
     new EntitiesProvider()
   );
+
+  initSchemas();
+  initDiagnostics();
   hover();
   const collection = vscode.languages.createDiagnosticCollection("test");
 
@@ -59,7 +64,6 @@ export function activate(context: ExtensionContext) {
         getHoverKeys(allYamlKeys);
         getKeys(allYamlKeys);
         updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
-        getDiagnostics();
         extractConditions();
 
         context.subscriptions.push(provider1, provider2, provider3, provider4);

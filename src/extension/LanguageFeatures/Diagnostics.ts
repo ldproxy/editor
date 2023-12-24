@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import { testresults } from "./DiagnosticResponse";
+import { newXtracfg } from "../utilities/xtracfg";
+import { getRelativeFilePath, getWorkspacePath } from "../utilities/paths";
 
 interface YamlKeysDiagnostic {
   path: string;
@@ -8,60 +9,90 @@ interface YamlKeysDiagnostic {
   arrayIndex?: number;
 }
 
-let workspace = "c:/Users/p.zahnen/Documents/GitHub/editor/data/";
-let results = testresults; // to be named results
-/* const workspaceFolders = vscode.workspace.workspaceFolders;
-if (workspaceFolders && workspaceFolders[0]) {
-  workspace = workspaceFolders[0].uri.fsPath;
-} */
+const xtracfg = newXtracfg();
 
-const diagnosticSubmitData = {
-  command: "check",
-  subcommand: "entities",
-  source: workspace,
-  onlyEntities: true,
-  path: "entities/instances/services/cfg.yml",
+const diagnosticsResults: {
+  [key: string]: {
+    result: Promise<string[]>;
+    resolve: (result: string[]) => void;
+    reject: (reason: string) => void;
+    pending: boolean;
+  };
+} = {};
+
+export const initDiagnostics = () => {
+  xtracfg.listen(
+    (response) => {
+      console.log("RESP", response);
+      if (response.results && response.details && response.details.path) {
+        if (Object.hasOwn(diagnosticsResults, response.details.path)) {
+          const results = response.results
+            .filter((result) => result.status === "INFO")
+            .map((result) => {
+              const match = result.message;
+
+              return match ? match : "";
+            });
+
+          console.log("DIAGNOSTICS", results);
+
+          diagnosticsResults[response.details.path].resolve(results);
+          diagnosticsResults[response.details.path].pending = false;
+        }
+      }
+    },
+    (error) => {
+      console.error("ERR", error);
+    }
+  );
 };
 
-export const getDiagnostics = () => {
-  try {
-    JSON.parse(JSON.stringify(diagnosticSubmitData));
-    const socket = new WebSocket("ws://localhost:8081/sock");
-
-    socket.addEventListener("open", () => {
-      const jsonData = JSON.stringify(diagnosticSubmitData);
-      socket.send(jsonData);
-    });
-
-    socket.addEventListener("message", (event) => {
-      const response = JSON.parse(event.data);
-      results = response;
-      console.log("workspace2:", workspace + "entities/instances/services/cfg.yml");
-      console.log("responsee1", response);
-    });
-  } catch (error) {
-    console.error("Fehler bei Diagnostics:", error);
+const requestDiagnostics = async (path: string): Promise<string[]> => {
+  if (!path) {
+    return Promise.resolve([]);
   }
-};
 
-const infoMessages = results
-  .filter((result) => result.status === "INFO")
-  .map((result) => {
-    const match = result.message;
+  if (diagnosticsResults[path] && diagnosticsResults[path].pending) {
+    return diagnosticsResults[path].result;
+  }
 
-    return match ? match : "";
+  const results: any = {};
+  results.result = new Promise((resolve, reject) => {
+    results.resolve = resolve;
+    results.reject = reject;
   });
 
-export function updateDiagnostics(
+  diagnosticsResults[path] = results;
+
+  xtracfg.send({
+    command: "check",
+    subcommand: "entities",
+    source: getWorkspacePath(),
+    path: path,
+    verbose: true,
+    debug: true,
+  });
+
+  return diagnosticsResults[path].result;
+};
+
+export async function updateDiagnostics(
   yamlKeysDiagnostic: YamlKeysDiagnostic[],
   document: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
-): void {
+): Promise<void> {
   console.log("sss", yamlKeysDiagnostic);
   if (document.uri.path.includes(".yml")) {
     const diagnostics: vscode.Diagnostic[] = [];
+    const path = getRelativeFilePath(document.uri);
 
-    infoMessages.forEach((info) => {
+    if (!path) {
+      return;
+    }
+
+    const results = await requestDiagnostics(path);
+
+    results.forEach((info) => {
       const infoText = info.match(/\$.(.*):/);
       const infoWord = infoText ? infoText[1].trim() : "";
       const infoWordWithoutIndex = infoWord.replace(/\[\d+\]/g, "");
@@ -112,7 +143,7 @@ export function updateDiagnostics(
             const diagnostic = new vscode.Diagnostic(
               new vscode.Range(startPosition, endPosition),
               `${info}`,
-              vscode.DiagnosticSeverity.Error
+              vscode.DiagnosticSeverity.Warning
             );
 
             diagnostics.push(diagnostic);
