@@ -1,6 +1,6 @@
 export function buildEnumArray(definitions: any): { key: string; enum: string }[] {
   let localEnumArray: { key: string; enum: string }[] = [];
-
+  console.log("enumDefinitions", definitions);
   for (const key in definitions) {
     const definition = definitions[key];
 
