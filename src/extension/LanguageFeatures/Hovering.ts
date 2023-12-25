@@ -31,6 +31,7 @@ export async function getSchemaMapHovering() {
   const currentDocument = vscode.window.activeTextEditor?.document;
   if (currentDocument) {
     specifiedDefs = await defineDefs(currentDocument);
+    console.log("hjkl", specifiedDefs);
     if (specifiedDefs && specifiedDefs.length > 0) {
       definitionsMap = await getDefinitionsMap(specifiedDefs);
     }
@@ -104,7 +105,11 @@ export const hover = () => {
               }
             }
 
-            if (wordInDefinitionsMap && wordInDefinitionsMap.description !== "") {
+            if (
+              wordInDefinitionsMap &&
+              wordInDefinitionsMap.description !== "" &&
+              wordInDefinitionsMap.description !== undefined
+            ) {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
             }
@@ -132,7 +137,11 @@ export const hover = () => {
               }
             }
 
-            if (wordInDefinitionsMap && wordInDefinitionsMap.description !== "") {
+            if (
+              wordInDefinitionsMap &&
+              wordInDefinitionsMap.description !== "" &&
+              wordInDefinitionsMap.description !== undefined
+            ) {
               const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
               hoverResult = new vscode.Hover(hoverText);
             }
@@ -176,7 +185,12 @@ export const hover = () => {
                 }
               }
               console.log("secRef", matchingObject);
-              if (matchingObject && possibleRefWord && matchingObject.description) {
+              if (
+                matchingObject &&
+                possibleRefWord &&
+                matchingObject.description &&
+                matchingObject.description !== undefined
+              ) {
                 const hoverText = `${matchingObject.title}: ${matchingObject.description}`;
                 hoverResult = new vscode.Hover(hoverText);
               }
@@ -213,7 +227,12 @@ export const hover = () => {
                 }
               }
               console.log("thirdLastCase", matchingObject);
-              if (matchingObject && possibleAddRefWord && matchingObject.description) {
+              if (
+                matchingObject &&
+                possibleAddRefWord &&
+                matchingObject.description &&
+                matchingObject.description !== undefined
+              ) {
                 const hoverText = `${matchingObject.title}: ${matchingObject.description}`;
                 hoverResult = new vscode.Hover(hoverText);
               }
