@@ -65,7 +65,16 @@ function findKeyForValueCompletion(line: number, document: vscode.TextDocument, 
   let textBeforeColon = "";
   if (textBeforeCursor.includes(":")) {
     const lastIndex = textBeforeCursor.lastIndexOf(":");
-    textBeforeColon = textBeforeCursor.substring(0, lastIndex).trim();
+    const substringBeforeColon = textBeforeCursor.substring(0, lastIndex).trim();
+
+    const lastSpaceIndex = substringBeforeColon.lastIndexOf(" ");
+
+    if (lastSpaceIndex !== -1) {
+      textBeforeColon = substringBeforeColon.substring(lastSpaceIndex + 1);
+    } else {
+      textBeforeColon = substringBeforeColon; // Wenn kein Leerzeichen vorhanden ist
+    }
+
     console.log("Text vor dem Doppelpunkt:", textBeforeColon);
   }
   return textBeforeColon;
