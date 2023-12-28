@@ -9,9 +9,11 @@ import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { provider1, provider2, provider3, getKeys } from "./LanguageFeatures/Completions";
 import { getAllYamlPaths } from "./utilitiesLanguageFeatures/GetYamlKeys";
 import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
+import { getKeys as getValueKeys } from "./LanguageFeatures/ValueCompletions";
 import { Parser } from "yaml";
 import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
 import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
+import { getSchemaMapCompletions as getValueCompletions } from "./LanguageFeatures/ValueCompletions";
 import { extractConditions } from "./utilitiesLanguageFeatures/DefineDefs";
 import { provider4 } from "./LanguageFeatures/ValueCompletions";
 import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
@@ -62,6 +64,7 @@ export function activate(context: ExtensionContext) {
         allYamlKeys = getAllYamlPaths(document.getText(), yamlObject[0].value.items, "");
         console.log("aktuell", allYamlKeys);
         getHoverKeys(allYamlKeys);
+        getValueKeys(allYamlKeys);
         getKeys(allYamlKeys);
         updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
         extractConditions();
@@ -73,6 +76,7 @@ export function activate(context: ExtensionContext) {
 
   updateYamlKeysHover();
   getSchemaMapCompletions();
+  getValueCompletions();
   getSchemaMapHovering();
 
   context.subscriptions.push(
@@ -89,6 +93,7 @@ export function activate(context: ExtensionContext) {
       if (editor) {
         updateYamlKeysHover();
         getSchemaMapCompletions();
+        getValueCompletions();
         getSchemaMapHovering();
       }
     })

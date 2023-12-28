@@ -1,5 +1,7 @@
-export function buildEnumArray(definitions: any): { key: string; enum: string }[] {
-  let localEnumArray: { key: string; enum: string }[] = [];
+export function buildEnumArray(
+  definitions: any
+): { key: string; enum: string; groupname: string }[] {
+  let localEnumArray: { key: string; enum: string; groupname: string }[] = [];
   console.log("enumDefinitions", definitions);
   for (const key in definitions) {
     const definition = definitions[key];
@@ -14,7 +16,7 @@ export function buildEnumArray(definitions: any): { key: string; enum: string }[
                 (existingEnum) => existingEnum.key === propKey && existingEnum.enum === enumValue
               );
               if (existing === undefined) {
-                localEnumArray.push({ key: propKey, enum: enumValue });
+                localEnumArray.push({ key: propKey, enum: enumValue, groupname: key });
               }
             });
           }
@@ -29,7 +31,7 @@ export function buildEnumArray(definitions: any): { key: string; enum: string }[
               (existingEnum) => existingEnum.key === propKey && existingEnum.enum === enumValue
             );
             if (existing === undefined) {
-              localEnumArray.push({ key: propKey, enum: enumValue });
+              localEnumArray.push({ key: propKey, enum: enumValue, groupname: key });
             }
           });
         }
