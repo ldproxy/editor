@@ -64,9 +64,9 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
 
     let enumArray: { key: string; enum: string; groupname: string }[] = [];
     if (serviceOrProvider && serviceOrProvider === "services") {
-      enumArray = buildEnumArray(services.$defs);
+      enumArray = buildEnumArray(services);
     } else if (serviceOrProvider && serviceOrProvider === "providers") {
-      enumArray = buildEnumArray(hoverData.$defs);
+      enumArray = buildEnumArray(hoverData);
     }
 
     console.log("enumArray", enumArray);
@@ -170,7 +170,7 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
                       if (
                         key !== undefined &&
                         myEnum !== undefined &&
-                        def.ref === enumGroupname &&
+                        (def.ref === enumGroupname || enumGroupname === "") &&
                         !pathAtCursor.includes(".")
                       ) {
                         console.log("valueCompletionsKey", myEnum);
