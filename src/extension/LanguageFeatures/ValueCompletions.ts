@@ -1,47 +1,59 @@
+import { services } from "../utilitiesLanguageFeatures/services";
+import { hoverData } from "../utilitiesLanguageFeatures/providers";
 import * as vscode from "vscode";
 import { buildEnumArray } from "../utilitiesLanguageFeatures/getEnums";
-import { getSchemaDefs } from "../utilitiesLanguageFeatures/schemas";
+import {
+  getCurrentFilePath,
+  servicesOrProviders,
+} from "../utilitiesLanguageFeatures/servicesOrProviders";
 
 export const provider4 = vscode.languages.registerCompletionItemProvider("yaml", {
-  async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const schemaDefs = await getSchemaDefs();
-
-    if (!schemaDefs) {
-      return [];
+  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    let currentFilePath = getCurrentFilePath();
+    let serviceOrProvider: string | undefined;
+    if (currentFilePath) {
+      serviceOrProvider = servicesOrProviders(currentFilePath);
     }
 
-    const enumArray: { key: string; enum: string }[] = buildEnumArray(schemaDefs);
+    let enumArray: { key: string; enum: string }[] = [];
+    if (serviceOrProvider && serviceOrProvider === "services") {
+      enumArray = buildEnumArray(services.$defs);
+    } else if (serviceOrProvider && serviceOrProvider === "providers") {
+      enumArray = buildEnumArray(hoverData.$defs);
+    }
+
     console.log("enumArray", enumArray);
     const line = position.line;
     const keyAtCursor = findKeyForValueCompletion(line, document, position);
     const valueCompletions: vscode.CompletionItem[] = [];
 
-    enumArray.forEach((enumObj) => {
-      if (enumObj.hasOwnProperty("key")) {
-        const key = enumObj.key;
-        const myEnum = enumObj.enum;
-        if (
-          key !== undefined &&
-          myEnum !== undefined &&
-          keyAtCursor !== "" &&
-          keyAtCursor === key
-        ) {
-          console.log("valueCompletionsKey", key);
-          const completion = new vscode.CompletionItem(myEnum);
-          completion.kind = vscode.CompletionItemKind.Method;
-          completion.command = {
-            command: "editor.action.ldproxy: Create new entities",
-            title: "Re-trigger completions...",
-          };
-          const existing = valueCompletions.find((existingComp) => existingComp.label === myEnum);
-          if (existing === undefined) {
-            valueCompletions.push(completion);
+    if (enumArray) {
+      enumArray.forEach((enumObj) => {
+        if (enumObj.hasOwnProperty("key")) {
+          const key = enumObj.key;
+          const myEnum = enumObj.enum;
+          if (
+            key !== undefined &&
+            myEnum !== undefined &&
+            keyAtCursor !== "" &&
+            keyAtCursor === key
+          ) {
+            console.log("valueCompletionsKey", key);
+            const completion = new vscode.CompletionItem(myEnum);
+            completion.kind = vscode.CompletionItemKind.Method;
+            completion.command = {
+              command: "editor.action.ldproxy: Create new entities",
+              title: "Re-trigger completions...",
+            };
+            const existing = valueCompletions.find((existingComp) => existingComp.label === myEnum);
+            if (existing === undefined) {
+              valueCompletions.push(completion);
+            }
           }
         }
-      }
-    });
-
-    return valueCompletions;
+      });
+      return valueCompletions;
+    }
   },
 });
 

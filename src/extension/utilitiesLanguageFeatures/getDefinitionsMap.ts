@@ -1,34 +1,53 @@
 import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
-import { getSchemaDefs, DefinitionsMap } from "./schemas";
+import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
+import { services } from "../utilitiesLanguageFeatures/services";
+import { hoverData } from "./providers";
 
-export async function getDefinitionsMap(
-  specifiedDefs: { ref: string; finalPath: string }[]
-): Promise<DefinitionsMap> {
-  const schemaDefs = await getSchemaDefs();
+interface DefinitionsMap {
+  [key: string]: LooseDefinition;
+}
 
-  if (!schemaDefs) {
-    return {};
+interface LooseDefinition {
+  title?: string;
+  description?: string;
+  [key: string]: any;
+}
+
+export function getDefinitionsMap(specifiedDefs: { ref: string; finalPath: string }[]) {
+  let currentFilePath = getCurrentFilePath();
+  let serviceOrProvider: string | undefined;
+  if (currentFilePath) {
+    serviceOrProvider = servicesOrProviders(currentFilePath);
   }
-
   let definitionsMap: DefinitionsMap = {};
 
   let allRefs: string[] | undefined = [];
-  specifiedDefs.forEach((def) => {
-    definitionsMap = processProperties(def.ref, schemaDefs, definitionsMap);
+  specifiedDefs.map((def) => {
+    if (serviceOrProvider && serviceOrProvider === "services") {
+      definitionsMap = processProperties(def.ref, services.$defs, definitionsMap);
+    } else if (serviceOrProvider && serviceOrProvider === "providers") {
+      definitionsMap = processProperties(def.ref, hoverData.$defs, definitionsMap);
+    }
   });
   console.log("111", specifiedDefs);
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
-    allRefs = await findObjectsWithRef(definitionsMap);
+    allRefs = findObjectsWithRef(definitionsMap);
     console.log("222", allRefs);
   }
 
   if (allRefs && allRefs.length > 0) {
-    allRefs.forEach((ref) => {
-      console.log("222", ref);
-      definitionsMap = {
-        ...definitionsMap,
-        ...processProperties(ref, schemaDefs, definitionsMap),
-      };
+    allRefs.map((ref) => {
+      if (serviceOrProvider && serviceOrProvider === "services") {
+        definitionsMap = {
+          ...definitionsMap,
+          ...processProperties(ref, services.$defs, definitionsMap),
+        };
+      } else if (serviceOrProvider && serviceOrProvider === "providers") {
+        definitionsMap = {
+          ...definitionsMap,
+          ...processProperties(ref, hoverData.$defs, definitionsMap),
+        };
+      }
     });
   }
   return definitionsMap;
