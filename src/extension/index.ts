@@ -17,6 +17,7 @@ import { getSchemaMapCompletions as getValueCompletions } from "./LanguageFeatur
 import { extractConditions } from "./utilitiesLanguageFeatures/defineDefs";
 import { provider4 } from "./LanguageFeatures/ValueCompletions";
 import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
+import { Emojinfo } from "./LanguageFeatures/CodeActions";
 
 export let allYamlKeys: {
   path: string;
@@ -101,4 +102,22 @@ export function activate(context: ExtensionContext) {
 
   // Add command to the extension context
   context.subscriptions.push(showAutoCreate, storeTree, entityTree);
+
+  /*
+  First tests for code actions:
+
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider("yaml", new Emojinfo(), {
+      providedCodeActionKinds: Emojinfo.providedCodeActionKinds,
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("code-actions-sample.command", () =>
+      vscode.env.openExternal(
+        vscode.Uri.parse("https://unicode.org/emoji/charts-12.0/full-emoji-list.html")
+      )
+    )
+  );
+  */
 }

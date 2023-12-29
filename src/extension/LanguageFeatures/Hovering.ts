@@ -250,7 +250,7 @@ export const hover = () => {
 };
 
 /*
-Hover Logik ab Line 52:
+Ursprüngliche Hover Logik ab Line 52(nicht mehr ganz aktuell):
 
 Line von word herausfinden.
 Path in allYamlKeys finden.
