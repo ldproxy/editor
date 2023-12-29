@@ -1,20 +1,8 @@
-import { hoverData } from "./providers";
-import { services } from "./services";
-import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
-
-interface LooseDefinition {
-  title?: string;
-  description?: string;
-  [key: string]: any;
-}
-
-interface DefinitionsMap {
-  [key: string]: LooseDefinition;
-}
+import { getSchemaDefs, DefinitionsMap } from "./schemas";
 
 export function processProperties(
   defs: string,
-  definitions: Record<string, LooseDefinition>,
+  schemaDefs: DefinitionsMap,
   definitionsMap: DefinitionsMap = {}
 ) {
   let lastPartValue = "";
@@ -22,8 +10,9 @@ export function processProperties(
   console.log("defs", defs);
 
   if (defs !== "") {
-    const definition = definitions[defs];
-    if (definition && definition.properties) {
+    const definition = schemaDefs[defs];
+    if (definition && definition.properties && Object.keys(definition.properties).length > 0) {
+      console.log("uiop", definition.anyOf);
       for (const propKey in definition.properties) {
         const propDefinition = definition.properties[propKey];
         if (propDefinition.title || propDefinition.description) {
@@ -99,23 +88,42 @@ export function processProperties(
                 : additionalReferenceInConditionLastPart
                 ? additionalReferenceInConditionLastPart
                 : "",
+            deprecated: propDefinition.deprecated,
           };
 
           lastPartValue = "";
           lastPartValueAddRed = "";
         }
       }
+    } else if (definition && definition.hasOwnProperty("anyOf")) {
+      definition.anyOf.forEach((anyOfItem: any) => {
+        for (const propKey in anyOfItem.properties) {
+          console.log("propDefinitionMy", propKey);
+
+          let uniqueKey = propKey;
+          let counter = 1;
+
+          while (
+            (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].groupname !== defs) ||
+            (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].title !== propKey)
+          ) {
+            uniqueKey = propKey + counter;
+            counter++;
+          }
+          console.log("MyUniqueKey", uniqueKey);
+          definitionsMap[uniqueKey] = {
+            groupname: defs,
+            title: propKey,
+          };
+        }
+      });
     }
   }
   return definitionsMap;
 }
 
-export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
-  let currentFilePath = getCurrentFilePath();
-  let serviceOrProvider: string | undefined;
-  if (currentFilePath) {
-    serviceOrProvider = servicesOrProviders(currentFilePath);
-  }
+export async function findObjectsWithRef(definitionsMap: DefinitionsMap): Promise<string[]> {
+  const schemaDefs = await getSchemaDefs();
   let lastPartValueArray: string[] = [];
   let hasNewReferences = true;
 
@@ -137,18 +145,8 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
             hasNewReferences = true;
 
             let nestedDefinitionsMap;
-            if (serviceOrProvider && serviceOrProvider === "services") {
-              nestedDefinitionsMap = processProperties(
-                lastPartValue,
-                services.$defs,
-                definitionsMap
-              );
-            } else if (serviceOrProvider && serviceOrProvider === "providers") {
-              nestedDefinitionsMap = processProperties(
-                lastPartValue,
-                hoverData.$defs,
-                definitionsMap
-              );
+            if (schemaDefs) {
+              nestedDefinitionsMap = processProperties(lastPartValue, schemaDefs, definitionsMap);
             }
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
           }
@@ -167,18 +165,8 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap): string[] {
             hasNewReferences = true;
 
             let nestedDefinitionsMap;
-            if (serviceOrProvider && serviceOrProvider === "services") {
-              nestedDefinitionsMap = processProperties(
-                lastPartValue,
-                services.$defs,
-                definitionsMap
-              );
-            } else if (serviceOrProvider && serviceOrProvider === "providers") {
-              nestedDefinitionsMap = processProperties(
-                lastPartValue,
-                hoverData.$defs,
-                definitionsMap
-              );
+            if (schemaDefs) {
+              nestedDefinitionsMap = processProperties(lastPartValue, schemaDefs, definitionsMap);
             }
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
           }

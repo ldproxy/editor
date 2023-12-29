@@ -17,7 +17,7 @@ import { getSchemaMapCompletions as getValueCompletions } from "./LanguageFeatur
 import { extractConditions } from "./utilitiesLanguageFeatures/defineDefs";
 import { provider4 } from "./LanguageFeatures/ValueCompletions";
 import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
-import { Emojinfo } from "./LanguageFeatures/CodeActions";
+// import { Emojinfo } from "./LanguageFeatures/CodeActions";
 
 export let allYamlKeys: {
   path: string;

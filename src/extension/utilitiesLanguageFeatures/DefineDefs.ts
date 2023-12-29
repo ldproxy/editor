@@ -1,41 +1,23 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
-import { hoverData } from "./providers";
-import { services } from "./services";
-import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
-
-interface LooseDefinition {
-  title?: string;
-  description?: string;
-  [key: string]: any;
-}
+import { getSchema, DefinitionsMap, LooseDefinition } from "./schemas";
 
 interface Conditions {
   condition?: Record<string, any>;
   ref?: string;
 }
 
-export function extractConditions() {
-  let currentFilePath = getCurrentFilePath();
-  let serviceOrProvider: string | undefined;
-  if (currentFilePath) {
-    serviceOrProvider = servicesOrProviders(currentFilePath);
-  }
-  console.log("serviceOrProvider", serviceOrProvider);
-  let json;
-  if (serviceOrProvider && serviceOrProvider === "services") {
-    json = services;
-  } else if (serviceOrProvider && serviceOrProvider === "providers") {
-    json = hoverData;
-  }
-  const conditions: Conditions[] = [];
-  if (!json) {
+export async function extractConditions() {
+  const schema = await getSchema();
+
+  if (!schema) {
     return [];
   }
-  console.log("coonfig", json);
+  const conditions: Conditions[] = [];
+
   // Überprüfen, ob es ein allOf-Array in der obersten Ebene gibt
-  if (json.allOf) {
-    for (const condition of json.allOf) {
+  if (schema.allOf) {
+    for (const condition of schema.allOf) {
       if (condition.if && condition.if.properties) {
         const ref = condition.then?.$ref;
         if (ref) {
@@ -48,8 +30,8 @@ export function extractConditions() {
     }
   }
 
-  if (json.$defs) {
-    const defs = json.$defs as Record<string, LooseDefinition>;
+  if (schema.$defs) {
+    const defs = schema.$defs as DefinitionsMap;
 
     for (const key in defs) {
       if (defs.hasOwnProperty(key)) {
@@ -75,13 +57,13 @@ export function extractConditions() {
   return conditions;
 }
 
-export function defineDefs(document: vscode.TextDocument) {
+export async function defineDefs(document: vscode.TextDocument) {
   const config = yaml.load(document.getText()) as LooseDefinition;
   if (!config) {
     return [];
   }
 
-  const conditions = extractConditions();
+  const conditions = await extractConditions();
 
   let specifiedDefs: { ref: string; finalPath: string }[] = [];
 
