@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
+import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
   getMaxLine,
-} from "../utilitiesLanguageFeatures/completionsForArray";
+} from "../utilitiesLanguageFeatures/handlingYamlArrays";
 import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
 

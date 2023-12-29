@@ -1,4 +1,3 @@
-import * as vscode from "vscode";
 import { newXtracfg } from "../utilities/xtracfg";
 import { getCurrentFilePath, getWorkspacePath } from "../utilities/paths";
 

@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
-import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
+import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
 import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
   getMaxLine,
-} from "../utilitiesLanguageFeatures/completionsForArray";
+} from "../utilitiesLanguageFeatures/handlingYamlArrays";
 
 interface LooseDefinition {
   title?: string;

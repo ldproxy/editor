@@ -1,4 +1,4 @@
-import { processProperties, findObjectsWithRef } from "../utilitiesLanguageFeatures/GetProviders";
+import { processProperties, findObjectsWithRef } from "./buildDefMap";
 import { getCurrentFilePath, servicesOrProviders } from "./servicesOrProviders";
 import { services } from "../utilitiesLanguageFeatures/services";
 import { hoverData } from "./providers";

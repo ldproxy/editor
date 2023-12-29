@@ -8,7 +8,7 @@ import {
 } from "../utilitiesLanguageFeatures/servicesOrProviders";
 import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
-import { defineDefs } from "../utilitiesLanguageFeatures/DefineDefs";
+import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
 
 let allYamlKeys: {
   path: string;
