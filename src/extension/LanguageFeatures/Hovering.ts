@@ -6,6 +6,7 @@ import {
   getLinesForArrayIndex,
   getMaxLine,
 } from "../utilitiesLanguageFeatures/handlingYamlArrays";
+import { DEV } from "../utilities/constants";
 
 interface LooseDefinition {
   title?: string;
@@ -82,13 +83,15 @@ export const hover = () => {
             maxLine = getMaxLine(yamlKeysHover, minLine);
           }
           if (pathInYaml) {
-            console.log("specifiedDefs", specifiedDefs);
-            console.log("hoverPathForArray", pathForArray);
-            console.log("hoverMinMax", minLine, maxLine, lineOfWord);
-            console.log("hoverSpecifiedPath", specifiedDefsPath);
-            console.log("hoverPathToUse", pathInYamlToUse);
-            console.log("hoverpathInYamlLastKey", pathInYamlLastKey);
-            console.log("hoverPathInYaml", pathInYaml);
+            if (DEV) {
+              console.log("specifiedDefs", specifiedDefs);
+              console.log("hoverPathForArray", pathForArray);
+              console.log("hoverMinMax", minLine, maxLine, lineOfWord);
+              console.log("hoverSpecifiedPath", specifiedDefsPath);
+              console.log("hoverPathToUse", pathInYamlToUse);
+              console.log("hoverpathInYamlLastKey", pathInYamlLastKey);
+              console.log("hoverPathInYaml", pathInYaml);
+            }
           }
           if (
             !specifiedDefsPath.includes("[") &&

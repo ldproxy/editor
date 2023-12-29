@@ -1,3 +1,5 @@
+import { DEV } from "../utilities/constants";
+
 export function extractIndexFromPath(path: string): number | null {
   const regex = /\[(\d+)\]/;
 
@@ -30,8 +32,10 @@ export function getLinesForArrayIndex(
       line = obj.startOfArray;
     }
   }
-  console.log("ttt", line);
-  console.log("pathiToUse", pathToUse);
+  if (DEV) {
+    console.log("ttt", line);
+    console.log("pathiToUse", pathToUse);
+  }
   if (line > 0) {
     return line;
   }

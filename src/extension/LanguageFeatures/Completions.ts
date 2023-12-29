@@ -7,6 +7,7 @@ import {
 } from "../utilitiesLanguageFeatures/handlingYamlArrays";
 import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
+import { DEV } from "../utilities/constants";
 
 let allYamlKeys: {
   path: string;
@@ -59,9 +60,11 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
     const currentStartOfArray = allYamlKeys.find(
       (item) => item.lineOfPath === line - 1
     )?.startOfArray;
-    console.log("pathAtCursor: " + pathAtCursor);
-    console.log("bbb", definitionsMap);
-    console.log("currentArrayIndex: " + currentStartOfArray);
+    if (DEV) {
+      console.log("pathAtCursor: " + pathAtCursor);
+      console.log("bbb", definitionsMap);
+      console.log("currentArrayIndex: " + currentStartOfArray);
+    }
 
     if (definitionsMap) {
       const refCompletions: vscode.CompletionItem[] = [];
@@ -155,11 +158,13 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         maxLine = getMaxLine(allYamlKeys, minLine);
       }
       const keyAtStartOfArray = allYamlKeys.find((key) => key.lineOfPath === minLine);
-      console.log("keyAtStartOfArray: ", keyAtStartOfArray);
       const columnOfArray = keyAtStartOfArray ? keyAtStartOfArray.index : 0;
 
-      console.log("minmax", minLine, maxLine, line);
-      console.log("speziu2", specifiedDefsPath, pathAtCursor);
+      if (DEV) {
+        console.log("minmax", minLine, maxLine, line);
+        console.log("speziu2", specifiedDefsPath, pathAtCursor);
+        console.log("keyAtStartOfArray: ", keyAtStartOfArray);
+      }
 
       if (
         !specifiedDefsPath.includes("[") &&
@@ -201,8 +206,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
         definitionsMap &&
         column === columnOfArray
       ) {
-        console.log("columnOfArray", columnOfArray);
-        console.log("speziu", specifiedDefsPath, pathAtCursor);
+        if (DEV) {
+          console.log("columnOfArray", columnOfArray);
+          console.log("speziu", specifiedDefsPath, pathAtCursor);
+        }
 
         for (const key in definitionsMap) {
           if (definitionsMap.hasOwnProperty(key)) {
@@ -246,9 +253,10 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
     const line = position.line + 1;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
-
-    console.log("allYamlKeys: ", allYamlKeys);
-    console.log("pathAtCursor: " + pathAtCursor);
+    if (DEV) {
+      console.log("allYamlKeys: ", allYamlKeys);
+      console.log("pathAtCursor: " + pathAtCursor);
+    }
 
     if (definitionsMap) {
       const refCompletions: vscode.CompletionItem[] = [];
@@ -418,9 +426,10 @@ export function getPathAtCursor(
 
     const pathAtCursorString =
       column > 0 ? getPathAtCursorString(indexToUse, column, allYamlKeys) : "";
-
-    console.log("column", column);
-    console.log("lineeee", line);
+    if (DEV) {
+      console.log("column", column);
+      console.log("lineeee", line);
+    }
     return pathAtCursorString;
   } else {
     return "";

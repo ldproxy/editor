@@ -4,6 +4,7 @@ import { getSchemaDefs } from "../utilitiesLanguageFeatures/schemas";
 import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
 import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
+import { DEV } from "../utilities/constants";
 
 let allYamlKeys: {
   path: string;
@@ -77,15 +78,16 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
       pathAtCursorTwoLastParts = pathAtCursorSplit.slice(-2).join(".");
       pathAtCursorThreeLastParts = pathAtCursorSplit.slice(-3).join(".");
     }
-
-    console.log("keyAtCursor", keyAtCursor);
-    console.log("pathAtCursorssssss", pathAtCursor);
-    console.log("yamlKeysObject", yamlKeysObject);
-    console.log("pathAtCursorTwoLastParts", pathAtCursorTwoLastParts);
-    console.log("pathAtCursorThreeLastParts", pathAtCursorThreeLastParts);
-    console.log("ttttt", definitionsMap);
-    console.log("aaaaaa", allYamlKeys);
-    console.log("uuuu", uniqueDefs);
+    if (DEV) {
+      console.log("keyAtCursor", keyAtCursor);
+      console.log("pathAtCursorssssss", pathAtCursor);
+      console.log("yamlKeysObject", yamlKeysObject);
+      console.log("pathAtCursorTwoLastParts", pathAtCursorTwoLastParts);
+      console.log("pathAtCursorThreeLastParts", pathAtCursorThreeLastParts);
+      console.log("ttttt", definitionsMap);
+      console.log("aaaaaa", allYamlKeys);
+      console.log("uuuu", uniqueDefs);
+    }
 
     enumArray.forEach((enumObj) => {
       if (enumObj.hasOwnProperty("key")) {
