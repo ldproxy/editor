@@ -42,7 +42,7 @@ export async function getSchemaMapCompletions() {
   const currentDocument = vscode.window.activeTextEditor?.document;
   if (currentDocument) {
     specifiedDefs = await defineDefs(currentDocument);
-    const uniqueDefs = removeDuplicates(specifiedDefs);
+    uniqueDefs = removeDuplicates(specifiedDefs);
     if (uniqueDefs && uniqueDefs.length > 0) {
       definitionsMap = await getDefinitionsMap(uniqueDefs);
     }
@@ -186,6 +186,7 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
         }
       }
     });
+
     return valueCompletions;
   },
 });

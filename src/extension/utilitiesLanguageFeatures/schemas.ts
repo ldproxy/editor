@@ -85,7 +85,7 @@ export const getSchemaDefs = async (): Promise<DefinitionsMap | undefined> => {
     return undefined;
   }
 
-  return schema.$defs;
+  return schema;
 };
 
 const getCurrentFileType = async (): Promise<string | undefined> => {

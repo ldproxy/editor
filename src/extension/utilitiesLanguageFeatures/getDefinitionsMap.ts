@@ -4,7 +4,11 @@ import { getSchemaDefs, DefinitionsMap } from "./schemas";
 export async function getDefinitionsMap(
   specifiedDefs: { ref: string; finalPath: string }[]
 ): Promise<DefinitionsMap> {
-  const schemaDefs = await getSchemaDefs();
+  const schema = await getSchemaDefs();
+  let schemaDefs: any;
+  if (schema) {
+    schemaDefs = schema.$defs;
+  }
 
   if (!schemaDefs) {
     return {};

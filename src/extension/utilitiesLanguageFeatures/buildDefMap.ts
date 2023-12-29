@@ -123,7 +123,11 @@ export function processProperties(
 }
 
 export async function findObjectsWithRef(definitionsMap: DefinitionsMap): Promise<string[]> {
-  const schemaDefs = await getSchemaDefs();
+  const schema = await getSchemaDefs();
+  let schemaDefs: any;
+  if (schema) {
+    schemaDefs = schema.$defs;
+  }
   let lastPartValueArray: string[] = [];
   let hasNewReferences = true;
 
