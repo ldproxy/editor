@@ -46,8 +46,8 @@ const send = (ensureOpen: Socket) => {
 
         socket.send(cmd);
       })
-      .catch((error) => {
-        console.error("Could not send command to xtracfg", error);
+      .catch((error: Error) => {
+        console.error("Could not send command to xtracfg", error.message || error);
       });
 };
 
@@ -72,7 +72,7 @@ const listen = (ensureOpen: Socket) => {
         });
       })
       .catch((error: Error) => {
-        console.error("Could not listen to xtracfg", error.message);
+        console.error("Could not listen to xtracfg", error.message || error);
       });
 };
 
@@ -116,14 +116,14 @@ const socket = (): Socket => {
       }
     }
 
-    release();
-
     return new Promise((resolve, reject) => {
       _socket.addEventListener("open", () => {
         resolve(_socket);
+        release();
       });
       _socket.addEventListener("error", (error) => {
         reject(error);
+        release();
       });
       if (DEV) {
         _socket.addEventListener("close", (event) => {
