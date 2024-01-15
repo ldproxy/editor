@@ -40,9 +40,9 @@ const send = (ensureOpen: Socket) => {
       .then((socket) => {
         const cmd = JSON.stringify(request);
 
-        if (DEV) {
-          console.log("sending to xtracfg", cmd);
-        }
+        //if (DEV) {
+        console.log("sending to xtracfg", cmd);
+        //}
 
         socket.send(cmd);
       })
