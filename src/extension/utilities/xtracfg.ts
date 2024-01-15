@@ -97,6 +97,8 @@ const socket = (): Socket => {
   return async (): Promise<WebSocket> => {
     const release = await mutex.acquire();
 
+    console.log("websocket", _socket && _socket.readyState);
+
     if (_socket && _socket.readyState === _socket.OPEN) {
       release();
       return Promise.resolve(_socket);
