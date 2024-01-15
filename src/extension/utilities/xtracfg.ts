@@ -112,8 +112,7 @@ const socket = (): Socket => {
         _socket = new WebSocket("ws://localhost:8081/sock");
       } else {
         //console.log("CONNECTING to websocket", `ws://${window.location.host}/proxy/8081/`);
-        _socket = new WebSocket(`ws://localhost:8080/proxy/8081/`);
-        console.info("CONNECTING to websocket", window, globalThis);
+        _socket = new WebSocket(`ws://localhost:8081`);
       }
     }
 
