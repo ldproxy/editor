@@ -43,10 +43,6 @@ export function activate(context: ExtensionContext) {
     new EntitiesProvider()
   );
 
-  const channel = window.createOutputChannel("ldproxy-editor");
-  context.subscriptions.push(channel);
-  channel.appendLine("HELLO WORLD");
-
   initSchemas();
   initDiagnostics();
   hover();
