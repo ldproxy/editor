@@ -1,8 +1,12 @@
+import { DEV } from "../utilities/constants";
+
 export function buildEnumArray(
   definitions: any
 ): { key: string; enum: string; groupname: string | "" }[] {
   let localEnumArray: { key: string; enum: string; groupname: string | "" }[] = [];
-  console.log("enumDefinitions", definitions);
+  if (DEV) {
+    console.log("enumDefinitions", definitions);
+  }
 
   if (definitions.hasOwnProperty("properties")) {
     for (const key in definitions.properties) {
@@ -20,15 +24,23 @@ export function buildEnumArray(
     }
   }
   if (definitions.hasOwnProperty("anyOf") && definitions.anyOf[0]) {
-    console.log("ahaa", definitions.anyOf[0]);
+    if (DEV) {
+      console.log("definitions.anyOf[0]", definitions.anyOf[0]);
+    }
     definitions.anyOf.forEach((item: any) => {
       if (item.hasOwnProperty("properties")) {
-        console.log("propItem", item.properties);
+        if (DEV) {
+          console.log("propItem", item.properties);
+        }
         for (const propKey in item.properties) {
           const propDefinition = item.properties[propKey];
-          console.log("hj", propDefinition);
+          if (DEV) {
+            console.log("propDefinitiongetEnum", propDefinition);
+          }
           if (propDefinition && propDefinition.hasOwnProperty("enum")) {
-            console.log("iuz", propDefinition.enum);
+            if (DEV) {
+              console.log("propDefinition.enum", propDefinition.enum);
+            }
             propDefinition.enum.forEach((enumValue: string) => {
               const existing = localEnumArray.find(
                 (existingEnum) => existingEnum.key === propKey && existingEnum.enum === enumValue

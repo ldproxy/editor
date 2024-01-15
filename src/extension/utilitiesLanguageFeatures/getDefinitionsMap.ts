@@ -1,5 +1,6 @@
 import { processProperties, findObjectsWithRef } from "./buildDefMap";
 import { getSchemaDefs, DefinitionsMap } from "./schemas";
+import { DEV } from "../utilities/constants";
 
 export async function getDefinitionsMap(
   specifiedDefs: { ref: string; finalPath: string }[]
@@ -19,15 +20,21 @@ export async function getDefinitionsMap(
   specifiedDefs.forEach((def) => {
     definitionsMap = processProperties(def.ref, schemaDefs, definitionsMap);
   });
-  console.log("111", specifiedDefs);
+  if (DEV) {
+    console.log("specifiedDefsDefMap", specifiedDefs);
+  }
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
     allRefs = await findObjectsWithRef(definitionsMap);
-    console.log("222", allRefs);
+    if (DEV) {
+      console.log("allRefsDefMap", allRefs);
+    }
   }
 
   if (allRefs && allRefs.length > 0) {
     allRefs.forEach((ref) => {
-      console.log("222", ref);
+      if (DEV) {
+        console.log("refDefMap", ref);
+      }
       definitionsMap = {
         ...definitionsMap,
         ...processProperties(ref, schemaDefs, definitionsMap),

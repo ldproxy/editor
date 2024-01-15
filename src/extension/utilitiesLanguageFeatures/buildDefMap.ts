@@ -1,4 +1,5 @@
 import { getSchemaDefs, DefinitionsMap } from "./schemas";
+import { DEV } from "../utilities/constants";
 
 export function processProperties(
   defs: string,
@@ -7,12 +8,16 @@ export function processProperties(
 ) {
   let lastPartValue = "";
   let lastPartValueAddRed = "";
-  console.log("defs", defs);
+  if (DEV) {
+    console.log("defs", defs);
+  }
 
   if (defs !== "") {
     const definition = schemaDefs[defs];
     if (definition && definition.properties && Object.keys(definition.properties).length > 0) {
-      console.log("uiop", definition.anyOf);
+      if (DEV) {
+        console.log("definition.anyOf", definition.anyOf);
+      }
       for (const propKey in definition.properties) {
         const propDefinition = definition.properties[propKey];
         if (propDefinition.title || propDefinition.description) {
@@ -98,7 +103,9 @@ export function processProperties(
     } else if (definition && definition.hasOwnProperty("anyOf")) {
       definition.anyOf.forEach((anyOfItem: any) => {
         for (const propKey in anyOfItem.properties) {
-          console.log("propDefinitionMy", propKey);
+          if (DEV) {
+            console.log("propDefinitionMy", propKey);
+          }
 
           let uniqueKey = propKey;
           let counter = 1;
@@ -110,7 +117,9 @@ export function processProperties(
             uniqueKey = propKey + counter;
             counter++;
           }
-          console.log("MyUniqueKey", uniqueKey);
+          if (DEV) {
+            console.log("MyUniqueKey", uniqueKey);
+          }
           definitionsMap[uniqueKey] = {
             groupname: defs,
             title: propKey,
@@ -178,6 +187,8 @@ export async function findObjectsWithRef(definitionsMap: DefinitionsMap): Promis
       }
     }
   }
-  console.log("lastPartValueArray", lastPartValueArray);
+  if (DEV) {
+    console.log("lastPartValueArray", lastPartValueArray);
+  }
   return lastPartValueArray;
 }

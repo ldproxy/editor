@@ -1,3 +1,5 @@
+import { DEV } from "../utilities/constants";
+
 export function getAllYamlPaths(
   document: string,
   yamlObject: any,
@@ -13,7 +15,9 @@ export function getAllYamlPaths(
   startOfArray?: number
 ) {
   if (yamlObject && typeof yamlObject === "object") {
-    console.log("yamlObject", yamlObject);
+    if (DEV) {
+      console.log("yamlObject", yamlObject);
+    }
     yamlObject.forEach((object: any) => {
       if (
         object &&
@@ -38,7 +42,9 @@ export function getAllYamlPaths(
         }
         object.value.items.forEach((array: any) => {
           arrayIndex++;
-          console.log("arraaay", array);
+          if (DEV) {
+            console.log("arrayGetKeys", array);
+          }
           let arrayStartOffset;
 
           for (const item of array.start) {
@@ -54,7 +60,9 @@ export function getAllYamlPaths(
           if (array && array.value && array.value.items) {
             array.value.items.forEach((object2: any) => {
               if (object2 && object2.key && object2.key.source) {
-                console.log("object2", object2);
+                if (DEV) {
+                  console.log("object2", object2);
+                }
                 const path2: string = `${path}.${object2.key.source.replace(/\./g, "/")}`;
                 const line: number = getLineNumber(document, object2.key.offset);
                 const column: number = object2.key.indent;
@@ -77,7 +85,9 @@ export function getAllYamlPaths(
                   object2.value.items &&
                   object2.value.items[0].start.length > 0
                 ) {
-                  console.log("object2", [object2], path);
+                  if (DEV) {
+                    console.log("object2", [object2], path);
+                  }
                   getAllYamlPaths(document, [object2], path, yamlKeys, -1);
                 } else if (object2.value && object2.value.items) {
                   getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex, startOfArray);
@@ -112,9 +122,13 @@ export function getAllYamlPaths(
             }
           }
         }
-        console.log("ursprung", object);
+        if (DEV) {
+          console.log("ursprung", object);
+        }
         object.value.items.forEach((item: any) => {
-          console.log("hierum", item);
+          if (DEV) {
+            console.log("itemGetKeys", item);
+          }
           if (
             item.value &&
             item.value.items &&
@@ -122,7 +136,9 @@ export function getAllYamlPaths(
             item.value.items[0].start &&
             item.value.items[0].start[0]
           ) {
-            console.log("arrayitem", [item], path);
+            if (DEV) {
+              console.log("arrayitem", [item], path);
+            }
             if (arrayIndex && arrayIndex >= 0 && startOfArray) {
               getAllYamlPaths(document, [item], path, yamlKeys, arrayIndex, startOfArray);
             } else {
@@ -153,7 +169,9 @@ export function getAllYamlPaths(
             }
 
             if (item.value && item.value.items) {
-              console.log("item", item.value.items, path2);
+              if (DEV) {
+                console.log("item.value.items", item.value.items, path2);
+              }
               if (arrayIndex && arrayIndex >= 0 && startOfArray) {
                 getAllYamlPaths(
                   document,
@@ -170,11 +188,15 @@ export function getAllYamlPaths(
           }
         });
       } else if (object && object.key && object.key.source) {
-        console.log("sooo", object);
+        if (DEV) {
+          console.log("objectGetKeys", object);
+        }
         const path: string = currentPath
           ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
           : object.key.source.replace(/\./g, "/");
-        console.log("importa", object.key);
+        if (DEV) {
+          console.log("object.key", object.key);
+        }
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
         if (line !== undefined && column !== undefined) {

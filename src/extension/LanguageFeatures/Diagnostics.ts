@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { newXtracfg } from "../utilities/xtracfg";
 import { getRelativeFilePath, getWorkspacePath } from "../utilities/paths";
+import { DEV } from "../utilities/constants";
 
 interface YamlKeysDiagnostic {
   path: string;
@@ -23,7 +24,9 @@ const diagnosticsResults: {
 export const initDiagnostics = () => {
   xtracfg.listen(
     (response) => {
-      console.log("RESP", response);
+      if (DEV) {
+        console.log("RESP", response);
+      }
       if (response.results && response.details && response.details.path) {
         if (Object.hasOwn(diagnosticsResults, response.details.path)) {
           const results = response.results
@@ -33,9 +36,9 @@ export const initDiagnostics = () => {
 
               return match ? match : "";
             });
-
-          console.log("DIAGNOSTICS", results);
-
+          if (DEV) {
+            console.log("DIAGNOSTICS", results);
+          }
           diagnosticsResults[response.details.path].resolve(results);
           diagnosticsResults[response.details.path].pending = false;
         }
@@ -81,7 +84,9 @@ export async function updateDiagnostics(
   document: vscode.TextDocument,
   collection: vscode.DiagnosticCollection
 ): Promise<void> {
-  console.log("sss", yamlKeysDiagnostic);
+  if (DEV) {
+    console.log("yamlKeysDiagnosticUpdateDiagnostics", yamlKeysDiagnostic);
+  }
   if (document.uri.path.includes(".yml")) {
     const diagnostics: vscode.Diagnostic[] = [];
     const path = getRelativeFilePath(document.uri);
@@ -96,7 +101,9 @@ export async function updateDiagnostics(
       const infoText = info.match(/\$.(.*):/);
       const infoWord = infoText ? infoText[1].trim() : "";
       const infoWordWithoutIndex = infoWord.replace(/\[\d+\]/g, "");
-      console.log("infoWord", infoWord);
+      if (DEV) {
+        console.log("infoWord", infoWord);
+      }
       try {
         const keys = infoWord.split(".");
         const lastKey: string = keys[keys.length - 1];
@@ -108,27 +115,36 @@ export async function updateDiagnostics(
         let lastKeyIndex: number | undefined;
 
         let lineOfPath: number | null = 0;
-        console.log("indi", index);
+        if (DEV) {
+          console.log("indexUpdateDiagnostics", index);
+        }
         if (index !== null) {
           const foundItem = yamlKeysDiagnostic.find(
             (item) => item.path === infoWordWithoutIndex && item.arrayIndex === index
           );
-          console.log("foundItem", foundItem);
+          if (DEV) {
+            console.log("foundItem", foundItem);
+          }
           if (foundItem) {
             lineOfPath = foundItem.lineOfPath - 1;
           }
         } else {
           const foundItem = yamlKeysDiagnostic.find((item) => item.path === infoWord);
-          console.log("foundItem", foundItem);
+          if (DEV) {
+            console.log("foundItem", foundItem);
+          }
           if (foundItem) {
             lineOfPath = foundItem.lineOfPath - 1;
           }
         }
-
-        console.log("lineOfPath", lineOfPath);
+        if (DEV) {
+          console.log("lineOfPath", lineOfPath);
+        }
         if (lineOfPath && lineOfPath !== 0) {
           const lineText = document.lineAt(lineOfPath).text;
-          console.log("lineText", lineText);
+          if (DEV) {
+            console.log("lineText", lineText);
+          }
           if (lineText.includes(lastKey)) {
             const keyIndex = lineText.indexOf(lastKey);
             const lineTextIndex = document.offsetAt(new vscode.Position(lineOfPath, 0));
