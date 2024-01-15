@@ -1,5 +1,6 @@
 import { newXtracfg } from "../utilities/xtracfg";
 import { getCurrentFilePath, getWorkspacePath } from "../utilities/paths";
+import { DEV } from "../utilities/constants";
 
 export interface DefinitionsMap {
   [key: string]: LooseDefinition;
@@ -25,8 +26,9 @@ const fileTypes: {
 
 //TODO: is called 3 times
 export const initSchemas = () => {
-  console.log("INIT SCHEMAS");
-
+  if (DEV) {
+    console.log("INIT SCHEMAS");
+  }
   let res: (value: DefinitionsMap) => void, rej;
   allSchemas = new Promise((resolve, reject) => {
     res = resolve;
@@ -36,10 +38,14 @@ export const initSchemas = () => {
   //TODO: reject on error
   xtracfg.listen(
     (response) => {
-      console.log("RESP", response);
+      if (DEV) {
+        console.log("RESP", response);
+      }
       if (response.details && response.details.path && response.details.fileType) {
         if (Object.hasOwn(fileTypes, response.details.path)) {
-          console.log("FOUND");
+          if (DEV) {
+            console.log("FOUND");
+          }
           fileTypes[response.details.path].resolve(response.details.fileType);
         }
       } else if (
@@ -55,7 +61,9 @@ export const initSchemas = () => {
             schemas[key] = JSON.parse(response.details[key]);
           }
         });
-        console.log("SCHEMAS", schemas);
+        if (DEV) {
+          console.log("SCHEMAS", schemas);
+        }
         res(schemas);
       }
     },

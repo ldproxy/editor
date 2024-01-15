@@ -57,12 +57,14 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
     if (!schemaDefs) {
       return [];
     }
-    console.log("schemaDefs: ", schemaDefs);
-
+    if (DEV) {
+      console.log("schemaDefsVC: ", schemaDefs);
+    }
     const enumArray: { key: string; enum: string; groupname: string }[] =
       buildEnumArray(schemaDefs);
-
-    console.log("enumArray", enumArray);
+    if (DEV) {
+      console.log("enumArrayVC", enumArray);
+    }
     const valueCompletions: vscode.CompletionItem[] = [];
     const line = position.line;
     const keyAtCursor = findKeyForValueCompletion(line, document, position);
@@ -79,14 +81,14 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
       pathAtCursorThreeLastParts = pathAtCursorSplit.slice(-3).join(".");
     }
     if (DEV) {
-      console.log("keyAtCursor", keyAtCursor);
-      console.log("pathAtCursorssssss", pathAtCursor);
-      console.log("yamlKeysObject", yamlKeysObject);
-      console.log("pathAtCursorTwoLastParts", pathAtCursorTwoLastParts);
-      console.log("pathAtCursorThreeLastParts", pathAtCursorThreeLastParts);
-      console.log("ttttt", definitionsMap);
-      console.log("aaaaaa", allYamlKeys);
-      console.log("uuuu", uniqueDefs);
+      console.log("keyAtCursorVC", keyAtCursor);
+      console.log("pathAtCursorssssssVC", pathAtCursor);
+      console.log("yamlKeysObjectVC", yamlKeysObject);
+      console.log("pathAtCursorTwoLastPartsVC", pathAtCursorTwoLastParts);
+      console.log("pathAtCursorThreeLastPartsVC", pathAtCursorThreeLastParts);
+      console.log("definitionsMapVC", definitionsMap);
+      console.log("allYamlKeysVC", allYamlKeys);
+      console.log("uniqeDefsVC", uniqueDefs);
     }
 
     enumArray.forEach((enumObj) => {
@@ -116,7 +118,9 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
                       pathAtCursorThreeLastParts
                     )
                   ) {
-                    console.log("valueCompletionsKey", myEnum);
+                    if (DEV) {
+                      console.log("valueCompletionsKeyVC", myEnum);
+                    }
                     const completion = new vscode.CompletionItem(myEnum);
                     completion.kind = vscode.CompletionItemKind.Method;
                     completion.command = {
@@ -135,15 +139,19 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
                 else if (obj["ref"] !== "") {
                   const title = obj.title;
                   const value = obj.ref;
-                  console.log("ttitle", title);
-                  console.log("enumGroupname", enumGroupname);
+                  if (DEV) {
+                    console.log("titleVC", title);
+                    console.log("enumGroupnameVC", enumGroupname);
+                  }
                   if (
                     title !== undefined &&
                     value !== undefined &&
                     enumGroupname === value &&
                     pathAtCursorTwoLastParts === `${title}.${keyAtCursor}`
                   ) {
-                    console.log("valueCompletionsKey", myEnum);
+                    if (DEV) {
+                      console.log("valueCompletionsKeyVC", myEnum);
+                    }
                     const completion = new vscode.CompletionItem(myEnum);
                     completion.kind = vscode.CompletionItemKind.Method;
                     completion.command = {
@@ -166,7 +174,9 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
                       (def.ref === enumGroupname || enumGroupname === "") &&
                       !pathAtCursor.includes(".")
                     ) {
-                      console.log("valueCompletionsKey", myEnum);
+                      if (DEV) {
+                        console.log("valueCompletionsKeyVC", myEnum);
+                      }
                       const completion = new vscode.CompletionItem(myEnum);
                       completion.kind = vscode.CompletionItemKind.Method;
                       completion.command = {
@@ -210,8 +220,9 @@ function findKeyForValueCompletion(line: number, document: vscode.TextDocument, 
     } else {
       textBeforeColon = substringBeforeColon; // Wenn kein Leerzeichen vorhanden ist
     }
-
-    console.log("Text vor dem Doppelpunkt:", textBeforeColon);
+    if (DEV) {
+      console.log("Text vor dem Doppelpunkt:", textBeforeColon);
+    }
   }
   return textBeforeColon;
 }

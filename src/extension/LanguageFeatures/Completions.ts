@@ -80,7 +80,9 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                   const obj2 = definitionsMap[key2];
                   if (obj2.groupname === value) {
                     const finalValue = obj2.title;
-                    console.log("allYamlKeys: ", allYamlKeys);
+                    if (DEV) {
+                      console.log("allYamlKeys: ", allYamlKeys);
+                    }
                     if (
                       finalValue !== undefined &&
                       obj2.deprecated !== true &&
@@ -99,7 +101,9 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                         }
                       })
                     ) {
-                      console.log("ccc", refCompletions);
+                      if (DEV) {
+                        console.log("refCompletionsinCompletions", refCompletions);
+                      }
                       const completion = new vscode.CompletionItem(finalValue);
                       completion.kind = vscode.CompletionItemKind.Method;
                       if (obj2.description !== "") {
@@ -134,12 +138,13 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
     const line = position.line + 1;
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
-
-    console.log("allYamlKeys: ", allYamlKeys);
-    console.log("pathAtCursor: " + pathAtCursor);
     const completions: vscode.CompletionItem[] = [];
     const uniqueDefs = removeDuplicates(specifiedDefs);
-    console.log("uniqueDefs", uniqueDefs);
+    if (DEV) {
+      console.log("allYamlKeysInProvider2: ", allYamlKeys);
+      console.log("pathAtCursorInProvider2: " + pathAtCursor);
+      console.log("uniqueDefsInProvider2", uniqueDefs);
+    }
 
     uniqueDefs.forEach((defObj) => {
       const ref = defObj.ref;
@@ -215,7 +220,9 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
           if (definitionsMap.hasOwnProperty(key)) {
             const obj = definitionsMap[key];
             if (obj.groupname === ref) {
-              console.log("ref", ref);
+              if (DEV) {
+                console.log("refProvider2", ref);
+              }
               const value = obj.title;
               if (
                 value !== undefined &&
@@ -254,8 +261,8 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
     const column = position.character;
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
     if (DEV) {
-      console.log("allYamlKeys: ", allYamlKeys);
-      console.log("pathAtCursor: " + pathAtCursor);
+      console.log("allYamlKeysProvider3: ", allYamlKeys);
+      console.log("pathAtCursorProvider3: " + pathAtCursor);
     }
 
     if (definitionsMap) {
@@ -264,7 +271,9 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
         if (definitionsMap.hasOwnProperty(key)) {
           const obj = definitionsMap[key];
           if (obj["addRef"] !== "") {
-            console.log("zz", obj);
+            if (DEV) {
+              console.log("objProvider3", obj);
+            }
             const title = obj.title;
             const value = obj.addRef;
             if (
@@ -292,8 +301,9 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                   return obj.lineOfPath === i && pathAfterLastDot === title;
                 });
                 if (foundObj) {
-                  console.log("foundObj: ", foundObj, foundObj?.arrayIndex);
-
+                  if (DEV) {
+                    console.log("foundObj: ", foundObj, foundObj?.arrayIndex);
+                  }
                   break;
                 }
               }
@@ -302,7 +312,9 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                 objPath = foundObj.path;
                 const partsInObjPath = objPath.split(".").slice(0, -1);
                 refinedObjPath = partsInObjPath.join(".");
-                console.log("aaarrayIndex: ", arrayIndex);
+                if (DEV) {
+                  console.log("arayIndexProvider3: ", arrayIndex);
+                }
               }
               let relevantRefs = [""];
 
@@ -317,7 +329,9 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
 
                 relevantRefs.forEach((ref) => {
                   if (obj.groupname === ref) {
-                    console.log("objiii", obj.addRef);
+                    if (DEV) {
+                      console.log("obj.addRefProvider3", obj.addRef);
+                    }
                     addRefOfObjInArray = obj.addRef;
                   }
                 });
@@ -334,14 +348,16 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                     obj2.groupname === addRefOfObjInArray &&
                     obj2.title
                   ) {
-                    console.log("addRefOfObjInArray: ", addRefOfObjInArray);
-
+                    if (DEV) {
+                      console.log("addRefOfObjInArray: ", addRefOfObjInArray);
+                    }
                     finalValue = obj2.title;
                   } else if (arrayIndex === -1 && obj2 && obj2.title && obj2.groupname === value) {
-                    console.log("ohoh");
                     finalValue = obj2.title;
                   }
-                  console.log("finalValue: ", finalValue);
+                  if (DEV) {
+                    console.log("finalValue: ", finalValue);
+                  }
                   if (
                     finalValue !== "" &&
                     obj2.deprecated !== true &&
@@ -395,28 +411,38 @@ export function getPathAtCursor(
     } else {
       indexToUse = Math.min(line, allYamlKeys.length - 1);
     }
-    console.log("indexToUse: ", indexToUse);
+    if (DEV) {
+      console.log("indexToUse: ", indexToUse);
+    }
     function getPathAtCursorString(
       indexToUse: number,
       column: number,
       allYamlKeys: { path: string; index: number | null; lineOfPath: number }[]
     ): string {
-      console.log("lineInFucntion", line);
+      if (DEV) {
+        console.log("lineInFunction", line);
+      }
       let foundObj = allYamlKeys.find((obj) => obj.lineOfPath === line);
       while (!foundObj && line > 0) {
         line--;
 
         foundObj = allYamlKeys.find((obj) => obj.lineOfPath === line);
       }
-      console.log("foundObj", foundObj);
+      if (DEV) {
+        console.log("foundObj", foundObj);
+      }
       if (foundObj) {
         indexToUse = allYamlKeys.indexOf(foundObj);
-        console.log("iii", indexToUse);
+        if (DEV) {
+          console.log("indexToUseGetPath", indexToUse);
+        }
       }
 
       for (let i = indexToUse; i >= 0; i--) {
         const obj = allYamlKeys[i];
-        console.log("neu", obj, "indexToUse", indexToUse, "column", column);
+        if (DEV) {
+          console.log("neu", obj, "indexToUse", indexToUse, "column", column);
+        }
         if (obj.index !== null && obj.index < column) {
           return obj.path;
         }

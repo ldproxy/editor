@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as yaml from "js-yaml";
 import { getSchema, DefinitionsMap, LooseDefinition } from "./schemas";
+import { DEV } from "../utilities/constants";
 
 interface Conditions {
   condition?: Record<string, any>;
@@ -53,7 +54,9 @@ export async function extractConditions() {
       }
     }
   }
-  console.log("conditions", conditions);
+  if (DEV) {
+    console.log("conditions", conditions);
+  }
   return conditions;
 }
 
@@ -70,19 +73,26 @@ export async function defineDefs(document: vscode.TextDocument) {
   for (const { condition, ref } of conditions) {
     if (condition) {
       const resultObject = matchesCondition(config, condition);
-      console.log("returnObjects", resultObject);
+      if (DEV) {
+        console.log("returnObjects", resultObject);
+      }
       resultObject.forEach((item: { allConditionsMet: boolean; finalPath: string }) => {
-        console.log("item", item);
+        if (DEV) {
+          console.log("item", item);
+        }
         const { allConditionsMet, finalPath } = item;
         if (ref && allConditionsMet && finalPath !== "") {
-          console.log("allConditionsMet", finalPath, allConditionsMet, ref);
+          if (DEV) {
+            console.log("allConditionsMet", finalPath, allConditionsMet, ref);
+          }
           specifiedDefs.push({ ref, finalPath });
         }
       });
     }
   }
-
-  console.log("speecifiedDefs", specifiedDefs);
+  if (DEV) {
+    console.log("speecifiedDefs", specifiedDefs);
+  }
   return specifiedDefs;
 }
 

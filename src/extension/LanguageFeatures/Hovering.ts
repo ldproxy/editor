@@ -32,7 +32,9 @@ export async function getSchemaMapHovering() {
   const currentDocument = vscode.window.activeTextEditor?.document;
   if (currentDocument) {
     specifiedDefs = await defineDefs(currentDocument);
-    console.log("hjkl", specifiedDefs);
+    if (DEV) {
+      console.log("specifiedDefsGetSchema", specifiedDefs);
+    }
     if (specifiedDefs && specifiedDefs.length > 0) {
       definitionsMap = await getDefinitionsMap(specifiedDefs);
     }
@@ -55,8 +57,9 @@ export const hover = () => {
     { language: "yaml" },
     {
       provideHover(document, position) {
-        console.log("yamlKeysHover", yamlKeysHover);
-
+        if (DEV) {
+          console.log("yamlKeysHover", yamlKeysHover);
+        }
         const lineOfWord: number = position.line + 1;
 
         const pathInYaml = yamlKeysHover.find((item) => item.lineOfPath === lineOfWord);
@@ -66,7 +69,9 @@ export const hover = () => {
         let wordInDefinitionsMap: LooseDefinition = {};
         let hoverResult: vscode.Hover | undefined;
         specifiedDefs.forEach((defObj) => {
-          console.log("jjjj", defObj);
+          if (DEV) {
+            console.log("defObjHover", defObj);
+          }
           const ref = defObj.ref;
           const path = defObj.finalPath;
           const pathSplit = path.split(".");
@@ -157,7 +162,9 @@ export const hover = () => {
               lastKey = pathInYamlParts[pathInYamlParts.length - 1];
               secondLastKey = pathInYamlParts[pathInYamlParts.length - 2];
               thirdLastKey = pathInYamlParts[pathInYamlParts.length - 3];
-              console.log("klkladdRef1", thirdLastKey, lastKey);
+              if (DEV) {
+                console.log("addRef1", thirdLastKey, lastKey);
+              }
             }
             if (
               definitionsMap.hasOwnProperty(secondLastKey) &&
@@ -187,7 +194,9 @@ export const hover = () => {
                   }
                 }
               }
-              console.log("secRef", matchingObject);
+              if (DEV) {
+                console.log("secRef", matchingObject);
+              }
               if (
                 matchingObject &&
                 possibleRefWord &&
@@ -203,7 +212,9 @@ export const hover = () => {
               definitionsMap.hasOwnProperty(thirdLastKey) &&
               definitionsMap.hasOwnProperty(lastKey)
             ) {
-              console.log("klkladdRef", thirdLastKey, lastKey);
+              if (DEV) {
+                console.log("addRefThird", thirdLastKey, lastKey);
+              }
 
               let matchingObjects = [];
 
@@ -229,7 +240,9 @@ export const hover = () => {
                   }
                 }
               }
-              console.log("thirdLastCase", matchingObject);
+              if (DEV) {
+                console.log("thirdLastCase", matchingObject);
+              }
               if (
                 matchingObject &&
                 possibleAddRefWord &&
@@ -240,12 +253,15 @@ export const hover = () => {
                 hoverResult = new vscode.Hover(hoverText);
               }
             }
-            console.log("jjj", specifiedDefs);
+            if (DEV) {
+              console.log("specifiedDefs1", specifiedDefs);
+            }
             return hoverResult;
           }
         });
-
-        console.log("definitionsMap", definitionsMap);
+        if (DEV) {
+          console.log("definitionsMap", definitionsMap);
+        }
         return hoverResult;
       },
     }

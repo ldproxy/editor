@@ -4,8 +4,9 @@ export function extractIndexFromPath(path: string): number | null {
   const regex = /\[(\d+)\]/;
 
   const match = path.match(regex);
-  console.log("match", match);
-
+  if (DEV) {
+    console.log("match", match);
+  }
   if (match && match[1]) {
     return parseInt(match[1], 10);
   }
@@ -33,7 +34,7 @@ export function getLinesForArrayIndex(
     }
   }
   if (DEV) {
-    console.log("ttt", line);
+    console.log("lineYamlArrays", line);
     console.log("pathiToUse", pathToUse);
   }
   if (line > 0) {
@@ -71,17 +72,23 @@ export function getMaxLine(
 
   if (startIndex > 0) {
     for (let i = startIndex; i < allYamlKeys.length; i++) {
-      console.log("startIndex", startIndex, myItem);
       const currentItem = allYamlKeys[i];
-      console.log("currentItem", currentItem);
+      if (DEV) {
+        console.log("currentItem", currentItem);
+        console.log("startIndex", startIndex, myItem);
+      }
       if (
         (myItem && currentItem.startOfArray !== myItem.startOfArray) ||
         (myItem && !currentItem.hasOwnProperty("arrayIndex")) ||
         (myItem && i === allYamlKeys.length - 1)
       ) {
-        console.log("iiii", i);
+        if (DEV) {
+          console.log("iiii", i);
+        }
         if (i === allYamlKeys.length - 1 && currentItem && currentItem.lineOfPath) {
-          console.log("landet hier", currentItem.lineOfPath);
+          if (DEV) {
+            console.log("landet hier", currentItem.lineOfPath);
+          }
           return currentItem.lineOfPath + 2;
         } else if (currentItem.startOfArray) {
           return currentItem.startOfArray;

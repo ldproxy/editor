@@ -17,6 +17,7 @@ import { getSchemaMapCompletions as getValueCompletions } from "./LanguageFeatur
 import { extractConditions } from "./utilitiesLanguageFeatures/defineDefs";
 import { provider4 } from "./LanguageFeatures/ValueCompletions";
 import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
+import { DEV } from "./utilities/constants";
 // import { Emojinfo } from "./LanguageFeatures/CodeActions";
 
 export let allYamlKeys: {
@@ -28,7 +29,9 @@ export let allYamlKeys: {
 }[] = [];
 
 export function activate(context: ExtensionContext) {
-  console.log("ACTIVATE", context.extension.id, context.extension.isActive);
+  if (DEV) {
+    console.log("ACTIVATE", context.extension.id, context.extension.isActive);
+  }
   const showAutoCreate = commands.registerCommand("ldproxy-editor.showAutoCreate", () => {
     AutoCreatePanel.render(context.extensionUri);
   });
@@ -58,16 +61,22 @@ export function activate(context: ExtensionContext) {
       const yamlObject: any[] = [];
 
       for (const token of new Parser().parse(document.getText())) {
-        console.log("documento", document?.getText());
-        console.log("token", token);
+        if (DEV) {
+          console.log("documento", document?.getText());
+          console.log("token", token);
+        }
         yamlObject.push(token);
       }
-      console.log("yamlObject", yamlObject[0].value.items);
+      if (DEV) {
+        console.log("yamlObject", yamlObject[0].value.items);
+      }
 
       if (vscode.window.activeTextEditor) {
         allYamlKeys = [];
         allYamlKeys = getAllYamlPaths(document.getText(), yamlObject[0].value.items, "");
-        console.log("aktuell", allYamlKeys);
+        if (DEV) {
+          console.log("yamlKeysIndex", allYamlKeys);
+        }
         getHoverKeys(allYamlKeys);
         getValueKeys(allYamlKeys);
         getKeys(allYamlKeys);
