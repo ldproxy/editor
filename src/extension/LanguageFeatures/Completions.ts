@@ -110,10 +110,6 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                       if (obj2.description !== "") {
                         completion.documentation = new vscode.MarkdownString(obj2.description);
                       }
-                      completion.command = {
-                        command: "editor.action.ldproxy: Create new entities",
-                        title: "Re-trigger completions...",
-                      };
                       const existing = refCompletions.find(
                         (existingComp) => existingComp.label === finalValue
                       );
@@ -371,10 +367,6 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                     if (obj2.description !== "") {
                       completion.documentation = new vscode.MarkdownString(obj2.description);
                     }
-                    completion.command = {
-                      command: "editor.action.ldproxy: Create new entities",
-                      title: "Re-trigger completions...",
-                    };
                     const existing = refCompletions.find(
                       (existingComp) => existingComp.label === finalValue
                     );
