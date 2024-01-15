@@ -105,6 +105,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                         console.log("refCompletionsinCompletions", refCompletions);
                       }
                       const completion = new vscode.CompletionItem(finalValue);
+                      completion.insertText = `${finalValue}: `;
                       completion.kind = vscode.CompletionItemKind.Method;
                       if (obj2.description !== "") {
                         completion.documentation = new vscode.MarkdownString(obj2.description);
@@ -191,6 +192,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
                 })
               ) {
                 const completion = new vscode.CompletionItem(value);
+                completion.insertText = `${value}: `;
                 completion.kind = vscode.CompletionItemKind.Method;
                 if (obj.description !== "") {
                   completion.documentation = new vscode.MarkdownString(obj.description);
@@ -200,8 +202,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
             }
           }
         }
-        const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
-        completions.push(commitCharacterCompletion);
       } else if (
         specifiedDefsPath.includes("[") &&
         minLine !== undefined &&
@@ -234,6 +234,7 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
                 })
               ) {
                 const completion = new vscode.CompletionItem(value);
+                completion.insertText = `${value}: `;
                 completion.kind = vscode.CompletionItemKind.Method;
                 if (obj.description !== "") {
                   completion.documentation = new vscode.MarkdownString(obj.description);
@@ -246,8 +247,6 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
             }
           }
         }
-        const commitCharacterCompletion = new vscode.CompletionItem("zuuuuuuuu");
-        completions.push(commitCharacterCompletion);
       }
     });
     return completions;
@@ -367,6 +366,7 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
                     )
                   ) {
                     const completion = new vscode.CompletionItem(finalValue);
+                    completion.insertText = `${finalValue}: `;
                     completion.kind = vscode.CompletionItemKind.Method;
                     if (obj2.description !== "") {
                       completion.documentation = new vscode.MarkdownString(obj2.description);
