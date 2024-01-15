@@ -71,8 +71,8 @@ const listen = (ensureOpen: Socket) => {
           }
         });
       })
-      .catch((error) => {
-        console.error("Could not listen to xtracfg", error);
+      .catch((error: Error) => {
+        console.error("Could not listen to xtracfg", error.message);
       });
 };
 
