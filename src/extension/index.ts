@@ -36,7 +36,7 @@ export function activate(context: ExtensionContext) {
     AutoCreatePanel.render(context.extensionUri);
   });
 
-  let storeTree = window.registerTreeDataProvider(
+  /*let storeTree = window.registerTreeDataProvider(
     "ldproxy-editor.storeTree",
     new SourcesProvider()
   );
@@ -44,7 +44,7 @@ export function activate(context: ExtensionContext) {
   let entityTree = window.registerTreeDataProvider(
     "ldproxy-editor.entityTree",
     new EntitiesProvider()
-  );
+  );*/
 
   initSchemas();
   initDiagnostics();
@@ -110,7 +110,7 @@ export function activate(context: ExtensionContext) {
   );
 
   // Add command to the extension context
-  context.subscriptions.push(showAutoCreate, storeTree, entityTree);
+  context.subscriptions.push(showAutoCreate /*, storeTree, entityTree*/);
 
   /*
   First tests for code actions:
@@ -130,3 +130,34 @@ export function activate(context: ExtensionContext) {
   );
   */
 }
+
+/* contribution points for tree views
+    "views": {
+      "explorer": [
+        {
+          "id": "ldproxy-editor.storeTree",
+          "name": "Sources"
+        },
+        {
+          "id": "ldproxy-editor.entityTree",
+          "name": "Entities"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "when": "view == ldproxy-editor.storeTree",
+          "command": "ldproxy-editor.showAutoCreate",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "when": "view == ldproxy-editor.storeTree && viewItem == folder",
+          "command": "ldproxy-editor.showAutoCreate",
+          "group": "inline"
+        }
+      ]
+    }
+ */
