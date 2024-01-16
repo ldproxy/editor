@@ -112,7 +112,8 @@ const socket = (): Socket => {
         _socket = new WebSocket("ws://localhost:8081/sock");
       } else {
         //console.log("CONNECTING to websocket", `ws://${self.location.host}/proxy/8081/`);
-        _socket = new WebSocket(`ws://${self.location.host}/proxy/8081/`);
+        const protocol = self.location.protocol === "https:" ? "wss" : "ws";
+        _socket = new WebSocket(`${protocol}://${self.location.host}/proxy/8081/`);
       }
     }
 

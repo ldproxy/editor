@@ -146,7 +146,8 @@ const ensureOpen = (): Promise<WebSocket> => {
     if (DEV) {
       _socket = new WebSocket("ws://localhost:8081/sock");
     } else {
-      _socket = new WebSocket(`ws://${window.location.host}/proxy/8081/`);
+      const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+      _socket = new WebSocket(`${protocol}://${window.location.host}/proxy/8081/`);
     }
   }
 
