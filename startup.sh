@@ -7,6 +7,8 @@ exec dumb-init /usr/bin/xtracfg listen 8081 --debug --verbose &
 
 if [ -n "${PASSWORD}" ]; then 
   export AUTH="password"
+else
+  export AUTH="none"
 fi
 
 if [ -n "${GIT_DATA}" ]; then
