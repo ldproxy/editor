@@ -95,28 +95,53 @@ const socket = (): Socket => {
   let _socket: WebSocket;
 
   return async (): Promise<WebSocket> => {
-    console.log("websocket ensure", _socket === undefined, _socket && _socket.readyState);
+    console.log(
+      "websocket ensure",
+      _socket === undefined,
+      _socket && _socket.readyState,
+      new Date()
+    );
 
     const release = await mutex.acquire();
 
-    console.log("websocket acquired", _socket === undefined, _socket && _socket.readyState);
+    console.log(
+      "websocket acquired",
+      _socket === undefined,
+      _socket && _socket.readyState,
+      new Date()
+    );
 
     if (_socket && _socket.readyState === _socket.OPEN) {
       release();
 
-      console.log("websocket released", _socket === undefined, _socket && _socket.readyState);
+      console.log(
+        "websocket released",
+        _socket === undefined,
+        _socket && _socket.readyState,
+        new Date()
+      );
 
       return Promise.resolve(_socket);
     }
 
-    console.log("websocket acquired2", _socket === undefined, _socket && _socket.readyState);
+    console.log(
+      "websocket acquired2",
+      _socket === undefined,
+      _socket && _socket.readyState,
+      new Date()
+    );
 
     if (
       !_socket ||
       _socket.readyState === _socket.CLOSED ||
       _socket.readyState === _socket.CLOSING
     ) {
-      console.log("websocket open", _socket === undefined, _socket && _socket.readyState);
+      console.log(
+        "websocket open",
+        _socket === undefined,
+        _socket && _socket.readyState,
+        new Date()
+      );
 
       if (DEV) {
         console.log("CONNECTING to websocket", "ws://localhost:8081/sock");
@@ -131,13 +156,23 @@ const socket = (): Socket => {
       _socket.addEventListener("open", () => {
         resolve(_socket);
 
-        console.log("websocket opened", _socket === undefined, _socket && _socket.readyState);
+        console.log(
+          "websocket opened",
+          _socket === undefined,
+          _socket && _socket.readyState,
+          new Date()
+        );
         release();
       });
       _socket.addEventListener("error", (error) => {
         reject(error);
 
-        console.log("websocket error", _socket === undefined, _socket && _socket.readyState);
+        console.log(
+          "websocket error",
+          _socket === undefined,
+          _socket && _socket.readyState,
+          new Date()
+        );
         release();
       });
       //if (DEV) {
