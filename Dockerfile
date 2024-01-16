@@ -18,4 +18,4 @@ VOLUME /data
 
 ENV AUTH="none"
 
-ENTRYPOINT ["/usr/bin/entrypoint.sh", "--auth", "${AUTH}", "--ignore-last-opened", "--bind-addr", "0.0.0.0:80", "--welcome-text", "\"Hello\"", "--app-name", "\"ldproxy-editor\"", "--disable-telemetry", "--disable-update-check", "--disable-workspace-trust", "--disable-getting-started-override", "/data"]
+ENTRYPOINT ["bash", "-c", "/usr/bin/entrypoint.sh", "--auth", "${AUTH}", "--ignore-last-opened", "--bind-addr", "0.0.0.0:80", "--welcome-text", "\"Hello\"", "--app-name", "\"ldproxy-editor\"", "--disable-telemetry", "--disable-update-check", "--disable-workspace-trust", "--disable-getting-started-override", "/data"]
