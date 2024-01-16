@@ -14,6 +14,6 @@ fi
 if [ -n "${GIT_DATA}" ]; then
   echo "Cloning ${GIT_DATA} to /data"
   sudo rm -rf /data/*
-  sudo git clone "${GIT_DATA}" --branch "${GIT_DATA_BRANCH:-master}" --single-branch /data
-#  git reset -C /data --hard HEAD
+  sudo chown coder. /data
+  git clone "${GIT_DATA}" --branch "${GIT_DATA_BRANCH:-master}" --single-branch /data
 fi
