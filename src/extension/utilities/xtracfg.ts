@@ -95,20 +95,29 @@ const socket = (): Socket => {
   let _socket: WebSocket;
 
   return async (): Promise<WebSocket> => {
+    console.log("websocket ensure", _socket === undefined, _socket && _socket.readyState);
+
     const release = await mutex.acquire();
 
-    console.log("websocket", _socket && _socket.readyState);
+    console.log("websocket acquired", _socket === undefined, _socket && _socket.readyState);
 
     if (_socket && _socket.readyState === _socket.OPEN) {
       release();
+
+      console.log("websocket released", _socket === undefined, _socket && _socket.readyState);
+
       return Promise.resolve(_socket);
     }
+
+    console.log("websocket acquired2", _socket === undefined, _socket && _socket.readyState);
 
     if (
       !_socket ||
       _socket.readyState === _socket.CLOSED ||
       _socket.readyState === _socket.CLOSING
     ) {
+      console.log("websocket open", _socket === undefined, _socket && _socket.readyState);
+
       if (DEV) {
         console.log("CONNECTING to websocket", "ws://localhost:8081/sock");
         _socket = new WebSocket("ws://localhost:8081/sock");
@@ -121,21 +130,25 @@ const socket = (): Socket => {
     return new Promise((resolve, reject) => {
       _socket.addEventListener("open", () => {
         resolve(_socket);
+
+        console.log("websocket opened", _socket === undefined, _socket && _socket.readyState);
         release();
       });
       _socket.addEventListener("error", (error) => {
         reject(error);
+
+        console.log("websocket error", _socket === undefined, _socket && _socket.readyState);
         release();
       });
-      if (DEV) {
-        _socket.addEventListener("close", (event) => {
-          if (event.wasClean) {
-            console.log("websocket was closed", event.code, event.reason);
-          } else {
-            console.error("websocket was closed unexpectedly", event);
-          }
-        });
-      }
+      //if (DEV) {
+      _socket.addEventListener("close", (event) => {
+        if (event.wasClean) {
+          console.log("websocket was closed", event.code, event.reason);
+        } else {
+          console.error("websocket was closed unexpectedly", event);
+        }
+      });
+      //}
     });
   };
 };
