@@ -90,10 +90,9 @@ const parseError = (response: Response): Error | undefined => {
 };
 
 const mutex = new Mutex();
+let _socket: WebSocket;
 
 const socket = (): Socket => {
-  let _socket: WebSocket;
-
   return async (): Promise<WebSocket> => {
     console.log(
       "websocket ensure",
