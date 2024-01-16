@@ -40,9 +40,9 @@ const send = (ensureOpen: Socket) => {
       .then((socket) => {
         const cmd = JSON.stringify(request);
 
-        //if (DEV) {
-        console.log("sending to xtracfg", cmd);
-        //}
+        if (DEV) {
+          console.log("sending to xtracfg", cmd);
+        }
 
         socket.send(cmd);
       })
@@ -94,59 +94,24 @@ let _socket: WebSocket;
 
 const socket = (): Socket => {
   return async (): Promise<WebSocket> => {
-    console.log(
-      "websocket ensure",
-      _socket === undefined,
-      _socket && _socket.readyState,
-      new Date()
-    );
-
     const release = await mutex.acquire();
-
-    console.log(
-      "websocket acquired",
-      _socket === undefined,
-      _socket && _socket.readyState,
-      new Date()
-    );
 
     if (_socket && _socket.readyState === _socket.OPEN) {
       release();
 
-      console.log(
-        "websocket released",
-        _socket === undefined,
-        _socket && _socket.readyState,
-        new Date()
-      );
-
       return Promise.resolve(_socket);
     }
-
-    console.log(
-      "websocket acquired2",
-      _socket === undefined,
-      _socket && _socket.readyState,
-      new Date()
-    );
 
     if (
       !_socket ||
       _socket.readyState === _socket.CLOSED ||
       _socket.readyState === _socket.CLOSING
     ) {
-      console.log(
-        "websocket open",
-        _socket === undefined,
-        _socket && _socket.readyState,
-        new Date()
-      );
-
       if (DEV) {
         console.log("CONNECTING to websocket", "ws://localhost:8081/sock");
         _socket = new WebSocket("ws://localhost:8081/sock");
       } else {
-        console.log("CONNECTING to websocket", `ws://${self.location.host}/proxy/8081/`);
+        //console.log("CONNECTING to websocket", `ws://${self.location.host}/proxy/8081/`);
         _socket = new WebSocket(`ws://${self.location.host}/proxy/8081/`);
       }
     }
@@ -154,35 +119,19 @@ const socket = (): Socket => {
     return new Promise((resolve, reject) => {
       _socket.addEventListener("open", () => {
         resolve(_socket);
-
-        console.log(
-          "websocket opened",
-          _socket === undefined,
-          _socket && _socket.readyState,
-          new Date()
-        );
         release();
       });
-      _socket.addEventListener("error", (error) => {
-        reject(error);
-
-        console.log(
-          "websocket error",
-          _socket === undefined,
-          _socket && _socket.readyState,
-          new Date()
-        );
+      _socket.addEventListener("error", () => {
+        reject("websocket error");
         release();
       });
-      //if (DEV) {
       _socket.addEventListener("close", (event) => {
-        if (event.wasClean) {
+        if (DEV && event.wasClean) {
           console.log("websocket was closed", event.code, event.reason);
-        } else {
-          console.error("websocket was closed unexpectedly", event);
+        } else if (!event.wasClean) {
+          console.error("websocket was closed unexpectedly", event.code, event.reason);
         }
       });
-      //}
     });
   };
 };
