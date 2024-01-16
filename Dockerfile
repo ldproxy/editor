@@ -16,4 +16,6 @@ COPY --chmod=0755 --from=xtracfg /xtracfg /usr/bin/
 VOLUME /home/coder
 VOLUME /data
 
-ENTRYPOINT ["/usr/bin/entrypoint.sh", "--auth", "none", "--ignore-last-opened", "--bind-addr", "0.0.0.0:80", "--welcome-text", "\"Hello\"", "--app-name", "\"ldproxy-editor\"", "--disable-telemetry", "--disable-update-check", "--disable-workspace-trust", "--disable-getting-started-override", "/data"]
+ENV AUTH="none"
+
+ENTRYPOINT ["bash", "-c", "/usr/bin/entrypoint.sh", "--auth", "${AUTH}", "--ignore-last-opened", "--bind-addr", "0.0.0.0:80", "--welcome-text", "\"Hello\"", "--app-name", "\"ldproxy-editor\"", "--disable-telemetry", "--disable-update-check", "--disable-workspace-trust", "--disable-getting-started-override", "/data"]
