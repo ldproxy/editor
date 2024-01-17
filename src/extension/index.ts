@@ -6,7 +6,13 @@ import { hover } from "./LanguageFeatures/Hovering";
 import * as vscode from "vscode";
 import { initDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
-import { provider1, provider2, provider3, getKeys } from "./LanguageFeatures/Completions";
+import {
+  provider1,
+  provider2,
+  provider3,
+  provider4,
+  getKeys,
+} from "./LanguageFeatures/Completions";
 import { getAllYamlPaths } from "./utilitiesLanguageFeatures/getYamlKeys";
 import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
 import { getKeys as getValueKeys } from "./LanguageFeatures/ValueCompletions";
@@ -15,7 +21,7 @@ import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
 import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
 import { getSchemaMapCompletions as getValueCompletions } from "./LanguageFeatures/ValueCompletions";
 import { extractConditions } from "./utilitiesLanguageFeatures/defineDefs";
-import { provider4 } from "./LanguageFeatures/ValueCompletions";
+import { provider4 as provider5 } from "./LanguageFeatures/ValueCompletions";
 import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
 import { DEV } from "./utilities/constants";
 // import { Emojinfo } from "./LanguageFeatures/CodeActions";
@@ -79,7 +85,7 @@ export function activate(context: ExtensionContext) {
         updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
         extractConditions();
 
-        context.subscriptions.push(provider1, provider2, provider3, provider4);
+        context.subscriptions.push(provider1, provider2, provider3, provider4, provider5);
       }
     }
   }

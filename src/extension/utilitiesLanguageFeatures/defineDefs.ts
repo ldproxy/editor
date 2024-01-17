@@ -151,3 +151,26 @@ function matchesCondition(
 
   return returnObjects;
 }
+
+export async function getRequiredProperties() {
+  const schema: DefinitionsMap | undefined = await getSchema();
+  let requiredProperties: string[] = [];
+  if (schema) {
+    const requiredPropertieObject = schema.properties;
+    if (requiredPropertieObject) {
+      requiredProperties = Object.keys(requiredPropertieObject);
+    }
+
+    if (schema.anyOf) {
+      const anyOfArray = schema.anyOf;
+      anyOfArray.forEach((obj: { required: [] }) => {
+        if (obj.required) {
+          obj.required.forEach((requiredProperty: string) => {
+            requiredProperties.push(requiredProperty);
+          });
+        }
+      });
+    }
+  }
+  return requiredProperties;
+}

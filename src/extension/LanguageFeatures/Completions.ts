@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
+import { defineDefs, getRequiredProperties } from "../utilitiesLanguageFeatures/defineDefs";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
@@ -29,9 +29,11 @@ interface DefinitionsMap {
 
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
+let requiredProperties: string[];
 
 export async function getSchemaMapCompletions() {
   const currentDocument = vscode.window.activeTextEditor?.document;
+  requiredProperties = await getRequiredProperties();
   if (currentDocument) {
     specifiedDefs = await defineDefs(currentDocument);
     const uniqueDefs = removeDuplicates(specifiedDefs);
@@ -62,11 +64,11 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
     )?.startOfArray;
     if (DEV) {
       console.log("pathAtCursor: " + pathAtCursor);
-      console.log("bbb", definitionsMap);
+      console.log("definitionsMapCompletions", definitionsMap);
       console.log("currentArrayIndex: " + currentStartOfArray);
     }
 
-    if (definitionsMap) {
+    if (Object.keys(definitionsMap).length > 0) {
       const refCompletions: vscode.CompletionItem[] = [];
       for (const key in definitionsMap) {
         if (definitionsMap.hasOwnProperty(key)) {
@@ -260,7 +262,7 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
       console.log("pathAtCursorProvider3: " + pathAtCursor);
     }
 
-    if (definitionsMap) {
+    if (Object.keys(definitionsMap).length > 0) {
       const refCompletions: vscode.CompletionItem[] = [];
       for (const key in definitionsMap) {
         if (definitionsMap.hasOwnProperty(key)) {
@@ -381,6 +383,36 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
         }
       }
       return refCompletions;
+    }
+  },
+});
+
+// Falls noch keine specifiedDefs existieren und demnach auch keine definitionsMap. (Bei Provider wird hier dann z.B. providerSubType und providerType vorgeschlagen)
+export const provider4 = vscode.languages.registerCompletionItemProvider("yaml", {
+  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    if (Object.keys(definitionsMap).length === 0) {
+      const completions: vscode.CompletionItem[] = [];
+
+      if (DEV) {
+        console.log("requiredProperties", requiredProperties);
+      }
+
+      if (requiredProperties) {
+        requiredProperties.forEach((property: string) => {
+          if (
+            allYamlKeys &&
+            !allYamlKeys.some((key) => {
+              return key.path === `${property}`;
+            })
+          ) {
+            const completion = new vscode.CompletionItem(`${property}`);
+            completion.insertText = `${property}: `;
+            completion.kind = vscode.CompletionItemKind.Method;
+            completions.push(completion);
+          }
+        });
+      }
+      return completions;
     }
   },
 });

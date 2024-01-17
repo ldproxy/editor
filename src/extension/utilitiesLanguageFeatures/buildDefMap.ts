@@ -15,9 +15,6 @@ export function processProperties(
   if (defs !== "") {
     const definition = schemaDefs[defs];
     if (definition && definition.properties && Object.keys(definition.properties).length > 0) {
-      if (DEV) {
-        console.log("definition.anyOf", definition.anyOf);
-      }
       for (const propKey in definition.properties) {
         const propDefinition = definition.properties[propKey];
         if (propDefinition.title || propDefinition.description) {
