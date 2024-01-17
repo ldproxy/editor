@@ -1,5 +1,6 @@
 import { getSchemaDefs, DefinitionsMap } from "./schemas";
 import { DEV } from "../utilities/constants";
+import { getDefinitionsMap } from "./getDefinitionsMap";
 
 export function processProperties(
   defs: string,
@@ -188,4 +189,41 @@ export async function findObjectsWithRef(definitionsMap: DefinitionsMap): Promis
     console.log("lastPartValueArray", lastPartValueArray);
   }
   return lastPartValueArray;
+}
+
+export async function getRequiredProperties(schema: DefinitionsMap): Promise<DefinitionsMap> {
+  let requiredProperties: string[] = [];
+  let definitionsMap: DefinitionsMap = {};
+  if (schema) {
+    const requiredPropertieObject = schema.properties;
+    if (requiredPropertieObject) {
+      requiredProperties = Object.keys(requiredPropertieObject);
+      requiredProperties.forEach((requiredProperty: string) => {
+        definitionsMap[requiredProperty] = {
+          groupname: "requiredProperty",
+          title: requiredProperty,
+          deprecated: requiredPropertieObject[requiredProperty].deprecated,
+        };
+      });
+    }
+
+    if (schema.anyOf) {
+      const anyOfArray = schema.anyOf;
+      anyOfArray.forEach((obj: { required: []; properties: any }) => {
+        if (obj.required) {
+          obj.required.forEach((requiredProperty: string) => {
+            definitionsMap[requiredProperty] = {
+              groupname: "requiredProperty",
+              title: requiredProperty,
+              deprecated: obj.properties[requiredProperty].deprecated,
+            };
+          });
+        }
+      });
+    }
+  }
+  if (DEV) {
+    console.log("requiredPropsMap", definitionsMap);
+  }
+  return definitionsMap;
 }

@@ -1,10 +1,21 @@
-import { processProperties, findObjectsWithRef } from "./buildDefMap";
+import { processProperties, findObjectsWithRef, getRequiredProperties } from "./buildDefMap";
 import { getSchemaDefs, DefinitionsMap } from "./schemas";
 import { DEV } from "../utilities/constants";
 
+let allMaps: {
+  [docUri: string]: { hash: string; definitionsMap: DefinitionsMap };
+} = {};
+
 export async function getDefinitionsMap(
-  specifiedDefs: { ref: string; finalPath: string }[]
+  specifiedDefs: { ref: string; finalPath: string }[],
+  docUri?: string,
+  docHash?: string
 ): Promise<DefinitionsMap> {
+  if (docUri && docHash && allMaps[docUri] && allMaps[docUri].hash === docHash) {
+    console.log("allMapsDefMap", allMaps);
+    return allMaps[docUri].definitionsMap;
+  }
+
   const schema = await getSchemaDefs();
   let schemaDefs: any;
   if (schema) {
@@ -17,11 +28,13 @@ export async function getDefinitionsMap(
   let definitionsMap: DefinitionsMap = {};
 
   let allRefs: string[] | undefined = [];
-  specifiedDefs.forEach((def) => {
-    definitionsMap = processProperties(def.ref, schemaDefs, definitionsMap);
-  });
-  if (DEV) {
-    console.log("specifiedDefsDefMap", specifiedDefs);
+  if (specifiedDefs && specifiedDefs.length > 0) {
+    specifiedDefs.forEach((def) => {
+      definitionsMap = processProperties(def.ref, schemaDefs, definitionsMap);
+    });
+    if (DEV) {
+      console.log("specifiedDefsDefMap", specifiedDefs);
+    }
   }
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
     allRefs = await findObjectsWithRef(definitionsMap);
@@ -40,6 +53,17 @@ export async function getDefinitionsMap(
         ...processProperties(ref, schemaDefs, definitionsMap),
       };
     });
+  }
+  if (schema) {
+    const requiredProperties = await getRequiredProperties(schema);
+    definitionsMap = {
+      ...definitionsMap,
+      ...requiredProperties,
+    };
+  }
+
+  if (docUri && docHash) {
+    allMaps[docUri] = { hash: docHash, definitionsMap: definitionsMap };
   }
   return definitionsMap;
 }

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { defineDefs, getRequiredProperties } from "../utilitiesLanguageFeatures/defineDefs";
+import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
 import {
   extractIndexFromPath,
   getLinesForArrayIndex,
@@ -29,17 +29,13 @@ interface DefinitionsMap {
 
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
-let requiredProperties: string[];
 
-export async function getSchemaMapCompletions(docId: string) {
+export async function getSchemaMapCompletions(docUri: string, docHash?: string) {
   const currentDocument = vscode.window.activeTextEditor?.document;
-  requiredProperties = await getRequiredProperties();
   if (currentDocument) {
-    specifiedDefs = await defineDefs(currentDocument);
+    specifiedDefs = await defineDefs(currentDocument, docUri, docHash);
     const uniqueDefs = removeDuplicates(specifiedDefs);
-    if (uniqueDefs && uniqueDefs.length > 0) {
-      definitionsMap = await getDefinitionsMap(uniqueDefs);
-    }
+    definitionsMap = await getDefinitionsMap(uniqueDefs, docUri, docHash);
   }
 }
 
@@ -390,28 +386,29 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
 // Falls noch keine specifiedDefs existieren und demnach auch keine definitionsMap. (Bei Provider wird hier dann z.B. providerSubType und providerType vorgeschlagen)
 export const provider4 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    if (Object.keys(definitionsMap).length === 0) {
+    if (
+      Object.keys(definitionsMap).every(
+        (key) => definitionsMap[key].groupname === "requiredProperty"
+      )
+    ) {
       const completions: vscode.CompletionItem[] = [];
 
-      if (DEV) {
-        console.log("requiredProperties", requiredProperties);
+      for (const key in definitionsMap) {
+        const obj = definitionsMap[key];
+        if (
+          allYamlKeys &&
+          obj.deprecated !== true &&
+          !allYamlKeys.some((yamlKey) => {
+            return yamlKey.path === `${key}`;
+          })
+        ) {
+          const completion = new vscode.CompletionItem(`${key}`);
+          completion.insertText = `${key}: `;
+          completion.kind = vscode.CompletionItemKind.Method;
+          completions.push(completion);
+        }
       }
 
-      if (requiredProperties) {
-        requiredProperties.forEach((property: string) => {
-          if (
-            allYamlKeys &&
-            !allYamlKeys.some((key) => {
-              return key.path === `${property}`;
-            })
-          ) {
-            const completion = new vscode.CompletionItem(`${property}`);
-            completion.insertText = `${property}: `;
-            completion.kind = vscode.CompletionItemKind.Method;
-            completions.push(completion);
-          }
-        });
-      }
       return completions;
     }
   },

@@ -36,7 +36,7 @@ export let allYamlKeys: {
   arrayIndex?: number;
 }[] = [];
 
-function hash(document?: vscode.TextDocument): string | undefined {
+function hash(document?: vscode.TextDocument): string {
   if (document) {
     const text = document.getText();
     const hashString = md5(text);
@@ -45,10 +45,15 @@ function hash(document?: vscode.TextDocument): string | undefined {
     }
     return hashString;
   }
-  return undefined;
+  return "";
 }
 
-function updateYamlKeysHover(document?: vscode.TextDocument, collection?: any, context?: any) {
+function updateYamlKeysHover(
+  document?: vscode.TextDocument,
+  hashString?: string,
+  collection?: any,
+  context?: any
+) {
   if (document) {
     const yamlObject: any[] = [];
 
@@ -69,7 +74,7 @@ function updateYamlKeysHover(document?: vscode.TextDocument, collection?: any, c
       if (DEV) {
         console.log("yamlKeysIndex", allYamlKeys);
       }
-      getSchemaMapCompletions();
+      getSchemaMapCompletions(document.uri.toString(), hashString);
       getValueCompletions();
       getSchemaMapHovering();
       getHoverKeys(allYamlKeys);
@@ -109,7 +114,7 @@ export function activate(context: ExtensionContext) {
   hover();
   const collection = vscode.languages.createDiagnosticCollection("test");
 
-  updateYamlKeysHover(document, collection, context);
+  updateYamlKeysHover(document, hashString, collection, context);
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
@@ -124,7 +129,7 @@ export function activate(context: ExtensionContext) {
           }
           const activeEditor = vscode.window.activeTextEditor;
           if (activeEditor && event.document === activeEditor.document) {
-            updateYamlKeysHover();
+            updateYamlKeysHover(document, hashString, collection, context);
           }
         }
       }
@@ -142,7 +147,7 @@ export function activate(context: ExtensionContext) {
           if (DEV) {
             console.log("HashChangedEditor:", hashString);
           }
-          updateYamlKeysHover();
+          updateYamlKeysHover(document, hashString, collection, context);
         }
       }
     })

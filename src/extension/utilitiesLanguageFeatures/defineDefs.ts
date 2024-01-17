@@ -60,7 +60,15 @@ export async function extractConditions() {
   return conditions;
 }
 
-export async function defineDefs(document: vscode.TextDocument) {
+let allSpecifiedDefs: {
+  [docUri: string]: { hash: string; specifiedDefs: { ref: string; finalPath: string }[] };
+} = {};
+
+export async function defineDefs(document: vscode.TextDocument, docUri?: string, docHash?: string) {
+  if (docUri && docHash && allSpecifiedDefs[docUri] && allSpecifiedDefs[docUri].hash === docHash) {
+    return allSpecifiedDefs[docUri].specifiedDefs;
+  }
+
   const config = yaml.load(document.getText()) as LooseDefinition;
   if (!config) {
     return [];
@@ -93,6 +101,11 @@ export async function defineDefs(document: vscode.TextDocument) {
   if (DEV) {
     console.log("speecifiedDefs", specifiedDefs);
   }
+
+  if (docUri && docHash) {
+    allSpecifiedDefs[docUri] = { hash: docHash, specifiedDefs };
+  }
+
   return specifiedDefs;
 }
 
@@ -150,27 +163,4 @@ function matchesCondition(
   }
 
   return returnObjects;
-}
-
-export async function getRequiredProperties() {
-  const schema: DefinitionsMap | undefined = await getSchema();
-  let requiredProperties: string[] = [];
-  if (schema) {
-    const requiredPropertieObject = schema.properties;
-    if (requiredPropertieObject) {
-      requiredProperties = Object.keys(requiredPropertieObject);
-    }
-
-    if (schema.anyOf) {
-      const anyOfArray = schema.anyOf;
-      anyOfArray.forEach((obj: { required: [] }) => {
-        if (obj.required) {
-          obj.required.forEach((requiredProperty: string) => {
-            requiredProperties.push(requiredProperty);
-          });
-        }
-      });
-    }
-  }
-  return requiredProperties;
 }
