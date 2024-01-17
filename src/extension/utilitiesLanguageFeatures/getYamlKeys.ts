@@ -1,4 +1,4 @@
-import { DEV } from "../utilities/constants";
+import { DEV, DEVYAMLKEYS } from "../utilities/constants";
 
 export function getAllYamlPaths(
   document: string,
@@ -15,7 +15,7 @@ export function getAllYamlPaths(
   startOfArray?: number
 ) {
   if (yamlObject && typeof yamlObject === "object") {
-    if (DEV) {
+    if (DEVYAMLKEYS) {
       console.log("yamlObject", yamlObject);
     }
     yamlObject.forEach((object: any) => {
@@ -42,7 +42,7 @@ export function getAllYamlPaths(
         }
         object.value.items.forEach((array: any) => {
           arrayIndex++;
-          if (DEV) {
+          if (DEVYAMLKEYS) {
             console.log("arrayGetKeys", array);
           }
           let arrayStartOffset;
@@ -60,7 +60,7 @@ export function getAllYamlPaths(
           if (array && array.value && array.value.items) {
             array.value.items.forEach((object2: any) => {
               if (object2 && object2.key && object2.key.source) {
-                if (DEV) {
+                if (DEVYAMLKEYS) {
                   console.log("object2", object2);
                 }
                 const path2: string = `${path}.${object2.key.source.replace(/\./g, "/")}`;
@@ -85,7 +85,7 @@ export function getAllYamlPaths(
                   object2.value.items &&
                   object2.value.items[0].start.length > 0
                 ) {
-                  if (DEV) {
+                  if (DEVYAMLKEYS) {
                     console.log("object2", [object2], path);
                   }
                   getAllYamlPaths(document, [object2], path, yamlKeys, -1);
@@ -122,11 +122,11 @@ export function getAllYamlPaths(
             }
           }
         }
-        if (DEV) {
+        if (DEVYAMLKEYS) {
           console.log("ursprung", object);
         }
         object.value.items.forEach((item: any) => {
-          if (DEV) {
+          if (DEVYAMLKEYS) {
             console.log("itemGetKeys", item);
           }
           if (
@@ -136,7 +136,7 @@ export function getAllYamlPaths(
             item.value.items[0].start &&
             item.value.items[0].start[0]
           ) {
-            if (DEV) {
+            if (DEVYAMLKEYS) {
               console.log("arrayitem", [item], path);
             }
             if (arrayIndex && arrayIndex >= 0 && startOfArray) {
@@ -169,7 +169,7 @@ export function getAllYamlPaths(
             }
 
             if (item.value && item.value.items) {
-              if (DEV) {
+              if (DEVYAMLKEYS) {
                 console.log("item.value.items", item.value.items, path2);
               }
               if (arrayIndex && arrayIndex >= 0 && startOfArray) {
@@ -188,13 +188,13 @@ export function getAllYamlPaths(
           }
         });
       } else if (object && object.key && object.key.source) {
-        if (DEV) {
+        if (DEVYAMLKEYS) {
           console.log("objectGetKeys", object);
         }
         const path: string = currentPath
           ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
           : object.key.source.replace(/\./g, "/");
-        if (DEV) {
+        if (DEVYAMLKEYS) {
           console.log("object.key", object.key);
         }
         const line: number = getLineNumber(document, object.key.offset);

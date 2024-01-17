@@ -31,7 +31,7 @@ let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 let requiredProperties: string[];
 
-export async function getSchemaMapCompletions() {
+export async function getSchemaMapCompletions(docId: string) {
   const currentDocument = vscode.window.activeTextEditor?.document;
   requiredProperties = await getRequiredProperties();
   if (currentDocument) {
