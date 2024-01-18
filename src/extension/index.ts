@@ -62,8 +62,8 @@ function updateYamlKeysHover(
 
     for (const token of new Parser().parse(document.getText())) {
       if (DEV) {
-        // console.log("documento", document?.getText());
-        // console.log("token", token);
+        console.log("documento", document?.getText());
+        console.log("token", token);
       }
       yamlObject.push(token);
     }
@@ -92,6 +92,9 @@ function updateYamlKeysHover(
   }
 }
 
+let initialized = false;
+const collection = vscode.languages.createDiagnosticCollection("test");
+
 export function activate(context: ExtensionContext) {
   const document = vscode.window.activeTextEditor?.document;
 
@@ -113,12 +116,16 @@ export function activate(context: ExtensionContext) {
   );*/
 
   let hashString = hash(document);
-  hover();
-  initSchemas();
-  initDiagnostics();
-  const collection = vscode.languages.createDiagnosticCollection("test");
 
-  updateYamlKeysHover(document, hashString, collection, context);
+  if (!initialized) {
+    hover();
+    initSchemas();
+    initDiagnostics();
+
+    updateYamlKeysHover(document, hashString, collection, context);
+
+    initialized = true;
+  }
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {

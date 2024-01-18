@@ -7,6 +7,7 @@ import {
   getMaxLine,
 } from "../utilitiesLanguageFeatures/handlingYamlArrays";
 import { DEV } from "../utilities/constants";
+import { md5 } from "js-md5";
 
 interface LooseDefinition {
   title?: string;
@@ -51,16 +52,63 @@ export function getKeys(
   yamlKeysHover = yamlkeys;
 }
 
+function hash(document?: vscode.TextDocument): string {
+  if (document) {
+    const text = document.getText();
+    if (text !== "") {
+      const hashString = md5(text);
+      if (DEV) {
+        console.log("Hash:", hashString);
+      }
+
+      return hashString;
+    }
+  }
+  return "";
+}
+
+let hoverStatus: {
+  [docUri: string]: { hash: string; results: { [lineCharacter: string]: vscode.Hover } };
+} = {};
+
+/*
+const foo = {
+  "entities/providers/bla.yml": {   
+    hash: "123",
+    results: {
+      "10_5": new vscode.Hover("bla"),
+      "5_10": new vscode.Hover("bla2"),
+    }
+  }
+};
+*/
+
 export const hover = () => {
   vscode.languages.registerHoverProvider(
     // { language: "yaml", pattern: "**/dvg.yml" },
     { language: "yaml" },
     {
       provideHover(document, position) {
+        const docUri = document.uri.toString();
+        const docHash = hash(document);
+        const lineOfWord: number = position.line + 1;
+        //NOTE: if yaml flow syntax should be supported, then use: `${lineOfWord}_${position.character}`
+        const lineCharacter = `${lineOfWord}`;
+
+        if (
+          docUri &&
+          docHash &&
+          hoverStatus[docUri] &&
+          hoverStatus[docUri].hash === docHash &&
+          Object.keys(hoverStatus[docUri].results).includes(lineCharacter)
+        ) {
+          console.log("hoverStatus", hoverStatus);
+          return hoverStatus[docUri].results[lineCharacter];
+        }
+
         if (DEV) {
           console.log("yamlKeysHover", yamlKeysHover);
         }
-        const lineOfWord: number = position.line + 1;
 
         const pathInYaml = yamlKeysHover.find((item) => item.lineOfPath === lineOfWord);
         const pathSplit = pathInYaml?.path.split(".");
@@ -256,11 +304,25 @@ export const hover = () => {
             if (DEV) {
               console.log("specifiedDefs1", specifiedDefs);
             }
+            if (docUri && docHash && lineCharacter && hoverResult) {
+              if (hoverStatus[docUri] && hoverStatus[docUri].hash === docHash) {
+                hoverStatus[docUri].results[lineCharacter] = hoverResult;
+              } else {
+                hoverStatus[docUri] = { hash: docHash, results: { [lineCharacter]: hoverResult } };
+              }
+            }
             return hoverResult;
           }
         });
         if (DEV) {
           console.log("definitionsMap", definitionsMap);
+        }
+        if (docUri && docHash && lineCharacter && hoverResult) {
+          if (hoverStatus[docUri] && hoverStatus[docUri].hash === docHash) {
+            hoverStatus[docUri].results[lineCharacter] = hoverResult;
+          } else {
+            hoverStatus[docUri] = { hash: docHash, results: { [lineCharacter]: hoverResult } };
+          }
         }
         return hoverResult;
       },
