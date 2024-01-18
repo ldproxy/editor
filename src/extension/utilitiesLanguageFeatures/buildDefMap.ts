@@ -75,7 +75,7 @@ export function processProperties(
             counter++;
           }
 
-          definitionsMap[uniqueKey] = {
+          (definitionsMap[uniqueKey] = {
             groupname: defs,
             title: propDefinition.title,
             description: propDefinition.description,
@@ -91,10 +91,9 @@ export function processProperties(
                 : additionalReferenceInConditionLastPart
                 ? additionalReferenceInConditionLastPart
                 : "",
-            deprecated: propDefinition.deprecated,
-          };
-
-          lastPartValue = "";
+            deprecated: propDefinition.deprecated ? true : false,
+          }),
+            (lastPartValue = "");
           lastPartValueAddRed = "";
         }
       }
@@ -105,6 +104,7 @@ export function processProperties(
             console.log("propDefinitionMy", propKey);
           }
 
+          let deprecatedProperty = false;
           let uniqueKey = propKey;
           let counter = 1;
 
@@ -112,6 +112,7 @@ export function processProperties(
             (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].groupname !== defs) ||
             (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].title !== propKey)
           ) {
+            deprecatedProperty = definitionsMap[uniqueKey].deprecated ? true : false;
             uniqueKey = propKey + counter;
             counter++;
           }
@@ -121,6 +122,7 @@ export function processProperties(
           definitionsMap[uniqueKey] = {
             groupname: defs,
             title: propKey,
+            deprecated: deprecatedProperty,
           };
         }
       });
