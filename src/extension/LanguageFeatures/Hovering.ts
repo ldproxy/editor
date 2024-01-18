@@ -28,15 +28,15 @@ let yamlKeysHover: {
 let specifiedDefs: { ref: string; finalPath: string }[];
 let definitionsMap: DefinitionsMap = {};
 
-export async function getSchemaMapHovering() {
+export async function getSchemaMapHovering(docUri: string, docHash?: string) {
   const currentDocument = vscode.window.activeTextEditor?.document;
   if (currentDocument) {
-    specifiedDefs = await defineDefs(currentDocument);
+    specifiedDefs = await defineDefs(currentDocument, docUri, docHash);
     if (DEV) {
       console.log("specifiedDefsGetSchema", specifiedDefs);
     }
     if (specifiedDefs && specifiedDefs.length > 0) {
-      definitionsMap = await getDefinitionsMap(specifiedDefs);
+      definitionsMap = await getDefinitionsMap(specifiedDefs, docUri, docHash);
     }
   }
 }

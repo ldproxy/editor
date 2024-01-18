@@ -39,13 +39,13 @@ let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 let uniqueDefs: any;
 
-export async function getSchemaMapCompletions() {
+export async function getSchemaMapCompletions(docUri: string, docHash?: string) {
   const currentDocument = vscode.window.activeTextEditor?.document;
   if (currentDocument) {
-    specifiedDefs = await defineDefs(currentDocument);
+    specifiedDefs = await defineDefs(currentDocument, docUri, docHash);
     uniqueDefs = removeDuplicates(specifiedDefs);
     if (uniqueDefs && uniqueDefs.length > 0) {
-      definitionsMap = await getDefinitionsMap(uniqueDefs);
+      definitionsMap = await getDefinitionsMap(uniqueDefs, docUri, docHash);
     }
   }
 }

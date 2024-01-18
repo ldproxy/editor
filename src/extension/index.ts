@@ -39,11 +39,14 @@ export let allYamlKeys: {
 function hash(document?: vscode.TextDocument): string {
   if (document) {
     const text = document.getText();
-    const hashString = md5(text);
-    if (DEV) {
-      console.log("Hash:", hashString);
+    if (text !== "") {
+      const hashString = md5(text);
+      if (DEV) {
+        console.log("Hash:", hashString, text);
+      }
+
+      return hashString;
     }
-    return hashString;
   }
   return "";
 }
@@ -64,19 +67,20 @@ function updateYamlKeysHover(
       }
       yamlObject.push(token);
     }
-    if (DEV) {
-      console.log("yamlObject", yamlObject[0].value.items);
-    }
 
-    if (vscode.window.activeTextEditor) {
+    if (vscode.window.activeTextEditor && hashString && hashString !== "") {
+      if (DEV) {
+        console.log("yamlObject", yamlObject[0].value.items);
+      }
+
       allYamlKeys = [];
       allYamlKeys = getAllYamlPaths(document.getText(), yamlObject[0].value.items, "");
       if (DEV) {
         console.log("yamlKeysIndex", allYamlKeys);
       }
       getSchemaMapCompletions(document.uri.toString(), hashString);
-      getValueCompletions();
-      getSchemaMapHovering();
+      getValueCompletions(document.uri.toString(), hashString);
+      getSchemaMapHovering(document.uri.toString(), hashString);
       getHoverKeys(allYamlKeys);
       getValueKeys(allYamlKeys);
       getKeys(allYamlKeys);
@@ -109,9 +113,9 @@ export function activate(context: ExtensionContext) {
   );*/
 
   let hashString = hash(document);
+  hover();
   initSchemas();
   initDiagnostics();
-  hover();
   const collection = vscode.languages.createDiagnosticCollection("test");
 
   updateYamlKeysHover(document, hashString, collection, context);
@@ -122,7 +126,7 @@ export function activate(context: ExtensionContext) {
       if (document) {
         const text = document.getText();
         const newHash = md5(text);
-        if (hashString !== "" && newHash !== hashString) {
+        if (newHash !== hashString) {
           hashString = newHash;
           if (DEV) {
             console.log("HashChangedDoc:", hashString);
@@ -142,7 +146,7 @@ export function activate(context: ExtensionContext) {
       if (document) {
         const text = document.getText();
         const newHash = md5(text);
-        if (hashString !== "" && newHash !== hashString && editor) {
+        if (newHash !== hashString && editor) {
           hashString = newHash;
           if (DEV) {
             console.log("HashChangedEditor:", hashString);

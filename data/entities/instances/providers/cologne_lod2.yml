@@ -1,5 +1,6 @@
 ---
 id: cologne_lod2
+providerType: FEATURE
 providerSubType: SQL
 nativeCrs:
   code: 5555
