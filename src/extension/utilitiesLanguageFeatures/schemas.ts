@@ -12,14 +12,21 @@ export interface LooseDefinition {
   [key: string]: any;
 }
 
+interface FileType {
+  type: string;
+  subProperty?: string;
+  discriminatorKey?: string;
+  discriminatorValue?: string;
+}
+
 const xtracfg = newXtracfg();
 
 let allSchemas: Promise<DefinitionsMap>;
 
 const fileTypes: {
   [key: string]: {
-    result: Promise<string>;
-    resolve: (fileType: string) => void;
+    result: Promise<FileType>;
+    resolve: (fileType: FileType) => void;
     reject: (reason: string) => void;
   };
 } = {};
@@ -46,7 +53,8 @@ export const initSchemas = () => {
           if (DEV) {
             console.log("FOUND");
           }
-          fileTypes[response.details.path].resolve(response.details.fileType);
+          const fileType: FileType = { type: response.details.fileType, ...response.details };
+          fileTypes[response.details.path].resolve(fileType);
         }
       } else if (
         response.results &&
@@ -83,7 +91,9 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
     return undefined;
   }
 
-  return schemas[fileType];
+  console.log("FT", fileType);
+
+  return schemas[fileType.type];
 };
 
 export const getSchemaDefs = async (): Promise<DefinitionsMap | undefined> => {
@@ -96,7 +106,7 @@ export const getSchemaDefs = async (): Promise<DefinitionsMap | undefined> => {
   return schema;
 };
 
-const getCurrentFileType = async (): Promise<string | undefined> => {
+const getCurrentFileType = async (): Promise<FileType | undefined> => {
   const currentFilePath = getCurrentFilePath();
 
   if (!currentFilePath) {
