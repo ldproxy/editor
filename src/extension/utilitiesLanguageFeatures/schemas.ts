@@ -1,6 +1,8 @@
 import { newXtracfg } from "../utilities/xtracfg";
 import { getCurrentFilePath, getWorkspacePath } from "../utilities/paths";
 import { DEV } from "../utilities/constants";
+import { findMyRef } from "./findDefaultCfgRef";
+import { TOP_LEVEL_REF } from "./defineDefs";
 
 export interface DefinitionsMap {
   [key: string]: LooseDefinition;
@@ -91,9 +93,27 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
     return undefined;
   }
 
+  const schema = schemas[fileType.type];
+  schema.groupName = TOP_LEVEL_REF;
+
   console.log("FT", fileType);
 
-  return schemas[fileType.type];
+  if (fileType.subProperty) {
+    const myRef = await findMyRef(schema, fileType?.discriminatorKey, fileType?.discriminatorValue);
+    const subSchema = {
+      ...schema.$defs[myRef[0].ref],
+      $defs: schema.$defs,
+      groupName: TOP_LEVEL_REF,
+    };
+    if (DEV) {
+      console.log("SUBSCHEMA", subSchema, myRef[0].ref);
+    }
+    return subSchema;
+  }
+  if (DEV) {
+    console.log("schemaGetSchema", schema);
+  }
+  return schema;
 };
 
 export const getSchemaDefs = async (): Promise<DefinitionsMap | undefined> => {

@@ -384,13 +384,9 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
 });
 
 // Falls noch keine specifiedDefs existieren und demnach auch keine definitionsMap. (Bei Provider wird hier dann z.B. providerSubType und providerType vorgeschlagen)
-export const provider4 = vscode.languages.registerCompletionItemProvider("yaml", {
+export const provider4 = undefined; /*vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    if (
-      Object.keys(definitionsMap).every(
-        (key) => definitionsMap[key].groupname === "requiredProperty"
-      )
-    ) {
+    if (Object.keys(definitionsMap).every((key) => definitionsMap[key].noCondition === true)) {
       const completions: vscode.CompletionItem[] = [];
 
       for (const key in definitionsMap) {
@@ -412,7 +408,7 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
       return completions;
     }
   },
-});
+});*/
 
 export function getPathAtCursor(
   allYamlKeys: {

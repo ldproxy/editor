@@ -25,10 +25,10 @@ import { provider4 as provider5 } from "./LanguageFeatures/ValueCompletions";
 import { DefinitionsMap, initSchemas } from "./utilitiesLanguageFeatures/schemas";
 import { DEV } from "./utilities/constants";
 import { md5 } from "js-md5";
+import { hash } from "./utilitiesLanguageFeatures/createHash";
+import { getSchema } from "./utilitiesLanguageFeatures/schemas";
 
 // import { Emojinfo } from "./LanguageFeatures/CodeActions";
-import { getDefinitionsMap } from "./utilitiesLanguageFeatures/getDefinitionsMap";
-import { services } from "./utilitiesLanguageFeatures/services";
 
 export let allYamlKeys: {
   path: string;
@@ -37,21 +37,6 @@ export let allYamlKeys: {
   startOfArray?: number;
   arrayIndex?: number;
 }[] = [];
-
-function hash(document?: vscode.TextDocument): string {
-  if (document) {
-    const text = document.getText();
-    if (text !== "") {
-      const hashString = md5(text);
-      if (DEV) {
-        console.log("Hash:", hashString, text);
-      }
-
-      return hashString;
-    }
-  }
-  return "";
-}
 
 function updateYamlKeysHover(
   document?: vscode.TextDocument,
@@ -98,95 +83,7 @@ let initialized = false;
 const collection = vscode.languages.createDiagnosticCollection("test");
 
 export function activate(context: ExtensionContext) {
-  async function findMyRef(property: string, value?: string) {
-    let myRef: [{ ref: string; finalPath: string }] = [{ ref: "", finalPath: "" }];
-    const conditions = [
-      { condition: { buildingBlock: { const: "COLLECTIONS" } }, ref: "CollectionsConfiguration" },
-      { condition: { featureProvider: { const: "FEATURE" } }, ref: "FeatureColelction" },
-    ];
-    const schema = services;
-    console.log("findMyRefconditions", conditions);
-    console.log("findMyRefschema", schema);
-    if (!schema) {
-      return [];
-    }
-
-    if (property && value) {
-      console.log("findMyRefproperty", property);
-      // case: property is in conditions (value of property is relevant choice of ref)
-      conditions.forEach((condition: { [key: string]: any }) => {
-        console.log("condition2", condition);
-        const conditionKeys = Object.keys(condition.condition);
-        console.log("conditionKeys2", conditionKeys);
-        if (conditionKeys.length === 1) {
-          conditionKeys.forEach((key: string) => {
-            console.log("blakey", key);
-            if (key === property) {
-              console.log("tüdelü", condition.condition[key].const);
-              if (condition.condition[key].const === value) {
-                console.log("condition", condition.ref);
-                const conditionRef = condition.ref;
-                myRef = [{ ref: conditionRef.replace("#/$defs/", ""), finalPath: property }];
-              }
-            }
-          });
-        }
-      });
-    } else {
-      //case: just search property at top-level of schema and use the ref (property was not found in conditions)
-      // find only top-level defs:
-
-      let topLevelDefs = [];
-
-      if (schema && schema.allOf) {
-        for (const condition of schema.allOf) {
-          if (condition) {
-            const ref: string = condition.then?.$ref;
-            if (ref) {
-              topLevelDefs.push(ref.replace("#/$defs/", ""));
-            }
-          }
-        }
-      }
-      console.log("topLevelDefs", topLevelDefs);
-      if (topLevelDefs.length !== 0 && schema && schema.$defs) {
-        topLevelDefs.forEach((def: string) => {
-          const schemaDefs: DefinitionsMap = schema.$defs;
-          const definition = schemaDefs[def];
-          if (
-            definition &&
-            definition.properties &&
-            Object.keys(definition.properties).length > 0
-          ) {
-            for (const propKey in definition.properties) {
-              const propDefinition = definition.properties[propKey];
-              if (
-                propDefinition.title &&
-                propDefinition.title === property &&
-                propDefinition.$ref
-              ) {
-                const ref = propDefinition.$ref;
-                myRef = [{ ref: ref.replace("#/$defs/", ""), finalPath: property }];
-              }
-            }
-          }
-        });
-      }
-    }
-    return myRef;
-  }
   const document = vscode.window.activeTextEditor?.document;
-
-  getMap();
-
-  async function getMap() {
-    const myRef = await findMyRef("buildingBlock", "COLLECTIONS");
-    console.log("myyRef", myRef);
-    const docHash = hash(document);
-    const docUri = document?.uri.toString();
-    const definitionsMap = await getDefinitionsMap(myRef, docUri, docHash);
-    console.log("DefaultsdefinitionsMap", definitionsMap);
-  }
 
   if (DEV) {
     console.log("ACTIVATE", context.extension.id, context.extension.isActive);

@@ -1,6 +1,5 @@
-import { getSchemaDefs, DefinitionsMap } from "./schemas";
+import { DefinitionsMap } from "./schemas";
 import { DEV } from "../utilities/constants";
-import { getDefinitionsMap } from "./getDefinitionsMap";
 
 export function processProperties(
   defs: string,
@@ -131,12 +130,10 @@ export function processProperties(
   return definitionsMap;
 }
 
-export async function findObjectsWithRef(definitionsMap: DefinitionsMap): Promise<string[]> {
-  const schema = await getSchemaDefs();
-  let schemaDefs: any;
-  if (schema) {
-    schemaDefs = schema.$defs;
-  }
+export async function findObjectsWithRef(
+  definitionsMap: DefinitionsMap,
+  schemaDefs: any
+): Promise<string[]> {
   let lastPartValueArray: string[] = [];
   let hasNewReferences = true;
 
@@ -148,7 +145,9 @@ export async function findObjectsWithRef(definitionsMap: DefinitionsMap): Promis
 
       if (typeof obj === "object" && obj["ref"] !== "") {
         const value = obj.ref;
-
+        if (DEV) {
+          console.log("valueBuildDef", value);
+        }
         if (value) {
           const lastSlashIndex = value.lastIndexOf("/");
           const lastPartValue: string = value.substring(lastSlashIndex + 1);
@@ -159,6 +158,9 @@ export async function findObjectsWithRef(definitionsMap: DefinitionsMap): Promis
 
             let nestedDefinitionsMap;
             if (schemaDefs) {
+              if (DEV) {
+                console.log("lastPartValue", lastPartValue);
+              }
               nestedDefinitionsMap = processProperties(lastPartValue, schemaDefs, definitionsMap);
             }
             definitionsMap = { ...definitionsMap, ...nestedDefinitionsMap };
@@ -197,27 +199,95 @@ export async function getRequiredProperties(schema: DefinitionsMap): Promise<Def
   let requiredProperties: string[] = [];
   let definitionsMap: DefinitionsMap = {};
   if (schema) {
+    if (DEV) {
+      console.log("gRPSchema", schema);
+    }
     const requiredPropertieObject = schema.properties;
     if (requiredPropertieObject) {
       requiredProperties = Object.keys(requiredPropertieObject);
       requiredProperties.forEach((requiredProperty: string) => {
-        definitionsMap[requiredProperty] = {
-          groupname: "requiredProperty",
+        const prop = requiredPropertieObject[requiredProperty];
+        let lastSlashIndex;
+        if (prop.$ref) {
+          lastSlashIndex = prop.$ref.lastIndexOf("/");
+        }
+        let lastPartValueAddRed = "";
+        let additionalReference = "";
+        if (prop.additionalProperties && prop.additionalProperties.$ref) {
+          additionalReference = prop.additionalProperties.$ref;
+        }
+        if (DEV) {
+          console.log("gRPadditionalReference", additionalReference);
+        }
+        if (additionalReference && additionalReference.length > 0) {
+          const lastSlashIndex = additionalReference.lastIndexOf("/");
+          lastPartValueAddRed = additionalReference.substring(lastSlashIndex + 1);
+        }
+        let uniqueKey = requiredProperty;
+        let counter = 1;
+
+        while (
+          (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].groupname !== schema.groupName) ||
+          (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].title !== requiredProperty)
+        ) {
+          if (DEV) {
+            console.log("???");
+          }
+          uniqueKey = requiredProperty + counter;
+          counter++;
+        }
+
+        definitionsMap[uniqueKey] = {
           title: requiredProperty,
-          deprecated: requiredPropertieObject[requiredProperty].deprecated,
+          description: prop.enum ? prop.enum.join(", ") : prop.description,
+          groupname: schema.groupName || "requiredProperty",
+          noCondition: true,
+          deprecated: prop.deprecated ? true : false,
+          ref: prop.$ref ? prop.$ref.substring(lastSlashIndex + 1) : "",
+          addRef: lastPartValueAddRed !== "" ? lastPartValueAddRed : "",
         };
       });
     }
 
     if (schema.anyOf) {
       const anyOfArray = schema.anyOf;
-      anyOfArray.forEach((obj: { required: []; properties: any }) => {
-        if (obj.required) {
-          obj.required.forEach((requiredProperty: string) => {
-            definitionsMap[requiredProperty] = {
-              groupname: "requiredProperty",
+      anyOfArray.forEach((obj: { properties: any }) => {
+        if (obj.properties) {
+          Object.keys(obj.properties).forEach((requiredProperty: string) => {
+            const prop = obj.properties[requiredProperty];
+            let lastSlashIndex;
+            if (prop.$ref) {
+              lastSlashIndex = prop.$ref.lastIndexOf("/");
+            }
+            let lastPartValueAddRed = "";
+            let additionalReference = "";
+            if (prop.additionalProperties && prop.additionalProperties.$ref) {
+              additionalReference = prop.additionalProperties.$ref;
+            }
+            if (additionalReference && additionalReference.length > 0) {
+              const lastSlashIndex = additionalReference.lastIndexOf("/");
+              lastPartValueAddRed = additionalReference.substring(lastSlashIndex + 1);
+            }
+            let uniqueKey = requiredProperty;
+            let counter = 1;
+
+            while (
+              (definitionsMap[uniqueKey] &&
+                definitionsMap[uniqueKey].groupname !== schema.groupName) ||
+              (definitionsMap[uniqueKey] && definitionsMap[uniqueKey].title !== requiredProperty)
+            ) {
+              uniqueKey = requiredProperty + counter;
+              counter++;
+            }
+
+            definitionsMap[uniqueKey] = {
               title: requiredProperty,
-              deprecated: obj.properties[requiredProperty].deprecated,
+              description: prop.enum ? prop.enum.join(", ") : prop.description,
+              groupname: schema.groupName || "requiredProperty",
+              noCondition: true,
+              deprecated: prop.deprecated ? true : false,
+              ref: prop.$ref ? prop.$ref.substring(lastSlashIndex + 1) : "",
+              addRef: lastPartValueAddRed !== "" ? lastPartValueAddRed : "",
             };
           });
         }

@@ -8,9 +8,13 @@ interface Conditions {
   ref?: string;
 }
 
-export async function extractConditions() {
-  const schema = await getSchema();
+export const TOP_LEVEL_REF = "_TOP_LEVEL_";
 
+export async function extractConditions(defaultCfgSchema?: LooseDefinition) {
+  let schema: LooseDefinition | undefined = defaultCfgSchema;
+  if (!schema) {
+    schema = await getSchema();
+  }
   if (!schema) {
     return [];
   }
@@ -98,6 +102,9 @@ export async function defineDefs(document: vscode.TextDocument, docUri?: string,
       });
     }
   }
+  //if (specifiedDefs.length === 0) {
+  specifiedDefs.push({ ref: TOP_LEVEL_REF, finalPath: "" });
+  //}
   if (DEV) {
     console.log("speecifiedDefs", specifiedDefs);
   }

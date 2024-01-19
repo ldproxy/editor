@@ -12,7 +12,9 @@ export async function getDefinitionsMap(
   docHash?: string
 ): Promise<DefinitionsMap> {
   if (docUri && docHash && allMaps[docUri] && allMaps[docUri].hash === docHash) {
-    console.log("allMapsDefMap", allMaps);
+    if (DEV) {
+      console.log("allMapsDefMap", allMaps);
+    }
     return allMaps[docUri].definitionsMap;
   }
 
@@ -36,8 +38,17 @@ export async function getDefinitionsMap(
       console.log("specifiedDefsDefMap", specifiedDefs);
     }
   }
+
+  if (schema) {
+    const requiredProperties = await getRequiredProperties(schema);
+    definitionsMap = {
+      ...definitionsMap,
+      ...requiredProperties,
+    };
+  }
+
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
-    allRefs = await findObjectsWithRef(definitionsMap);
+    allRefs = await findObjectsWithRef(definitionsMap, schemaDefs);
     if (DEV) {
       console.log("allRefsDefMap", allRefs);
     }
@@ -53,13 +64,6 @@ export async function getDefinitionsMap(
         ...processProperties(ref, schemaDefs, definitionsMap),
       };
     });
-  }
-  if (schema) {
-    const requiredProperties = await getRequiredProperties(schema);
-    definitionsMap = {
-      ...definitionsMap,
-      ...requiredProperties,
-    };
   }
 
   if (docUri && docHash) {
