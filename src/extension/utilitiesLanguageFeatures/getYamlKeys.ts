@@ -42,7 +42,7 @@ export function getAllYamlPaths(
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
         if (line !== undefined && column !== undefined) {
-          const existing = yamlKeys.find((item) => item.path === path);
+          const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
             console.log("99", path, line);
             yamlKeys.push({ path, index: column, lineOfPath: line });
@@ -97,7 +97,7 @@ export function getAllYamlPaths(
                 if (
                   object2.value &&
                   object2.value.items &&
-                  object2.value.items[0] // .start.length > 0
+                  object2.value.items[0].start.length > 0
                 ) {
                   if (DEVYAMLKEYS) {
                     console.log("77object2", [object2], path);
@@ -129,7 +129,7 @@ export function getAllYamlPaths(
         const column: number = object.key.indent;
         console.log("getKeysObject", path, line, arrayIndex, startOfArray);
         if (line !== undefined && column !== undefined) {
-          const existing = yamlKeys.find((item) => item.path === path);
+          const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
             if (arrayIndex >= 0 && startOfArray) {
               console.log("Ist Teil eines Arrays", path, line, "arrayIndex", arrayIndex);
@@ -152,9 +152,9 @@ export function getAllYamlPaths(
           if (
             item.value &&
             item.value.items &&
-            item.value.items[0] /*&&
+            item.value.items[0] &&
             item.value.items[0].start &&
-            item.value.items[0].start[0] */
+            item.value.items[0].start[0]
           ) {
             if (arrayIndex >= 0 && startOfArray) {
               if (DEVYAMLKEYS) {
@@ -173,7 +173,9 @@ export function getAllYamlPaths(
             const line: number = getLineNumber(document, item.key.offset);
             const column: number = item.key.indent;
             if (line !== undefined && column !== undefined) {
-              const existing = yamlKeys.find((item) => item.path === path2);
+              const existing = yamlKeys.find(
+                (item) => item.path === path2 && item.lineOfPath === line
+              );
               if (!existing) {
                 if (arrayIndex >= 0 && startOfArray) {
                   console.log("2222", path2, line, "arrayIndex", arrayIndex);
@@ -226,7 +228,7 @@ export function getAllYamlPaths(
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
         if (line !== undefined && column !== undefined) {
-          const existing = yamlKeys.find((item) => item.path === path);
+          const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
             if (arrayIndex >= 0 && startOfArray) {
               console.log(
