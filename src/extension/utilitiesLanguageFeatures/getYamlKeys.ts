@@ -97,7 +97,7 @@ export function getAllYamlPaths(
                 if (
                   object2.value &&
                   object2.value.items &&
-                  object2.value.items[0].start.length > 0
+                  object2.value.items[0] // .start.length > 0
                 ) {
                   if (DEVYAMLKEYS) {
                     console.log("77object2", [object2], path);
@@ -152,9 +152,9 @@ export function getAllYamlPaths(
           if (
             item.value &&
             item.value.items &&
-            item.value.items[0] &&
+            item.value.items[0] /* && 
             item.value.items[0].start &&
-            item.value.items[0].start[0]
+            item.value.items[0].start[0] */
           ) {
             if (arrayIndex >= 0 && startOfArray) {
               if (DEVYAMLKEYS) {
