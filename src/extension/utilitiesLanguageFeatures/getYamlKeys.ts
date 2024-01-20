@@ -44,7 +44,9 @@ export function getAllYamlPaths(
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
-            console.log("99", path, line);
+            if (DEVYAMLKEYS) {
+              console.log("99", path, line);
+            }
             yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
@@ -77,7 +79,9 @@ export function getAllYamlPaths(
                 }
                 const path2: string = `${path}.${object2.key.source.replace(/\./g, "/")}`;
                 const line: number = getLineNumber(document, object2.key.offset);
-                console.log("88", path2, line);
+                if (DEVYAMLKEYS) {
+                  console.log("88", path2, line);
+                }
                 const column: number = object2.key.indent;
                 if (line !== undefined && column !== undefined) {
                   const existing = yamlKeys.find(
@@ -107,7 +111,9 @@ export function getAllYamlPaths(
                   getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex, startOfArray);
                   // Wenn der Array noch ein Objekt enthält:
                 } else {
-                  console.log("66object2", [object2], path, arrayIndex, startOfArray);
+                  if (DEVYAMLKEYS) {
+                    console.log("66object2", [object2], path, arrayIndex, startOfArray);
+                  }
                   getAllYamlPaths(document, [object2], path, yamlKeys, -1);
                 }
               }
@@ -129,17 +135,23 @@ export function getAllYamlPaths(
           : object.key.source.replace(/\./g, "/");
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
-        console.log("getKeysObject", path, line, arrayIndex, startOfArray);
+        if (DEVYAMLKEYS) {
+          console.log("getKeysObject", path, line, arrayIndex, startOfArray);
+        }
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
             if (arrayIndex >= 0 && startOfArray) {
-              console.log("Ist Teil eines Arrays", path, line, "arrayIndex", arrayIndex);
+              if (DEVYAMLKEYS) {
+                console.log("Ist Teil eines Arrays", path, line, "arrayIndex", arrayIndex);
+              }
               yamlKeys.push({ path, index: column, lineOfPath: line, startOfArray, arrayIndex });
             } /* else if (arrayIndex && arrayIndex >= 0) {
               yamlKeys.push({ path, index: column, lineOfPath: line, arrayIndex });
             }*/ else {
-              console.log("Ist kein Teil eines Arrays", path, line);
+              if (DEVYAMLKEYS) {
+                console.log("Ist kein Teil eines Arrays", path, line);
+              }
               yamlKeys.push({ path, index: column, lineOfPath: line });
             }
           }
@@ -180,7 +192,9 @@ export function getAllYamlPaths(
               );
               if (!existing) {
                 if (arrayIndex >= 0 && startOfArray) {
-                  console.log("2222", path2, line, "arrayIndex", arrayIndex);
+                  if (DEVYAMLKEYS) {
+                    console.log("2222", path2, line, "arrayIndex", arrayIndex);
+                  }
                   yamlKeys.push({
                     path: path2,
                     index: column,
@@ -191,7 +205,9 @@ export function getAllYamlPaths(
                 } /* else if (arrayIndex && arrayIndex >= 0) {
                   yamlKeys.push({ path: path2, index: column, lineOfPath: line, arrayIndex });
                 } */ else {
-                  console.log("1111", path2, line);
+                  if (DEVYAMLKEYS) {
+                    console.log("1111", path2, line);
+                  }
                   yamlKeys.push({ path: path2, index: column, lineOfPath: line });
                 }
               }
@@ -233,18 +249,22 @@ export function getAllYamlPaths(
           const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
             if (arrayIndex >= 0 && startOfArray) {
-              console.log(
-                "Einzelner Key als Teil eines Arrays",
-                path,
-                line,
-                "arrayIndex",
-                arrayIndex
-              );
+              if (DEVYAMLKEYS) {
+                console.log(
+                  "Einzelner Key als Teil eines Arrays",
+                  path,
+                  line,
+                  "arrayIndex",
+                  arrayIndex
+                );
+              }
               yamlKeys.push({ path, index: column, lineOfPath: line, startOfArray, arrayIndex });
             } /*else if (arrayIndex && arrayIndex >= 0) {
               yamlKeys.push({ path, index: column, lineOfPath: line, arrayIndex });
             } */ else {
-              console.log("Einzelner Key als kein Teil eines Arrays", path, line);
+              if (DEVYAMLKEYS) {
+                console.log("Einzelner Key als kein Teil eines Arrays", path, line);
+              }
               yamlKeys.push({ path, index: column, lineOfPath: line });
             }
           }

@@ -102,7 +102,9 @@ export const hover = () => {
           hoverStatus[docUri].hash === docHash &&
           Object.keys(hoverStatus[docUri].results).includes(lineCharacter)
         ) {
-          console.log("hoverStatus", hoverStatus);
+          if (DEV) {
+            console.log("hoverStatus", hoverStatus);
+          }
           return hoverStatus[docUri].results[lineCharacter];
         }
 
@@ -181,7 +183,9 @@ export const hover = () => {
             pathInYamlLastKey &&
             definitionsMap.hasOwnProperty(pathInYamlLastKey)
           ) {
-            console.log("neuesMinMax", minLine, maxLine, lineOfWord);
+            if (DEV) {
+              console.log("neuesMinMax", minLine, maxLine, lineOfWord);
+            }
             for (const key in definitionsMap) {
               const obj = definitionsMap[key];
               if (
@@ -189,7 +193,9 @@ export const hover = () => {
                 ref === obj.groupname &&
                 definitionsMap[pathInYamlLastKey].description !== ""
               ) {
-                console.log("TTTTTest", obj);
+                if (DEV) {
+                  console.log("TTTTTest", obj);
+                }
                 wordInDefinitionsMap = obj;
                 break;
               }

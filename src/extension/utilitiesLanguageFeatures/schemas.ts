@@ -96,7 +96,9 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
   const schema = schemas[fileType.type];
   schema.groupName = TOP_LEVEL_REF;
 
-  console.log("FT", fileType);
+  if (DEV) {
+    console.log("FT", fileType);
+  }
 
   if (fileType.subProperty) {
     const myRef = await findMyRef(schema, fileType?.discriminatorKey, fileType?.discriminatorValue);
