@@ -97,16 +97,18 @@ export function getAllYamlPaths(
                 if (
                   object2.value &&
                   object2.value.items &&
-                  object2.value.items[0] // .start.length > 0
+                  object2.value.items[0] &&
+                  startOfArray &&
+                  arrayIndex >= 0
                 ) {
                   if (DEVYAMLKEYS) {
                     console.log("77object2", [object2], path);
                   }
-                  getAllYamlPaths(document, [object2], path, yamlKeys, -1);
-                  // Wenn der Array noch ein Objekt enthält:
-                } else if (object2.value && object2.value.items) {
-                  console.log("66object2", [object2], path, arrayIndex, startOfArray);
                   getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex, startOfArray);
+                  // Wenn der Array noch ein Objekt enthält:
+                } else {
+                  console.log("66object2", [object2], path, arrayIndex, startOfArray);
+                  getAllYamlPaths(document, [object2], path, yamlKeys, -1);
                 }
               }
             });
