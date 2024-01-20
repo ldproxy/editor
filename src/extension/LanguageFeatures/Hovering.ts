@@ -172,8 +172,8 @@ export const hover = () => {
           } else if (
             specifiedDefsPath.includes("[") &&
             pathInYamlToUse === pathForArray &&
-            minLine &&
-            maxLine &&
+            minLine !== undefined &&
+            maxLine !== undefined &&
             lineOfWord >= minLine &&
             lineOfWord < maxLine &&
             definitionsMap &&
@@ -181,6 +181,7 @@ export const hover = () => {
             pathInYamlLastKey &&
             definitionsMap.hasOwnProperty(pathInYamlLastKey)
           ) {
+            console.log("neuesMinMax", minLine, maxLine, lineOfWord);
             for (const key in definitionsMap) {
               const obj = definitionsMap[key];
               if (
@@ -188,6 +189,7 @@ export const hover = () => {
                 ref === obj.groupname &&
                 definitionsMap[pathInYamlLastKey].description !== ""
               ) {
+                console.log("TTTTTest", obj);
                 wordInDefinitionsMap = obj;
                 break;
               }

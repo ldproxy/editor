@@ -56,10 +56,6 @@ function updateYamlKeysHover(
     }
 
     if (vscode.window.activeTextEditor && hashString && hashString !== "") {
-      if (DEV) {
-        console.log("yamlObject", yamlObject[0].value.items);
-      }
-
       allYamlKeys = [];
       allYamlKeys = getAllYamlPaths(document.getText(), yamlObject[0].value.items, "");
       if (DEV) {

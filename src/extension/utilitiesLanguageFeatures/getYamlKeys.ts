@@ -1,3 +1,4 @@
+import { start } from "repl";
 import { DEV, DEVYAMLKEYS } from "../utilities/constants";
 
 export function getAllYamlPaths(
@@ -18,6 +19,7 @@ export function getAllYamlPaths(
     if (DEVYAMLKEYS) {
       console.log("yamlObject", yamlObject);
     }
+    //Fall: Array
     yamlObject.forEach((object: any) => {
       if (
         object &&
@@ -27,7 +29,12 @@ export function getAllYamlPaths(
         object.value.items &&
         object.value.items[0] &&
         object.value.items[0].start[0] &&
-        object.value.items[0].start[0].source
+        object.value.items[0].start[0].source &&
+        object.value.items[0].value &&
+        object.value.items[0].value.items &&
+        object.value.items[0].value.items[0] &&
+        object.value.items[0].value.items[0].value &&
+        object.value.items[0].value.items[0].value.source
       ) {
         const path: string = currentPath
           ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
@@ -37,9 +44,11 @@ export function getAllYamlPaths(
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
+            console.log("99", path, line);
             yamlKeys.push({ path, index: column, lineOfPath: line });
           }
         }
+        // Hier geht man in den tastächlichen Array rein:
         object.value.items.forEach((array: any) => {
           arrayIndex++;
           if (DEVYAMLKEYS) {
@@ -65,6 +74,7 @@ export function getAllYamlPaths(
                 }
                 const path2: string = `${path}.${object2.key.source.replace(/\./g, "/")}`;
                 const line: number = getLineNumber(document, object2.key.offset);
+                console.log("88", path2, line);
                 const column: number = object2.key.indent;
                 if (line !== undefined && column !== undefined) {
                   const existing = yamlKeys.find(
@@ -80,22 +90,26 @@ export function getAllYamlPaths(
                     });
                   }
                 }
+                // Wenn der Array nochmal einen Array enthält:
                 if (
                   object2.value &&
                   object2.value.items &&
-                  object2.value.items[0].start.length > 0
+                  object2.value.items[0] // .start.length > 0
                 ) {
                   if (DEVYAMLKEYS) {
-                    console.log("object2", [object2], path);
+                    console.log("77object2", [object2], path);
                   }
                   getAllYamlPaths(document, [object2], path, yamlKeys, -1);
+                  // Wenn der Array noch ein Objekt enthält:
                 } else if (object2.value && object2.value.items) {
+                  console.log("66object2", [object2], path, arrayIndex, startOfArray);
                   getAllYamlPaths(document, [object2], path, yamlKeys, arrayIndex, startOfArray);
                 }
               }
             });
           }
         });
+        // Fall Objekt
       } else if (
         object &&
         object.key &&
@@ -110,14 +124,17 @@ export function getAllYamlPaths(
           : object.key.source.replace(/\./g, "/");
         const line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
+        console.log("getKeysObject", path, line, arrayIndex, startOfArray);
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
-            if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+            if (arrayIndex >= 0 && startOfArray) {
+              console.log("Ist Teil eines Arrays", path, line, "arrayIndex", arrayIndex);
               yamlKeys.push({ path, index: column, lineOfPath: line, startOfArray, arrayIndex });
-            } else if (arrayIndex && arrayIndex >= 0) {
+            } /* else if (arrayIndex && arrayIndex >= 0) {
               yamlKeys.push({ path, index: column, lineOfPath: line, arrayIndex });
-            } else {
+            }*/ else {
+              console.log("Ist kein Teil eines Arrays", path, line);
               yamlKeys.push({ path, index: column, lineOfPath: line });
             }
           }
@@ -127,21 +144,24 @@ export function getAllYamlPaths(
         }
         object.value.items.forEach((item: any) => {
           if (DEVYAMLKEYS) {
-            console.log("itemGetKeys", item);
+            console.log("itemGetKeys", item, arrayIndex);
           }
           if (
             item.value &&
             item.value.items &&
-            item.value.items[0] &&
+            item.value.items[0] /*&&
             item.value.items[0].start &&
-            item.value.items[0].start[0]
+            item.value.items[0].start[0] */
           ) {
-            if (DEVYAMLKEYS) {
-              console.log("arrayitem", [item], path);
-            }
-            if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+            if (arrayIndex >= 0 && startOfArray) {
+              if (DEVYAMLKEYS) {
+                console.log("arrayitem", [item], path);
+              }
               getAllYamlPaths(document, [item], path, yamlKeys, arrayIndex, startOfArray);
             } else {
+              if (DEVYAMLKEYS) {
+                console.log("arrayitem2", [item], path);
+              }
               getAllYamlPaths(document, [item], path, yamlKeys);
             }
           } else if (item && item.key && item.key.source) {
@@ -152,7 +172,8 @@ export function getAllYamlPaths(
             if (line !== undefined && column !== undefined) {
               const existing = yamlKeys.find((item) => item.path === path2);
               if (!existing) {
-                if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+                if (arrayIndex >= 0 && startOfArray) {
+                  console.log("2222", path2, line, "arrayIndex", arrayIndex);
                   yamlKeys.push({
                     path: path2,
                     index: column,
@@ -160,9 +181,10 @@ export function getAllYamlPaths(
                     startOfArray,
                     arrayIndex,
                   });
-                } else if (arrayIndex && arrayIndex >= 0) {
+                } /* else if (arrayIndex && arrayIndex >= 0) {
                   yamlKeys.push({ path: path2, index: column, lineOfPath: line, arrayIndex });
-                } else {
+                } */ else {
+                  console.log("1111", path2, line);
                   yamlKeys.push({ path: path2, index: column, lineOfPath: line });
                 }
               }
@@ -172,7 +194,7 @@ export function getAllYamlPaths(
               if (DEVYAMLKEYS) {
                 console.log("item.value.items", item.value.items, path2);
               }
-              if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+              if (arrayIndex >= 0 && startOfArray) {
                 getAllYamlPaths(
                   document,
                   item.value.items,
@@ -187,6 +209,7 @@ export function getAllYamlPaths(
             }
           }
         });
+        // Fall einzelner Key
       } else if (object && object.key && object.key.source) {
         if (DEVYAMLKEYS) {
           console.log("objectGetKeys", object);
@@ -202,11 +225,19 @@ export function getAllYamlPaths(
         if (line !== undefined && column !== undefined) {
           const existing = yamlKeys.find((item) => item.path === path);
           if (!existing) {
-            if (arrayIndex && arrayIndex >= 0 && startOfArray) {
+            if (arrayIndex >= 0 && startOfArray) {
+              console.log(
+                "Einzelner Key als Teil eines Arrays",
+                path,
+                line,
+                "arrayIndex",
+                arrayIndex
+              );
               yamlKeys.push({ path, index: column, lineOfPath: line, startOfArray, arrayIndex });
-            } else if (arrayIndex && arrayIndex >= 0) {
+            } /*else if (arrayIndex && arrayIndex >= 0) {
               yamlKeys.push({ path, index: column, lineOfPath: line, arrayIndex });
-            } else {
+            } */ else {
+              console.log("Einzelner Key als kein Teil eines Arrays", path, line);
               yamlKeys.push({ path, index: column, lineOfPath: line });
             }
           }
