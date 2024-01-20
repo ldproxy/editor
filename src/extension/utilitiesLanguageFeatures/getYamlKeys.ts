@@ -50,6 +50,9 @@ export function getAllYamlPaths(
         }
         // Hier geht man in den tastächlichen Array rein:
         object.value.items.forEach((array: any) => {
+          if (!yamlKeys.some((yk) => yk.path === path)) {
+            arrayIndex = -1;
+          }
           arrayIndex++;
           if (DEVYAMLKEYS) {
             console.log("arrayGetKeys", array);
