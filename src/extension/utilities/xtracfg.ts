@@ -18,9 +18,13 @@ export type Response = {
 };
 
 export type Error = {
-  error: string;
-  status: string;
-  message: string;
+  error?: string;
+  status?: string;
+  message?: string;
+  notification?: string;
+  fields?: {
+    [key: string]: string;
+  };
 };
 
 type Socket = () => Promise<WebSocket>;
@@ -84,6 +88,41 @@ const parseError = (response: Response): Error | undefined => {
 
   if (error.length === 0 && status !== "ERROR") {
     return undefined;
+  }
+
+  if (error === "No 'command' given: {}") {
+    return { notification: "Empty Fields" };
+  }
+
+  if (message.includes("host") && !message.includes("refused")) {
+    return { fields: { host: message.split(",")[0] } };
+  } else if (error.includes("Host") && !message.includes("refused")) {
+    return { fields: { host: error } };
+  } else if (message.includes("database")) {
+    return { fields: { database: message } };
+  } else if (message.includes("user name")) {
+    return { fields: { user: message } };
+  } else if (message.includes("password")) {
+    return { fields: { user: message, password: message } };
+  } else if (error.includes("No id given")) {
+    return { fields: { id: error } };
+  } else if (error.includes("Id has to")) {
+    return { fields: { id: error } };
+  } else if (error.includes("with id")) {
+    return { fields: { id: error } };
+  } else if (message.includes("url")) {
+    return { fields: { url: message } };
+  }
+
+  if (
+    (!message.includes("host") &&
+      !message.includes("url") &&
+      !message.includes("database") &&
+      !message.includes("user") &&
+      !message.includes("password")) ||
+    message.includes("refused")
+  ) {
+    return { notification: error.length > 0 ? error : message };
   }
 
   return { error, status, message };
