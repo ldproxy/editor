@@ -101,7 +101,12 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
   }
 
   if (fileType.subProperty) {
-    const myRef = await findMyRef(schema, fileType?.discriminatorKey, fileType?.discriminatorValue);
+    const myRef = await findMyRef(
+      schema,
+      fileType.subProperty,
+      fileType?.discriminatorKey,
+      fileType?.discriminatorValue
+    );
     const subSchema = {
       ...schema.$defs[myRef[0].ref],
       $defs: schema.$defs,

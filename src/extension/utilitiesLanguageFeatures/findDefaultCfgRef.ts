@@ -2,7 +2,12 @@ import { LooseDefinition, DefinitionsMap } from "./schemas";
 import { extractConditions } from "./defineDefs";
 import { DEV } from "../utilities/constants";
 
-export async function findMyRef(schema: LooseDefinition, property?: string, value?: string) {
+export async function findMyRef(
+  schema: LooseDefinition,
+  property?: string,
+  discriminatorKey?: string,
+  discriminatorValue?: string
+) {
   let myRef: [{ ref: string; finalPath: string }] = [{ ref: "", finalPath: "" }];
   const conditions = await extractConditions(schema);
   if (DEV) {
@@ -13,11 +18,11 @@ export async function findMyRef(schema: LooseDefinition, property?: string, valu
     return [];
   }
 
-  if (property && value) {
+  if (discriminatorKey && discriminatorValue) {
     if (DEV) {
-      console.log("findMyRefproperty", property);
+      console.log("findMyRefproperty", discriminatorKey);
     }
-    // case: property is in conditions (value of property is relevant choice of ref)
+    // case: discriminatorKey is in conditions (value of discriminatorKey is relevant choice of ref)
     conditions.forEach((condition: { [key: string]: any }) => {
       if (DEV) {
         console.log("condition2", condition);
@@ -31,16 +36,16 @@ export async function findMyRef(schema: LooseDefinition, property?: string, valu
           if (DEV) {
             console.log("blakey", key);
           }
-          if (key === property) {
+          if (key === discriminatorKey) {
             if (DEV) {
               console.log("condition.condition[key].const", condition.condition[key].const);
             }
-            if (condition.condition[key].const === value) {
+            if (condition.condition[key].const === discriminatorValue) {
               if (DEV) {
                 console.log("condition.ref", condition.ref);
               }
               const conditionRef = condition.ref;
-              myRef = [{ ref: conditionRef.replace("#/$defs/", ""), finalPath: property }];
+              myRef = [{ ref: conditionRef.replace("#/$defs/", ""), finalPath: discriminatorKey }];
             }
           }
         });
