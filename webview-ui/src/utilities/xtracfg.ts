@@ -1,4 +1,5 @@
 import { DEV } from "./constants";
+import { vscode } from "./vscode";
 
 export type SchemaTables = {
   [schema: string]: string[];
@@ -41,7 +42,18 @@ export const xtracfg = {
 };
 
 function sendCmd(data: BasicData) {
-  ensureOpen()
+  const cmd = JSON.stringify(data);
+
+  if (DEV) {
+    console.log("sending to xtracfg", cmd);
+  }
+
+  vscode.postMessage({
+    command: "xtracfg",
+    request: cmd,
+  });
+
+  /*ensureOpen()
     .then((socket) => {
       const cmd = JSON.stringify(data);
 
@@ -53,7 +65,7 @@ function sendCmd(data: BasicData) {
     })
     .catch((error) => {
       console.error("Could not send command to xtracfg", error);
-    });
+    });*/
 }
 
 function receiveCmd(

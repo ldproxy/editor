@@ -60,7 +60,7 @@ function App() {
   useEffect(() => {
     vscode.listen(handleVscode);
 
-    xtracfg.listen(handleSuccess, handleError);
+    //xtracfg.listen(handleSuccess, handleError);
 
     vscode.postMessage({
       command: "onLoad",
@@ -86,6 +86,13 @@ function App() {
         setExistingGeopackages(message.existingGeopackages);
         if (DEV) {
           console.log("existing GeoPackages:", message.existingGeopackages);
+        }
+        break;
+      case "xtracfg":
+        if (message.response) {
+          handleSuccess(message.response);
+        } else {
+          handleError(message.error);
         }
         break;
       default:

@@ -4,12 +4,15 @@ import { getNonce } from "../utilities/getNonce";
 import { listGpkgFilesInDirectory } from "../utilities/getGpkg";
 import { uploadedGpkg } from "../utilities/uploadGpkg";
 import * as vscode from "vscode";
+import { newXtracfg } from "../utilities/xtracfg";
 
 const workspaceFolders = vscode.workspace.workspaceFolders;
 let workspace: Uri;
 if (workspaceFolders && workspaceFolders.length > 0) {
   workspace = workspaceFolders[0].uri;
 }
+
+const xtracfg = newXtracfg();
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.
@@ -46,6 +49,21 @@ export class AutoCreatePanel {
 
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
+
+    xtracfg.listen(
+      (response) => {
+        this._panel.webview.postMessage({
+          command: "xtracfg",
+          response,
+        });
+      },
+      (error) => {
+        this._panel.webview.postMessage({
+          command: "xtracfg",
+          error,
+        });
+      }
+    );
   }
 
   /**
@@ -191,6 +209,11 @@ export class AutoCreatePanel {
               command: "uploadedGpkg",
               uploadedGpkg: await uploadedGpkg(text[0], text[1]),
             });
+            break;
+          case "xtracfg":
+            if (message.request) {
+              xtracfg.send(JSON.parse(message.request));
+            }
             break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
