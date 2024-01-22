@@ -1,5 +1,31 @@
-import { start } from "repl";
 import { DEV, DEVYAMLKEYS } from "../utilities/constants";
+import { Parser } from "yaml";
+
+export function transformIntoYamlAndCallGetAllYamlPaths(document: string) {
+  let allYamlKeys: {
+    path: string;
+    index: number;
+    lineOfPath: number;
+    startOfArray?: number;
+    arrayIndex?: number;
+  }[] = [];
+  const yamlObject: any[] = [];
+
+  for (const token of new Parser().parse(document)) {
+    if (DEV) {
+      console.log("documento", document);
+      console.log("token", token);
+    }
+    yamlObject.push(token);
+  }
+
+  allYamlKeys = [];
+  allYamlKeys = getAllYamlPaths(document, yamlObject[0].value.items, "");
+  if (DEV) {
+    console.log("yamlKeysIndex", allYamlKeys);
+  }
+  return allYamlKeys;
+}
 
 export function getAllYamlPaths(
   document: string,
@@ -17,7 +43,8 @@ export function getAllYamlPaths(
 ) {
   if (yamlObject && typeof yamlObject === "object") {
     if (DEVYAMLKEYS) {
-      console.log("yamlObject", yamlObject);
+      console.log("documentgYK", document);
+      console.log("yamlObjectgYK", yamlObject);
     }
     //Fall: Array
     yamlObject.forEach((object: any) => {

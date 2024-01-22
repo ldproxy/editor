@@ -1,7 +1,5 @@
-import { commands, window, ExtensionContext } from "vscode";
+import { commands, ExtensionContext } from "vscode";
 import { AutoCreatePanel } from "./panels/AutoCreatePanel";
-import { SourcesProvider } from "./trees/SourcesProvider";
-import { EntitiesProvider } from "./trees/EntitiesProvider";
 import { hover } from "./LanguageFeatures/Hovering";
 import * as vscode from "vscode";
 import { initDiagnostics } from "./LanguageFeatures/Diagnostics";
@@ -13,21 +11,18 @@ import {
   provider4,
   getKeys,
 } from "./LanguageFeatures/Completions";
-import { getAllYamlPaths } from "./utilitiesLanguageFeatures/getYamlKeys";
+import { transformIntoYamlAndCallGetAllYamlPaths } from "./utilitiesLanguageFeatures/getYamlKeys";
 import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
 import { getKeys as getValueKeys } from "./LanguageFeatures/ValueCompletions";
-import { Parser } from "yaml";
 import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
 import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
 import { getSchemaMapCompletions as getValueCompletions } from "./LanguageFeatures/ValueCompletions";
 import { extractConditions } from "./utilitiesLanguageFeatures/defineDefs";
 import { provider4 as provider5 } from "./LanguageFeatures/ValueCompletions";
-import { DefinitionsMap, initSchemas } from "./utilitiesLanguageFeatures/schemas";
+import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
 import { DEV } from "./utilities/constants";
 import { md5 } from "js-md5";
 import { hash } from "./utilitiesLanguageFeatures/createHash";
-import { getSchema } from "./utilitiesLanguageFeatures/schemas";
-
 // import { Emojinfo } from "./LanguageFeatures/CodeActions";
 
 export let allYamlKeys: {
@@ -45,22 +40,11 @@ function updateYamlKeysHover(
   context?: any
 ) {
   if (document) {
-    const yamlObject: any[] = [];
-
-    for (const token of new Parser().parse(document.getText())) {
-      if (DEV) {
-        console.log("documento", document?.getText());
-        console.log("token", token);
-      }
-      yamlObject.push(token);
-    }
-
     if (vscode.window.activeTextEditor && hashString && hashString !== "") {
-      allYamlKeys = [];
-      allYamlKeys = getAllYamlPaths(document.getText(), yamlObject[0].value.items, "");
       if (DEV) {
-        console.log("yamlKeysIndex", allYamlKeys);
+        console.log("getText", document.getText());
       }
+      allYamlKeys = transformIntoYamlAndCallGetAllYamlPaths(document.getText());
       getSchemaMapCompletions(document.uri.toString(), hashString);
       getValueCompletions(document.uri.toString(), hashString);
       getSchemaMapHovering(document.uri.toString(), hashString);
