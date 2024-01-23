@@ -13,7 +13,7 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionDevelopmentKind=web",
-        "C:\\Users\\p.zahnen\\Documents\\GitHub\\inspire-nrw"
+        "${workspaceFolder}/data"
       ],
       "outFiles": ["${workspaceFolder}/dist/*.js"],
       "preLaunchTask": "${defaultBuildTask}",
