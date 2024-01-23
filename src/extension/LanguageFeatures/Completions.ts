@@ -8,6 +8,8 @@ import {
 import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
 import { DEV } from "../utilities/constants";
+import { services } from "../utilitiesLanguageFeatures/services";
+import { getSchema } from "../utilitiesLanguageFeatures/schemas";
 
 let allYamlKeys: {
   path: string;
@@ -31,11 +33,15 @@ let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 
 export async function getSchemaMapCompletions(docUri: string, docHash?: string) {
+  const schema = await getSchema();
   const currentDocument = vscode.window.activeTextEditor?.document;
-  if (currentDocument) {
-    specifiedDefs = await defineDefs(currentDocument, docUri, docHash);
-    const uniqueDefs = removeDuplicates(specifiedDefs);
-    definitionsMap = await getDefinitionsMap(uniqueDefs, docUri, docHash);
+  const documentGetText = currentDocument?.getText();
+  if (documentGetText) {
+    if (documentGetText && schema) {
+      specifiedDefs = defineDefs(documentGetText, schema, docUri, docHash);
+      const uniqueDefs = removeDuplicates(specifiedDefs);
+      definitionsMap = await getDefinitionsMap(uniqueDefs, docUri, docHash);
+    }
   }
 }
 

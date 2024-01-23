@@ -1,0 +1,35 @@
+---
+id: cologne_lod2
+createdAt: 1676364363913
+lastModified: 1676364363913
+entityStorageVersion: 2
+label: 3D Buildings in Cologne (LoD2)
+serviceType: OGC_API
+enabled: ${ENABLE_COLOGNE:-false}
+api:
+  - buildingBlock: COLLECTIONS
+  - buildingBlock: FEATURES_CORE
+    defaultCrs: CRS84h
+  - buildingBlock: CRS
+    enabled: true
+    additionalCrs:
+      - code: 5555
+        forceAxisOrder: NONE
+  - buildingBlock: GEO_JSON
+    enabled: false
+  - buildingBlock: FEATURES_HTML
+  - buildingBlock: CITY_JSON
+  - buildingBlock: STYLES
+  - buildingBlock: FLATGEOBUF
+    enabled: false
+  - buildingBlock: CSV
+    enabled: false
+  - buildingBlock: SCHEMA
+    enabled: false
+collections:
+  building:
+    id: building
+    api:
+      - buildingBlock: QUERYABLES
+      - buildingBlock: SORTING
+      - buildingBlock: FEATURES_HTML

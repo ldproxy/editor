@@ -1,7 +1,6 @@
-import * as vscode from "vscode";
-import * as yaml from "js-yaml";
-import { getSchema, DefinitionsMap, LooseDefinition } from "./schemas";
+import { DefinitionsMap, LooseDefinition } from "./schemas";
 import { DEV } from "../utilities/constants";
+import * as yaml from "js-yaml";
 
 interface Conditions {
   condition?: Record<string, any>;
@@ -10,11 +9,7 @@ interface Conditions {
 
 export const TOP_LEVEL_REF = "_TOP_LEVEL_";
 
-export async function extractConditions(defaultCfgSchema?: LooseDefinition) {
-  let schema: LooseDefinition | undefined = defaultCfgSchema;
-  if (!schema) {
-    schema = await getSchema();
-  }
+export function extractConditions(schema: LooseDefinition) {
   if (!schema) {
     return [];
   }
@@ -68,17 +63,22 @@ let allSpecifiedDefs: {
   [docUri: string]: { hash: string; specifiedDefs: { ref: string; finalPath: string }[] };
 } = {};
 
-export async function defineDefs(document: vscode.TextDocument, docUri?: string, docHash?: string) {
+export function defineDefs(
+  documentGetText: string,
+  schema: LooseDefinition,
+  docUri?: string,
+  docHash?: string
+) {
   if (docUri && docHash && allSpecifiedDefs[docUri] && allSpecifiedDefs[docUri].hash === docHash) {
     return allSpecifiedDefs[docUri].specifiedDefs;
   }
 
-  const config = yaml.load(document.getText()) as LooseDefinition;
+  const config = yaml.load(documentGetText);
   if (!config) {
     return [];
   }
 
-  const conditions = await extractConditions();
+  const conditions = extractConditions(schema);
 
   let specifiedDefs: { ref: string; finalPath: string }[] = [];
 
@@ -116,7 +116,7 @@ export async function defineDefs(document: vscode.TextDocument, docUri?: string,
   return specifiedDefs;
 }
 
-function matchesCondition(
+export function matchesCondition(
   config: LooseDefinition,
   condition: Record<string, { const: string }>
 ): { allConditionsMet: boolean; finalPath: string }[] {

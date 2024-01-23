@@ -1,7 +1,9 @@
 import { deepStrictEqual } from "assert";
 import { transformIntoYamlAndCallGetAllYamlPaths } from "../extension/utilitiesLanguageFeatures/getYamlKeys";
+import { defineDefs } from "../extension/utilitiesLanguageFeatures/defineDefs";
+import { services } from "../extension/utilitiesLanguageFeatures/services";
+import { processProperties } from "../extension/utilitiesLanguageFeatures/buildDefMap";
 
-// getYamlKeys test
 describe("getYamlKeys", function () {
   // create a mocha test case. To test different cases (arrays, objects, etc.), just change the
   // variables document and expectedYamlKeys.
@@ -285,5 +287,75 @@ collections2:
 
     // test whether the parsed data is as expected
     deepStrictEqual(transformIntoYamlAndCallGetAllYamlPaths(documentAll), expectedYamlKeysAll);
+  });
+});
+
+describe("defineDefs", function () {
+  it("should get specifiedDefs", function () {
+    // variables:
+
+    var myDoc = `---
+id: cologne_lod2
+createdAt: 1676364363913
+lastModified: 1676364363913
+entityStorageVersion: 2
+label: 3D Buildings in Cologne (LoD2)
+serviceType: OGC_API
+api:
+  - buildingBlock: COLLECTIONS
+  - buildingBlock: FEATURES_CORE
+    defaultCrs: CRS84h
+  - buildingBlock: CRS
+    enabled: true
+    additionalCrs:
+      - code: 5555
+        forceAxisOrder: NONE
+  - buildingBlock: GEO_JSON
+    enabled: false
+  - buildingBlock: FEATURES_HTML
+  - buildingBlock: CITY_JSON
+  - buildingBlock: STYLES
+  - buildingBlock: FLATGEOBUF
+    enabled: false
+  - buildingBlock: CSV
+    enabled: false
+  - buildingBlock: SCHEMA
+    enabled: false
+collections:
+  building:
+    id: building
+    api:
+      - buildingBlock: QUERYABLES
+      - buildingBlock: SORTING
+      - buildingBlock: FEATURES_HTML`;
+
+    var expectedSpecifiedDefs = [
+      { ref: "OgcApiDataV2", finalPath: "serviceType" },
+      { ref: "CollectionsConfiguration", finalPath: "api.buildingBlock[0].buildingBlock" },
+      {
+        ref: "QueryablesConfiguration",
+        finalPath: "collections.building.api.buildingBlock[0].buildingBlock",
+      },
+      { ref: "CrsConfiguration", finalPath: "api.buildingBlock[2].buildingBlock" },
+      { ref: "CityJsonConfiguration", finalPath: "api.buildingBlock[5].buildingBlock" },
+      { ref: "FeaturesCoreConfiguration", finalPath: "api.buildingBlock[1].buildingBlock" },
+      { ref: "GeoJsonConfiguration", finalPath: "api.buildingBlock[3].buildingBlock" },
+      { ref: "FeaturesHtmlConfiguration", finalPath: "api.buildingBlock[4].buildingBlock" },
+      {
+        ref: "FeaturesHtmlConfiguration",
+        finalPath: "collections.building.api.buildingBlock[2].buildingBlock",
+      },
+      { ref: "SchemaConfiguration", finalPath: "api.buildingBlock[9].buildingBlock" },
+      {
+        ref: "SortingConfiguration",
+        finalPath: "collections.building.api.buildingBlock[1].buildingBlock",
+      },
+      { ref: "StylesConfiguration", finalPath: "api.buildingBlock[6].buildingBlock" },
+      { ref: "CsvConfiguration", finalPath: "api.buildingBlock[8].buildingBlock" },
+      { ref: "FlatgeobufConfiguration", finalPath: "api.buildingBlock[7].buildingBlock" },
+      { ref: "_TOP_LEVEL_", finalPath: "" },
+    ];
+
+    deepStrictEqual(defineDefs(myDoc, services), expectedSpecifiedDefs);
   });
 });

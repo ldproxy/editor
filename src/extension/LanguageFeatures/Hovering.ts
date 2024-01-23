@@ -8,6 +8,7 @@ import {
 } from "../utilitiesLanguageFeatures/handlingYamlArrays";
 import { DEV } from "../utilities/constants";
 import { md5 } from "js-md5";
+import { getSchema } from "../utilitiesLanguageFeatures/schemas";
 
 interface LooseDefinition {
   title?: string;
@@ -30,14 +31,18 @@ let specifiedDefs: { ref: string; finalPath: string }[];
 let definitionsMap: DefinitionsMap = {};
 
 export async function getSchemaMapHovering(docUri: string, docHash?: string) {
+  const schema = await getSchema();
   const currentDocument = vscode.window.activeTextEditor?.document;
-  if (currentDocument) {
-    specifiedDefs = await defineDefs(currentDocument, docUri, docHash);
-    if (DEV) {
-      console.log("specifiedDefsGetSchema", specifiedDefs);
-    }
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      definitionsMap = await getDefinitionsMap(specifiedDefs, docUri, docHash);
+  const documentGetText = currentDocument?.getText();
+  if (documentGetText) {
+    if (documentGetText && schema) {
+      specifiedDefs = defineDefs(documentGetText, schema, docUri, docHash);
+      if (DEV) {
+        console.log("specifiedDefsGetSchema", specifiedDefs);
+      }
+      if (specifiedDefs && specifiedDefs.length > 0) {
+        definitionsMap = await getDefinitionsMap(specifiedDefs, docUri, docHash);
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { buildEnumArray } from "../utilitiesLanguageFeatures/getEnums";
-import { getSchemaDefs } from "../utilitiesLanguageFeatures/schemas";
+import { getSchema, getSchemaDefs } from "../utilitiesLanguageFeatures/schemas";
 import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
 import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
 import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
@@ -40,12 +40,16 @@ let specifiedDefs: { ref: string; finalPath: string }[];
 let uniqueDefs: any;
 
 export async function getSchemaMapCompletions(docUri: string, docHash?: string) {
+  const schema = await getSchema();
   const currentDocument = vscode.window.activeTextEditor?.document;
-  if (currentDocument) {
-    specifiedDefs = await defineDefs(currentDocument, docUri, docHash);
-    uniqueDefs = removeDuplicates(specifiedDefs);
-    if (uniqueDefs && uniqueDefs.length > 0) {
-      definitionsMap = await getDefinitionsMap(uniqueDefs, docUri, docHash);
+  const documentGetText = currentDocument?.getText();
+  if (documentGetText) {
+    if (documentGetText && schema) {
+      specifiedDefs = defineDefs(documentGetText, schema, docUri, docHash);
+      uniqueDefs = removeDuplicates(specifiedDefs);
+      if (uniqueDefs && uniqueDefs.length > 0) {
+        definitionsMap = await getDefinitionsMap(uniqueDefs, docUri, docHash);
+      }
     }
   }
 }

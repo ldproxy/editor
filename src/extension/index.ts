@@ -52,7 +52,7 @@ function updateYamlKeysHover(
       getValueKeys(allYamlKeys);
       getKeys(allYamlKeys);
       updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
-      extractConditions();
+      // extractConditions();
 
       context.subscriptions.push(provider1, provider2, provider3, provider4, provider5);
     }
