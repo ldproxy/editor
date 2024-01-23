@@ -5,6 +5,7 @@ import { services } from "../extension/utilitiesLanguageFeatures/services";
 import {
   processProperties,
   getRequiredProperties,
+  findObjectsWithRef,
 } from "../extension/utilitiesLanguageFeatures/buildDefMap";
 import { expectedDefMap } from "./constants";
 
@@ -391,29 +392,49 @@ describe("processProperties", function () {
   });
 });
 
-describe("processProperties", function () {
-  it("first time calling processProperties in getDefinitionMap", function () {
+describe("getRequiredProperties", function () {
+  it("finding required Properties", function () {
     // variables:
 
-    var specifiedDefs = [
-      { ref: "OgcApiDataV2", finalPath: "serviceType" },
-      {
-        ref: "QueryablesConfiguration",
-        finalPath: "collections.building.api.buildingBlock[0].buildingBlock",
+    var requiredProperties = getRequiredProperties(services as any);
+
+    var expectedRequiredProperties = {
+      serviceType: {
+        addRef: "",
+        deprecated: false,
+        description: "OGC_API",
+        groupname: "requiredProperty",
+        noCondition: true,
+        ref: "",
+        title: "serviceType",
       },
-    ];
+    };
+
+    deepStrictEqual(requiredProperties, expectedRequiredProperties);
+  });
+});
+
+describe("findObjectsWithRef", function () {
+  it("last function from getDefinitionsMap", function () {
+    // variables:
 
     var schemaDefs = services.$defs;
+    var definitionsMap = expectedDefMap;
 
-    var definitionsMap = {};
+    var expectedAllRefsMap = [
+      "ApiSecurity",
+      "ExtensionConfiguration",
+      "Caching",
+      "FeatureTypeConfigurationOgcApi",
+      "CollectionExtent",
+      "ExternalDocumentation",
+      "ApiMetadata",
+      "Link",
+      "BoundingBox",
+      "TemporalExtent",
+      "EpsgCrs",
+    ];
 
-    var actualResult;
-    if (specifiedDefs && specifiedDefs.length > 0) {
-      specifiedDefs.forEach((def) => {
-        actualResult = processProperties(def.ref, schemaDefs, definitionsMap);
-      });
-    }
-
-    deepStrictEqual(actualResult, expectedDefMap);
+    deepStrictEqual(findObjectsWithRef(definitionsMap, schemaDefs), expectedAllRefsMap);
   });
 });

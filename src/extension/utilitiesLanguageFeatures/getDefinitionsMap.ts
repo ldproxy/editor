@@ -40,7 +40,11 @@ export async function getDefinitionsMap(
   }
 
   if (schema) {
-    const requiredProperties = await getRequiredProperties(schema);
+    const requiredProperties = getRequiredProperties(schema);
+    if (DEV) {
+      console.log("rereq", requiredProperties);
+    }
+
     definitionsMap = {
       ...definitionsMap,
       ...requiredProperties,
@@ -48,7 +52,7 @@ export async function getDefinitionsMap(
   }
 
   if (definitionsMap && Object.keys(definitionsMap).length > 0) {
-    allRefs = await findObjectsWithRef(definitionsMap, schemaDefs);
+    allRefs = findObjectsWithRef(definitionsMap, schemaDefs);
     if (DEV) {
       console.log("allRefsDefMap", allRefs);
     }

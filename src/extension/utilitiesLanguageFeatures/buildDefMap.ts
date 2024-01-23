@@ -130,10 +130,7 @@ export function processProperties(
   return definitionsMap;
 }
 
-export async function findObjectsWithRef(
-  definitionsMap: DefinitionsMap,
-  schemaDefs: any
-): Promise<string[]> {
+export function findObjectsWithRef(definitionsMap: DefinitionsMap, schemaDefs: any): string[] {
   let lastPartValueArray: string[] = [];
   let hasNewReferences = true;
 
@@ -195,7 +192,7 @@ export async function findObjectsWithRef(
   return lastPartValueArray;
 }
 
-export async function getRequiredProperties(schema: DefinitionsMap): Promise<DefinitionsMap> {
+export function getRequiredProperties(schema: DefinitionsMap): DefinitionsMap {
   let requiredProperties: string[] = [];
   let definitionsMap: DefinitionsMap = {};
   if (schema) {
