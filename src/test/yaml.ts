@@ -2,7 +2,11 @@ import { deepStrictEqual } from "assert";
 import { transformIntoYamlAndCallGetAllYamlPaths } from "../extension/utilitiesLanguageFeatures/getYamlKeys";
 import { defineDefs } from "../extension/utilitiesLanguageFeatures/defineDefs";
 import { services } from "../extension/utilitiesLanguageFeatures/services";
-import { processProperties } from "../extension/utilitiesLanguageFeatures/buildDefMap";
+import {
+  processProperties,
+  getRequiredProperties,
+} from "../extension/utilitiesLanguageFeatures/buildDefMap";
+import { expectedDefMap } from "./constants";
 
 describe("getYamlKeys", function () {
   // create a mocha test case. To test different cases (arrays, objects, etc.), just change the
@@ -357,5 +361,59 @@ collections:
     ];
 
     deepStrictEqual(defineDefs(myDoc, services), expectedSpecifiedDefs);
+  });
+});
+
+describe("processProperties", function () {
+  it("first time calling processProperties in getDefinitionMap", function () {
+    // variables:
+
+    var specifiedDefs = [
+      { ref: "OgcApiDataV2", finalPath: "serviceType" },
+      {
+        ref: "QueryablesConfiguration",
+        finalPath: "collections.building.api.buildingBlock[0].buildingBlock",
+      },
+    ];
+
+    var schemaDefs = services.$defs;
+
+    var definitionsMap = {};
+
+    var actualResult;
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      specifiedDefs.forEach((def) => {
+        actualResult = processProperties(def.ref, schemaDefs, definitionsMap);
+      });
+    }
+
+    deepStrictEqual(actualResult, expectedDefMap);
+  });
+});
+
+describe("processProperties", function () {
+  it("first time calling processProperties in getDefinitionMap", function () {
+    // variables:
+
+    var specifiedDefs = [
+      { ref: "OgcApiDataV2", finalPath: "serviceType" },
+      {
+        ref: "QueryablesConfiguration",
+        finalPath: "collections.building.api.buildingBlock[0].buildingBlock",
+      },
+    ];
+
+    var schemaDefs = services.$defs;
+
+    var definitionsMap = {};
+
+    var actualResult;
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      specifiedDefs.forEach((def) => {
+        actualResult = processProperties(def.ref, schemaDefs, definitionsMap);
+      });
+    }
+
+    deepStrictEqual(actualResult, expectedDefMap);
   });
 });

@@ -35,7 +35,7 @@ export async function getDefinitionsMap(
       definitionsMap = processProperties(def.ref, schemaDefs, definitionsMap);
     });
     if (DEV) {
-      console.log("specifiedDefsDefMap", specifiedDefs);
+      console.log("specifiedDefsDefMap", definitionsMap);
     }
   }
 
