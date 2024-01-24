@@ -3,7 +3,7 @@ import { AutoCreatePanel } from "./panels/AutoCreatePanel";
 import * as vscode from "vscode";
 import { initDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
-import { registerCompletions, setKeys } from "./LanguageFeatures/Completions";
+import { provider1, provider2, provider3, setKeys } from "./LanguageFeatures/Completions";
 import { parseYaml } from "./utilities/yaml";
 import {
   getKeys as getHoverKeys,
@@ -48,7 +48,7 @@ function updateYamlKeysHover(
       setKeys(allYamlKeys);
       updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
 
-      registerCompletions().forEach((provider) => context.subscriptions.push(provider));
+      context.subscriptions.push(provider1, provider2, provider3);
       registerValueCompletions().forEach((provider) => context.subscriptions.push(provider));
     }
   }

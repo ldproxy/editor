@@ -105,6 +105,8 @@ const hover: vscode.HoverProvider = {
           console.log("hoverPathInYaml", pathInYaml);
         }
       }
+      // case1: word part of a ref of specifiedDefs whose path is no array (e.g. not buildingBlock [e.g. not CollectionsConfiguration])
+      // Also not refs or addRefs
       if (
         !specifiedDefsPath.includes("[") &&
         pathInYamlToUse === specifiedDefsPath &&
@@ -128,6 +130,7 @@ const hover: vscode.HoverProvider = {
           const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
           hoverResult = new vscode.Hover(hoverText);
         }
+        //Case2: Array
       } else if (
         specifiedDefsPath.includes("[") &&
         pathInYamlToUse === pathForArray &&
@@ -166,6 +169,7 @@ const hover: vscode.HoverProvider = {
           const hoverText = `${wordInDefinitionsMap.title}: ${wordInDefinitionsMap.description}`;
           hoverResult = new vscode.Hover(hoverText);
         }
+        //case3: refs and then addRefs
       } else {
         const pathInYamlParts = pathInYaml?.path.split(".");
         let lastKey = "";
@@ -179,6 +183,7 @@ const hover: vscode.HoverProvider = {
             console.log("addRef1", thirdLastKey, lastKey);
           }
         }
+        // case ref
         if (
           definitionsMap.hasOwnProperty(secondLastKey) &&
           definitionsMap.hasOwnProperty(lastKey)
@@ -221,6 +226,7 @@ const hover: vscode.HoverProvider = {
           }
         }
 
+        // case addRef
         if (definitionsMap.hasOwnProperty(thirdLastKey) && definitionsMap.hasOwnProperty(lastKey)) {
           if (DEV) {
             console.log("addRefThird", thirdLastKey, lastKey);

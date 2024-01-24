@@ -30,16 +30,8 @@ export function setKeys(yamlkeys: AllYamlKeys) {
   allYamlKeys = yamlkeys;
 }
 
-export const registerCompletions = (): vscode.Disposable[] => {
-  return [
-    vscode.languages.registerCompletionItemProvider("yaml", provider1),
-    vscode.languages.registerCompletionItemProvider("yaml", provider2),
-    vscode.languages.registerCompletionItemProvider("yaml", provider3),
-  ];
-};
-
 // References from specifiedDefs
-const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -114,10 +106,10 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       return refCompletions;
     }
   },
-};
+});
 
-//Examples and Completions for non-indented keys
-const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+//Completions for non-indented keys and arrays
+export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -234,13 +226,14 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     });
     return completions;
   },
-};
+});
 
 // additionalReferences from specifiedDefs
-const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
+    const uniqueDefs = removeDuplicates(specifiedDefs);
     const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
     if (DEV) {
       console.log("allYamlKeysProvider3: ", allYamlKeys);
@@ -252,16 +245,16 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       for (const key in definitionsMap) {
         if (definitionsMap.hasOwnProperty(key)) {
           const obj = definitionsMap[key];
-          if (obj["addRef"] !== "") {
+          if (obj.addRef && obj["addRef"] !== "") {
             if (DEV) {
               console.log("objProvider3", obj);
             }
-            const title = obj.title;
-            const value = obj.addRef;
+            const title = obj.title; // e.g. "collections"
+            const value = obj.addRef; // e.g. "FeatureTypeConfigurationOgcApi"
             if (
               title !== undefined &&
               value !== undefined &&
-              new RegExp(`${title}\\.\\w*$`).test(pathAtCursor)
+              new RegExp(`${title}\\.\\w*$`).test(pathAtCursor) // Is cursor at a point where there is a key with an addRef 2 lines before?
             ) {
               let arrayIndex: number | undefined = -1;
               let addRefOfObjInArray: string | undefined = "";
@@ -281,49 +274,54 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                   const lastDotIndex = obj.path.lastIndexOf(".");
                   const pathAfterLastDot = obj.path.substring(lastDotIndex + 1);
                   return obj.lineOfPath === i && pathAfterLastDot === title;
-                });
+                }); // foundObject is the object in allYamlKeys which has the addRef
                 if (foundObj) {
                   if (DEV) {
-                    console.log("foundObj: ", foundObj, foundObj?.arrayIndex);
+                    console.log("foundObjPrv3: ", foundObj, foundObj?.arrayIndex);
                   }
                   break;
                 }
               }
+              // From here till line 325 only for case addRef in ARRAY
+              // Why is that necessary (potentially hypothetical example): the key "transformations" in buildingBlock: GLTF has another addRef as the property "transfomations" in "CollectionsConfiguration" (buildingBlock: COLLECTIONS). Hence it is important to know, in which ref the key "transformations" is in.
               if (foundObj && foundObj.arrayIndex && foundObj.path) {
                 arrayIndex = foundObj.arrayIndex;
                 objPath = foundObj.path;
                 const partsInObjPath = objPath.split(".").slice(0, -1);
                 refinedObjPath = partsInObjPath.join(".");
                 if (DEV) {
-                  console.log("arayIndexProvider3: ", arrayIndex);
+                  console.log("uniqueDefsProv3", uniqueDefs);
+                  console.log("arayIndexProvider3: ", arrayIndex, foundObj.path, refinedObjPath);
                 }
               }
               let relevantRefs = [""];
 
               if (arrayIndex !== -1 && refinedObjPath) {
-                relevantRefs = specifiedDefs
+                relevantRefs = uniqueDefs
                   .filter(
                     (obj) =>
                       obj.finalPath.includes(`[${arrayIndex}]`) &&
                       obj.finalPath.split(".").slice(0, -2).join(".") === refinedObjPath
                   )
-                  .map((obj) => obj.ref);
+                  .map((obj) => obj.ref); // Here the possible groupnames of the addRef are being extracted (e.g "CollectionsConfiguration" or "CommonConfiguration")
 
                 relevantRefs.forEach((ref) => {
                   if (obj.groupname === ref) {
+                    // if object with the addRef has the same groupname as the ref of the path in specifiedDefs. The ref in specifiedDefs is the one our property with the addRef(e.g. "transformations" or "collections") is in. We found this ref by finding the array we are in by using the path of foundObject (the property with the addRef) and its arrayIndex.
                     if (DEV) {
                       console.log("obj.addRefProvider3", obj.addRef);
                     }
-                    addRefOfObjInArray = obj.addRef;
+                    addRefOfObjInArray = obj.addRef; // then addRefOfObjInArray is = the addRef we found in the beginning and saved in value
                   }
                 });
               }
-
+              // here we push all keys as completions, which have the same groupname as the addRef in question
               for (const key2 in definitionsMap) {
                 if (definitionsMap.hasOwnProperty(key2)) {
                   const obj2 = definitionsMap[key2];
 
                   let finalValue: string = "";
+                  // case Array
                   if (
                     addRefOfObjInArray !== "" &&
                     addRefOfObjInArray !== undefined &&
@@ -370,7 +368,7 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       return refCompletions;
     }
   },
-};
+});
 
 export function getPathAtCursor(
   allYamlKeys: {
