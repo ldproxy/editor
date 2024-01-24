@@ -90,6 +90,8 @@ export function buildEnumArray(
       }
     }
   }
-
+  if (DEV) {
+    console.log("localEnumArray", localEnumArray);
+  }
   return localEnumArray;
 }

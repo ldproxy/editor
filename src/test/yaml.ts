@@ -8,6 +8,8 @@ import {
   findObjectsWithRef,
 } from "../extension/utilitiesLanguageFeatures/buildDefMap";
 import { expectedDefMap } from "./constants";
+import { findMyRef } from "../extension/utilitiesLanguageFeatures/findDefaultCfgRef";
+import { buildEnumArray } from "../extension/utilitiesLanguageFeatures/getEnums";
 
 describe("getYamlKeys", function () {
   // create a mocha test case. To test different cases (arrays, objects, etc.), just change the
@@ -436,5 +438,128 @@ describe("findObjectsWithRef", function () {
     ];
 
     deepStrictEqual(findObjectsWithRef(definitionsMap, schemaDefs), expectedAllRefsMap);
+  });
+});
+
+describe("findDefaultCfgRef", function () {
+  it("findMyRef with property (metadata)", function () {
+    // variables:
+
+    var schema = services;
+    var property = "metadata";
+
+    var expectedRef = [{ ref: "ApiMetadata", finalPath: "metadata" }];
+
+    deepStrictEqual(findMyRef(schema, property), expectedRef);
+  });
+});
+
+describe("findDefaultCfgRef", function () {
+  it("findMyRef with discriminatorKey and Value (buildingBlock: COLLECTIONS)", function () {
+    // variables:
+
+    var schema = services;
+    var property = "api";
+    var discriminatorKey = "buildingBlock";
+    var discriminatorValue = "COLLECTIONS";
+
+    var expectedRef = [{ ref: "CollectionsConfiguration", finalPath: "buildingBlock" }];
+
+    deepStrictEqual(findMyRef(schema, property, discriminatorKey, discriminatorValue), expectedRef);
+  });
+});
+
+describe("getEnums", function () {
+  it("buildEnumArray", function () {
+    // variables:
+
+    var schema = services;
+
+    var expectedRef = [
+      { key: "serviceType", enum: "OGC_API", groupname: "" },
+      { key: "type", enum: "FEATURES", groupname: "TileProvider" },
+      { key: "type", enum: "MBTILES", groupname: "TileProvider" },
+      { key: "type", enum: "TILESERVER", groupname: "TileProvider" },
+      { key: "buildingBlock", enum: "CRUD", groupname: "CrudConfiguration" },
+      { key: "buildingBlock", enum: "TRANSACTIONS", groupname: "CrudConfiguration" },
+      { key: "extensionType", enum: "CRUD", groupname: "CrudConfiguration" },
+      { key: "extensionType", enum: "TRANSACTIONS", groupname: "CrudConfiguration" },
+      { key: "buildingBlock", enum: "COLLECTIONS", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "QUERYABLES", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "COMMON", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "CRS", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "CITY_JSON", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "FEATURES_CORE", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "GEO_JSON", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "GML", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "FEATURES_HTML", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "FOUNDATION", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "HTML", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "JSON", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "OAS30", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "TILE_MATRIX_SETS", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "TILES", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "XML", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "SCHEMA", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "GLTF", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "JSON_FG", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "SEARCH", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "FILTER", groupname: "ExtensionConfiguration" },
+      {
+        key: "buildingBlock",
+        enum: "GEOMETRY_SIMPLIFICATION",
+        groupname: "ExtensionConfiguration",
+      },
+      { key: "buildingBlock", enum: "PROJECTIONS", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "ROUTING", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "SORTING", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "STYLES", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "TEXT_SEARCH", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "TILES3D", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "CSV", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "FEATURES_EXTENSIONS", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "FLATGEOBUF", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "GEO_JSON_LD", groupname: "ExtensionConfiguration" },
+      { key: "buildingBlock", enum: "RESOURCES", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "COLLECTIONS", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "QUERYABLES", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "COMMON", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "CRS", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "CITY_JSON", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "FEATURES_CORE", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "GEO_JSON", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "GML", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "FEATURES_HTML", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "FOUNDATION", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "HTML", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "JSON", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "OAS30", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "TILE_MATRIX_SETS", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "TILES", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "XML", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "SCHEMA", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "GLTF", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "JSON_FG", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "SEARCH", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "FILTER", groupname: "ExtensionConfiguration" },
+      {
+        key: "extensionType",
+        enum: "GEOMETRY_SIMPLIFICATION",
+        groupname: "ExtensionConfiguration",
+      },
+      { key: "extensionType", enum: "PROJECTIONS", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "ROUTING", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "SORTING", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "STYLES", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "TEXT_SEARCH", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "TILES3D", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "CSV", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "FEATURES_EXTENSIONS", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "FLATGEOBUF", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "GEO_JSON_LD", groupname: "ExtensionConfiguration" },
+      { key: "extensionType", enum: "RESOURCES", groupname: "ExtensionConfiguration" },
+    ];
+
+    deepStrictEqual(buildEnumArray(schema), expectedRef);
   });
 });

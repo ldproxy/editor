@@ -101,7 +101,7 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
   }
 
   if (fileType.subProperty) {
-    const myRef = await findMyRef(
+    const myRef = findMyRef(
       schema,
       fileType.subProperty,
       fileType?.discriminatorKey,

@@ -2,17 +2,18 @@ import { LooseDefinition, DefinitionsMap } from "./schemas";
 import { extractConditions } from "./defineDefs";
 import { DEV } from "../utilities/constants";
 
-export async function findMyRef(
+export function findMyRef(
   schema: LooseDefinition,
   property?: string,
   discriminatorKey?: string,
   discriminatorValue?: string
 ) {
   let myRef: [{ ref: string; finalPath: string }] = [{ ref: "", finalPath: "" }];
-  const conditions = await extractConditions(schema);
+  const conditions = extractConditions(schema);
   if (DEV) {
     console.log("findMyRefconditions", conditions);
     console.log("findMyRefschema", schema);
+    console.log("myProperty", property);
   }
   if (!schema) {
     return [];
@@ -20,7 +21,7 @@ export async function findMyRef(
 
   if (discriminatorKey && discriminatorValue) {
     if (DEV) {
-      console.log("findMyRefproperty", discriminatorKey);
+      console.log("findMyRefproperty", discriminatorKey, discriminatorValue);
     }
     // case: discriminatorKey is in conditions (value of discriminatorKey is relevant choice of ref)
     conditions.forEach((condition: { [key: string]: any }) => {
@@ -85,6 +86,9 @@ export async function findMyRef(
         }
       });
     }
+  }
+  if (DEV) {
+    console.log("myRefDefault", myRef);
   }
   return myRef;
 }
