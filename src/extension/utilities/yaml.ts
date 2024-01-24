@@ -1,14 +1,20 @@
-import { DEV, DEVYAMLKEYS } from "../utilities/constants";
+import * as vscode from "vscode";
+import { md5 } from "js-md5";
+import { DEV, DEVYAMLKEYS } from "./constants";
 import { Parser } from "yaml";
 
-export function transformIntoYamlAndCallGetAllYamlPaths(document: string) {
-  let allYamlKeys: {
-    path: string;
-    index: number;
-    lineOfPath: number;
-    startOfArray?: number;
-    arrayIndex?: number;
-  }[] = [];
+interface YamlKey {
+  path: string;
+  index: number;
+  lineOfPath: number;
+  startOfArray?: number;
+  arrayIndex?: number;
+}
+
+export interface AllYamlKeys extends Array<YamlKey> {}
+
+export function parseYaml(document: string) {
+  let allYamlKeys: AllYamlKeys = [];
   const yamlObject: any[] = [];
 
   for (const token of new Parser().parse(document)) {
@@ -27,7 +33,7 @@ export function transformIntoYamlAndCallGetAllYamlPaths(document: string) {
   return allYamlKeys;
 }
 
-export function getAllYamlPaths(
+function getAllYamlPaths(
   document: string,
   yamlObject: any,
   currentPath: string,
@@ -283,4 +289,115 @@ function getLineNumber(documentText: any, offset: number) {
 
   // If the offset is beyond the end of the document
   return lines.length + 1;
+}
+export function getLinesForArrayIndex(
+  allYamlKeys: {
+    path: string;
+    index: number;
+    lineOfPath: number | null;
+    startOfArray?: number;
+    arrayIndex?: number;
+  }[],
+  index: number,
+  path: string
+): number | undefined {
+  let line: number = 0;
+  const pathToUse = path.replace(/\[\d+\]/g, "");
+
+  for (const obj of allYamlKeys) {
+    if (obj.startOfArray && obj.arrayIndex === index && obj.path === pathToUse) {
+      line = obj.startOfArray;
+    }
+  }
+  if (DEV) {
+    console.log("lineYamlArrays", line);
+    console.log("pathiToUse", pathToUse);
+  }
+  if (line > 0) {
+    return line;
+  }
+}
+export function getMaxLine(
+  allYamlKeys: {
+    path: string;
+    index: number;
+    lineOfPath: number | undefined;
+    startOfArray?: number;
+    arrayIndex?: number;
+  }[],
+  minLine: number
+): number | undefined {
+  let myItem:
+    | {
+        path: string;
+        index: number;
+        lineOfPath: number | undefined;
+        startOfArray?: number;
+        arrayIndex?: number;
+      }
+    | undefined = undefined;
+  while (!myItem) {
+    myItem = allYamlKeys.find((item) => item.lineOfPath === minLine);
+    minLine++;
+  }
+  let startIndex = 0;
+  if (myItem) {
+    startIndex = allYamlKeys.findIndex((item) => item === myItem);
+  }
+
+  if (startIndex > 0) {
+    for (let i = startIndex; i < allYamlKeys.length; i++) {
+      const currentItem = allYamlKeys[i];
+      if (DEV) {
+        console.log("currentItem", currentItem);
+        console.log("startIndex", startIndex, myItem);
+      }
+      if (
+        (myItem && currentItem.startOfArray !== myItem.startOfArray) ||
+        (myItem && !currentItem.hasOwnProperty("arrayIndex")) ||
+        (myItem && i === allYamlKeys.length - 1)
+      ) {
+        if (DEV) {
+          console.log("iiii", i);
+        }
+        if (i === allYamlKeys.length - 1 && currentItem && currentItem.lineOfPath) {
+          if (DEV) {
+            console.log("landet hier", currentItem.lineOfPath);
+          }
+          return currentItem.lineOfPath + 2;
+        } else if (currentItem.startOfArray) {
+          return currentItem.startOfArray;
+        } else if (currentItem.lineOfPath) {
+          return currentItem.lineOfPath;
+        }
+      }
+    }
+  }
+}
+export function extractIndexFromPath(path: string): number | null {
+  const regex = /\[(\d+)\]/;
+
+  const match = path.match(regex);
+  if (DEV) {
+    console.log("match", match);
+  }
+  if (match && match[1]) {
+    return parseInt(match[1], 10);
+  }
+
+  return null;
+}
+export function hash(document?: vscode.TextDocument): string {
+  if (document) {
+    const text = document.getText();
+    if (text !== "") {
+      const hashString = md5(text);
+      if (DEV) {
+        console.log("Hash:", hashString, text);
+      }
+
+      return hashString;
+    }
+  }
+  return "";
 }

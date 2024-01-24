@@ -1,33 +1,14 @@
 import * as vscode from "vscode";
-import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
-import {
-  extractIndexFromPath,
-  getLinesForArrayIndex,
-  getMaxLine,
-} from "../utilitiesLanguageFeatures/handlingYamlArrays";
-import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
-import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
+import { extractDocRefs } from "../utilities/refs";
+import { extractIndexFromPath } from "../utilities/yaml";
+import { getMaxLine, AllYamlKeys } from "../utilities/yaml";
+import { getLinesForArrayIndex } from "../utilities/yaml";
+import { getDefinitionsMap, DefinitionsMap } from "../utilities/defs";
+import { removeDuplicates } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
-import { services } from "../utilitiesLanguageFeatures/services";
-import { getSchema } from "../utilitiesLanguageFeatures/schemas";
+import { getSchema } from "../utilities/schemas";
 
-let allYamlKeys: {
-  path: string;
-  index: number;
-  lineOfPath: number;
-  startOfArray?: number;
-  arrayIndex?: number;
-}[];
-
-interface LooseDefinition {
-  title?: string;
-  description?: string;
-  [key: string]: any;
-}
-
-interface DefinitionsMap {
-  [key: string]: LooseDefinition;
-}
+let allYamlKeys: AllYamlKeys;
 
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
@@ -38,25 +19,27 @@ export async function getSchemaMapCompletions(docUri: string, docHash?: string) 
   const documentGetText = currentDocument?.getText();
   if (documentGetText) {
     if (documentGetText && schema) {
-      specifiedDefs = defineDefs(documentGetText, schema, docUri, docHash);
+      specifiedDefs = extractDocRefs(documentGetText, schema, docUri, docHash);
       const uniqueDefs = removeDuplicates(specifiedDefs);
-      definitionsMap = await getDefinitionsMap(uniqueDefs, docUri, docHash);
+      definitionsMap = getDefinitionsMap(schema, uniqueDefs, docUri, docHash);
     }
   }
 }
 
-export function getKeys(
-  yamlkeys: {
-    path: string;
-    index: number;
-    lineOfPath: number;
-    startOfArray?: number;
-  }[]
-) {
+export function setKeys(yamlkeys: AllYamlKeys) {
   allYamlKeys = yamlkeys;
 }
+
+export const registerCompletions = (): vscode.Disposable[] => {
+  return [
+    vscode.languages.registerCompletionItemProvider("yaml", provider1),
+    vscode.languages.registerCompletionItemProvider("yaml", provider2),
+    vscode.languages.registerCompletionItemProvider("yaml", provider3),
+  ];
+};
+
 // References from specifiedDefs
-export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
+const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -131,10 +114,10 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
       return refCompletions;
     }
   },
-});
+};
 
 //Examples and Completions for non-indented keys
-export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
+const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -251,10 +234,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
     });
     return completions;
   },
-});
+};
 
 // additionalReferences from specifiedDefs
-export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
+const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -387,34 +370,7 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
       return refCompletions;
     }
   },
-});
-
-// Falls noch keine specifiedDefs existieren und demnach auch keine definitionsMap. (Bei Provider wird hier dann z.B. providerSubType und providerType vorgeschlagen)
-export const provider4 = undefined; /*vscode.languages.registerCompletionItemProvider("yaml", {
-  provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    if (Object.keys(definitionsMap).every((key) => definitionsMap[key].noCondition === true)) {
-      const completions: vscode.CompletionItem[] = [];
-
-      for (const key in definitionsMap) {
-        const obj = definitionsMap[key];
-        if (
-          allYamlKeys &&
-          obj.deprecated !== true &&
-          !allYamlKeys.some((yamlKey) => {
-            return yamlKey.path === `${key}`;
-          })
-        ) {
-          const completion = new vscode.CompletionItem(`${key}`);
-          completion.insertText = `${key}: `;
-          completion.kind = vscode.CompletionItemKind.Method;
-          completions.push(completion);
-        }
-      }
-
-      return completions;
-    }
-  },
-});*/
+};
 
 export function getPathAtCursor(
   allYamlKeys: {

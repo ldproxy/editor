@@ -1,6 +1,90 @@
-import { DefinitionsMap } from "./schemas";
-import { DEV } from "../utilities/constants";
+import { DEV } from "./constants";
 
+export interface LooseDefinition {
+  title?: string;
+  description?: string;
+  [key: string]: any;
+}
+
+export interface DefinitionsMap {
+  [key: string]: LooseDefinition;
+}
+
+let allMaps: {
+  [docUri: string]: { hash: string; definitionsMap: DefinitionsMap };
+} = {};
+
+export function getDefinitionsMap(
+  schema: DefinitionsMap,
+  specifiedDefs: { ref: string; finalPath: string }[],
+  docUri?: string,
+  docHash?: string
+): DefinitionsMap {
+  if (docUri && docHash && allMaps[docUri] && allMaps[docUri].hash === docHash) {
+    if (DEV) {
+      console.log("allMapsDefMap", allMaps);
+    }
+    return allMaps[docUri].definitionsMap;
+  }
+
+  let schemaDefs: any;
+  if (schema) {
+    schemaDefs = schema.$defs;
+  }
+
+  if (!schemaDefs) {
+    return {};
+  }
+  let definitionsMap: DefinitionsMap = {};
+
+  let allRefs: string[] | undefined = [];
+  if (specifiedDefs && specifiedDefs.length > 0) {
+    specifiedDefs.forEach((def) => {
+      definitionsMap = processProperties(def.ref, schemaDefs, definitionsMap);
+    });
+    if (DEV) {
+      console.log("specifiedDefsDefMap", definitionsMap);
+    }
+  }
+
+  if (schema) {
+    const requiredProperties = getRequiredProperties(schema);
+    if (DEV) {
+      console.log("rereq", requiredProperties);
+    }
+
+    definitionsMap = {
+      ...definitionsMap,
+      ...requiredProperties,
+    };
+  }
+
+  if (definitionsMap && Object.keys(definitionsMap).length > 0) {
+    allRefs = findObjectsWithRef(definitionsMap, schemaDefs);
+    if (DEV) {
+      console.log("allRefsDefMap", allRefs);
+    }
+  }
+
+  if (allRefs && allRefs.length > 0) {
+    allRefs.forEach((ref) => {
+      if (DEV) {
+        console.log("refDefMap", ref);
+      }
+      definitionsMap = {
+        ...definitionsMap,
+        ...processProperties(ref, schemaDefs, definitionsMap),
+      };
+    });
+  }
+
+  if (docUri && docHash) {
+    allMaps[docUri] = { hash: docHash, definitionsMap: definitionsMap };
+  }
+  return definitionsMap;
+}
+
+//TODO: export only needed for tests
 export function processProperties(
   defs: string,
   schemaDefs: DefinitionsMap,
@@ -130,6 +214,7 @@ export function processProperties(
   return definitionsMap;
 }
 
+//TODO: export only needed for tests
 export function findObjectsWithRef(definitionsMap: DefinitionsMap, schemaDefs: any): string[] {
   let lastPartValueArray: string[] = [];
   let hasNewReferences = true;
@@ -192,6 +277,7 @@ export function findObjectsWithRef(definitionsMap: DefinitionsMap, schemaDefs: a
   return lastPartValueArray;
 }
 
+//TODO: export only needed for tests
 export function getRequiredProperties(schema: DefinitionsMap): DefinitionsMap {
   let requiredProperties: string[] = [];
   let definitionsMap: DefinitionsMap = {};

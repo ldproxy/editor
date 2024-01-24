@@ -1,28 +1,23 @@
 import { commands, ExtensionContext } from "vscode";
 import { AutoCreatePanel } from "./panels/AutoCreatePanel";
-import { hover } from "./LanguageFeatures/Hovering";
 import * as vscode from "vscode";
 import { initDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
+import { registerCompletions, setKeys } from "./LanguageFeatures/Completions";
+import { parseYaml } from "./utilities/yaml";
 import {
-  provider1,
-  provider2,
-  provider3,
-  provider4,
-  getKeys,
-} from "./LanguageFeatures/Completions";
-import { transformIntoYamlAndCallGetAllYamlPaths } from "./utilitiesLanguageFeatures/getYamlKeys";
-import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
+  getKeys as getHoverKeys,
+  getSchemaMapHovering,
+  registerHover,
+} from "./LanguageFeatures/Hovering";
 import { getKeys as getValueKeys } from "./LanguageFeatures/ValueCompletions";
 import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
-import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
 import { getSchemaMapCompletions as getValueCompletions } from "./LanguageFeatures/ValueCompletions";
-import { extractConditions } from "./utilitiesLanguageFeatures/defineDefs";
-import { provider4 as provider5 } from "./LanguageFeatures/ValueCompletions";
-import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
+import { registerValueCompletions } from "./LanguageFeatures/ValueCompletions";
+import { initSchemas } from "./utilities/schemas";
 import { DEV } from "./utilities/constants";
 import { md5 } from "js-md5";
-import { hash } from "./utilitiesLanguageFeatures/createHash";
+import { hash } from "./utilities/yaml";
 // import { Emojinfo } from "./LanguageFeatures/CodeActions";
 
 export let allYamlKeys: {
@@ -44,17 +39,17 @@ function updateYamlKeysHover(
       if (DEV) {
         console.log("getText", document.getText());
       }
-      allYamlKeys = transformIntoYamlAndCallGetAllYamlPaths(document.getText());
+      allYamlKeys = parseYaml(document.getText());
       getSchemaMapCompletions(document.uri.toString(), hashString);
       getValueCompletions(document.uri.toString(), hashString);
       getSchemaMapHovering(document.uri.toString(), hashString);
       getHoverKeys(allYamlKeys);
       getValueKeys(allYamlKeys);
-      getKeys(allYamlKeys);
+      setKeys(allYamlKeys);
       updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
-      // extractConditions();
 
-      context.subscriptions.push(provider1, provider2, provider3, provider4, provider5);
+      registerCompletions().forEach((provider) => context.subscriptions.push(provider));
+      registerValueCompletions().forEach((provider) => context.subscriptions.push(provider));
     }
   }
 }
@@ -85,7 +80,7 @@ export function activate(context: ExtensionContext) {
   let hashString = hash(document);
 
   if (!initialized) {
-    hover();
+    registerHover().forEach((provider) => context.subscriptions.push(provider));
     initSchemas();
     initDiagnostics();
 

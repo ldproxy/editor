@@ -1,16 +1,14 @@
 import { deepStrictEqual } from "assert";
-import { transformIntoYamlAndCallGetAllYamlPaths } from "../extension/utilitiesLanguageFeatures/getYamlKeys";
-import { defineDefs } from "../extension/utilitiesLanguageFeatures/defineDefs";
-import { services } from "../extension/utilitiesLanguageFeatures/services";
+import { parseYaml } from "../extension/utilities/yaml";
+import { extractDocRefs, extractSingleRefs } from "../extension/utilities/refs";
+import { buildEnumArray } from "../extension/utilities/enums";
 import {
   processProperties,
   getRequiredProperties,
   findObjectsWithRef,
-} from "../extension/utilitiesLanguageFeatures/buildDefMap";
-import { expectedDefMap } from "./data/constants";
-import { findMyRef } from "../extension/utilitiesLanguageFeatures/findDefaultCfgRef";
-import { buildEnumArray } from "../extension/utilitiesLanguageFeatures/getEnums";
-import { expectedRef } from "./data/constants";
+} from "../extension/utilities/defs";
+import { expectedDefMap, expectedRef } from "./data/expected";
+import { services } from "./data/services";
 
 describe("getYamlKeys", function () {
   // create a mocha test case. To test different cases (arrays, objects, etc.), just change the
@@ -31,7 +29,7 @@ api:
     metadata: true`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(transformIntoYamlAndCallGetAllYamlPaths(documentArray), expectedYamlKeysArray);
+    deepStrictEqual(parseYaml(documentArray), expectedYamlKeysArray);
   });
 
   it("should build allYamlKeys for case arrayWithObject", function () {
@@ -48,10 +46,7 @@ api:
       { path: "api.metadata.email", index: 6, lineOfPath: 5, startOfArray: 3, arrayIndex: 0 },
     ];
     // test whether the parsed data is as expected
-    deepStrictEqual(
-      transformIntoYamlAndCallGetAllYamlPaths(documentArrayWithObject),
-      expectedYamlKeysArrayWithObjects
-    );
+    deepStrictEqual(parseYaml(documentArrayWithObject), expectedYamlKeysArrayWithObjects);
   });
 
   it("should build allYamlKeys for case arrayWith2Objects", function () {
@@ -79,10 +74,7 @@ api:
         email: bla`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(
-      transformIntoYamlAndCallGetAllYamlPaths(documentArrayWith2Objects),
-      expectedYamlKeysArrayWith2Objects
-    );
+    deepStrictEqual(parseYaml(documentArrayWith2Objects), expectedYamlKeysArrayWith2Objects);
   });
 
   it("should build allYamlKeys for case arrayWithArray", function () {
@@ -102,10 +94,7 @@ api:
       - rel: describedby`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(
-      transformIntoYamlAndCallGetAllYamlPaths(documentArrayWithArray),
-      expectedYamlKeysArrayWithArray
-    );
+    deepStrictEqual(parseYaml(documentArrayWithArray), expectedYamlKeysArrayWithArray);
   });
 
   it("should build allYamlKeys for case arrayWithArray", function () {
@@ -127,10 +116,7 @@ api:
   - buildingBlock: STYLES`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(
-      transformIntoYamlAndCallGetAllYamlPaths(documentArrayAfterArray),
-      expectedYamlKeysArrayAfterArray
-    );
+    deepStrictEqual(parseYaml(documentArrayAfterArray), expectedYamlKeysArrayAfterArray);
   });
 
   it("should build allYamlKeys for case objectNotPartOfArray", function () {
@@ -147,10 +133,7 @@ metadata:
     - Umweltzonen`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(
-      transformIntoYamlAndCallGetAllYamlPaths(documentobjectNotPartOfArray),
-      expectedYamlKeysobjectNotPartOfArray
-    );
+    deepStrictEqual(parseYaml(documentobjectNotPartOfArray), expectedYamlKeysobjectNotPartOfArray);
   });
 
   it("should build allYamlKeys for case objectWithObject", function () {
@@ -168,10 +151,7 @@ collections:
     id: umweltzone`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(
-      transformIntoYamlAndCallGetAllYamlPaths(documentobjectWithObject),
-      expectedYamlKeysobjectWithObject
-    );
+    deepStrictEqual(parseYaml(documentobjectWithObject), expectedYamlKeysobjectWithObject);
   });
 
   it("should build allYamlKeys for case objectWithArray", function () {
@@ -197,10 +177,7 @@ collections:
       - rel: tag`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(
-      transformIntoYamlAndCallGetAllYamlPaths(documentobjectWithArray),
-      expectedYamlKeysobjectWithArray
-    );
+    deepStrictEqual(parseYaml(documentobjectWithArray), expectedYamlKeysobjectWithArray);
   });
 
   it("should build allYamlKeys for case key/value", function () {
@@ -212,10 +189,7 @@ collections:
 id: bla`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(
-      transformIntoYamlAndCallGetAllYamlPaths(documentKeyValue),
-      expectedYamlKeysKeyValue
-    );
+    deepStrictEqual(parseYaml(documentKeyValue), expectedYamlKeysKeyValue);
   });
 
   it("should build allYamlKeys for all cases in 1 config", function () {
@@ -294,7 +268,7 @@ collections2:
       - rel: tag`;
 
     // test whether the parsed data is as expected
-    deepStrictEqual(transformIntoYamlAndCallGetAllYamlPaths(documentAll), expectedYamlKeysAll);
+    deepStrictEqual(parseYaml(documentAll), expectedYamlKeysAll);
   });
 });
 
@@ -364,7 +338,7 @@ collections:
       { ref: "_TOP_LEVEL_", finalPath: "" },
     ];
 
-    deepStrictEqual(defineDefs(myDoc, services), expectedSpecifiedDefs);
+    deepStrictEqual(extractDocRefs(myDoc, services), expectedSpecifiedDefs);
   });
 });
 
@@ -451,7 +425,7 @@ describe("findDefaultCfgRef", function () {
 
     var expectedRef = [{ ref: "ApiMetadata", finalPath: "metadata" }];
 
-    deepStrictEqual(findMyRef(schema, property), expectedRef);
+    deepStrictEqual(extractSingleRefs(schema, property), expectedRef);
   });
 });
 
@@ -466,7 +440,10 @@ describe("findDefaultCfgRef", function () {
 
     var expectedRef = [{ ref: "CollectionsConfiguration", finalPath: "buildingBlock" }];
 
-    deepStrictEqual(findMyRef(schema, property, discriminatorKey, discriminatorValue), expectedRef);
+    deepStrictEqual(
+      extractSingleRefs(schema, property, discriminatorKey, discriminatorValue),
+      expectedRef
+    );
   });
 });
 

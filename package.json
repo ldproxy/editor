@@ -31,7 +31,7 @@
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",
-    "build:all": "npm run build:webview && npm run compile-web",
+    "build:all": "npm test && npm run build:webview && npm run compile-web",
     "start:webview": "cd webview-ui && npm run start",
     "build:webview": "cd webview-ui && npm run build",
     "test": "jest",

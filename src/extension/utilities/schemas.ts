@@ -1,18 +1,9 @@
-import { newXtracfg } from "../utilities/xtracfg";
-import { getCurrentFilePath, getWorkspacePath } from "../utilities/paths";
-import { DEV } from "../utilities/constants";
-import { findMyRef } from "./findDefaultCfgRef";
-import { TOP_LEVEL_REF } from "./defineDefs";
-
-export interface DefinitionsMap {
-  [key: string]: LooseDefinition;
-}
-
-export interface LooseDefinition {
-  title?: string;
-  description?: string;
-  [key: string]: any;
-}
+import { newXtracfg } from "./xtracfg";
+import { getCurrentFilePath, getWorkspacePath } from "./paths";
+import { DEV } from "./constants";
+import { extractSingleRefs } from "./refs";
+import { TOP_LEVEL_REF } from "./refs";
+import { DefinitionsMap, LooseDefinition } from "./defs";
 
 interface FileType {
   type: string;
@@ -101,7 +92,7 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
   }
 
   if (fileType.subProperty) {
-    const myRef = findMyRef(
+    const myRef = extractSingleRefs(
       schema,
       fileType.subProperty,
       fileType?.discriminatorKey,
@@ -120,16 +111,6 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
   if (DEV) {
     console.log("schemaGetSchema", schema);
   }
-  return schema;
-};
-
-export const getSchemaDefs = async (): Promise<DefinitionsMap | undefined> => {
-  const schema = await getSchema();
-
-  if (!schema) {
-    return undefined;
-  }
-
   return schema;
 };
 

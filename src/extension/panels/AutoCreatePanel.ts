@@ -1,8 +1,8 @@
 import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
-import { getUri } from "../utilities/getUri";
-import { getNonce } from "../utilities/getNonce";
-import { listGpkgFilesInDirectory } from "../utilities/getGpkg";
-import { uploadedGpkg } from "../utilities/uploadGpkg";
+import { getUri } from "../utilities/webview";
+import { getNonce } from "../utilities/webview";
+import { listGpkgFilesInDirectory } from "../utilities/gpkg";
+import { uploadedGpkg } from "../utilities/gpkg";
 import * as vscode from "vscode";
 import { newXtracfg } from "../utilities/xtracfg";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
