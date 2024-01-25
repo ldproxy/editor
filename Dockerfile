@@ -4,7 +4,7 @@ COPY . /src/
 RUN cd /src && npm run install:all && npm test && npm run package
 
 
-FROM ghcr.io/ldproxy/xtracfg:next as xtracfg
+FROM ghcr.io/ldproxy/xtracfg:2.0-next as xtracfg
 
 
 FROM codercom/code-server:latest
