@@ -3,7 +3,7 @@ import { AutoCreatePanel } from "./panels/AutoCreatePanel";
 import * as vscode from "vscode";
 import { initDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
-import { provider1, provider2, provider3, setKeys } from "./LanguageFeatures/Completions";
+import { registerCompletions, setKeys } from "./LanguageFeatures/Completions";
 import { parseYaml } from "./utilities/yaml";
 import {
   getKeys as getHoverKeys,
@@ -36,9 +36,6 @@ function updateYamlKeysHover(
 ) {
   if (document) {
     if (vscode.window.activeTextEditor && hashString && hashString !== "") {
-      if (DEV) {
-        console.log("getText", document.getText());
-      }
       allYamlKeys = parseYaml(document.getText());
       getSchemaMapCompletions(document.uri.toString(), hashString);
       getValueCompletions(document.uri.toString(), hashString);
@@ -48,21 +45,28 @@ function updateYamlKeysHover(
       setKeys(allYamlKeys);
       updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
 
-      context.subscriptions.push(provider1, provider2, provider3);
+      registerCompletions().forEach((provider) => context.subscriptions.push(provider));
       registerValueCompletions().forEach((provider) => context.subscriptions.push(provider));
     }
   }
 }
 
 let initialized = false;
+let i = 0;
 const collection = vscode.languages.createDiagnosticCollection("test");
 
 export function activate(context: ExtensionContext) {
+  if (initialized) {
+    return;
+  } else {
+    initialized = true;
+  }
+
   const document = vscode.window.activeTextEditor?.document;
 
-  if (DEV) {
-    console.log("ACTIVATE", context.extension.id, context.extension.isActive);
-  }
+  //if (DEV) {
+  console.log("ACTIVATE", context.extension.id, context.extension.isActive, i++);
+  //}
   const showAutoCreate = commands.registerCommand("ldproxy-editor.showAutoCreate", () => {
     AutoCreatePanel.render(context.extensionUri);
   });
@@ -79,15 +83,11 @@ export function activate(context: ExtensionContext) {
 
   let hashString = hash(document);
 
-  if (!initialized) {
-    registerHover().forEach((provider) => context.subscriptions.push(provider));
-    initSchemas();
-    initDiagnostics();
+  registerHover().forEach((provider) => context.subscriptions.push(provider));
+  initSchemas();
+  initDiagnostics();
 
-    updateYamlKeysHover(document, hashString, collection, context);
-
-    initialized = true;
-  }
+  updateYamlKeysHover(document, hashString, collection, context);
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
