@@ -2,13 +2,7 @@ import * as vscode from "vscode";
 import { newXtracfg } from "../utilities/xtracfg";
 import { getRelativeFilePath, getWorkspacePath } from "../utilities/paths";
 import { DEV } from "../utilities/constants";
-
-interface YamlKeysDiagnostic {
-  path: string;
-  index: number;
-  lineOfPath: number;
-  arrayIndex?: number;
-}
+import { DocUpdate, Registration } from "../utilities/registration";
 
 const xtracfg = newXtracfg();
 
@@ -21,7 +15,9 @@ const diagnosticsResults: {
   };
 } = {};
 
-export const initDiagnostics = () => {
+const collection = vscode.languages.createDiagnosticCollection("ldproxy-editor");
+
+export const registerDiagnostics: Registration = () => {
   xtracfg.listen(
     (response) => {
       if (DEV) {
@@ -48,6 +44,8 @@ export const initDiagnostics = () => {
       console.error("ERR", error);
     }
   );
+
+  return [];
 };
 
 const requestDiagnostics = async (path: string): Promise<string[]> => {
@@ -79,13 +77,14 @@ const requestDiagnostics = async (path: string): Promise<string[]> => {
   return diagnosticsResults[path].result;
 };
 
-export async function updateDiagnostics(
-  yamlKeysDiagnostic: YamlKeysDiagnostic[],
-  document: vscode.TextDocument,
-  collection: vscode.DiagnosticCollection
-): Promise<void> {
+export const updateDiagnostics: DocUpdate = async function (
+  document,
+  docUri,
+  docHash,
+  newAllYamlKeys
+) {
   if (DEV) {
-    console.log("yamlKeysDiagnosticUpdateDiagnostics", yamlKeysDiagnostic);
+    console.log("yamlKeysDiagnosticUpdateDiagnostics", newAllYamlKeys);
   }
   if (document.uri.path.includes(".yml")) {
     const diagnostics: vscode.Diagnostic[] = [];
@@ -119,7 +118,7 @@ export async function updateDiagnostics(
           console.log("indexUpdateDiagnostics", index);
         }
         if (index !== null) {
-          const foundItem = yamlKeysDiagnostic.find(
+          const foundItem = newAllYamlKeys.find(
             (item) => item.path === infoWordWithoutIndex && item.arrayIndex === index
           );
           if (DEV) {
@@ -129,7 +128,7 @@ export async function updateDiagnostics(
             lineOfPath = foundItem.lineOfPath - 1;
           }
         } else {
-          const foundItem = yamlKeysDiagnostic.find((item) => item.path === infoWord);
+          const foundItem = newAllYamlKeys.find((item) => item.path === infoWord);
           if (DEV) {
             console.log("foundItem", foundItem);
           }
@@ -176,4 +175,4 @@ export async function updateDiagnostics(
   } else {
     collection.clear();
   }
-}
+};

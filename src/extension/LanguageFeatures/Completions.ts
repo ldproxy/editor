@@ -7,29 +7,29 @@ import { getDefinitionsMap, DefinitionsMap } from "../utilities/defs";
 import { removeDuplicates } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
 import { getSchema } from "../utilities/schemas";
-import { Registration } from "../utilities/registration";
+import { DocUpdate, Registration } from "../utilities/registration";
 
 let allYamlKeys: AllYamlKeys;
-
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 
-export async function getSchemaMapCompletions(docUri: string, docHash?: string) {
+export const updateCompletions: DocUpdate = async function (
+  document,
+  docUri,
+  docHash,
+  newAllYamlKeys
+) {
+  allYamlKeys = newAllYamlKeys;
   const schema = await getSchema();
-  const currentDocument = vscode.window.activeTextEditor?.document;
-  const documentGetText = currentDocument?.getText();
-  if (documentGetText) {
-    if (documentGetText && schema) {
-      specifiedDefs = extractDocRefs(documentGetText, schema, docUri, docHash);
+  const text = document.getText();
+  if (text) {
+    if (text && schema) {
+      specifiedDefs = extractDocRefs(text, schema, docUri, docHash);
       const uniqueDefs = removeDuplicates(specifiedDefs);
       definitionsMap = getDefinitionsMap(schema, uniqueDefs, docUri, docHash);
     }
   }
-}
-
-export function setKeys(yamlkeys: AllYamlKeys) {
-  allYamlKeys = yamlkeys;
-}
+};
 
 export const registerCompletions: Registration = () => {
   return [

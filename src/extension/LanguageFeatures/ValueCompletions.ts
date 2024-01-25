@@ -6,20 +6,7 @@ import { removeDuplicates } from "../utilities/refs";
 import { extractDocRefs } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
 import { AllYamlKeys } from "../utilities/yaml";
-import { Registration } from "../utilities/registration";
-
-let allYamlKeys: AllYamlKeys;
-
-export function getKeys(
-  yamlkeys: {
-    path: string;
-    index: number;
-    lineOfPath: number;
-    startOfArray?: number;
-  }[]
-) {
-  allYamlKeys = yamlkeys;
-}
+import { DocUpdate, Registration } from "../utilities/registration";
 
 interface LooseDefinition {
   title?: string;
@@ -31,24 +18,28 @@ interface DefinitionsMap {
   [key: string]: LooseDefinition;
 }
 
+let allYamlKeys: AllYamlKeys;
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 let uniqueDefs: any;
 
-export async function getSchemaMapCompletions(docUri: string, docHash?: string) {
+export const updateValueCompletions: DocUpdate = async function (
+  document,
+  docUri,
+  docHash,
+  newAllYamlKeys
+) {
+  allYamlKeys = newAllYamlKeys;
   const schema = await getSchema();
-  const currentDocument = vscode.window.activeTextEditor?.document;
-  const documentGetText = currentDocument?.getText();
-  if (documentGetText) {
-    if (documentGetText && schema) {
-      specifiedDefs = extractDocRefs(documentGetText, schema, docUri, docHash);
-      uniqueDefs = removeDuplicates(specifiedDefs);
-      if (uniqueDefs && uniqueDefs.length > 0) {
-        definitionsMap = getDefinitionsMap(schema, uniqueDefs, docUri, docHash);
-      }
+  const text = document.getText();
+  if (text && schema) {
+    specifiedDefs = extractDocRefs(text, schema, docUri, docHash);
+    uniqueDefs = removeDuplicates(specifiedDefs);
+    if (uniqueDefs && uniqueDefs.length > 0) {
+      definitionsMap = getDefinitionsMap(schema, uniqueDefs, docUri, docHash);
     }
   }
-}
+};
 
 export const registerValueCompletions: Registration = () => {
   return [vscode.languages.registerCompletionItemProvider("yaml", provider)];

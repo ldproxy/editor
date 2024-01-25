@@ -10,32 +10,26 @@ import {
 } from "../utilities/yaml";
 import { DEV } from "../utilities/constants";
 import { getSchema } from "../utilities/schemas";
-import { Registration } from "../utilities/registration";
+import { DocUpdate, Registration } from "../utilities/registration";
 
 let yamlKeysHover: AllYamlKeys;
-
 let specifiedDefs: { ref: string; finalPath: string }[];
 let definitionsMap: DefinitionsMap = {};
 
-export async function getSchemaMapHovering(docUri: string, docHash?: string) {
+export const updateHover: DocUpdate = async function (document, docUri, docHash, newAllYamlKeys) {
+  yamlKeysHover = newAllYamlKeys;
   const schema = await getSchema();
-  const currentDocument = vscode.window.activeTextEditor?.document;
-  const documentGetText = currentDocument?.getText();
-  if (documentGetText) {
-    if (documentGetText && schema) {
-      specifiedDefs = extractDocRefs(documentGetText, schema, docUri, docHash);
-      if (DEV) {
-        console.log("specifiedDefsGetSchema", specifiedDefs);
-      }
-      if (specifiedDefs && specifiedDefs.length > 0) {
-        definitionsMap = getDefinitionsMap(schema, specifiedDefs, docUri, docHash);
-      }
+  const text = document.getText();
+  if (text && schema) {
+    specifiedDefs = extractDocRefs(text, schema, docUri, docHash);
+    if (DEV) {
+      console.log("specifiedDefsGetSchema", specifiedDefs);
+    }
+    if (specifiedDefs && specifiedDefs.length > 0) {
+      definitionsMap = getDefinitionsMap(schema, specifiedDefs, docUri, docHash);
     }
   }
-}
-export function getKeys(yamlkeys: AllYamlKeys) {
-  yamlKeysHover = yamlkeys;
-}
+};
 
 let hoverStatus: {
   [docUri: string]: { hash: string; results: { [lineCharacter: string]: vscode.Hover } };
