@@ -2,9 +2,9 @@
 set -e
 
 if [ -z "${PASSWORD}" ]; then 
-  mkdir -p /home/coder/.config/code-server
-  echo "auth: none" > /home/coder/.config/code-server/config.yaml
-  echo "cert: false" >> /home/coder/.config/code-server/config.yaml
+  mkdir -p /settings/.config/code-server
+  echo "auth: none" > /settings/.config/code-server/config.yaml
+  echo "cert: false" >> /settings/.config/code-server/config.yaml
 fi
 
 if [ -n "${GIT_DATA}" ]; then

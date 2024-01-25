@@ -8,7 +8,10 @@ services:
 #      - PASSWORD=none
     volumes:
       - ./data:/data
+      - settings:/settings
 #      - ./docker/.local:/home/coder/.local
 #      - ./docker/.config:/home/coder/.config
 #      - ./docker/workspace:/home/coder/project
 
+volumes:
+  settings:

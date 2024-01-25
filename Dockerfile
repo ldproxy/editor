@@ -13,8 +13,8 @@ COPY --chmod=0644 --from=extension /src/dist/ldproxy-editor.vsix /
 COPY --chmod=0755 --from=extension /src/startup.sh /entrypoint.d/
 COPY --chmod=0755 --from=xtracfg /xtracfg /usr/bin/
 
-ENV HOME=/home/coder
-VOLUME /home/coder
+ENV HOME=/settings
+VOLUME /settings
 VOLUME /data
 USER root
 
