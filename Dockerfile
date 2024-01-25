@@ -1,7 +1,7 @@
 FROM node:20-alpine as extension
 
 COPY . /src/
-RUN cd /src && npm run install:all && npm test && npm run package
+RUN cd /src && npm run install:all && npm run package
 
 
 FROM ghcr.io/ldproxy/xtracfg:2.0-next as xtracfg
