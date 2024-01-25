@@ -1,4 +1,13 @@
-import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
+import {
+  Disposable,
+  Webview,
+  WebviewPanel,
+  window,
+  Uri,
+  ViewColumn,
+  commands,
+  ExtensionContext,
+} from "vscode";
 import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
 import { listGpkgFilesInDirectory } from "../utilities/gpkg";
@@ -6,9 +15,18 @@ import { uploadedGpkg } from "../utilities/gpkg";
 import * as vscode from "vscode";
 import { newXtracfg } from "../utilities/xtracfg";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
+import { Registration } from "../utilities/registration";
 
 const workspaceUri = getWorkspaceUri();
 const xtracfg = newXtracfg();
+
+export const registerShowAutoCreate: Registration = (context) => {
+  return [
+    commands.registerCommand("ldproxy-editor.showAutoCreate", () => {
+      AutoCreatePanel.render(context.extensionUri);
+    }),
+  ];
+};
 
 /**
  * This class manages the state and behavior of HelloWorld webview panels.

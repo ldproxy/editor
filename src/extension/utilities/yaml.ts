@@ -385,17 +385,24 @@ export function extractIndexFromPath(path: string): number | null {
 
   return null;
 }
-export function hash(document?: vscode.TextDocument): string {
-  if (document) {
-    const text = document.getText();
-    if (text !== "") {
-      const hashString = md5(text);
-      if (DEV) {
-        console.log("Hash:", hashString);
-      }
 
-      return hashString;
-    }
+export function hashDoc(document?: vscode.TextDocument): string {
+  if (document) {
+    return hashText(document.getText());
   }
+
+  return "";
+}
+
+export function hashText(text?: string): string {
+  if (text && text !== "") {
+    const hashString = md5(text);
+    if (DEV) {
+      console.log("Hash:", hashString);
+    }
+
+    return hashString;
+  }
+
   return "";
 }

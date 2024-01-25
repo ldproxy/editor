@@ -6,6 +6,7 @@ import { removeDuplicates } from "../utilities/refs";
 import { extractDocRefs } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
 import { AllYamlKeys } from "../utilities/yaml";
+import { Registration } from "../utilities/registration";
 
 let allYamlKeys: AllYamlKeys;
 
@@ -49,7 +50,7 @@ export async function getSchemaMapCompletions(docUri: string, docHash?: string) 
   }
 }
 
-export const registerValueCompletions = (): vscode.Disposable[] => {
+export const registerValueCompletions: Registration = () => {
   return [vscode.languages.registerCompletionItemProvider("yaml", provider)];
 };
 

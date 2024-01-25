@@ -7,6 +7,7 @@ import { getDefinitionsMap, DefinitionsMap } from "../utilities/defs";
 import { removeDuplicates } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
 import { getSchema } from "../utilities/schemas";
+import { Registration } from "../utilities/registration";
 
 let allYamlKeys: AllYamlKeys;
 
@@ -30,7 +31,7 @@ export function setKeys(yamlkeys: AllYamlKeys) {
   allYamlKeys = yamlkeys;
 }
 
-export const registerCompletions = (): vscode.Disposable[] => {
+export const registerCompletions: Registration = () => {
   return [
     vscode.languages.registerCompletionItemProvider("yaml", provider1),
     vscode.languages.registerCompletionItemProvider("yaml", provider2),

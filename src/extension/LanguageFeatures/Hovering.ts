@@ -6,10 +6,11 @@ import {
   getMaxLine,
   AllYamlKeys,
   getLinesForArrayIndex,
-  hash,
+  hashDoc,
 } from "../utilities/yaml";
 import { DEV } from "../utilities/constants";
 import { getSchema } from "../utilities/schemas";
+import { Registration } from "../utilities/registration";
 
 let yamlKeysHover: AllYamlKeys;
 
@@ -40,14 +41,14 @@ let hoverStatus: {
   [docUri: string]: { hash: string; results: { [lineCharacter: string]: vscode.Hover } };
 } = {};
 
-export const registerHover = (): vscode.Disposable[] => {
+export const registerHover: Registration = () => {
   return [vscode.languages.registerHoverProvider("yaml", hover)];
 };
 
 const hover: vscode.HoverProvider = {
   provideHover(document, position) {
     const docUri = document.uri.toString();
-    const docHash = hash(document);
+    const docHash = hashDoc(document);
     const lineOfWord: number = position.line + 1;
     //NOTE: if yaml flow syntax should be supported, then use: `${lineOfWord}_${position.character}`
     const lineCharacter = `${lineOfWord}`;
