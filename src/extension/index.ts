@@ -1,14 +1,11 @@
 import { ExtensionContext, TextDocument, window, workspace } from "vscode";
 
 import { registerShowAutoCreate } from "./panels/AutoCreatePanel";
-import { registerDiagnostics, updateDiagnostics } from "./LanguageFeatures/Diagnostics";
-import { registerCompletions, updateCompletions } from "./LanguageFeatures/Completions";
-import {
-  registerValueCompletions,
-  updateValueCompletions,
-} from "./LanguageFeatures/ValueCompletions";
-import { registerHover, updateHover } from "./LanguageFeatures/Hovering";
-import { registerCodeActions } from "./LanguageFeatures/CodeActions";
+import { registerDiagnostics, updateDiagnostics } from "./language/Diagnostics";
+import { registerCompletions, updateCompletions } from "./language/Completions";
+import { registerValueCompletions, updateValueCompletions } from "./language/ValueCompletions";
+import { registerHover, updateHover } from "./language/Hovering";
+import { registerCodeActions } from "./language/CodeActions";
 import { DEV } from "./utilities/constants";
 import { initSchemas } from "./utilities/schemas";
 import { parseYaml, hashText } from "./utilities/yaml";
