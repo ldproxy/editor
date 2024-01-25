@@ -1,6 +1,21 @@
 import * as vscode from "vscode";
+import { Registration } from "../utilities/registration";
 
-export class Emojinfo implements vscode.CodeActionProvider {
+// First tests for code actions
+export const registerCodeActions: Registration = () => {
+  return [
+    /*vscode.languages.registerCodeActionsProvider("yaml", new Emojinfo(), {
+      providedCodeActionKinds: Emojinfo.providedCodeActionKinds,
+    }),
+    vscode.commands.registerCommand("code-actions-sample.command", () =>
+      vscode.env.openExternal(
+        vscode.Uri.parse("https://unicode.org/emoji/charts-12.0/full-emoji-list.html")
+      )
+    ),*/
+  ];
+};
+
+class Emojinfo implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKinds = [vscode.CodeActionKind.QuickFix];
 
   provideCodeActions(
