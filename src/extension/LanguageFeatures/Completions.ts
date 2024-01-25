@@ -7,8 +7,10 @@ import { getDefinitionsMap, DefinitionsMap } from "../utilities/defs";
 import { removeDuplicates } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
 import { getSchema } from "../utilities/schemas";
+import { buildEnumArray } from "../utilities/enums";
 
 let allYamlKeys: AllYamlKeys;
+let enumArray: { key: string; enum: string; groupname: string }[];
 
 let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
@@ -19,6 +21,7 @@ export async function getSchemaMapCompletions(docUri: string, docHash?: string) 
   const documentGetText = currentDocument?.getText();
   if (documentGetText) {
     if (documentGetText && schema) {
+      enumArray = buildEnumArray(schema);
       specifiedDefs = extractDocRefs(documentGetText, schema, docUri, docHash);
       const uniqueDefs = removeDuplicates(specifiedDefs);
       definitionsMap = getDefinitionsMap(schema, uniqueDefs, docUri, docHash);
@@ -30,16 +33,8 @@ export function setKeys(yamlkeys: AllYamlKeys) {
   allYamlKeys = yamlkeys;
 }
 
-export const registerCompletions = (): vscode.Disposable[] => {
-  return [
-    vscode.languages.registerCompletionItemProvider("yaml", provider1),
-    vscode.languages.registerCompletionItemProvider("yaml", provider2),
-    vscode.languages.registerCompletionItemProvider("yaml", provider3),
-  ];
-};
-
 // References from specifiedDefs
-const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -92,7 +87,6 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                         console.log("refCompletionsinCompletions", refCompletions);
                       }
                       const completion = new vscode.CompletionItem(finalValue);
-                      //  completion.insertText = `${finalValue}: \n  `; (Soll angewendet werden, wenn finalValue ein ref oder addRef hat)
                       completion.insertText = `${finalValue}: `;
                       completion.kind = vscode.CompletionItemKind.Method;
                       if (obj2.description !== "") {
@@ -120,20 +114,20 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     token: vscode.CancellationToken
   ): Thenable<vscode.CompletionItem> {
     return new Promise((resolve) => {
-      if (item.kind === vscode.CompletionItemKind.Method) {
+      if (item.kind === 1) {
         // Trigger the suggest widget after a delay to ensure the previous session has ended
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
         }, 2000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln.
-        console.log("resolve wurde aufgerufen");
+        console.log("resolve1 wurde aufgerufen");
+        resolve(item);
       }
-      resolve(item);
     });
   },
-};
+});
 
 //Completions for non-indented keys and arrays
-const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -193,6 +187,18 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                 const completion = new vscode.CompletionItem(value);
                 completion.insertText = `${value}: `;
                 completion.kind = vscode.CompletionItemKind.Method;
+                if (
+                  enumArray.length > 0 &&
+                  enumArray.some((enumItem) => {
+                    return (
+                      obj.title === enumItem.key &&
+                      (obj.groupname === enumItem.groupname ||
+                        (obj.groupname === "_TOP_LEVEL_" && enumItem.groupname === ""))
+                    );
+                  })
+                ) {
+                  completion.detail = "Enum";
+                }
                 if (obj.description !== "") {
                   completion.documentation = new vscode.MarkdownString(obj.description);
                 }
@@ -253,22 +259,23 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   resolveCompletionItem(
     item: vscode.CompletionItem,
     token: vscode.CancellationToken
-  ): Thenable<vscode.CompletionItem> {
-    return new Promise((resolve) => {
-      // Trigger the suggest widget after a delay to ensure the previous session has ended
-      if (item.kind === vscode.CompletionItemKind.Method) {
+  ): Thenable<vscode.CompletionItem> | undefined {
+    console.log("iopuuu", item);
+    if (item.detail === "Enum") {
+      return new Promise((resolve) => {
+        // Trigger the suggest widget after a delay to ensure the previous session has ended
+        console.log("resolve2 wurde aufgerufen", item);
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 2000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln.
-        console.log("resolve wurde aufgerufen");
-      }
-      resolve(item);
-    });
+        }, 3000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln. Nac Änderung mit Verwendung von enumArray eher 3 sec.
+        resolve(item);
+      });
+    }
   },
-};
+});
 
 // additionalReferences from specifiedDefs
-const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -412,17 +419,17 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     token: vscode.CancellationToken
   ): Thenable<vscode.CompletionItem> {
     return new Promise((resolve) => {
-      if (item.kind === vscode.CompletionItemKind.Method) {
+      if (item.kind === 1) {
         // Trigger the suggest widget after a delay to ensure the previous session has ended
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
         }, 2000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln.
-        console.log("resolve wurde aufgerufen");
+        console.log("resolve3 wurde aufgerufen");
+        resolve(item);
       }
-      resolve(item);
     });
   },
-};
+});
 
 export function getPathAtCursor(
   allYamlKeys: {
