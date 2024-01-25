@@ -105,6 +105,7 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
                         console.log("refCompletionsinCompletions", refCompletions);
                       }
                       const completion = new vscode.CompletionItem(finalValue);
+                      //  completion.insertText = `${finalValue}: \n  `; (Soll angewendet werden, wenn finalValue ein ref oder addRef hat)
                       completion.insertText = `${finalValue}: `;
                       completion.kind = vscode.CompletionItemKind.Method;
                       if (obj2.description !== "") {
@@ -126,6 +127,21 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
       }
       return refCompletions;
     }
+  },
+  resolveCompletionItem(
+    item: vscode.CompletionItem,
+    token: vscode.CancellationToken
+  ): Thenable<vscode.CompletionItem> {
+    return new Promise((resolve) => {
+      if (item.kind === vscode.CompletionItemKind.Method) {
+        // Trigger the suggest widget after a delay to ensure the previous session has ended
+        setTimeout(() => {
+          vscode.commands.executeCommand("editor.action.triggerSuggest");
+        }, 2000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln.
+        console.log("resolve wurde aufgerufen");
+      }
+      resolve(item);
+    });
   },
 });
 
@@ -246,6 +262,21 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       }
     });
     return completions;
+  },
+  resolveCompletionItem(
+    item: vscode.CompletionItem,
+    token: vscode.CancellationToken
+  ): Thenable<vscode.CompletionItem> {
+    return new Promise((resolve) => {
+      // Trigger the suggest widget after a delay to ensure the previous session has ended
+      if (item.kind === vscode.CompletionItemKind.Method) {
+        setTimeout(() => {
+          vscode.commands.executeCommand("editor.action.triggerSuggest");
+        }, 2000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln.
+        console.log("resolve wurde aufgerufen");
+      }
+      resolve(item);
+    });
   },
 });
 
@@ -382,6 +413,21 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
       }
       return refCompletions;
     }
+  },
+  resolveCompletionItem(
+    item: vscode.CompletionItem,
+    token: vscode.CancellationToken
+  ): Thenable<vscode.CompletionItem> {
+    return new Promise((resolve) => {
+      if (item.kind === vscode.CompletionItemKind.Method) {
+        // Trigger the suggest widget after a delay to ensure the previous session has ended
+        setTimeout(() => {
+          vscode.commands.executeCommand("editor.action.triggerSuggest");
+        }, 2000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln.
+        console.log("resolve wurde aufgerufen");
+      }
+      resolve(item);
+    });
   },
 });
 
