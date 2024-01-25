@@ -1,4 +1,4 @@
-import { DEV } from "../utilities/constants";
+import { DEV } from "./constants";
 
 export function buildEnumArray(
   definitions: any
@@ -90,6 +90,8 @@ export function buildEnumArray(
       }
     }
   }
-
+  if (DEV) {
+    console.log("localEnumArray", localEnumArray);
+  }
   return localEnumArray;
 }

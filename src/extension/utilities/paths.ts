@@ -1,9 +1,18 @@
 import * as vscode from "vscode";
 
 export const getWorkspacePath = (): string | undefined => {
-  const workspace = getWorkspace();
+  const workspace = getWorkspaceUri();
 
-  return workspace ? workspace.fsPath : undefined;
+  if (workspace && workspace.fsPath) {
+    // workaround for docker + windows
+    if (workspace.fsPath.startsWith("\\")) {
+      return getWorkspacePathNormalized();
+    }
+
+    return workspace.fsPath;
+  }
+
+  return undefined;
 };
 
 export const getCurrentFilePath = (): string | undefined => {
@@ -35,7 +44,7 @@ export const getRelativeFilePath = (uri: vscode.Uri): string | undefined => {
   return undefined;
 };
 
-const getWorkspace = (): vscode.Uri | undefined => {
+export const getWorkspaceUri = (): vscode.Uri | undefined => {
   const workspaceFolders = vscode.workspace.workspaceFolders;
 
   if (workspaceFolders && workspaceFolders[0]) {
@@ -46,7 +55,7 @@ const getWorkspace = (): vscode.Uri | undefined => {
 };
 
 const getWorkspacePathNormalized = (): string | undefined => {
-  const workspace = getWorkspace();
+  const workspace = getWorkspaceUri();
 
   return workspace ? workspace.path : undefined;
 };

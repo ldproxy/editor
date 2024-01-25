@@ -1,6 +1,6 @@
 ---
 id: cologne_lod2
-entityStorageVersion: 2
+providerType: FEATURE
 providerSubType: SQL
 nativeCrs:
   code: 5555

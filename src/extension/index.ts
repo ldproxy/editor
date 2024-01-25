@@ -1,23 +1,23 @@
-import { commands, window, ExtensionContext } from "vscode";
+import { commands, ExtensionContext } from "vscode";
 import { AutoCreatePanel } from "./panels/AutoCreatePanel";
-import { SourcesProvider } from "./trees/SourcesProvider";
-import { EntitiesProvider } from "./trees/EntitiesProvider";
-import { hover } from "./LanguageFeatures/Hovering";
 import * as vscode from "vscode";
 import { initDiagnostics } from "./LanguageFeatures/Diagnostics";
 import { updateDiagnostics } from "./LanguageFeatures/Diagnostics";
-import { provider1, provider2, provider3, getKeys } from "./LanguageFeatures/Completions";
-import { getAllYamlPaths } from "./utilitiesLanguageFeatures/getYamlKeys";
-import { getKeys as getHoverKeys } from "./LanguageFeatures/Hovering";
+import { provider1, provider2, provider3, setKeys } from "./LanguageFeatures/Completions";
+import { parseYaml } from "./utilities/yaml";
+import {
+  getKeys as getHoverKeys,
+  getSchemaMapHovering,
+  registerHover,
+} from "./LanguageFeatures/Hovering";
 import { getKeys as getValueKeys } from "./LanguageFeatures/ValueCompletions";
-import { Parser } from "yaml";
 import { getSchemaMapCompletions } from "./LanguageFeatures/Completions";
-import { getSchemaMapHovering } from "./LanguageFeatures/Hovering";
 import { getSchemaMapCompletions as getValueCompletions } from "./LanguageFeatures/ValueCompletions";
-import { extractConditions } from "./utilitiesLanguageFeatures/defineDefs";
-import { provider4 } from "./LanguageFeatures/ValueCompletions";
-import { initSchemas } from "./utilitiesLanguageFeatures/schemas";
+import { registerValueCompletions } from "./LanguageFeatures/ValueCompletions";
+import { initSchemas } from "./utilities/schemas";
 import { DEV } from "./utilities/constants";
+import { md5 } from "js-md5";
+import { hash } from "./utilities/yaml";
 // import { Emojinfo } from "./LanguageFeatures/CodeActions";
 
 export let allYamlKeys: {
@@ -28,7 +28,38 @@ export let allYamlKeys: {
   arrayIndex?: number;
 }[] = [];
 
+function updateYamlKeysHover(
+  document?: vscode.TextDocument,
+  hashString?: string,
+  collection?: any,
+  context?: any
+) {
+  if (document) {
+    if (vscode.window.activeTextEditor && hashString && hashString !== "") {
+      if (DEV) {
+        console.log("getText", document.getText());
+      }
+      allYamlKeys = parseYaml(document.getText());
+      getSchemaMapCompletions(document.uri.toString(), hashString);
+      getValueCompletions(document.uri.toString(), hashString);
+      getSchemaMapHovering(document.uri.toString(), hashString);
+      getHoverKeys(allYamlKeys);
+      getValueKeys(allYamlKeys);
+      setKeys(allYamlKeys);
+      updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
+
+      context.subscriptions.push(provider1, provider2, provider3);
+      registerValueCompletions().forEach((provider) => context.subscriptions.push(provider));
+    }
+  }
+}
+
+let initialized = false;
+const collection = vscode.languages.createDiagnosticCollection("test");
+
 export function activate(context: ExtensionContext) {
+  const document = vscode.window.activeTextEditor?.document;
+
   if (DEV) {
     console.log("ACTIVATE", context.extension.id, context.extension.isActive);
   }
@@ -36,7 +67,7 @@ export function activate(context: ExtensionContext) {
     AutoCreatePanel.render(context.extensionUri);
   });
 
-  let storeTree = window.registerTreeDataProvider(
+  /*let storeTree = window.registerTreeDataProvider(
     "ldproxy-editor.storeTree",
     new SourcesProvider()
   );
@@ -44,76 +75,62 @@ export function activate(context: ExtensionContext) {
   let entityTree = window.registerTreeDataProvider(
     "ldproxy-editor.entityTree",
     new EntitiesProvider()
-  );
+  );*/
 
-  initSchemas();
-  initDiagnostics();
-  hover();
-  const collection = vscode.languages.createDiagnosticCollection("test");
+  let hashString = hash(document);
 
-  function updateYamlKeysHover() {
-    const document = vscode.window.activeTextEditor?.document;
-    if (document) {
-      const yamlObject: any[] = [];
+  if (!initialized) {
+    registerHover().forEach((provider) => context.subscriptions.push(provider));
+    initSchemas();
+    initDiagnostics();
 
-      for (const token of new Parser().parse(document.getText())) {
-        if (DEV) {
-          console.log("documento", document?.getText());
-          console.log("token", token);
-        }
-        yamlObject.push(token);
-      }
-      if (DEV) {
-        console.log("yamlObject", yamlObject[0].value.items);
-      }
+    updateYamlKeysHover(document, hashString, collection, context);
 
-      if (vscode.window.activeTextEditor) {
-        allYamlKeys = [];
-        allYamlKeys = getAllYamlPaths(document.getText(), yamlObject[0].value.items, "");
-        if (DEV) {
-          console.log("yamlKeysIndex", allYamlKeys);
-        }
-        getHoverKeys(allYamlKeys);
-        getValueKeys(allYamlKeys);
-        getKeys(allYamlKeys);
-        updateDiagnostics(allYamlKeys, vscode.window.activeTextEditor.document, collection);
-        extractConditions();
-
-        context.subscriptions.push(provider1, provider2, provider3, provider4);
-      }
-    }
+    initialized = true;
   }
-
-  updateYamlKeysHover();
-  getSchemaMapCompletions();
-  getValueCompletions();
-  getSchemaMapHovering();
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((event) => {
-      const activeEditor = vscode.window.activeTextEditor;
-      if (activeEditor && event.document === activeEditor.document) {
-        updateYamlKeysHover();
+      const document = vscode.window.activeTextEditor?.document;
+      if (document) {
+        const text = document.getText();
+        const newHash = md5(text);
+        if (newHash !== hashString) {
+          hashString = newHash;
+          if (DEV) {
+            console.log("HashChangedDoc:", hashString);
+          }
+          const activeEditor = vscode.window.activeTextEditor;
+          if (activeEditor && event.document === activeEditor.document) {
+            updateYamlKeysHover(document, hashString, collection, context);
+          }
+        }
       }
     })
   );
 
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-      if (editor) {
-        updateYamlKeysHover();
-        getSchemaMapCompletions();
-        getValueCompletions();
-        getSchemaMapHovering();
+      const document = vscode.window.activeTextEditor?.document;
+      if (document) {
+        const text = document.getText();
+        const newHash = md5(text);
+        if (newHash !== hashString && editor) {
+          hashString = newHash;
+          if (DEV) {
+            console.log("HashChangedEditor:", hashString);
+          }
+          updateYamlKeysHover(document, hashString, collection, context);
+        }
       }
     })
   );
 
   // Add command to the extension context
-  context.subscriptions.push(showAutoCreate, storeTree, entityTree);
+  context.subscriptions.push(showAutoCreate /*, storeTree, entityTree*/);
 
   /*
-  First tests for code actions:
+  First tests for code actions:f
 
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider("yaml", new Emojinfo(), {
@@ -130,3 +147,34 @@ export function activate(context: ExtensionContext) {
   );
   */
 }
+
+/* contribution points for tree views
+    "views": {
+      "explorer": [
+        {
+          "id": "ldproxy-editor.storeTree",
+          "name": "Sources"
+        },
+        {
+          "id": "ldproxy-editor.entityTree",
+          "name": "Entities"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "when": "view == ldproxy-editor.storeTree",
+          "command": "ldproxy-editor.showAutoCreate",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "when": "view == ldproxy-editor.storeTree && viewItem == folder",
+          "command": "ldproxy-editor.showAutoCreate",
+          "group": "inline"
+        }
+      ]
+    }
+ */

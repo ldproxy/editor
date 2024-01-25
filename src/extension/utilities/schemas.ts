@@ -1,15 +1,15 @@
-import { newXtracfg } from "../utilities/xtracfg";
-import { getCurrentFilePath, getWorkspacePath } from "../utilities/paths";
-import { DEV } from "../utilities/constants";
+import { newXtracfg } from "./xtracfg";
+import { getCurrentFilePath, getWorkspacePath } from "./paths";
+import { DEV } from "./constants";
+import { extractSingleRefs } from "./refs";
+import { TOP_LEVEL_REF } from "./refs";
+import { DefinitionsMap, LooseDefinition } from "./defs";
 
-export interface DefinitionsMap {
-  [key: string]: LooseDefinition;
-}
-
-export interface LooseDefinition {
-  title?: string;
-  description?: string;
-  [key: string]: any;
+interface FileType {
+  type: string;
+  subProperty?: string;
+  discriminatorKey?: string;
+  discriminatorValue?: string;
 }
 
 const xtracfg = newXtracfg();
@@ -18,8 +18,8 @@ let allSchemas: Promise<DefinitionsMap>;
 
 const fileTypes: {
   [key: string]: {
-    result: Promise<string>;
-    resolve: (fileType: string) => void;
+    result: Promise<FileType>;
+    resolve: (fileType: FileType) => void;
     reject: (reason: string) => void;
   };
 } = {};
@@ -46,7 +46,8 @@ export const initSchemas = () => {
           if (DEV) {
             console.log("FOUND");
           }
-          fileTypes[response.details.path].resolve(response.details.fileType);
+          const fileType: FileType = { type: response.details.fileType, ...response.details };
+          fileTypes[response.details.path].resolve(fileType);
         }
       } else if (
         response.results &&
@@ -83,20 +84,37 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
     return undefined;
   }
 
-  return schemas[fileType];
-};
+  const schema = schemas[fileType.type];
+  schema.groupName = TOP_LEVEL_REF;
 
-export const getSchemaDefs = async (): Promise<DefinitionsMap | undefined> => {
-  const schema = await getSchema();
-
-  if (!schema) {
-    return undefined;
+  if (DEV) {
+    console.log("FT", fileType);
   }
 
+  if (fileType.subProperty) {
+    const myRef = extractSingleRefs(
+      schema,
+      fileType.subProperty,
+      fileType?.discriminatorKey,
+      fileType?.discriminatorValue
+    );
+    const subSchema = {
+      ...schema.$defs[myRef[0].ref],
+      $defs: schema.$defs,
+      groupName: TOP_LEVEL_REF,
+    };
+    if (DEV) {
+      console.log("SUBSCHEMA", subSchema, myRef[0].ref);
+    }
+    return subSchema;
+  }
+  if (DEV) {
+    console.log("schemaGetSchema", schema);
+  }
   return schema;
 };
 
-const getCurrentFileType = async (): Promise<string | undefined> => {
+const getCurrentFileType = async (): Promise<FileType | undefined> => {
   const currentFilePath = getCurrentFilePath();
 
   if (!currentFilePath) {

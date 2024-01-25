@@ -18,9 +18,13 @@ export type Response = {
 };
 
 export type Error = {
-  error: string;
-  status: string;
-  message: string;
+  error?: string;
+  status?: string;
+  message?: string;
+  notification?: string;
+  fields?: {
+    [key: string]: string;
+  };
 };
 
 type Socket = () => Promise<WebSocket>;
@@ -40,9 +44,9 @@ const send = (ensureOpen: Socket) => {
       .then((socket) => {
         const cmd = JSON.stringify(request);
 
-        //if (DEV) {
-        console.log("sending to xtracfg", cmd);
-        //}
+        if (DEV) {
+          console.log("sending to xtracfg", cmd);
+        }
 
         socket.send(cmd);
       })
@@ -86,21 +90,54 @@ const parseError = (response: Response): Error | undefined => {
     return undefined;
   }
 
+  if (error === "No 'command' given: {}") {
+    return { notification: "Empty Fields" };
+  }
+
+  if (message.includes("host") && !message.includes("refused")) {
+    return { fields: { host: message.split(",")[0] } };
+  } else if (error.includes("Host") && !message.includes("refused")) {
+    return { fields: { host: error } };
+  } else if (message.includes("database")) {
+    return { fields: { database: message } };
+  } else if (message.includes("user name")) {
+    return { fields: { user: message } };
+  } else if (message.includes("password")) {
+    return { fields: { user: message, password: message } };
+  } else if (error.includes("No id given")) {
+    return { fields: { id: error } };
+  } else if (error.includes("Id has to")) {
+    return { fields: { id: error } };
+  } else if (error.includes("with id")) {
+    return { fields: { id: error } };
+  } else if (message.includes("url")) {
+    return { fields: { url: message } };
+  }
+
+  if (
+    (!message.includes("host") &&
+      !message.includes("url") &&
+      !message.includes("database") &&
+      !message.includes("user") &&
+      !message.includes("password")) ||
+    message.includes("refused")
+  ) {
+    return { notification: error.length > 0 ? error : message };
+  }
+
   return { error, status, message };
 };
 
 const mutex = new Mutex();
+let _socket: WebSocket;
 
 const socket = (): Socket => {
-  let _socket: WebSocket;
-
   return async (): Promise<WebSocket> => {
     const release = await mutex.acquire();
 
-    console.log("websocket", _socket && _socket.readyState);
-
     if (_socket && _socket.readyState === _socket.OPEN) {
       release();
+
       return Promise.resolve(_socket);
     }
 
@@ -113,8 +150,9 @@ const socket = (): Socket => {
         console.log("CONNECTING to websocket", "ws://localhost:8081/sock");
         _socket = new WebSocket("ws://localhost:8081/sock");
       } else {
-        console.log("CONNECTING to websocket", `ws://${self.location.host}/proxy/8081/`);
-        _socket = new WebSocket(`ws://${self.location.host}/proxy/8081/`);
+        //console.log("CONNECTING to websocket", `ws://${self.location.host}/proxy/8081/`);
+        const protocol = self.location.protocol === "https:" ? "wss" : "ws";
+        _socket = new WebSocket(`${protocol}://${self.location.host}/proxy/8081/`);
       }
     }
 
@@ -123,19 +161,17 @@ const socket = (): Socket => {
         resolve(_socket);
         release();
       });
-      _socket.addEventListener("error", (error) => {
-        reject(error);
+      _socket.addEventListener("error", () => {
+        reject("websocket error");
         release();
       });
-      if (DEV) {
-        _socket.addEventListener("close", (event) => {
-          if (event.wasClean) {
-            console.log("websocket was closed", event.code, event.reason);
-          } else {
-            console.error("websocket was closed unexpectedly", event);
-          }
-        });
-      }
+      _socket.addEventListener("close", (event) => {
+        if (DEV && event.wasClean) {
+          console.log("websocket was closed", event.code, event.reason);
+        } else if (!event.wasClean) {
+          console.error("websocket was closed unexpectedly", event.code, event.reason);
+        }
+      });
     });
   };
 };

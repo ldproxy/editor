@@ -1,18 +1,13 @@
 import * as vscode from "vscode";
-import { buildEnumArray } from "../utilitiesLanguageFeatures/getEnums";
-import { getSchemaDefs } from "../utilitiesLanguageFeatures/schemas";
-import { getDefinitionsMap } from "../utilitiesLanguageFeatures/getDefinitionsMap";
-import { removeDuplicates } from "../utilitiesLanguageFeatures/removeDuplicatesInArray";
-import { defineDefs } from "../utilitiesLanguageFeatures/defineDefs";
+import { buildEnumArray } from "../utilities/enums";
+import { getSchema } from "../utilities/schemas";
+import { getDefinitionsMap } from "../utilities/defs";
+import { removeDuplicates } from "../utilities/refs";
+import { extractDocRefs } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
+import { AllYamlKeys } from "../utilities/yaml";
 
-let allYamlKeys: {
-  path: string;
-  index: number;
-  lineOfPath: number;
-  startOfArray?: number;
-  arrayIndex?: number;
-}[];
+let allYamlKeys: AllYamlKeys;
 
 export function getKeys(
   yamlkeys: {
@@ -39,29 +34,36 @@ let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 let uniqueDefs: any;
 
-export async function getSchemaMapCompletions() {
+export async function getSchemaMapCompletions(docUri: string, docHash?: string) {
+  const schema = await getSchema();
   const currentDocument = vscode.window.activeTextEditor?.document;
-  if (currentDocument) {
-    specifiedDefs = await defineDefs(currentDocument);
-    uniqueDefs = removeDuplicates(specifiedDefs);
-    if (uniqueDefs && uniqueDefs.length > 0) {
-      definitionsMap = await getDefinitionsMap(uniqueDefs);
+  const documentGetText = currentDocument?.getText();
+  if (documentGetText) {
+    if (documentGetText && schema) {
+      specifiedDefs = extractDocRefs(documentGetText, schema, docUri, docHash);
+      uniqueDefs = removeDuplicates(specifiedDefs);
+      if (uniqueDefs && uniqueDefs.length > 0) {
+        definitionsMap = getDefinitionsMap(schema, uniqueDefs, docUri, docHash);
+      }
     }
   }
 }
 
-export const provider4 = vscode.languages.registerCompletionItemProvider("yaml", {
-  async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const schemaDefs = await getSchemaDefs();
+export const registerValueCompletions = (): vscode.Disposable[] => {
+  return [vscode.languages.registerCompletionItemProvider("yaml", provider)];
+};
 
-    if (!schemaDefs) {
+const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+  async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+    const schema = await getSchema();
+
+    if (!schema) {
       return [];
     }
     if (DEV) {
-      console.log("schemaDefsVC: ", schemaDefs);
+      console.log("schemaVC: ", schema);
     }
-    const enumArray: { key: string; enum: string; groupname: string }[] =
-      buildEnumArray(schemaDefs);
+    const enumArray: { key: string; enum: string; groupname: string }[] = buildEnumArray(schema);
     if (DEV) {
       console.log("enumArrayVC", enumArray);
     }
@@ -201,7 +203,7 @@ export const provider4 = vscode.languages.registerCompletionItemProvider("yaml",
 
     return valueCompletions;
   },
-});
+};
 
 function findKeyForValueCompletion(line: number, document: vscode.TextDocument, position: any) {
   const textBeforeCursor = document.getText(
