@@ -18,8 +18,7 @@ export function parseYaml(document: string) {
   const yamlObject: any[] = [];
 
   for (const token of new Parser().parse(document)) {
-    if (DEV) {
-      console.log("documento", document);
+    if (DEVYAMLKEYS) {
       console.log("token", token);
     }
     yamlObject.push(token);
@@ -49,7 +48,6 @@ function getAllYamlPaths(
 ) {
   if (yamlObject && typeof yamlObject === "object") {
     if (DEVYAMLKEYS) {
-      console.log("documentgYK", document);
       console.log("yamlObjectgYK", yamlObject);
     }
     //Fall: Array
@@ -393,7 +391,7 @@ export function hash(document?: vscode.TextDocument): string {
     if (text !== "") {
       const hashString = md5(text);
       if (DEV) {
-        console.log("Hash:", hashString, text);
+        console.log("Hash:", hashString);
       }
 
       return hashString;

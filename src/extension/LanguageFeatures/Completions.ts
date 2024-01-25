@@ -30,8 +30,16 @@ export function setKeys(yamlkeys: AllYamlKeys) {
   allYamlKeys = yamlkeys;
 }
 
+export const registerCompletions = (): vscode.Disposable[] => {
+  return [
+    vscode.languages.registerCompletionItemProvider("yaml", provider1),
+    vscode.languages.registerCompletionItemProvider("yaml", provider2),
+    vscode.languages.registerCompletionItemProvider("yaml", provider3),
+  ];
+};
+
 // References from specifiedDefs
-export const provider1 = vscode.languages.registerCompletionItemProvider("yaml", {
+const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -122,10 +130,10 @@ export const provider1 = vscode.languages.registerCompletionItemProvider("yaml",
       resolve(item);
     });
   },
-});
+};
 
 //Completions for non-indented keys and arrays
-export const provider2 = vscode.languages.registerCompletionItemProvider("yaml", {
+const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -257,10 +265,10 @@ export const provider2 = vscode.languages.registerCompletionItemProvider("yaml",
       resolve(item);
     });
   },
-});
+};
 
 // additionalReferences from specifiedDefs
-export const provider3 = vscode.languages.registerCompletionItemProvider("yaml", {
+const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
@@ -414,7 +422,7 @@ export const provider3 = vscode.languages.registerCompletionItemProvider("yaml",
       resolve(item);
     });
   },
-});
+};
 
 export function getPathAtCursor(
   allYamlKeys: {
