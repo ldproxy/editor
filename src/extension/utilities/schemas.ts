@@ -24,7 +24,6 @@ const fileTypes: {
   };
 } = {};
 
-//TODO: is called 3 times
 export const initSchemas = () => {
   if (DEV) {
     console.log("INIT SCHEMAS");
