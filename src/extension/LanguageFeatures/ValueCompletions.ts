@@ -67,6 +67,7 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     const enumArray: { key: string; enum: string; groupname: string }[] = buildEnumArray(schema);
     if (DEV) {
       console.log("enumArrayVC", enumArray);
+      console.log("valueCompletionsAllYamlKeysVC", allYamlKeys);
     }
     const valueCompletions: vscode.CompletionItem[] = [];
     const line = position.line;
@@ -122,7 +123,7 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     )
                   ) {
                     if (DEV) {
-                      console.log("valueCompletionsKeyVC", myEnum);
+                      console.log("valueCompletionsKeyVC1", myEnum);
                     }
                     const completion = new vscode.CompletionItem(myEnum);
                     completion.kind = vscode.CompletionItemKind.Method;
@@ -143,8 +144,10 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                   const title = obj.title;
                   const value = obj.ref;
                   if (DEV) {
-                    console.log("titleVC", title);
-                    console.log("enumGroupnameVC", enumGroupname);
+                    console.log("titleVCRef", title);
+                    console.log("enumGroupnameVCRef", enumGroupname);
+                    console.log("pathAtCursorTwoLastPartsVCRef", pathAtCursorTwoLastParts);
+                    console.log("keyAtCursorVCRef", keyAtCursor);
                   }
                   if (
                     title !== undefined &&
@@ -153,7 +156,7 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     pathAtCursorTwoLastParts === `${title}.${keyAtCursor}`
                   ) {
                     if (DEV) {
-                      console.log("valueCompletionsKeyVC", myEnum);
+                      console.log("valueCompletionsKeyVC2", myEnum);
                     }
                     const completion = new vscode.CompletionItem(myEnum);
                     completion.kind = vscode.CompletionItemKind.Method;
@@ -178,7 +181,7 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                       !pathAtCursor.includes(".")
                     ) {
                       if (DEV) {
-                        console.log("valueCompletionsKeyVC", myEnum);
+                        console.log("valueCompletionsKeyVC3", myEnum);
                       }
                       const completion = new vscode.CompletionItem(myEnum);
                       completion.kind = vscode.CompletionItemKind.Method;

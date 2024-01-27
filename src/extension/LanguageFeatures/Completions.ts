@@ -52,9 +52,9 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       (item) => item.lineOfPath === line - 1
     )?.startOfArray;
     if (DEV) {
-      console.log("pathAtCursor: " + pathAtCursor);
-      console.log("definitionsMapCompletions", definitionsMap);
-      console.log("currentArrayIndex: " + currentStartOfArray);
+      console.log("pathAtCursorProvider1: " + pathAtCursor);
+      console.log("definitionsMapCompletions1", definitionsMap);
+      console.log("currentArrayIndex1: " + currentStartOfArray);
     }
 
     if (Object.keys(definitionsMap).length > 0) {
@@ -96,8 +96,24 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                         console.log("refCompletionsinCompletions", refCompletions);
                       }
                       const completion = new vscode.CompletionItem(finalValue);
+                      //    if (obj2.type && obj2.type === "Object") {
+                      //completion.insertText = `${finalValue}: \n  `;
+                      //     } else {
                       completion.insertText = `${finalValue}: `;
+                      //     }
                       completion.kind = vscode.CompletionItemKind.Method;
+                      if (
+                        enumArray.length > 0 &&
+                        enumArray.some((enumItem) => {
+                          return (
+                            obj2.title === enumItem.key &&
+                            (obj2.groupname === enumItem.groupname ||
+                              (obj2.groupname === "_TOP_LEVEL_" && enumItem.groupname === ""))
+                          );
+                        })
+                      ) {
+                        completion.detail = "Enum";
+                      }
                       if (obj2.description !== "") {
                         completion.documentation = new vscode.MarkdownString(obj2.description);
                       }
@@ -121,17 +137,18 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   resolveCompletionItem(
     item: vscode.CompletionItem,
     token: vscode.CancellationToken
-  ): Thenable<vscode.CompletionItem> {
-    return new Promise((resolve) => {
-      if (item.kind === 1) {
+  ): Thenable<vscode.CompletionItem> | undefined {
+    console.log("iopuuu1", item);
+    if (item.detail === "Enum") {
+      return new Promise((resolve) => {
         // Trigger the suggest widget after a delay to ensure the previous session has ended
+        console.log("resolve2 wurde aufgerufen", item);
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 2000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln.
-        console.log("resolve1 wurde aufgerufen");
+        }, 1000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln. Nac Änderung mit Verwendung von enumArray eher 3 sec. Nach Andreas' Änderungen reicht wieder 1 sec.
         resolve(item);
-      }
-    });
+      });
+    }
   },
 };
 
@@ -145,7 +162,7 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     const uniqueDefs = removeDuplicates(specifiedDefs);
     if (DEV) {
       console.log("allYamlKeysInProvider2: ", allYamlKeys);
-      console.log("pathAtCursorInProvider2: " + pathAtCursor);
+      console.log("pathAtCursorProvider2: " + pathAtCursor);
       console.log("uniqueDefsInProvider2", uniqueDefs);
     }
 
@@ -250,6 +267,18 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                 const completion = new vscode.CompletionItem(value);
                 completion.insertText = `${value}: `;
                 completion.kind = vscode.CompletionItemKind.Method;
+                if (
+                  enumArray.length > 0 &&
+                  enumArray.some((enumItem) => {
+                    return (
+                      obj.title === enumItem.key &&
+                      (obj.groupname === enumItem.groupname ||
+                        (obj.groupname === "_TOP_LEVEL_" && enumItem.groupname === ""))
+                    );
+                  })
+                ) {
+                  completion.detail = "Enum";
+                }
                 if (obj.description !== "") {
                   completion.documentation = new vscode.MarkdownString(obj.description);
                 }
@@ -276,7 +305,7 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
         console.log("resolve2 wurde aufgerufen", item);
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 3000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln. Nac Änderung mit Verwendung von enumArray eher 3 sec.
+        }, 1000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln. Nac Änderung mit Verwendung von enumArray eher 3 sec. Nach Andreas' Änderungen reicht wieder 1 sec.
         resolve(item);
       });
     }
@@ -404,6 +433,18 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     const completion = new vscode.CompletionItem(finalValue);
                     completion.insertText = `${finalValue}: `;
                     completion.kind = vscode.CompletionItemKind.Method;
+                    if (
+                      enumArray.length > 0 &&
+                      enumArray.some((enumItem) => {
+                        return (
+                          obj2.title === enumItem.key &&
+                          (obj2.groupname === enumItem.groupname ||
+                            (obj2.groupname === "_TOP_LEVEL_" && enumItem.groupname === ""))
+                        );
+                      })
+                    ) {
+                      completion.detail = "Enum";
+                    }
                     if (obj2.description !== "") {
                       completion.documentation = new vscode.MarkdownString(obj2.description);
                     }
@@ -426,17 +467,18 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   resolveCompletionItem(
     item: vscode.CompletionItem,
     token: vscode.CancellationToken
-  ): Thenable<vscode.CompletionItem> {
-    return new Promise((resolve) => {
-      if (item.kind === 1) {
+  ): Thenable<vscode.CompletionItem> | undefined {
+    console.log("iopuuu", item);
+    if (item.detail === "Enum") {
+      return new Promise((resolve) => {
         // Trigger the suggest widget after a delay to ensure the previous session has ended
+        console.log("resolve2 wurde aufgerufen", item);
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 2000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln.
-        console.log("resolve3 wurde aufgerufen");
+        }, 1000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln. Nac Änderung mit Verwendung von enumArray eher 3 sec. Nach Andreas' Änderungen reicht wieder 1 sec.
         resolve(item);
-      }
-    });
+      });
+    }
   },
 };
 
