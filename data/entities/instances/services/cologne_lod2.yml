@@ -8,7 +8,7 @@ description: |-
   <p>Together with a digital terrain model, 3D building models describe the natural terrain shape of the earth's surface, including all buildings and structures, in digital form and enable the representation of cities and towns in virtual worlds. Buildings can be modeled in different levels of detail (Level of Detail, LoD). In the 3D building model LoD2, the modeling of the buildings is done with standardized roof shapes such as a gable or hip roof.</p>
   <p>The data in this API is an extract from the statewide data (rectangle in the city of Cologne with 2 km x 3 km edge length, 10500 buildings).</p>
   <p>The building properties and their values are in German.</p>
-serviceType:
+serviceType: OGC_API
 metadata:
   licenseName: "Datenlizenz Deutschland - Zero – Version 2.0"
   licenseUrl: "https://www.govdata.de/dl-de/zero-2-0"
