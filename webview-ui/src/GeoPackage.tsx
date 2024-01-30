@@ -7,6 +7,7 @@ import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncString } from "./utilities/recoilSyncWrapper";
 import { vscode } from "./utilities/vscode";
 import { DEV } from "./utilities/constants";
+import { useRef } from "react";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
 
@@ -66,6 +67,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const [stateOfGpkgToUpload, setStateOfGpkgToUpload] =
     useRecoilState<string>(stateOfGpkgToUploadAtom);
   const [base64String, setBase64String] = useRecoilState<string>(base64StringAtom);
+  const hasSubmittedDataRef = useRef(false);
 
   useEffect(() => {
     if (newGPKG !== "") {
@@ -75,6 +77,12 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       setCurrentlySelectedGPKG(existingGPKG);
     }
   }, [existingGPKG, newGPKG]);
+
+  useEffect(() => {
+    return () => {
+      hasSubmittedDataRef.current = false;
+    };
+  }, []);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -96,17 +104,26 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
 
   const submitGeoPackage = () => {
     if (existingGPKG === "") {
+      if (DEV) {
+        console.log("SubmitexistingGPKG", existingGPKG);
+        console.log("Submitfilename", filename);
+      }
       if (filename !== "") {
         vscode.postMessage({
           command: "uploadGpkg",
           text: [base64String, filename],
         });
       }
-    } else if (newGPKG === "") {
+    } else if (newGPKG === "" /*&& existingGPKG !== ""*/) {
+      if (DEV) {
+        console.log("SubmitexistingGPKG2", existingGPKG);
+        console.log("SubmitnewGPKG", newGPKG);
+      }
       submitData(gpkgData);
     }
   };
 
+  // Is called only in case of uploaded GeoPackage
   window.addEventListener("message", (event) => {
     const message = event.data;
 
@@ -124,8 +141,12 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           if (DEV) {
             console.log(uploadedGpkg);
           }
-          if (gpkgData.database !== "") {
+          if (gpkgData.database !== "" && !hasSubmittedDataRef.current) {
+            if (DEV) {
+              console.log("How many times?");
+            }
             submitData(gpkgData);
+            hasSubmittedDataRef.current = true;
           }
         }
         break;
@@ -144,6 +165,9 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       fileInput.value = "";
     }
   };
+  if (DEV) {
+    console.log("inProgressGPKG", inProgress);
+  }
 
   return (
     <>

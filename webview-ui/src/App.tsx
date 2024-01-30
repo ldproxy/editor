@@ -118,10 +118,19 @@ function App() {
       // need to use updater since dataProcessing is bound on first render
       setDataProcessing((prev) => {
         if (prev === "" || prev === "inProgress") {
+          if (DEV) {
+            console.log("setDataProcessing, Case1", prev);
+          }
           return "analyzed";
         }
         if (prev === "inProgressGenerating") {
+          if (DEV) {
+            console.log("setDataProcessing, Case2", prev);
+          }
           return "generated";
+        }
+        if (DEV) {
+          console.log("setDataProcessing, Case3", prev);
         }
         return prev;
       });
@@ -157,6 +166,9 @@ function App() {
 
   const analyze = (connectionInfo: Object) => {
     setError({});
+    if (DEV) {
+      console.log("setDataProcessing, CaseAnalyze");
+    }
     setDataProcessing("inProgress");
 
     xtracfg.send({
@@ -191,6 +203,9 @@ function App() {
     }
 
     setError({});
+    if (DEV) {
+      console.log("setDataProcessing, CaseGenerate");
+    }
     setTimeout(() => {
       setDataProcessing("inProgressGenerating");
     }, 100);

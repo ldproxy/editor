@@ -65,7 +65,7 @@ function getAllYamlPaths(
         object.value.items[0].value.items &&
         object.value.items[0].value.items[0]
       ) {
-        // Hier wird der erste Teild des Pfades (z.B. api) gebaut:
+        // Hier wird der erste Teil des Pfades (z.B. api) gebaut:
         const path: string = currentPath
           ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
           : object.key.source.replace(/\./g, "/");
