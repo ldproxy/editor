@@ -146,6 +146,8 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
               console.log("How many times?");
             }
             submitData(gpkgData);
+            setNewGPKG("");
+            setExistingGPKG(filename);
             hasSubmittedDataRef.current = true;
           }
         }
