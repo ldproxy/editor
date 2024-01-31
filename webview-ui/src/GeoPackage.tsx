@@ -257,7 +257,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           {gpkgIsUploading && (
             <div className="progress-container">
               <VSCodeProgressRing className="progressRing" />
-              <span id="progressText">GeoPackage is being uploaded...</span>
+              <span id="progressText">Uploading {filename}...</span>
             </div>
           )}
         </div>
@@ -283,7 +283,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       {gpkgIsSaving ? (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
-          <span id="progressText">GeoPackage is being saved...</span>
+          <span id="progressText">Saving {filename}...</span>
         </div>
       ) : inProgress ? (
         <div className="progress-container">
