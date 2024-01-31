@@ -24,6 +24,7 @@ let specifiedDefs: { ref: string; finalPath: string }[];
 let uniqueDefs: any;
 
 export const updateValueCompletions: DocUpdate = async function (
+  event,
   document,
   docUri,
   docHash,

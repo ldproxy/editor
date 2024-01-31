@@ -16,7 +16,13 @@ let yamlKeysHover: AllYamlKeys;
 let specifiedDefs: { ref: string; finalPath: string }[];
 let definitionsMap: DefinitionsMap = {};
 
-export const updateHover: DocUpdate = async function (document, docUri, docHash, newAllYamlKeys) {
+export const updateHover: DocUpdate = async function (
+  event,
+  document,
+  docUri,
+  docHash,
+  newAllYamlKeys
+) {
   yamlKeysHover = newAllYamlKeys;
   const schema = await getSchema();
   const text = document.getText();
