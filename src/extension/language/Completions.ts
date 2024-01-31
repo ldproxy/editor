@@ -14,6 +14,7 @@ let definitionsMap: DefinitionsMap = {};
 let specifiedDefs: { ref: string; finalPath: string }[];
 
 export const updateCompletions: DocUpdate = async function (
+  event,
   document,
   docUri,
   docHash,
