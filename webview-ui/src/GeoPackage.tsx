@@ -4,7 +4,7 @@ import { useRecoilState, selector, useRecoilValue } from "recoil";
 
 import { BasicData } from "./utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString } from "./utilities/recoilSyncWrapper";
+import { atomSyncBoolean, atomSyncString } from "./utilities/recoilSyncWrapper";
 import { vscode } from "./utilities/vscode";
 import { DEV } from "./utilities/constants";
 import { useRef } from "react";
@@ -20,6 +20,8 @@ export const filenameAtom = atomSyncString("filename", "");
 export const stateOfGpkgToUploadAtom = atomSyncString("stateOfGpkgToUpload", "");
 
 export const base64StringAtom = atomSyncString("base64String", "");
+
+export const gpkgIsUploadingAtom = atomSyncBoolean("gpkgIsUploading", false);
 
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",
@@ -68,6 +70,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     useRecoilState<string>(stateOfGpkgToUploadAtom);
   const [base64String, setBase64String] = useRecoilState<string>(base64StringAtom);
   const hasSubmittedDataRef = useRef(false);
+  const [gpkgIsUploading, setGpkgIsUploading] = useRecoilState<boolean>(gpkgIsUploadingAtom);
 
   useEffect(() => {
     if (newGPKG !== "") {
@@ -85,6 +88,10 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   }, []);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGpkgIsUploading(true);
+    if (DEV) {
+      console.log("isUploading", gpkgIsUploading);
+    }
     const file = e.target.files?.[0];
     if (file) {
       if (DEV) {
@@ -92,12 +99,17 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       }
       setFilename(file.name);
       setNewGPKG(file.name);
+      setBase64String("");
 
       file.arrayBuffer().then((buffer: ArrayBuffer) => {
         const uint8Array = new Uint8Array(buffer);
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
         setBase64String(base64String);
+        setGpkgIsUploading(false);
+        if (DEV) {
+          console.log("isUploading2", gpkgIsUploading);
+        }
       });
     }
   };
@@ -224,15 +236,23 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             Upload new File
           </label>
         )}
-        <input
-          id={"geoInput"}
-          type="file"
-          onChange={(event) => onFileChange(event)}
-          accept=".gpkg"
-          multiple={false}
-          disabled={inProgress || !!existingGPKG}
-        />
-        {filename !== "" && <span id="GpkgName">{filename}</span>}
+        <div>
+          <input
+            id={"geoInput"}
+            type="file"
+            onChange={(event) => onFileChange(event)}
+            accept=".gpkg"
+            multiple={false}
+            disabled={inProgress || !!existingGPKG}
+          />
+          {gpkgIsUploading && (
+            <div className="progress-container">
+              <VSCodeProgressRing className="progressRing" />
+              <span id="progressText">GeoPackage is being uploaded...</span>
+            </div>
+          )}
+        </div>
+        {filename !== "" && !gpkgIsUploading && <span id="GpkgName">{filename}</span>}
         <div className="submitAndReset">
           {existingGPKG || newGPKG || filename !== "" ? (
             <VSCodeButton className="resetButton" disabled={inProgress} onClick={handleReset}>
