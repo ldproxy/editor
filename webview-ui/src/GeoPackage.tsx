@@ -141,19 +141,32 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           if (DEV) {
             console.log(uploadedGpkg);
           }
-          if (gpkgData.database !== "" && !hasSubmittedDataRef.current) {
-            if (DEV) {
-              console.log("How many times?");
-            }
-            submitData(gpkgData);
-            setNewGPKG("");
-            setExistingGPKG(filename);
-            hasSubmittedDataRef.current = true;
-          }
+          handleUploaded();
         }
         break;
     }
   });
+
+  const handleUploaded = () => {
+    if (gpkgData.database !== "" && !hasSubmittedDataRef.current) {
+      if (DEV) {
+        console.log("How many times?");
+      }
+      setExistingGPKG(filename);
+      setNewGPKG("");
+      setFilename("");
+      setStateOfGpkgToUpload("");
+      setBase64String("");
+      hasSubmittedDataRef.current = true;
+
+      const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
+      submitData(gpkgData);
+    }
+  };
 
   const handleReset = () => {
     setExistingGPKG("");
@@ -162,11 +175,13 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     setStateOfGpkgToUpload("");
     setCurrentlySelectedGPKG("");
     setBase64String("");
+    hasSubmittedDataRef.current = false;
     const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
     if (fileInput) {
       fileInput.value = "";
     }
   };
+
   if (DEV) {
     console.log("inProgressGPKG", inProgress);
   }
@@ -193,6 +208,11 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
                 {option}
               </option>
             ))}
+          {existingGPKG !== "" && !existingGeopackages.includes(existingGPKG) && (
+            <option key={existingGPKG} value={existingGPKG}>
+              {existingGPKG}
+            </option>
+          )}
         </select>
         <span>or</span>
         {!existingGPKG && !inProgress ? (
