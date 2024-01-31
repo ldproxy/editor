@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
@@ -75,6 +75,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const hasSubmittedDataRef = useRef(false);
   const [gpkgIsUploading, setGpkgIsUploading] = useRecoilState<boolean>(gpkgIsUploadingAtom);
   const [gpkgIsSaving, setGpkgIsSaving] = useRecoilState<boolean>(gpkgIsSavingAtom);
+  const [fileReader, setFileReader] = useState<FileReader | null>(null);
 
   useEffect(() => {
     if (newGPKG !== "") {
@@ -104,17 +105,20 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       setFilename(file.name);
       setNewGPKG(file.name);
       setBase64String("");
-
-      file.arrayBuffer().then((buffer: ArrayBuffer) => {
-        const uint8Array = new Uint8Array(buffer);
+      const reader = new FileReader();
+      setFileReader(reader);
+      reader.onloadend = () => {
+        const uint8Array = new Uint8Array(reader.result as ArrayBuffer);
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
         setBase64String(base64String);
         setGpkgIsUploading(false);
         if (DEV) {
+          console.log("base64String", base64String);
           console.log("isUploading2", gpkgIsUploading);
         }
-      });
+      };
+      reader.readAsArrayBuffer(file);
     }
   };
 
@@ -203,6 +207,25 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     }
   };
 
+  const onCancel = () => {
+    if (gpkgIsUploading && fileReader) {
+      fileReader.abort();
+      setGpkgIsUploading(false);
+
+      setExistingGPKG("");
+      setNewGPKG("");
+      setFilename("");
+      setStateOfGpkgToUpload("");
+      setCurrentlySelectedGPKG("");
+      setBase64String("");
+      hasSubmittedDataRef.current = false;
+      const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
+      if (fileInput) {
+        fileInput.value = "";
+      }
+    }
+  };
+
   if (DEV) {
     console.log("inProgressGPKG", inProgress);
   }
@@ -263,7 +286,11 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         </div>
         {filename !== "" && !gpkgIsUploading && <span id="GpkgName">{filename}</span>}
         <div className="submitAndReset">
-          {existingGPKG || newGPKG || filename !== "" ? (
+          {gpkgIsUploading ? (
+            <VSCodeButton className="resetButton" onClick={onCancel}>
+              Cancel
+            </VSCodeButton>
+          ) : existingGPKG || newGPKG || filename !== "" ? (
             <VSCodeButton className="resetButton" disabled={inProgress} onClick={handleReset}>
               Reset
             </VSCodeButton>
