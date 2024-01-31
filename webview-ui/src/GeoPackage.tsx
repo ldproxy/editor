@@ -8,6 +8,7 @@ import { atomSyncBoolean, atomSyncString } from "./utilities/recoilSyncWrapper";
 import { vscode } from "./utilities/vscode";
 import { DEV } from "./utilities/constants";
 import { useRef } from "react";
+import { set } from "@recoiljs/refine";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
 
@@ -22,6 +23,8 @@ export const stateOfGpkgToUploadAtom = atomSyncString("stateOfGpkgToUpload", "")
 export const base64StringAtom = atomSyncString("base64String", "");
 
 export const gpkgIsUploadingAtom = atomSyncBoolean("gpkgIsUploading", false);
+
+export const gpkgIsSavingAtom = atomSyncBoolean("gpkgIsSaved", false);
 
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",
@@ -71,6 +74,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const [base64String, setBase64String] = useRecoilState<string>(base64StringAtom);
   const hasSubmittedDataRef = useRef(false);
   const [gpkgIsUploading, setGpkgIsUploading] = useRecoilState<boolean>(gpkgIsUploadingAtom);
+  const [gpkgIsSaving, setGpkgIsSaving] = useRecoilState<boolean>(gpkgIsSavingAtom);
 
   useEffect(() => {
     if (newGPKG !== "") {
@@ -116,7 +120,9 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
 
   const submitGeoPackage = () => {
     if (existingGPKG === "") {
+      setGpkgIsSaving(true);
       if (DEV) {
+        console.log("gpkgIsSaving", gpkgIsSaving);
         console.log("SubmitexistingGPKG", existingGPKG);
         console.log("Submitfilename", filename);
       }
@@ -175,7 +181,10 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       if (fileInput) {
         fileInput.value = "";
       }
-
+      setGpkgIsSaving(false);
+      if (DEV) {
+        console.log("gpkgIsSaving2", gpkgIsSaving);
+      }
       submitData(gpkgData);
     }
   };
@@ -271,12 +280,17 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           </VSCodeButton>
         </div>
       </div>
-      {inProgress && (
+      {gpkgIsSaving ? (
+        <div className="progress-container">
+          <VSCodeProgressRing className="progressRing" />
+          <span id="progressText">GeoPackage is being saved...</span>
+        </div>
+      ) : inProgress ? (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Data is being processed...</span>
         </div>
-      )}
+      ) : null}
     </>
   );
 }
