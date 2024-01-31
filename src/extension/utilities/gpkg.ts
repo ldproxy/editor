@@ -1,6 +1,11 @@
 import * as path from "path";
 import * as vscode from "vscode";
 
+let cancel = false;
+export const setCancel = () => {
+  cancel = true;
+};
+
 /**
  * @returns all .gpkg files in a given directory and its subdirectories
  */
@@ -43,32 +48,64 @@ async function readAllFilesInDirectory(directoryUri: any) {
 }
 
 export async function uploadedGpkg(gpkgToUpload: any, filename: string) {
-  const binaryString = atob(gpkgToUpload);
-
-  const uint8Array = new Uint8Array(binaryString.length);
-
-  for (let i = 0; i < binaryString.length; i++) {
-    uint8Array[i] = binaryString.charCodeAt(i);
-  }
-
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-
-  if (workspaceFolders && workspaceFolders[0]) {
-    const directoryUri = vscode.Uri.joinPath(workspaceFolders[0].uri, "resources/features");
-
-    const filePath = vscode.Uri.joinPath(directoryUri, filename);
-
-    try {
-      await vscode.workspace.fs.createDirectory(directoryUri);
-      try {
-        await vscode.workspace.fs.stat(filePath);
-        return `Geopackage already exists.`;
-      } catch {
-        await vscode.workspace.fs.writeFile(filePath, uint8Array);
-        return `Datei erfolgreich geschrieben: ${filePath.fsPath}`;
+  const cancelPromise = new Promise((resolve, reject) => {
+    const intervalId = setInterval(() => {
+      if (cancel) {
+        clearInterval(intervalId);
+        reject(new Error("Operation was cancelled"));
       }
-    } catch (error) {
-      return `Error uploading Geopackage. ${error}`;
+    }, 2000);
+  });
+
+  const uploadPromise = (async () => {
+    const binaryString = atob(gpkgToUpload);
+
+    const uint8Array = new Uint8Array(binaryString.length);
+
+    for (let i = 0; i < binaryString.length; i++) {
+      uint8Array[i] = binaryString.charCodeAt(i);
     }
+
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+
+    if (workspaceFolders && workspaceFolders[0]) {
+      const directoryUri = vscode.Uri.joinPath(workspaceFolders[0].uri, "resources/features");
+
+      const filePath = vscode.Uri.joinPath(directoryUri, filename);
+
+      try {
+        await vscode.workspace.fs.createDirectory(directoryUri);
+        try {
+          await vscode.workspace.fs.stat(filePath);
+          return `Geopackage already exists.`;
+        } catch {
+          if (cancel) {
+            return;
+          }
+          await vscode.workspace.fs.writeFile(filePath, uint8Array);
+          return `Datei erfolgreich geschrieben: ${filePath.fsPath}`;
+        }
+      } catch (error) {
+        return `Error uploading Geopackage. ${error}`;
+      }
+    }
+  })();
+
+  try {
+    const result = await Promise.race([uploadPromise, cancelPromise]);
+    if (cancel) {
+      const directoryUri = vscode.Uri.joinPath(
+        vscode.workspace.workspaceFolders
+          ? vscode.workspace.workspaceFolders[0].uri
+          : vscode.Uri.file(""),
+        "resources/features"
+      );
+      const filePath = vscode.Uri.joinPath(directoryUri, filename);
+      await vscode.workspace.fs.delete(filePath);
+      await vscode.workspace.fs.delete(directoryUri, { recursive: true });
+    }
+    return result;
+  } finally {
+    cancel = false;
   }
 }

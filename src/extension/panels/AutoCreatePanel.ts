@@ -10,8 +10,7 @@ import {
 } from "vscode";
 import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
-import { listGpkgFilesInDirectory } from "../utilities/gpkg";
-import { uploadedGpkg } from "../utilities/gpkg";
+import { listGpkgFilesInDirectory, uploadedGpkg, setCancel } from "../utilities/gpkg";
 import * as vscode from "vscode";
 import { newXtracfg } from "../utilities/xtracfg";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
@@ -225,6 +224,9 @@ export class AutoCreatePanel {
               command: "uploadedGpkg",
               uploadedGpkg: await uploadedGpkg(text[0], text[1]),
             });
+            break;
+          case "cancelSavingGpkg":
+            setCancel();
             break;
           case "xtracfg":
             if (message.request) {
