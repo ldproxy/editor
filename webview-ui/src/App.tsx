@@ -108,6 +108,10 @@ function App() {
     const details = response.details || {};
 
     if (isSuccess) {
+      vscode.postMessage({
+        command: "setExistingGpkg",
+        text: "setExistingGpkg",
+      });
       if (details.types) {
         setAllTables(details.types);
       }
