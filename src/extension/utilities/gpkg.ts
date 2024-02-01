@@ -101,8 +101,15 @@ export async function uploadedGpkg(gpkgToUpload: any, filename: string) {
         "resources/features"
       );
       const filePath = vscode.Uri.joinPath(directoryUri, filename);
-      await vscode.workspace.fs.delete(filePath);
-      await vscode.workspace.fs.delete(directoryUri, { recursive: true });
+      if (filePath) {
+        try {
+          await vscode.workspace.fs.stat(filePath);
+          await vscode.workspace.fs.delete(filePath);
+          //  await vscode.workspace.fs.delete(directoryUri, { recursive: true });
+        } catch (error) {
+          console.log(`File not created yet: ${filePath}`);
+        }
+      }
     }
     return result;
   } finally {

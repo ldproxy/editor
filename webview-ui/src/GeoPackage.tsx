@@ -85,15 +85,16 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       setCurrentlySelectedGPKG(existingGPKG);
     }
   }, [existingGPKG, newGPKG]);
-
+  /*
   useEffect(() => {
     return () => {
       hasSubmittedDataRef.current = false;
     };
   }, []);
-
+*/
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGpkgIsUploading(true);
+    setBase64String("");
     if (DEV) {
       console.log("isUploading", gpkgIsUploading);
     }
@@ -104,7 +105,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       }
       setFilename(file.name);
       setNewGPKG(file.name);
-      setBase64String("");
+      setFileReader(null);
       const reader = new FileReader();
       setFileReader(reader);
       reader.onloadend = () => {
@@ -113,10 +114,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         const base64String = btoa(charArray.join(""));
         setBase64String(base64String);
         setGpkgIsUploading(false);
-        if (DEV) {
-          console.log("base64String", base64String);
-          console.log("isUploading2", gpkgIsUploading);
-        }
+        console.log("btoa(charArray", btoa(charArray.join("")));
       };
       reader.readAsArrayBuffer(file);
     }
@@ -129,8 +127,16 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         console.log("gpkgIsSaving", gpkgIsSaving);
         console.log("SubmitexistingGPKG", existingGPKG);
         console.log("Submitfilename", filename);
+        console.log("hasSubmittedDataRef", hasSubmittedDataRef.current);
+        console.log("currentlySelectedGPKG", currentlySelectedGPKG);
       }
       if (filename !== "") {
+        if (DEV) {
+          console.log("base64String", base64String);
+          console.log("isUploading2", gpkgIsUploading);
+          console.log("newGPKG", newGPKG);
+          console.log("filename", filename);
+        }
         vscode.postMessage({
           command: "uploadGpkg",
           text: [base64String, filename],
@@ -170,7 +176,10 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   });
 
   const handleUploaded = () => {
-    if (gpkgData.database !== "" && !hasSubmittedDataRef.current) {
+    if (
+      gpkgData.database !== "" &&
+      gpkgData.database === filename /*&& !hasSubmittedDataRef.current*/
+    ) {
       if (DEV) {
         console.log("How many times?");
       }
@@ -179,7 +188,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       setFilename("");
       setStateOfGpkgToUpload("");
       setBase64String("");
-      hasSubmittedDataRef.current = true;
+      //  hasSubmittedDataRef.current = true;
 
       const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
       if (fileInput) {
@@ -190,11 +199,13 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         console.log("gpkgIsSaving2", gpkgIsSaving);
       }
       submitData(gpkgData);
+      setFileReader(null);
     }
   };
 
   const handleReset = () => {
     setExistingGPKG("");
+    setFileReader(null);
     setNewGPKG("");
     setFilename("");
     setStateOfGpkgToUpload("");
@@ -213,6 +224,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       setGpkgIsUploading(false);
 
       setExistingGPKG("");
+      setFileReader(null);
       setNewGPKG("");
       setFilename("");
       setStateOfGpkgToUpload("");
@@ -232,6 +244,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     });
 
     setGpkgIsUploading(false);
+    setFileReader(null);
     setExistingGPKG("");
     setNewGPKG("");
     setFilename("");
@@ -311,7 +324,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
               Cancel
             </VSCodeButton>
           ) : gpkgIsSaving ? (
-            <VSCodeButton className="resetButton" onClick={onCancelSaving}>
+            <VSCodeButton className="resetButton" disabled={inProgress} onClick={onCancelSaving}>
               Cancel
             </VSCodeButton>
           ) : existingGPKG || newGPKG || filename !== "" ? (
