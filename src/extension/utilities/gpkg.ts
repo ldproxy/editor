@@ -48,6 +48,8 @@ async function readAllFilesInDirectory(directoryUri: any) {
 }
 
 export async function uploadedGpkg(gpkgToUpload: any, filename: string) {
+  cancel = false;
+
   const cancelPromise = new Promise((resolve, reject) => {
     const intervalId = setInterval(() => {
       if (cancel) {

@@ -160,14 +160,16 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         const uploadedGpkg = message.uploadedGpkg;
         setStateOfGpkgToUpload(uploadedGpkg);
 
-        if (!uploadedGpkg.includes("Datei erfolgreich geschrieben:")) {
+        if (uploadedGpkg !== "" && !uploadedGpkg.includes("Datei erfolgreich geschrieben:")) {
+          console.log("Datei nicht erfolgreich", uploadedGpkg);
           vscode.postMessage({
             command: "error",
             text: uploadedGpkg,
           });
+          onCancelSaving();
         } else {
           if (DEV) {
-            console.log(uploadedGpkg);
+            console.log("uploadedGpkg", uploadedGpkg);
           }
           handleUploaded();
         }
@@ -337,7 +339,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             onClick={submitGeoPackage}
             disabled={
               inProgress ||
-              stateOfGpkgToUpload.includes("Fehler beim Schreiben der Datei") ||
+              stateOfGpkgToUpload === "Fehler beim Schreiben der Datei" ||
               (!existingGPKG && base64String === "")
             }>
             Next
