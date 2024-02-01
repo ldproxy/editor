@@ -216,7 +216,7 @@ export class AutoCreatePanel {
           case "success":
             if (workspaceUri) {
               const fileUri = workspaceUri.with({ path: text });
-              await vscode.commands.executeCommand("vscode.open", fileUri);
+              await vscode.commands.executeCommand("vscode.open", fileUri, { preview: false });
             }
             break;
           case "uploadGpkg":

@@ -287,11 +287,6 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
                 {option}
               </option>
             ))}
-          {/*existingGPKG !== "" && !existingGeopackages.includes(existingGPKG) && (
-            <option key={existingGPKG} value={existingGPKG}>
-              {existingGPKG}
-            </option>
-          )*/}
         </select>
         <span>or</span>
         {!existingGPKG && !inProgress ? (
