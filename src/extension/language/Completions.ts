@@ -45,7 +45,12 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
-    const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
+    const text = document.getText();
+    const lines = text.split("\n");
+    const currentLine = lines[line - 1];
+    const pathAtCursor = currentLine.includes(":")
+      ? undefined
+      : getPathAtCursor(allYamlKeys, line, column);
     const currentStartOfArray = allYamlKeys.find(
       (item) => item.lineOfPath === line - 1
     )?.startOfArray;
@@ -63,7 +68,12 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
           if (obj["ref"] !== "") {
             const title = obj.title;
             const value = obj.ref;
-            if (title !== undefined && value !== undefined && pathAtCursor.endsWith(title)) {
+            if (
+              title !== undefined &&
+              value !== undefined &&
+              pathAtCursor !== undefined &&
+              pathAtCursor.endsWith(title)
+            ) {
               for (const key2 in definitionsMap) {
                 if (definitionsMap.hasOwnProperty(key2)) {
                   const obj2 = definitionsMap[key2];
@@ -123,7 +133,12 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
-    const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
+    const text = document.getText();
+    const lines = text.split("\n");
+    const currentLine = lines[line - 1];
+    const pathAtCursor = currentLine.includes(":")
+      ? undefined
+      : getPathAtCursor(allYamlKeys, line, column);
     const completions: vscode.CompletionItem[] = [];
     const uniqueDefs = removeDuplicates(specifiedDefs);
     if (DEV) {
@@ -159,6 +174,7 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
 
       if (
         !specifiedDefsPath.includes("[") &&
+        pathAtCursor !== undefined &&
         pathAtCursor === specifiedDefsPath &&
         definitionsMap
       ) {
@@ -244,7 +260,12 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     const line = position.line + 1;
     const column = position.character;
     const uniqueDefs = removeDuplicates(specifiedDefs);
-    const pathAtCursor = getPathAtCursor(allYamlKeys, line, column);
+    const text = document.getText();
+    const lines = text.split("\n");
+    const currentLine = lines[line - 1];
+    const pathAtCursor = currentLine.includes(":")
+      ? undefined
+      : getPathAtCursor(allYamlKeys, line, column);
     if (DEV) {
       console.log("allYamlKeysProvider3: ", allYamlKeys);
       console.log("pathAtCursorProvider3: " + pathAtCursor);
@@ -264,6 +285,7 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
             if (
               title !== undefined &&
               value !== undefined &&
+              pathAtCursor !== undefined &&
               new RegExp(`${title}\\.\\w*$`).test(pathAtCursor) // Is cursor at a point where there is a key with an addRef 2 lines before?
             ) {
               let arrayIndex: number | undefined = -1;

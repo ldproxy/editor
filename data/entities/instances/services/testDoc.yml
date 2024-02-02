@@ -3,7 +3,3 @@ serviceType: OGC_API
 collections:
   building:
     id: building
-collections:
-  building:
-    api:
-      - buildingBlock: QUERYABLES
