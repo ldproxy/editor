@@ -45,16 +45,28 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
+
+    // When a few letters of the key are already typed when hitting auto completion
+    const textBeforeCursor: string = document
+      .lineAt(position.line)
+      .text.substring(0, position.character);
+    const lineText: string = document.lineAt(position.line).text;
+    const indentation: number = lineText.search(/\S|$/);
+
     const text = document.getText();
     const lines = text.split("\n");
     const currentLine = lines[line - 1];
     const pathAtCursor = currentLine.includes(":")
       ? undefined
+      : textBeforeCursor.trim() !== ""
+      ? getPathAtCursor(allYamlKeys, line - 1, indentation)
       : getPathAtCursor(allYamlKeys, line, column);
+
     const currentStartOfArray = allYamlKeys.find(
       (item) => item.lineOfPath === line - 1
     )?.startOfArray;
     if (DEV) {
+      console.log("textBeforeCursor1", textBeforeCursor, indentation);
       console.log("pathAtCursor: " + pathAtCursor);
       console.log("definitionsMapCompletions", definitionsMap);
       console.log("currentArrayIndex: " + currentStartOfArray);
@@ -109,10 +121,22 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                       if (obj2.description !== "") {
                         completion.documentation = new vscode.MarkdownString(obj2.description);
                       }
+                      let filterExistingCharacters = false;
+                      if (textBeforeCursor.trim() !== "") {
+                        filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
+                        if (DEV) {
+                          console.log("fEC", filterExistingCharacters);
+                        }
+                      } else {
+                        filterExistingCharacters = true;
+                      }
                       const existing = refCompletions.find(
                         (existingComp) => existingComp.label === finalValue
                       );
-                      if (existing === undefined) {
+                      if (filterExistingCharacters && existing === undefined) {
+                        if (DEV) {
+                          console.log("completion1", finalValue);
+                        }
                         refCompletions.push(completion);
                       }
                     }
@@ -133,18 +157,30 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const line = position.line + 1;
     const column = position.character;
+
+    // When a few letters of the key are already typed when hitting auto completion
+    const textBeforeCursor: string = document
+      .lineAt(position.line)
+      .text.substring(0, position.character);
+    const lineText: string = document.lineAt(position.line).text;
+    const indentation: number = lineText.search(/\S|$/);
+
     const text = document.getText();
     const lines = text.split("\n");
     const currentLine = lines[line - 1];
     const pathAtCursor = currentLine.includes(":")
       ? undefined
+      : textBeforeCursor.trim() !== ""
+      ? getPathAtCursor(allYamlKeys, line - 1, indentation)
       : getPathAtCursor(allYamlKeys, line, column);
+
     const completions: vscode.CompletionItem[] = [];
     const uniqueDefs = removeDuplicates(specifiedDefs);
     if (DEV) {
       console.log("allYamlKeysInProvider2: ", allYamlKeys);
       console.log("pathAtCursorInProvider2: " + pathAtCursor);
       console.log("uniqueDefsInProvider2", uniqueDefs);
+      console.log("textBeforeCursor2", textBeforeCursor, indentation);
     }
 
     uniqueDefs.forEach((defObj) => {
@@ -193,12 +229,28 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                 })
               ) {
                 const completion = new vscode.CompletionItem(value);
+                let filterExistingCharacters;
+                if (textBeforeCursor.trim() !== "") {
+                  filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
+                } else {
+                  filterExistingCharacters = true;
+                }
+                if (DEV) {
+                  console.log("existingCharacters", filterExistingCharacters);
+                  console.log("valueInProvider", value);
+                  console.log("testEC", value.startsWith(textBeforeCursor));
+                }
                 completion.insertText = `${value}: `;
                 completion.kind = vscode.CompletionItemKind.Method;
                 if (obj.description !== "") {
                   completion.documentation = new vscode.MarkdownString(obj.description);
                 }
-                completions.push(completion);
+                if (filterExistingCharacters) {
+                  if (DEV) {
+                    console.log("completion21", value);
+                  }
+                  completions.push(completion);
+                }
               }
             }
           }
@@ -210,7 +262,7 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
         maxLine !== undefined &&
         line < maxLine &&
         definitionsMap &&
-        column === columnOfArray
+        (indentation === columnOfArray || column === columnOfArray)
       ) {
         if (DEV) {
           console.log("columnOfArray", columnOfArray);
@@ -241,7 +293,21 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                   completion.documentation = new vscode.MarkdownString(obj.description);
                 }
                 const existing = completions.find((existingComp) => existingComp.label === value);
-                if (existing === undefined) {
+                let filterExistingCharacters;
+                if (textBeforeCursor.trim() !== "") {
+                  filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
+                } else {
+                  filterExistingCharacters = true;
+                }
+                if (DEV) {
+                  console.log("existingCharacters", filterExistingCharacters);
+                  console.log("valueInProvider", value);
+                  console.log("testEC", value.startsWith(textBeforeCursor));
+                }
+                if (filterExistingCharacters && existing === undefined) {
+                  if (DEV) {
+                    console.log("completion22", value);
+                  }
                   completions.push(completion);
                 }
               }
@@ -260,15 +326,26 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     const line = position.line + 1;
     const column = position.character;
     const uniqueDefs = removeDuplicates(specifiedDefs);
+
+    // When a few letters of the key are already typed when hitting auto completion
+    const textBeforeCursor: string = document
+      .lineAt(position.line)
+      .text.substring(0, position.character);
+    const lineText: string = document.lineAt(position.line).text;
+    const indentation: number = lineText.search(/\S|$/);
+
     const text = document.getText();
     const lines = text.split("\n");
     const currentLine = lines[line - 1];
     const pathAtCursor = currentLine.includes(":")
       ? undefined
+      : textBeforeCursor.trim() !== ""
+      ? getPathAtCursor(allYamlKeys, line - 1, indentation)
       : getPathAtCursor(allYamlKeys, line, column);
+
     if (DEV) {
-      console.log("allYamlKeysProvider3: ", allYamlKeys);
-      console.log("pathAtCursorProvider3: " + pathAtCursor);
+      console.log("pathAtCursorInProvider3: " + pathAtCursor);
+      console.log("textBeforeCursor3", textBeforeCursor, indentation);
     }
 
     if (Object.keys(definitionsMap).length > 0) {
@@ -384,10 +461,20 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     if (obj2.description !== "") {
                       completion.documentation = new vscode.MarkdownString(obj2.description);
                     }
+                    let filterExistingCharacters;
+                    if (textBeforeCursor.trim() !== "") {
+                      filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
+                    } else {
+                      filterExistingCharacters = true;
+                    }
+
                     const existing = refCompletions.find(
                       (existingComp) => existingComp.label === finalValue
                     );
-                    if (existing === undefined) {
+                    if (filterExistingCharacters && existing === undefined) {
+                      if (DEV) {
+                        console.log("completion3", value);
+                      }
                       refCompletions.push(completion);
                     }
                   }
@@ -470,3 +557,7 @@ export function getPathAtCursor(
     return "";
   }
 }
+
+// Wenn textBeforeCursor existiert, muss in getPathAtCursor nicht von der Einrückung des Cursors, sondern
+// ersten Buchstaben des Wortes ausgegangen werden. AUßerdem muss line - 1 gerechnet werden.
+// Also einfach andere parameter reingeben.
