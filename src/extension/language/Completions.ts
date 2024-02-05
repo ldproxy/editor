@@ -108,7 +108,7 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                         } else if (key.hasOwnProperty("startOfArray")) {
                           return false;
                         } else {
-                          return key.path === `${title}.${finalValue}`;
+                          return key.path === `${pathAtCursor}.${finalValue}`;
                         }
                       })
                     ) {
@@ -188,7 +188,6 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       const path = defObj.finalPath;
       const pathSplit = path.split(".");
       const specifiedDefsPath = pathSplit.slice(0, -1).join(".");
-      const pathForArray = pathSplit.slice(0, -2).join(".");
       const arrayIndex = extractIndexFromPath(path);
       const minLine = getLinesForArrayIndex(
         allYamlKeys,
@@ -267,6 +266,7 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
         if (DEV) {
           console.log("columnOfArray", columnOfArray);
           console.log("speziu", specifiedDefsPath, pathAtCursor);
+          console.log("MyMinLine", minLine);
         }
 
         for (const key in definitionsMap) {
@@ -282,8 +282,8 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                 obj.deprecated !== true &&
                 allYamlKeys &&
                 !allYamlKeys.some((key) => {
-                  const fullPath = pathForArray ? `${pathForArray}.${value}` : value;
-                  return key.path === fullPath;
+                  const fullPath = pathAtCursor ? `${pathAtCursor}.${value}` : value;
+                  return key.path === fullPath && key.startOfArray === minLine;
                 })
               ) {
                 const completion = new vscode.CompletionItem(value);
@@ -451,9 +451,7 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     finalValue !== "" &&
                     obj2.deprecated !== true &&
                     allYamlKeys &&
-                    !allYamlKeys.some((key) =>
-                      new RegExp(`${title}\\.\\b\\w+\\b\\.${finalValue}`).test(key.path)
-                    )
+                    !allYamlKeys.some((key) => key.path === `${pathAtCursor}.${finalValue}`)
                   ) {
                     const completion = new vscode.CompletionItem(finalValue);
                     completion.insertText = `${finalValue}: `;
