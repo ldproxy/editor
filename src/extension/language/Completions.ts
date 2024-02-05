@@ -201,6 +201,7 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       .text.substring(0, position.character);
     const lineText: string = document.lineAt(position.line).text;
     const indentation: number = lineText.search(/\S|$/);
+    const textBeforeCursorLength: number = textBeforeCursor.trim().length;
 
     const text = document.getText();
     const lines = text.split("\n");
@@ -210,6 +211,14 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       : textBeforeCursor.trim() !== ""
       ? getPathAtCursor(allYamlKeys, line - 1, indentation)
       : getPathAtCursor(allYamlKeys, line, column);
+
+    // Only show Completions when the Cursor has exactly the correct indentation
+    const indentationUsedInYaml = getIndentation(document.getText());
+    const indentationOfpathAtCursor = indentationOfYamlObjectAboveCursor(
+      allYamlKeys,
+      line,
+      pathAtCursor
+    );
 
     const completions: vscode.CompletionItem[] = [];
     const uniqueDefs = removeDuplicates(specifiedDefs);
@@ -250,42 +259,50 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
         pathAtCursor === specifiedDefsPath &&
         definitionsMap
       ) {
-        for (const key in definitionsMap) {
-          if (definitionsMap.hasOwnProperty(key)) {
-            const obj = definitionsMap[key];
-            if (obj.groupname === ref) {
-              const value = obj.title;
-              if (
-                value !== undefined &&
-                obj.deprecated !== true &&
-                allYamlKeys &&
-                !allYamlKeys.some((key) => {
-                  const fullPath = specifiedDefsPath ? `${specifiedDefsPath}.${value}` : value;
-                  return key.path === fullPath;
-                })
-              ) {
-                const completion = new vscode.CompletionItem(value);
-                let filterExistingCharacters;
-                if (textBeforeCursor.trim() !== "") {
-                  filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
-                } else {
-                  filterExistingCharacters = true;
-                }
-                if (DEV) {
-                  console.log("existingCharacters", filterExistingCharacters);
-                  console.log("valueInProvider", value);
-                  console.log("testEC", value.startsWith(textBeforeCursor));
-                }
-                completion.insertText = `${value}: `;
-                completion.kind = vscode.CompletionItemKind.Method;
-                if (obj.description !== "") {
-                  completion.documentation = new vscode.MarkdownString(obj.description);
-                }
-                if (filterExistingCharacters) {
-                  if (DEV) {
-                    console.log("completion21", value);
+        /*  Explanation if statement: completions only when position of cursor equal to:
+      1. Non indented and no letters typed -> Just the standardIdentation (e.g. 2 again)
+      2. Same but with letters already typed, so plus the already typed letters */
+        if (
+          (textBeforeCursor.trim() === "" && column === 0) ||
+          (textBeforeCursor.trim() !== "" && column === textBeforeCursorLength)
+        ) {
+          for (const key in definitionsMap) {
+            if (definitionsMap.hasOwnProperty(key)) {
+              const obj = definitionsMap[key];
+              if (obj.groupname === ref) {
+                const value = obj.title;
+                if (
+                  value !== undefined &&
+                  obj.deprecated !== true &&
+                  allYamlKeys &&
+                  !allYamlKeys.some((key) => {
+                    const fullPath = specifiedDefsPath ? `${specifiedDefsPath}.${value}` : value;
+                    return key.path === fullPath;
+                  })
+                ) {
+                  const completion = new vscode.CompletionItem(value);
+                  let filterExistingCharacters;
+                  if (textBeforeCursor.trim() !== "") {
+                    filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
+                  } else {
+                    filterExistingCharacters = true;
                   }
-                  completions.push(completion);
+                  if (DEV) {
+                    console.log("existingCharacters", filterExistingCharacters);
+                    console.log("valueInProvider", value);
+                    console.log("testEC", value.startsWith(textBeforeCursor));
+                  }
+                  completion.insertText = `${value}: `;
+                  completion.kind = vscode.CompletionItemKind.Method;
+                  if (obj.description !== "") {
+                    completion.documentation = new vscode.MarkdownString(obj.description);
+                  }
+                  if (filterExistingCharacters) {
+                    if (DEV) {
+                      console.log("completion21", value);
+                    }
+                    completions.push(completion);
+                  }
                 }
               }
             }
@@ -300,52 +317,64 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
         definitionsMap &&
         (indentation === columnOfArray || column === columnOfArray)
       ) {
-        if (DEV) {
-          console.log("columnOfArray", columnOfArray);
-          console.log("speziu", specifiedDefsPath, pathAtCursor);
-          console.log("MyMinLine", minLine);
-        }
+        if (
+          (pathAtCursor &&
+            pathAtCursor.trim() !== "" &&
+            textBeforeCursor.trim() === "" &&
+            column === indentationOfpathAtCursor + indentationUsedInYaml * 2) ||
+          (pathAtCursor &&
+            pathAtCursor.trim() !== "" &&
+            textBeforeCursor.trim() !== "" &&
+            column ===
+              indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength)
+        ) {
+          if (DEV) {
+            console.log("columnOfArray", columnOfArray);
+            console.log("speziu", specifiedDefsPath, pathAtCursor);
+            console.log("MyMinLine", minLine);
+          }
 
-        for (const key in definitionsMap) {
-          if (definitionsMap.hasOwnProperty(key)) {
-            const obj = definitionsMap[key];
-            if (obj.groupname === ref) {
-              if (DEV) {
-                console.log("refProvider2", ref);
-              }
-              const value = obj.title;
-              if (
-                value !== undefined &&
-                obj.deprecated !== true &&
-                allYamlKeys &&
-                !allYamlKeys.some((key) => {
-                  const fullPath = pathAtCursor ? `${pathAtCursor}.${value}` : value;
-                  return key.path === fullPath && key.startOfArray === minLine;
-                })
-              ) {
-                const completion = new vscode.CompletionItem(value);
-                completion.insertText = `${value}: `;
-                completion.kind = vscode.CompletionItemKind.Method;
-                if (obj.description !== "") {
-                  completion.documentation = new vscode.MarkdownString(obj.description);
-                }
-                const existing = completions.find((existingComp) => existingComp.label === value);
-                let filterExistingCharacters;
-                if (textBeforeCursor.trim() !== "") {
-                  filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
-                } else {
-                  filterExistingCharacters = true;
-                }
+          for (const key in definitionsMap) {
+            if (definitionsMap.hasOwnProperty(key)) {
+              const obj = definitionsMap[key];
+              if (obj.groupname === ref) {
                 if (DEV) {
-                  console.log("existingCharacters", filterExistingCharacters);
-                  console.log("valueInProvider", value);
-                  console.log("testEC", value.startsWith(textBeforeCursor));
+                  console.log("refProvider2", ref);
                 }
-                if (filterExistingCharacters && existing === undefined) {
-                  if (DEV) {
-                    console.log("completion22", value);
+                const value = obj.title;
+                if (
+                  value !== undefined &&
+                  obj.deprecated !== true &&
+                  allYamlKeys &&
+                  !allYamlKeys.some((key) => {
+                    const fullPath = pathAtCursor ? `${pathAtCursor}.${value}` : value;
+                    return key.path === fullPath && key.startOfArray === minLine;
+                  })
+                ) {
+                  const completion = new vscode.CompletionItem(value);
+                  completion.insertText = `${value}: `;
+                  completion.kind = vscode.CompletionItemKind.Method;
+                  if (obj.description !== "") {
+                    completion.documentation = new vscode.MarkdownString(obj.description);
                   }
-                  completions.push(completion);
+                  const existing = completions.find((existingComp) => existingComp.label === value);
+                  let filterExistingCharacters;
+                  if (textBeforeCursor.trim() !== "") {
+                    filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
+                  } else {
+                    filterExistingCharacters = true;
+                  }
+                  if (DEV) {
+                    console.log("existingCharacters", filterExistingCharacters);
+                    console.log("valueInProvider", value);
+                    console.log("testEC", value.startsWith(textBeforeCursor));
+                  }
+                  if (filterExistingCharacters && existing === undefined) {
+                    if (DEV) {
+                      console.log("completion22", value);
+                    }
+                    completions.push(completion);
+                  }
                 }
               }
             }
