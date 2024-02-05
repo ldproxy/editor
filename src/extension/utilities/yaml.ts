@@ -404,3 +404,47 @@ export function hashText(text?: string): string {
 
   return "";
 }
+
+export function getIndentation(yamlString: string) {
+  const lines = yamlString.split("\n");
+  for (let line of lines) {
+    const match = line.match(/^(\s+)\S/);
+    if (match) {
+      return match[1].length;
+    }
+  }
+  return 2; // Default to 2 if no indentation is found yet
+}
+
+export function indentationOfYamlObjectAboveCursor(
+  allYamlKeys: {
+    path: string;
+    index: number;
+    lineOfPath: number | undefined;
+    startOfArray?: number;
+    arrayIndex?: number;
+  }[],
+  line: number,
+  pathAtCursor: string | undefined
+) {
+  let myItem:
+    | {
+        path: string;
+        index: number;
+        lineOfPath: number | undefined;
+        startOfArray?: number;
+        arrayIndex?: number;
+      }
+    | undefined = undefined;
+  console.log("line", line);
+  while (!myItem && line > 0) {
+    myItem = allYamlKeys.find((item) => item.lineOfPath === line - 1 && item.path === pathAtCursor);
+    line--;
+  }
+  let indentationOfPropertyAbove = 0;
+  if (myItem) {
+    indentationOfPropertyAbove = myItem.index;
+  }
+
+  return indentationOfPropertyAbove;
+}

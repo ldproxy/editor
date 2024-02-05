@@ -1,8 +1,13 @@
 import * as vscode from "vscode";
 import { extractDocRefs } from "../utilities/refs";
-import { extractIndexFromPath } from "../utilities/yaml";
-import { getMaxLine, AllYamlKeys } from "../utilities/yaml";
-import { getLinesForArrayIndex } from "../utilities/yaml";
+import {
+  extractIndexFromPath,
+  getIndentation,
+  getMaxLine,
+  AllYamlKeys,
+  getLinesForArrayIndex,
+  indentationOfYamlObjectAboveCursor,
+} from "../utilities/yaml";
 import { getDefinitionsMap, DefinitionsMap } from "../utilities/defs";
 import { removeDuplicates } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
@@ -52,6 +57,7 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       .text.substring(0, position.character);
     const lineText: string = document.lineAt(position.line).text;
     const indentation: number = lineText.search(/\S|$/);
+    const textBeforeCursorLength: number = textBeforeCursor.trim().length;
 
     const text = document.getText();
     const lines = text.split("\n");
@@ -61,6 +67,17 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       : textBeforeCursor.trim() !== ""
       ? getPathAtCursor(allYamlKeys, line - 1, indentation)
       : getPathAtCursor(allYamlKeys, line, column);
+
+    // Only show Completions when the Cursor has exactly the correct indentation
+    const indentationUsedInYaml = getIndentation(document.getText());
+    const indentationOfpathAtCursor = indentationOfYamlObjectAboveCursor(
+      allYamlKeys,
+      line,
+      pathAtCursor
+    );
+    if (DEV) {
+      console.log("indentationUsedInYaml", indentationUsedInYaml, indentationOfpathAtCursor);
+    }
 
     const currentStartOfArray = allYamlKeys.find(
       (item) => item.lineOfPath === line - 1
@@ -72,72 +89,92 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       console.log("currentArrayIndex: " + currentStartOfArray);
     }
 
-    if (Object.keys(definitionsMap).length > 0) {
-      const refCompletions: vscode.CompletionItem[] = [];
-      for (const key in definitionsMap) {
-        if (definitionsMap.hasOwnProperty(key)) {
-          const obj = definitionsMap[key];
-          if (obj["ref"] !== "") {
-            const title = obj.title;
-            const value = obj.ref;
-            if (
-              title !== undefined &&
-              value !== undefined &&
-              pathAtCursor !== undefined &&
-              pathAtCursor.endsWith(title)
-            ) {
-              for (const key2 in definitionsMap) {
-                if (definitionsMap.hasOwnProperty(key2)) {
-                  const obj2 = definitionsMap[key2];
-                  if (obj2.groupname === value) {
-                    const finalValue = obj2.title;
-                    if (DEV) {
-                      console.log("allYamlKeys: ", allYamlKeys);
-                    }
-                    if (
-                      finalValue !== undefined &&
-                      obj2.deprecated !== true &&
-                      allYamlKeys &&
-                      !allYamlKeys.some((key) => {
-                        if (
-                          key.hasOwnProperty("startOfArray") &&
-                          key.startOfArray === currentStartOfArray &&
-                          key.path.includes(`${title}.${finalValue}`)
-                        ) {
-                          return true;
-                        } else if (key.hasOwnProperty("startOfArray")) {
-                          return false;
-                        } else {
-                          return key.path === `${pathAtCursor}.${finalValue}`;
-                        }
-                      })
-                    ) {
+    /* Summary if-statement: only show completions when 
+    1. there are no characters in the line typed yet, it's an Array, and the Cursor is e.g. 4 places more indented than the start of the property with the ref (in the case of standardYamlIndentation = 2) 
+    2. Same case if we are not in an Array. -> 2 indentations less.
+    3. Certain characters of key already typed, Array, Cursor has to be 4 places more indented than the start of the property with the ref (in the case of standardYamlIndentation = 2) + the length of the characters already typed.
+    4. Same case if we are not in an Array. -> 2 indentations less than in example above.
+    */
+    if (
+      (textBeforeCursor.trim() === "" &&
+        currentStartOfArray &&
+        column === indentationOfpathAtCursor + indentationUsedInYaml * 2) ||
+      (textBeforeCursor.trim() === "" &&
+        column === indentationOfpathAtCursor + indentationUsedInYaml) ||
+      (textBeforeCursor.trim() !== "" &&
+        currentStartOfArray &&
+        column ===
+          indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength) ||
+      (textBeforeCursor.trim() !== "" &&
+        column === indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength)
+    ) {
+      if (Object.keys(definitionsMap).length > 0) {
+        const refCompletions: vscode.CompletionItem[] = [];
+        for (const key in definitionsMap) {
+          if (definitionsMap.hasOwnProperty(key)) {
+            const obj = definitionsMap[key];
+            if (obj["ref"] !== "") {
+              const title = obj.title;
+              const value = obj.ref;
+              if (
+                title !== undefined &&
+                value !== undefined &&
+                pathAtCursor !== undefined &&
+                pathAtCursor.endsWith(title)
+              ) {
+                for (const key2 in definitionsMap) {
+                  if (definitionsMap.hasOwnProperty(key2)) {
+                    const obj2 = definitionsMap[key2];
+                    if (obj2.groupname === value) {
+                      const finalValue = obj2.title;
                       if (DEV) {
-                        console.log("refCompletionsinCompletions", refCompletions);
+                        console.log("allYamlKeys: ", allYamlKeys);
                       }
-                      const completion = new vscode.CompletionItem(finalValue);
-                      completion.insertText = `${finalValue}: `;
-                      completion.kind = vscode.CompletionItemKind.Method;
-                      if (obj2.description !== "") {
-                        completion.documentation = new vscode.MarkdownString(obj2.description);
-                      }
-                      let filterExistingCharacters = false;
-                      if (textBeforeCursor.trim() !== "") {
-                        filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
+                      if (
+                        finalValue !== undefined &&
+                        obj2.deprecated !== true &&
+                        allYamlKeys &&
+                        !allYamlKeys.some((key) => {
+                          if (
+                            key.hasOwnProperty("startOfArray") &&
+                            key.startOfArray === currentStartOfArray &&
+                            key.path.includes(`${title}.${finalValue}`)
+                          ) {
+                            return true;
+                          } else if (key.hasOwnProperty("startOfArray")) {
+                            return false;
+                          } else {
+                            return key.path === `${pathAtCursor}.${finalValue}`;
+                          }
+                        })
+                      ) {
                         if (DEV) {
-                          console.log("fEC", filterExistingCharacters);
+                          console.log("refCompletionsinCompletions", refCompletions);
                         }
-                      } else {
-                        filterExistingCharacters = true;
-                      }
-                      const existing = refCompletions.find(
-                        (existingComp) => existingComp.label === finalValue
-                      );
-                      if (filterExistingCharacters && existing === undefined) {
-                        if (DEV) {
-                          console.log("completion1", finalValue);
+                        const completion = new vscode.CompletionItem(finalValue);
+                        completion.insertText = `${finalValue}: `;
+                        completion.kind = vscode.CompletionItemKind.Method;
+                        if (obj2.description !== "") {
+                          completion.documentation = new vscode.MarkdownString(obj2.description);
                         }
-                        refCompletions.push(completion);
+                        let filterExistingCharacters = false;
+                        if (textBeforeCursor.trim() !== "") {
+                          filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
+                          if (DEV) {
+                            console.log("fEC", filterExistingCharacters);
+                          }
+                        } else {
+                          filterExistingCharacters = true;
+                        }
+                        const existing = refCompletions.find(
+                          (existingComp) => existingComp.label === finalValue
+                        );
+                        if (filterExistingCharacters && existing === undefined) {
+                          if (DEV) {
+                            console.log("completion1", finalValue);
+                          }
+                          refCompletions.push(completion);
+                        }
                       }
                     }
                   }
@@ -146,8 +183,8 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
             }
           }
         }
+        return refCompletions;
       }
-      return refCompletions;
     }
   },
 };
@@ -333,6 +370,7 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       .text.substring(0, position.character);
     const lineText: string = document.lineAt(position.line).text;
     const indentation: number = lineText.search(/\S|$/);
+    const textBeforeCursorLength: number = textBeforeCursor.trim().length;
 
     const text = document.getText();
     const lines = text.split("\n");
@@ -342,6 +380,14 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       : textBeforeCursor.trim() !== ""
       ? getPathAtCursor(allYamlKeys, line - 1, indentation)
       : getPathAtCursor(allYamlKeys, line, column);
+
+    // Only show Completions when the Cursor has exactly the correct indentation
+    const indentationUsedInYaml = getIndentation(document.getText());
+    const indentationOfpathAtCursor = indentationOfYamlObjectAboveCursor(
+      allYamlKeys,
+      line,
+      pathAtCursor
+    );
 
     if (DEV) {
       console.log("pathAtCursorInProvider3: " + pathAtCursor);
@@ -391,7 +437,7 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                   break;
                 }
               }
-              // From here till line 325 only for case addRef in ARRAY
+              // Next 33 lines only for case addRef in ARRAY
               // Why is that necessary (potentially hypothetical example): the key "transformations" in buildingBlock: GLTF has another addRef as the property "transfomations" in "CollectionsConfiguration" (buildingBlock: COLLECTIONS). Hence it is important to know, in which ref the key "transformations" is in.
               if (foundObj && foundObj.arrayIndex && foundObj.path) {
                 arrayIndex = foundObj.arrayIndex;
@@ -425,55 +471,78 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                 });
               }
               // here we push all keys as completions, which have the same groupname as the addRef in question
-              for (const key2 in definitionsMap) {
-                if (definitionsMap.hasOwnProperty(key2)) {
-                  const obj2 = definitionsMap[key2];
+              // For explanation of if statement see Provider1
+              if (
+                (textBeforeCursor.trim() === "" &&
+                  arrayIndex !== -1 &&
+                  column === indentationOfpathAtCursor + indentationUsedInYaml * 2) ||
+                (textBeforeCursor.trim() === "" &&
+                  column === indentationOfpathAtCursor + indentationUsedInYaml) ||
+                (textBeforeCursor.trim() !== "" &&
+                  arrayIndex !== -1 &&
+                  column ===
+                    indentationOfpathAtCursor +
+                      indentationUsedInYaml * 2 +
+                      textBeforeCursorLength) ||
+                (textBeforeCursor.trim() !== "" &&
+                  column ===
+                    indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength)
+              ) {
+                for (const key2 in definitionsMap) {
+                  if (definitionsMap.hasOwnProperty(key2)) {
+                    const obj2 = definitionsMap[key2];
 
-                  let finalValue: string = "";
-                  // case Array
-                  if (
-                    addRefOfObjInArray !== "" &&
-                    addRefOfObjInArray !== undefined &&
-                    obj2.groupname === addRefOfObjInArray &&
-                    obj2.title
-                  ) {
-                    if (DEV) {
-                      console.log("addRefOfObjInArray: ", addRefOfObjInArray);
-                    }
-                    finalValue = obj2.title;
-                  } else if (arrayIndex === -1 && obj2 && obj2.title && obj2.groupname === value) {
-                    finalValue = obj2.title;
-                  }
-                  if (DEV) {
-                    console.log("finalValue: ", finalValue);
-                  }
-                  if (
-                    finalValue !== "" &&
-                    obj2.deprecated !== true &&
-                    allYamlKeys &&
-                    !allYamlKeys.some((key) => key.path === `${pathAtCursor}.${finalValue}`)
-                  ) {
-                    const completion = new vscode.CompletionItem(finalValue);
-                    completion.insertText = `${finalValue}: `;
-                    completion.kind = vscode.CompletionItemKind.Method;
-                    if (obj2.description !== "") {
-                      completion.documentation = new vscode.MarkdownString(obj2.description);
-                    }
-                    let filterExistingCharacters;
-                    if (textBeforeCursor.trim() !== "") {
-                      filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
-                    } else {
-                      filterExistingCharacters = true;
-                    }
-
-                    const existing = refCompletions.find(
-                      (existingComp) => existingComp.label === finalValue
-                    );
-                    if (filterExistingCharacters && existing === undefined) {
+                    let finalValue: string = "";
+                    // case Array
+                    if (
+                      addRefOfObjInArray !== "" &&
+                      addRefOfObjInArray !== undefined &&
+                      obj2.groupname === addRefOfObjInArray &&
+                      obj2.title
+                    ) {
                       if (DEV) {
-                        console.log("completion3", value);
+                        console.log("addRefOfObjInArray: ", addRefOfObjInArray);
                       }
-                      refCompletions.push(completion);
+                      finalValue = obj2.title;
+                    } else if (
+                      arrayIndex === -1 &&
+                      obj2 &&
+                      obj2.title &&
+                      obj2.groupname === value
+                    ) {
+                      finalValue = obj2.title;
+                    }
+                    if (DEV) {
+                      console.log("finalValue: ", finalValue);
+                    }
+                    if (
+                      finalValue !== "" &&
+                      obj2.deprecated !== true &&
+                      allYamlKeys &&
+                      !allYamlKeys.some((key) => key.path === `${pathAtCursor}.${finalValue}`)
+                    ) {
+                      const completion = new vscode.CompletionItem(finalValue);
+                      completion.insertText = `${finalValue}: `;
+                      completion.kind = vscode.CompletionItemKind.Method;
+                      if (obj2.description !== "") {
+                        completion.documentation = new vscode.MarkdownString(obj2.description);
+                      }
+                      let filterExistingCharacters;
+                      if (textBeforeCursor.trim() !== "") {
+                        filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
+                      } else {
+                        filterExistingCharacters = true;
+                      }
+
+                      const existing = refCompletions.find(
+                        (existingComp) => existingComp.label === finalValue
+                      );
+                      if (filterExistingCharacters && existing === undefined) {
+                        if (DEV) {
+                          console.log("completion3", value);
+                        }
+                        refCompletions.push(completion);
+                      }
                     }
                   }
                 }
