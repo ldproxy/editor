@@ -113,21 +113,20 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
         const base64String = btoa(charArray.join(""));
         setBase64String(base64String);
-        setGpkgIsUploading(false);
-        console.log("btoa(charArray", btoa(charArray.join("")));
+        postUploadMessage(btoa(charArray.join("")), file.name);
       };
       reader.readAsArrayBuffer(file);
     }
   };
 
-  const submitGeoPackage = () => {
-    if (existingGPKG === "") {
+  const postUploadMessage = (base64String: string, filename: string) => {
+    setGpkgIsUploading(false);
+
+    if (existingGPKG === "" && gpkgIsUploading === false) {
       setGpkgIsSaving(true);
       if (DEV) {
         console.log("gpkgIsSaving", gpkgIsSaving);
         console.log("SubmitexistingGPKG", existingGPKG);
-        console.log("Submitfilename", filename);
-        console.log("hasSubmittedDataRef", hasSubmittedDataRef.current);
         console.log("currentlySelectedGPKG", currentlySelectedGPKG);
       }
       if (filename !== "") {
@@ -142,12 +141,6 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           text: [base64String, filename],
         });
       }
-    } else if (newGPKG === "" /*&& existingGPKG !== ""*/) {
-      if (DEV) {
-        console.log("SubmitexistingGPKG2", existingGPKG);
-        console.log("SubmitnewGPKG", newGPKG);
-      }
-      submitData(gpkgData);
     }
   };
 
@@ -192,14 +185,31 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       setBase64String("");
       //  hasSubmittedDataRef.current = true;
 
+      vscode.postMessage({
+        command: "setExistingGpkg",
+        text: "setExistingGpkg",
+      });
+      setGpkgIsSaving(false);
+      if (DEV) {
+        console.log("gpkgIsSaving2", gpkgIsSaving);
+        console.log("existingGPKG", existingGPKG);
+      }
+    }
+  };
+
+  const submitGeoPackage = () => {
+    if (newGPKG === "" /*&& existingGPKG !== ""*/) {
+      if (DEV) {
+        console.log("SubmitexistingGPKG2", existingGPKG);
+        console.log("SubmitnewGPKG", newGPKG);
+      }
+      submitData(gpkgData);
+    } else if (existingGPKG === "" && gpkgIsSaving === false) {
       const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
       if (fileInput) {
         fileInput.value = "";
       }
-      setGpkgIsSaving(false);
-      if (DEV) {
-        console.log("gpkgIsSaving2", gpkgIsSaving);
-      }
+
       submitData(gpkgData);
       setFileReader(null);
     }
@@ -289,7 +299,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             ))}
         </select>
         <span>or</span>
-        {!existingGPKG && !inProgress ? (
+        {!existingGPKG && !inProgress && !gpkgIsUploading && !gpkgIsSaving ? (
           <label htmlFor="geoInput" className="vscode-button">
             Upload new File
           </label>
@@ -305,16 +315,20 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             onChange={(event) => onFileChange(event)}
             accept=".gpkg"
             multiple={false}
-            disabled={inProgress || !!existingGPKG}
+            disabled={inProgress || !!existingGPKG || gpkgIsUploading || gpkgIsSaving}
           />
-          {gpkgIsUploading && (
+          {gpkgIsUploading ? (
             <div className="progress-container">
               <VSCodeProgressRing className="progressRing" />
               <span id="progressText">Uploading {filename}...</span>
             </div>
-          )}
+          ) : gpkgIsSaving ? (
+            <div className="progress-container">
+              <VSCodeProgressRing className="progressRing" />
+              <span id="progressText">Saving {filename}...</span>
+            </div>
+          ) : null}
         </div>
-        {filename !== "" && !gpkgIsUploading && <span id="GpkgName">{filename}</span>}
         <div className="submitAndReset">
           {gpkgIsUploading ? (
             <VSCodeButton className="resetButton" onClick={onCancelUpload}>
@@ -341,12 +355,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           </VSCodeButton>
         </div>
       </div>
-      {gpkgIsSaving ? (
-        <div className="progress-container">
-          <VSCodeProgressRing className="progressRing" />
-          <span id="progressText">Saving {filename}...</span>
-        </div>
-      ) : inProgress ? (
+      {inProgress ? (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Data is being processed...</span>

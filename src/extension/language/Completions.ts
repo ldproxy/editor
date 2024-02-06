@@ -317,6 +317,7 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
         definitionsMap &&
         (indentation === columnOfArray || column === columnOfArray)
       ) {
+        // For explanation of if-statement see Provider1
         if (
           (pathAtCursor &&
             pathAtCursor.trim() !== "" &&
