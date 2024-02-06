@@ -140,6 +140,8 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           command: "uploadGpkg",
           text: [base64String, filename],
         });
+      } else {
+        onCancelSaving();
       }
     }
   };
@@ -190,10 +192,16 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         text: "setExistingGpkg",
       });
       setGpkgIsSaving(false);
+      vscode.postMessage({
+        command: "geoPackageWasUploaded",
+        text: "GPKG was saved in store...",
+      });
       if (DEV) {
         console.log("gpkgIsSaving2", gpkgIsSaving);
         console.log("existingGPKG", existingGPKG);
       }
+    } else {
+      onCancelSaving();
     }
   };
 

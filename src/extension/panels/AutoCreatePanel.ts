@@ -233,6 +233,9 @@ export class AutoCreatePanel {
               xtracfg.send(JSON.parse(message.request));
             }
             break;
+          case "geoPackageWasUploaded":
+            window.showInformationMessage(text);
+            break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
         }
