@@ -278,21 +278,28 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       fileInput.value = "";
     }
   };
-  console.log("myExisting", existingGPKG);
-  window.addEventListener("message", (event) => {
-    const message = event.data;
-    const deletedGpkg = event.data.deletedGpkg;
-    const deletedGpkgName = deletedGpkg.split("\\").pop();
 
-    switch (message.command) {
-      case "selectedGeoPackageDeleted":
-        console.log("deletedGpkg", deletedGpkgName, existingGPKG);
-        if (existingGPKG !== "" && deletedGpkgName === existingGPKG) {
-          handleReset();
-        }
-        break;
-    }
-  });
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+      const deletedGpkg = event.data.deletedGpkg;
+      const deletedGpkgName = deletedGpkg.split("\\").pop();
+
+      switch (message.command) {
+        case "selectedGeoPackageDeleted":
+          if (existingGPKG !== "" && deletedGpkgName === existingGPKG) {
+            handleReset();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [existingGPKG]);
 
   if (DEV) {
     console.log("inProgressGPKG", inProgress);
