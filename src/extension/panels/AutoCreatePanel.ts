@@ -16,6 +16,14 @@ import { newXtracfg } from "../utilities/xtracfg";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
 import { Registration } from "../utilities/registration";
 
+const workspaceFolders = vscode.workspace.workspaceFolders;
+if (!workspaceFolders) {
+  throw new Error("No workspace folder...");
+}
+const watcher = vscode.workspace.createFileSystemWatcher(
+  new vscode.RelativePattern(workspaceFolders[0], "resources/features/**")
+);
+
 const workspaceUri = getWorkspaceUri();
 const xtracfg = newXtracfg();
 
@@ -62,6 +70,18 @@ export class AutoCreatePanel {
 
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
+
+    watcher.onDidDelete(async (e) => {
+      this._panel.webview.postMessage({
+        command: "setGeopackages",
+        existingGeopackages: await listGpkgFilesInDirectory(),
+      });
+      this._panel.webview.postMessage({
+        command: "selectedGeoPackageDeleted",
+        deletedGpkg: e.fsPath,
+      });
+    });
+    this._disposables.push(watcher);
 
     xtracfg.listen(
       (response) => {
