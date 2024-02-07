@@ -1,14 +1,14 @@
 ---
 serviceType: OGC_API
+cdc
 collections:
+  dcdcdc
   building:
+    dcdcdc
     id: building
-api:
-  - buildingBlock: CRS
-    enabled: true
-    additionalCrs:
-      - code: 5555
-  - buildingBlock: COLLECTIONS
-    additionalLinks:
-      - rel: decribedby
-        type: text/html
+
+
+
+       
+
+

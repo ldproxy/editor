@@ -66,12 +66,24 @@ function getAllYamlPaths(
         object.value.items[0].value.items[0]
       ) {
         // Hier wird der erste Teil des Pfades (z.B. api) gebaut:
-        const path: string = currentPath
-          ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
-          : object.key.source.replace(/\./g, "/");
-        const line: number = getLineNumber(document, object.key.offset);
+
+        const originalNewPath: string = object.key.source.replace(/\./g, "/");
+        let newPath: string = originalNewPath;
+        let path: string = originalNewPath;
+        let line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
         if (line !== undefined && column !== undefined) {
+          // If there are illegitimate keys above our key (key without colon), then these aren't taken into account:
+          let lineIncrease = 0;
+          if (originalNewPath.includes("\n")) {
+            const lines = originalNewPath.split("\n");
+            lineIncrease = lines.length - 1;
+            newPath = lines.pop()!.trim();
+          }
+          line += lineIncrease;
+
+          path = currentPath ? `${currentPath}.${newPath}` : newPath;
+
           const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
             if (DEVYAMLKEYS) {
@@ -107,13 +119,25 @@ function getAllYamlPaths(
                 if (DEVYAMLKEYS) {
                   console.log("object2", object2);
                 }
-                const path2: string = `${path}.${object2.key.source.replace(/\./g, "/")}`;
-                const line: number = getLineNumber(document, object2.key.offset);
-                if (DEVYAMLKEYS) {
-                  console.log("88", path2, line);
-                }
+
+                const originalNewPath: string = object2.key.source.replace(/\./g, "/");
+                let newPath: string = originalNewPath;
+                let line: number = getLineNumber(document, object2.key.offset);
+
                 const column: number = object2.key.indent;
                 if (line !== undefined && column !== undefined) {
+                  let lineIncrease = 0;
+                  if (originalNewPath.includes("\n")) {
+                    const lines = originalNewPath.split("\n");
+                    lineIncrease = lines.length - 1;
+                    newPath = lines.pop()!.trim();
+                  }
+                  line += lineIncrease;
+                  const path2: string = `${path}.${newPath}`;
+                  if (DEVYAMLKEYS) {
+                    console.log("88", path2, line);
+                  }
+
                   const existing = yamlKeys.find(
                     (item) => item.path === path2 && item.lineOfPath === line
                   );
@@ -154,15 +178,23 @@ function getAllYamlPaths(
         !object.value.source &&
         object.value.items[0]
       ) {
-        const path = currentPath
-          ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
-          : object.key.source.replace(/\./g, "/");
-        const line: number = getLineNumber(document, object.key.offset);
+        let originalNewPath = object.key.source.replace(/\./g, "/");
+        let newPath = originalNewPath;
+        let path: string = originalNewPath;
+        let line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
-        if (DEVYAMLKEYS) {
-          console.log("getKeysObject", path, line, arrayIndex, startOfArray);
-        }
+
         if (line !== undefined && column !== undefined) {
+          // If there are illegitimate keys above our key (key without colon), then these aren't taken into account:
+          let lineIncrease = 0;
+          if (originalNewPath.includes("\n")) {
+            const lines = originalNewPath.split("\n");
+            lineIncrease = lines.length - 1;
+            newPath = lines.pop().trim();
+          }
+          line += lineIncrease;
+          path = currentPath ? `${currentPath}.${newPath}` : newPath;
+
           const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
             if (arrayIndex >= 0 && startOfArray) {
@@ -187,10 +219,20 @@ function getAllYamlPaths(
           }
           if (item && item.key && item.key.source) {
             const keyWithoutDot = item.key.source.replace(/\./g, "/");
-            const path2 = `${path}.${keyWithoutDot}`;
-            const line: number = getLineNumber(document, item.key.offset);
+            let newPath: string = keyWithoutDot;
+            let path2: string = keyWithoutDot;
+            let line: number = getLineNumber(document, item.key.offset);
             const column: number = item.key.indent;
             if (line !== undefined && column !== undefined) {
+              let lineIncrease = 0;
+              if (keyWithoutDot.includes("\n")) {
+                const lines = keyWithoutDot.split("\n");
+                lineIncrease = lines.length - 1;
+                newPath = lines.pop()!.trim();
+              }
+              line += lineIncrease;
+              path2 = `${path}.${newPath}`;
+
               const existing = yamlKeys.find(
                 (item) => item.path === path2 && item.lineOfPath === line
               );
@@ -240,15 +282,25 @@ function getAllYamlPaths(
         if (DEVYAMLKEYS) {
           console.log("objectGetKeys", object);
         }
-        const path: string = currentPath
-          ? `${currentPath}.${object.key.source.replace(/\./g, "/")}`
-          : object.key.source.replace(/\./g, "/");
-        if (DEVYAMLKEYS) {
-          console.log("object.key", object.key);
-        }
-        const line: number = getLineNumber(document, object.key.offset);
+
+        const originalNewPath = object.key.source.replace(/\./g, "/");
+        let newPath: string = originalNewPath;
+
+        let line: number = getLineNumber(document, object.key.offset);
         const column: number = object.key.indent;
         if (line !== undefined && column !== undefined) {
+          let lineIncrease = 0;
+          if (originalNewPath.includes("\n")) {
+            const lines = originalNewPath.split("\n");
+            lineIncrease = lines.length - 1;
+            newPath = lines.pop()!.trim();
+          }
+          line += lineIncrease;
+          const path: string = currentPath ? `${currentPath}.${newPath}` : newPath;
+          if (DEVYAMLKEYS) {
+            console.log("object.key", object.key, currentPath, newPath);
+          }
+
           const existing = yamlKeys.find((item) => item.path === path && item.lineOfPath === line);
           if (!existing) {
             if (arrayIndex >= 0 && startOfArray) {
