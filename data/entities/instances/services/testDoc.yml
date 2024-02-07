@@ -1,14 +1,5 @@
 ---
 serviceType: OGC_API
-cdc
 collections:
-  dcdcdc
   building:
-    dcdcdc
     id: building
-
-
-
-       
-
-

@@ -83,7 +83,7 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       (item) => item.lineOfPath === line - 1
     )?.startOfArray;
     if (DEV) {
-      console.log("textBeforeCursor1", textBeforeCursor, indentation);
+      console.log("textBeforeCursor1", textBeforeCursor.trim(), indentation);
       console.log("pathAtCursor: " + pathAtCursor);
       console.log("definitionsMapCompletions", definitionsMap);
       console.log("currentArrayIndex: " + currentStartOfArray);
@@ -93,7 +93,9 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     1. there are no characters in the line typed yet, it's an Array, and the Cursor is e.g. 4 places more indented than the start of the property with the ref (in the case of standardYamlIndentation = 2) 
     2. Same case if we are not in an Array. -> 2 indentations less.
     3. Certain characters of key already typed, Array, Cursor has to be 4 places more indented than the start of the property with the ref (in the case of standardYamlIndentation = 2) + the length of the characters already typed.
-    4. Same case if we are not in an Array. -> 2 indentations less than in example above.
+    4. e.g. buildingBlock but only "-" typed yet (whitespace between hyphen and "b" has to be considered).
+    5. Same as Case 4 but some letters of e.g. buildingBlock already typed.
+    6. Same as case 3 if we are not in an Array. -> 2 indentations less than in example above.
     */
     if (
       (textBeforeCursor.trim() === "" &&
@@ -102,10 +104,20 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       (textBeforeCursor.trim() === "" &&
         column === indentationOfpathAtCursor + indentationUsedInYaml) ||
       (textBeforeCursor.trim() !== "" &&
+        !textBeforeCursor.trim().includes("-") &&
         currentStartOfArray &&
         column ===
           indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength) ||
       (textBeforeCursor.trim() !== "" &&
+        textBeforeCursor.trim() === "-" &&
+        column ===
+          indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength + 1) ||
+      (textBeforeCursor.trim() !== "" &&
+        textBeforeCursor.trim() !== "-" &&
+        textBeforeCursor.trim().includes("-") &&
+        column === indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength) ||
+      (textBeforeCursor.trim() !== "" &&
+        !textBeforeCursor.trim().includes("-") &&
         column === indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength)
     ) {
       if (Object.keys(definitionsMap).length > 0) {
@@ -159,7 +171,16 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                         }
                         let filterExistingCharacters = false;
                         if (textBeforeCursor.trim() !== "") {
-                          filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
+                          if (textBeforeCursor.trim().includes("-")) {
+                            const textWithoutHyphen = textBeforeCursor.trim().replace("-", "");
+                            filterExistingCharacters = finalValue.startsWith(
+                              textWithoutHyphen.trim()
+                            );
+                          } else {
+                            filterExistingCharacters = finalValue.startsWith(
+                              textBeforeCursor.trim()
+                            );
+                          }
                           if (DEV) {
                             console.log("fEC", filterExistingCharacters);
                           }
@@ -326,8 +347,17 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
           (pathAtCursor &&
             pathAtCursor.trim() !== "" &&
             textBeforeCursor.trim() !== "" &&
+            !textBeforeCursor.trim().includes("-") &&
             column ===
-              indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength)
+              indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength) ||
+          (textBeforeCursor.trim() !== "" &&
+            textBeforeCursor.trim() === "-" &&
+            column ===
+              indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength + 1) ||
+          (textBeforeCursor.trim() !== "" &&
+            textBeforeCursor.trim() !== "-" &&
+            textBeforeCursor.trim().includes("-") &&
+            column === indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength)
         ) {
           if (DEV) {
             console.log("columnOfArray", columnOfArray);
@@ -361,7 +391,12 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                   const existing = completions.find((existingComp) => existingComp.label === value);
                   let filterExistingCharacters;
                   if (textBeforeCursor.trim() !== "") {
-                    filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
+                    if (textBeforeCursor.trim().includes("-")) {
+                      const textWithoutHyphen = textBeforeCursor.trim().replace("-", "");
+                      filterExistingCharacters = value.startsWith(textWithoutHyphen.trim());
+                    } else {
+                      filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
+                    }
                   } else {
                     filterExistingCharacters = true;
                   }
@@ -509,12 +544,26 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                 (textBeforeCursor.trim() === "" &&
                   column === indentationOfpathAtCursor + indentationUsedInYaml) ||
                 (textBeforeCursor.trim() !== "" &&
+                  !textBeforeCursor.trim().includes("-") &&
                   arrayIndex !== -1 &&
                   column ===
                     indentationOfpathAtCursor +
                       indentationUsedInYaml * 2 +
                       textBeforeCursorLength) ||
                 (textBeforeCursor.trim() !== "" &&
+                  textBeforeCursor.trim() === "-" &&
+                  column ===
+                    indentationOfpathAtCursor +
+                      indentationUsedInYaml +
+                      textBeforeCursorLength +
+                      1) ||
+                (textBeforeCursor.trim() !== "" &&
+                  textBeforeCursor.trim() !== "-" &&
+                  textBeforeCursor.trim().includes("-") &&
+                  column ===
+                    indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength) ||
+                (textBeforeCursor.trim() !== "" &&
+                  !textBeforeCursor.trim().includes("-") &&
                   column ===
                     indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength)
               ) {
@@ -559,7 +608,14 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                       }
                       let filterExistingCharacters;
                       if (textBeforeCursor.trim() !== "") {
-                        filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
+                        if (textBeforeCursor.trim().includes("-")) {
+                          const textWithoutHyphen = textBeforeCursor.trim().replace("-", "");
+                          filterExistingCharacters = finalValue.startsWith(
+                            textWithoutHyphen.trim()
+                          );
+                        } else {
+                          filterExistingCharacters = finalValue.startsWith(textBeforeCursor.trim());
+                        }
                       } else {
                         filterExistingCharacters = true;
                       }
