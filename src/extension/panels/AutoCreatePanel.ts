@@ -20,7 +20,11 @@ const workspaceFolders = vscode.workspace.workspaceFolders;
 if (!workspaceFolders) {
   throw new Error("No workspace folder...");
 }
-const watcher = vscode.workspace.createFileSystemWatcher(
+const watcherOnDidDelete = vscode.workspace.createFileSystemWatcher(
+  new vscode.RelativePattern(workspaceFolders[0], "resources/features/**")
+);
+
+const watcherOnDidCreate = vscode.workspace.createFileSystemWatcher(
   new vscode.RelativePattern(workspaceFolders[0], "resources/features/**")
 );
 
@@ -71,7 +75,15 @@ export class AutoCreatePanel {
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
 
-    watcher.onDidDelete(async (e) => {
+    watcherOnDidCreate.onDidCreate(async (e) => {
+      this._panel.webview.postMessage({
+        command: "setGeopackages",
+        existingGeopackages: await listGpkgFilesInDirectory(),
+      });
+    });
+    this._disposables.push(watcherOnDidCreate);
+
+    watcherOnDidDelete.onDidDelete(async (e) => {
       this._panel.webview.postMessage({
         command: "setGeopackages",
         existingGeopackages: await listGpkgFilesInDirectory(),
@@ -81,7 +93,7 @@ export class AutoCreatePanel {
         deletedGpkg: e.fsPath,
       });
     });
-    this._disposables.push(watcher);
+    this._disposables.push(watcherOnDidDelete);
 
     xtracfg.listen(
       (response) => {
