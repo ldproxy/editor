@@ -254,7 +254,7 @@ export class AutoCreatePanel {
           case "uploadGpkg":
             this._panel.webview.postMessage({
               command: "uploadedGpkg",
-              uploadedGpkg: await uploadedGpkg(text[0], text[1]),
+              uploadedGpkg: await uploadedGpkg(text[0], text[1], text[2]),
             });
             break;
           case "cancelSavingGpkg":
