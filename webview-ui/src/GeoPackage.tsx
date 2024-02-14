@@ -1,12 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
 import { BasicData } from "./utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString } from "./utilities/recoilSyncWrapper";
+import {
+  atomSyncBoolean,
+  atomSyncNumber,
+  atomSyncString,
+  atomSyncStringArray,
+} from "./utilities/recoilSyncWrapper";
 import { vscode } from "./utilities/vscode";
-import { DEV } from "./utilities/constants";
+import { DEV, DEVGPKG } from "./utilities/constants";
+import { useRef } from "react";
+import { set } from "@recoiljs/refine";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
 
@@ -18,7 +25,9 @@ export const filenameAtom = atomSyncString("filename", "");
 
 export const stateOfGpkgToUploadAtom = atomSyncString("stateOfGpkgToUpload", "");
 
-export const base64StringAtom = atomSyncString("base64String", "");
+export const gpkgIsUploadingAtom = atomSyncBoolean("gpkgIsUploading", false);
+
+export const gpkgIsSavingAtom = atomSyncBoolean("gpkgIsSaved", false);
 
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",
@@ -33,6 +42,8 @@ export const gpkgDataSelector = selector({
     };
   },
 });
+
+export const filesizeAtom = atomSyncNumber("filesize", 0);
 
 export type GpkgData = BasicData & {
   database?: string;
@@ -65,7 +76,15 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const [filename, setFilename] = useRecoilState<string>(filenameAtom);
   const [stateOfGpkgToUpload, setStateOfGpkgToUpload] =
     useRecoilState<string>(stateOfGpkgToUploadAtom);
-  const [base64String, setBase64String] = useRecoilState<string>(base64StringAtom);
+  const hasSubmittedDataRef = useRef(false);
+  const [gpkgIsUploading, setGpkgIsUploading] = useRecoilState<boolean>(gpkgIsUploadingAtom);
+  const [gpkgIsSaving, setGpkgIsSaving] = useRecoilState<boolean>(gpkgIsSavingAtom);
+  const [fileReader, setFileReader] = useState<FileReader | null>(null);
+  const [filesize, setFilesize] = useRecoilState<number>(filesizeAtom);
+  const data = React.useRef(new Uint8Array());
+  const firstChunk = React.useRef(true);
+  const currentDataSize = React.useRef(0);
+  const overallDataSize = React.useRef(0);
 
   useEffect(() => {
     if (newGPKG !== "") {
@@ -75,75 +94,323 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       setCurrentlySelectedGPKG(existingGPKG);
     }
   }, [existingGPKG, newGPKG]);
+  /*
+  useEffect(() => {
+    return () => {
+      hasSubmittedDataRef.current = false;
+    };
+  }, []);
+*/
 
+  const writableStream = (fileName: string, fileSize: number) =>
+    new WritableStream({
+      write(chunk) {
+        if (overallDataSize.current > 0) {
+          firstChunk.current = false;
+        } else {
+          firstChunk.current = true;
+        }
+
+        // Convert the chunk to a Uint8Array and append it to the data
+        const uint8Array = new Uint8Array(chunk);
+        const tempData = new Uint8Array(data.current.length + uint8Array.length);
+        tempData.set(data.current);
+        tempData.set(uint8Array, data.current.length);
+        if (DEVGPKG) {
+          console.log("chunk", chunk, data.current.length, fileSize, uint8Array.length);
+        }
+
+        data.current = tempData;
+        const charArray = Array.from(data.current).map((charCode) => String.fromCharCode(charCode));
+        currentDataSize.current = data.current.length;
+        overallDataSize.current += uint8Array.length;
+
+        if (DEVGPKG) {
+          console.log("Größen", currentDataSize.current, overallDataSize.current, fileSize);
+        }
+
+        if (firstChunk.current) {
+          setFilename(fileName);
+          setNewGPKG(fileName);
+          setFilesize(fileSize);
+          if (DEVGPKG) {
+            console.log("WieOft?", btoa(charArray.join("")));
+          }
+          postUploadMessage(btoa(charArray.join("")), fileName);
+        } else if (currentDataSize.current > 1000000) {
+          if (DEVGPKG) {
+            console.log("appendTrue", btoa(charArray.join("")));
+          }
+          postUploadMessage(btoa(charArray.join("")), fileName, "appendTrue");
+          data.current = new Uint8Array();
+          currentDataSize.current = 0;
+        }
+      },
+      close() {
+        if (currentDataSize.current > 0) {
+          const charArray = Array.from(data.current).map((charCode) =>
+            String.fromCharCode(charCode)
+          );
+          postUploadMessage(btoa(charArray.join("")), fileName, "appendTrue");
+          if (DEVGPKG) {
+            console.log("close", btoa(charArray.join("")));
+          }
+        }
+        currentDataSize.current = 0;
+        if (DEVGPKG) {
+          console.log("close2");
+        }
+      },
+      abort(e) {
+        data.current = new Uint8Array();
+        firstChunk.current = true;
+        currentDataSize.current = 0;
+        overallDataSize.current = 0;
+        setFilesize(0);
+        onCancelSaving();
+        if (DEVGPKG) {
+          console.log("Aborted", e);
+        }
+      },
+      // base64String brauchen wir nicht mehr.
+      // In write schonmal immer nach einem Chunk data an das Backend schicken.
+      // Zusätzlich variable im write für aktuelle Größe. Und noch eine mit Gesamtfortschritt.
+      // Wenn bestimme Data Größe erreicht ist, data hier leeren.
+      // In Close dann message an den User, dass GPKG hochgeladen wurde.
+      // Im close dann nochmal prüfen, ob Zwischengröße === 0 ist. Wenn nicht dann nochmal postUploadMessage.
+    });
+
+  let fileStream;
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("onFileChange");
+    setGpkgIsUploading(true);
+
     const file = e.target.files?.[0];
     if (file) {
-      if (DEV) {
+      if (DEVGPKG) {
         console.log("GP", file);
       }
-      setFilename(file.name);
-      setNewGPKG(file.name);
 
-      file.arrayBuffer().then((buffer: ArrayBuffer) => {
-        const uint8Array = new Uint8Array(buffer);
-        const charArray = Array.from(uint8Array).map((charCode) => String.fromCharCode(charCode));
-        const base64String = btoa(charArray.join(""));
-        setBase64String(base64String);
+      // Pipe the file stream to the writable stream
+      fileStream = file.stream(); // Hier sollte sich Cancel aufrufen lassen. Oder nur im writeableStream?
+      fileStream.pipeTo(writableStream(file.name, file.size)).catch((error) => {
+        console.error("Error reading file:", error);
       });
     }
   };
 
-  const submitGeoPackage = () => {
-    if (existingGPKG === "") {
+  const postUploadMessage = (base64String: string, filename: string, action?: string) => {
+    setGpkgIsUploading(false);
+
+    if (existingGPKG === "" && gpkgIsUploading === false) {
+      setGpkgIsSaving(true);
+      if (DEVGPKG) {
+        console.log("gpkgIsSaving", gpkgIsSaving);
+        console.log("SubmitexistingGPKG", existingGPKG);
+        console.log("currentlySelectedGPKG", currentlySelectedGPKG);
+      }
       if (filename !== "") {
+        if (DEVGPKG) {
+          console.log("base64String", base64String);
+          console.log("isUploading2", gpkgIsUploading);
+          console.log("newGPKG", newGPKG);
+          console.log("filename", filename);
+          console.log("action?", action);
+        }
         vscode.postMessage({
           command: "uploadGpkg",
-          text: [base64String, filename],
+          text: [base64String, filename, action],
         });
+      } else {
+        console.log("aborting instead of saving");
+        onCancelSaving();
       }
-    } else if (newGPKG === "") {
-      submitData(gpkgData);
     }
   };
 
+  // Is called only in case of uploaded GeoPackage
   window.addEventListener("message", (event) => {
     const message = event.data;
+    if (DEVGPKG) {
+      console.log("overallDataSizeListener", overallDataSize.current);
+      console.log("fileSizeListener", filesize);
+    }
 
     switch (message.command) {
       case "uploadedGpkg":
         const uploadedGpkg = message.uploadedGpkg;
         setStateOfGpkgToUpload(uploadedGpkg);
 
-        if (!uploadedGpkg.includes("Datei erfolgreich geschrieben:")) {
+        if (
+          uploadedGpkg !== "" &&
+          !uploadedGpkg.includes("Datei erfolgreich geschrieben:") &&
+          !uploadedGpkg.includes("Datei erfolgreich erweitert:")
+        ) {
+          if (DEVGPKG) {
+            console.log("Datei nicht erfolgreich", uploadedGpkg);
+          }
           vscode.postMessage({
             command: "error",
             text: uploadedGpkg,
           });
-        } else {
-          if (DEV) {
-            console.log(uploadedGpkg);
+          onCancelSaving();
+        } else if (overallDataSize.current === filesize) {
+          if (DEVGPKG) {
+            console.log("uploadedGpkg", uploadedGpkg); // Warum wird das unenldich gelogged obwohl es tatsächlich wie gewollt nur 3 Nachrichten vom Backend gibt?
           }
-          if (gpkgData.database !== "") {
-            submitData(gpkgData);
-          }
+          handleUploaded();
         }
         break;
     }
   });
 
+  const handleUploaded = () => {
+    console.log("gpkgData.database", gpkgData.database);
+    console.log("filenamehandleUploaded", filename);
+
+    if (
+      gpkgData.database !== "" &&
+      gpkgData.database === filename /*&& !hasSubmittedDataRef.current*/
+    ) {
+      if (DEVGPKG) {
+        console.log("How many times?");
+      }
+      setExistingGPKG(filename);
+      setNewGPKG("");
+      setFilename("");
+      setStateOfGpkgToUpload("");
+      data.current = new Uint8Array();
+      firstChunk.current = true;
+      currentDataSize.current = 0;
+      overallDataSize.current = 0;
+      setFilesize(0);
+      //  hasSubmittedDataRef.current = true;
+
+      vscode.postMessage({
+        command: "setExistingGpkg",
+        text: "setExistingGpkg",
+      });
+      setGpkgIsSaving(false);
+      vscode.postMessage({
+        command: "geoPackageWasUploaded",
+        text: "GPKG was saved in store...",
+      });
+      if (DEVGPKG) {
+        console.log("gpkgIsSaving2", gpkgIsSaving);
+        console.log("existingGPKG", existingGPKG);
+      }
+    } else {
+      console.log("canceling instead of saving"); // passiert. CurrentlySelectedGpkg geht verloren irgendwann beim appenden. Liegt aber an keiner der Cancel Funktionen. Liegt an existing oder newGpkg und dem Useeffect.
+      onCancelSaving();
+      data.current = new Uint8Array();
+      firstChunk.current = true;
+      currentDataSize.current = 0;
+      overallDataSize.current = 0;
+      setFilesize(0);
+    }
+  };
+
+  const submitGeoPackage = () => {
+    if (newGPKG === "" /*&& existingGPKG !== ""*/) {
+      if (DEVGPKG) {
+        console.log("SubmitexistingGPKG2", existingGPKG);
+        console.log("SubmitnewGPKG", newGPKG);
+      }
+      submitData(gpkgData);
+    } else if (existingGPKG === "" && gpkgIsSaving === false) {
+      const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
+      submitData(gpkgData);
+      setFileReader(null);
+    }
+  };
+
   const handleReset = () => {
+    console.log("handleReset");
     setExistingGPKG("");
+    setFileReader(null);
     setNewGPKG("");
     setFilename("");
     setStateOfGpkgToUpload("");
     setCurrentlySelectedGPKG("");
-    setBase64String("");
+    hasSubmittedDataRef.current = false;
     const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
     if (fileInput) {
       fileInput.value = "";
     }
   };
+
+  const onCancelUpload = () => {
+    console.log("onCancelUpload");
+
+    if (gpkgIsUploading && fileReader) {
+      fileReader.abort();
+      setGpkgIsUploading(false);
+
+      setExistingGPKG("");
+      setFileReader(null);
+      setNewGPKG("");
+      setFilename("");
+      setStateOfGpkgToUpload("");
+      setCurrentlySelectedGPKG("");
+      hasSubmittedDataRef.current = false;
+      const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
+      if (fileInput) {
+        fileInput.value = "";
+      }
+    }
+  };
+
+  const onCancelSaving = () => {
+    console.log("onCancelSaving");
+
+    vscode.postMessage({
+      command: "cancelSavingGpkg",
+    });
+
+    setGpkgIsUploading(false);
+    setFileReader(null);
+    setExistingGPKG("");
+    setNewGPKG("");
+    setFilename("");
+    setStateOfGpkgToUpload("");
+    setCurrentlySelectedGPKG("");
+    setGpkgIsSaving(false);
+    hasSubmittedDataRef.current = false;
+    const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data;
+      const deletedGpkg = event.data.deletedGpkg;
+
+      switch (message.command) {
+        case "selectedGeoPackageDeleted":
+          const deletedGpkgName = deletedGpkg.split("\\").pop();
+          if (existingGPKG !== "" && deletedGpkgName === existingGPKG) {
+            handleReset();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [existingGPKG]);
+
+  if (DEVGPKG) {
+    console.log("inProgressGPKG", inProgress);
+  }
 
   return (
     <>
@@ -157,7 +424,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           onChange={(event) => {
             setExistingGPKG(event.target.value);
           }}
-          disabled={inProgress || !!newGPKG || base64String !== ""}>
+          disabled={inProgress || !!newGPKG}>
           <option value="" hidden>
             Choose existing File...
           </option>
@@ -169,7 +436,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             ))}
         </select>
         <span>or</span>
-        {!existingGPKG && !inProgress ? (
+        {!existingGPKG && !inProgress && !gpkgIsUploading && !gpkgIsSaving ? (
           <label htmlFor="geoInput" className="vscode-button">
             Upload new File
           </label>
@@ -178,17 +445,37 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             Upload new File
           </label>
         )}
-        <input
-          id={"geoInput"}
-          type="file"
-          onChange={(event) => onFileChange(event)}
-          accept=".gpkg"
-          multiple={false}
-          disabled={inProgress || !!existingGPKG}
-        />
-        {filename !== "" && <span id="GpkgName">{filename}</span>}
+        <div>
+          <input
+            id={"geoInput"}
+            type="file"
+            onChange={(event) => onFileChange(event)}
+            accept=".gpkg"
+            multiple={false}
+            disabled={inProgress || !!existingGPKG || gpkgIsUploading || gpkgIsSaving}
+          />
+          {gpkgIsUploading ? (
+            <div className="progress-container">
+              <VSCodeProgressRing className="progressRing" />
+              <span id="progressText">Uploading {filename}...</span>
+            </div>
+          ) : gpkgIsSaving ? (
+            <div className="progress-container">
+              <VSCodeProgressRing className="progressRing" />
+              <span id="progressText">Saving {filename}...</span>
+            </div>
+          ) : null}
+        </div>
         <div className="submitAndReset">
-          {existingGPKG || newGPKG || filename !== "" ? (
+          {gpkgIsUploading ? (
+            <VSCodeButton className="resetButton" onClick={onCancelUpload}>
+              Cancel
+            </VSCodeButton>
+          ) : gpkgIsSaving ? (
+            <VSCodeButton className="resetButton" disabled={inProgress} onClick={onCancelSaving}>
+              Cancel
+            </VSCodeButton>
+          ) : existingGPKG || newGPKG || filename !== "" ? (
             <VSCodeButton className="resetButton" disabled={inProgress} onClick={handleReset}>
               Reset
             </VSCodeButton>
@@ -198,19 +485,19 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             onClick={submitGeoPackage}
             disabled={
               inProgress ||
-              stateOfGpkgToUpload.includes("Fehler beim Schreiben der Datei") ||
-              (!existingGPKG && base64String === "")
+              stateOfGpkgToUpload === "Fehler beim Schreiben der Datei" ||
+              !existingGPKG
             }>
             Next
           </VSCodeButton>
         </div>
       </div>
-      {inProgress && (
+      {inProgress ? (
         <div className="progress-container">
           <VSCodeProgressRing className="progressRing" />
           <span id="progressText">Data is being processed...</span>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

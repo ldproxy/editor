@@ -9,7 +9,7 @@ import { registerCodeActions } from "./language/CodeActions";
 import { DEV } from "./utilities/constants";
 import { initSchemas } from "./utilities/schemas";
 import { parseYaml, hashText } from "./utilities/yaml";
-import { Registration, register } from "./utilities/registration";
+import { Registration, register, DocEvent } from "./utilities/registration";
 import { registeTreeViews } from "./trees";
 
 let initialized = false;
@@ -44,7 +44,7 @@ export function activate(context: ExtensionContext) {
     registerCodeActions
   );
 
-  onDocUpdate(window.activeTextEditor?.document);
+  onDocUpdate(DocEvent.OPEN, window.activeTextEditor?.document);
 }
 
 export function deactivate() {}
@@ -54,7 +54,7 @@ const registerDocHandlers: Registration = () => {
     window.onDidChangeActiveTextEditor((editor) => {
       const document = window.activeTextEditor?.document;
       if (document && editor) {
-        onDocUpdate(document);
+        onDocUpdate(DocEvent.OPEN, document);
       }
     }),
     workspace.onDidChangeTextDocument((event) => {
@@ -62,14 +62,19 @@ const registerDocHandlers: Registration = () => {
       if (document) {
         const activeEditor = window.activeTextEditor;
         if (activeEditor && event.document === activeEditor.document) {
-          onDocUpdate(document);
+          onDocUpdate(DocEvent.CHANGE, document);
         }
+      }
+    }),
+    workspace.onDidSaveTextDocument((document) => {
+      if (document) {
+        onDocUpdate(DocEvent.SAVE, document);
       }
     }),
   ];
 };
 
-const onDocUpdate = function (document?: TextDocument) {
+const onDocUpdate = function (event: DocEvent, document?: TextDocument) {
   if (document) {
     const text = document.getText();
     const uri = document.uri.toString();
@@ -78,10 +83,10 @@ const onDocUpdate = function (document?: TextDocument) {
     if (hash && hash !== "") {
       const allYamlKeys = parseYaml(text);
 
-      updateHover(document, uri, hash, allYamlKeys);
-      updateCompletions(document, uri, hash, allYamlKeys);
-      updateValueCompletions(document, uri, hash, allYamlKeys);
-      updateDiagnostics(document, uri, hash, allYamlKeys);
+      updateHover(event, document, uri, hash, allYamlKeys);
+      updateCompletions(event, document, uri, hash, allYamlKeys);
+      updateValueCompletions(event, document, uri, hash, allYamlKeys);
+      updateDiagnostics(event, document, uri, hash, allYamlKeys);
     }
   }
 };

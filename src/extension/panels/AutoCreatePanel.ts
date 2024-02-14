@@ -10,12 +10,23 @@ import {
 } from "vscode";
 import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
-import { listGpkgFilesInDirectory } from "../utilities/gpkg";
-import { uploadedGpkg } from "../utilities/gpkg";
+import { listGpkgFilesInDirectory, uploadedGpkg, setCancel } from "../utilities/gpkg";
 import * as vscode from "vscode";
 import { newXtracfg } from "../utilities/xtracfg";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
 import { Registration } from "../utilities/registration";
+
+const workspaceFolders = vscode.workspace.workspaceFolders;
+if (!workspaceFolders) {
+  throw new Error("No workspace folder...");
+}
+const watcherOnDidDelete = vscode.workspace.createFileSystemWatcher(
+  new vscode.RelativePattern(workspaceFolders[0], "resources/features/**")
+);
+
+const watcherOnDidCreate = vscode.workspace.createFileSystemWatcher(
+  new vscode.RelativePattern(workspaceFolders[0], "resources/features/**")
+);
 
 const workspaceUri = getWorkspaceUri();
 const xtracfg = newXtracfg();
@@ -63,6 +74,26 @@ export class AutoCreatePanel {
 
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
+
+    watcherOnDidCreate.onDidCreate(async (e) => {
+      this._panel.webview.postMessage({
+        command: "setGeopackages",
+        existingGeopackages: await listGpkgFilesInDirectory(),
+      });
+    });
+    this._disposables.push(watcherOnDidCreate);
+
+    watcherOnDidDelete.onDidDelete(async (e) => {
+      this._panel.webview.postMessage({
+        command: "setGeopackages",
+        existingGeopackages: await listGpkgFilesInDirectory(),
+      });
+      this._panel.webview.postMessage({
+        command: "selectedGeoPackageDeleted",
+        deletedGpkg: e.fsPath,
+      });
+    });
+    this._disposables.push(watcherOnDidDelete);
 
     xtracfg.listen(
       (response) => {
@@ -217,19 +248,25 @@ export class AutoCreatePanel {
           case "success":
             if (workspaceUri) {
               const fileUri = workspaceUri.with({ path: text });
-              await vscode.commands.executeCommand("vscode.open", fileUri);
+              await vscode.commands.executeCommand("vscode.open", fileUri, { preview: false });
             }
             break;
           case "uploadGpkg":
             this._panel.webview.postMessage({
               command: "uploadedGpkg",
-              uploadedGpkg: await uploadedGpkg(text[0], text[1]),
+              uploadedGpkg: await uploadedGpkg(text[0], text[1], text[2]),
             });
+            break;
+          case "cancelSavingGpkg":
+            setCancel();
             break;
           case "xtracfg":
             if (message.request) {
               xtracfg.send(JSON.parse(message.request));
             }
+            break;
+          case "geoPackageWasUploaded":
+            window.showInformationMessage(text);
             break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)

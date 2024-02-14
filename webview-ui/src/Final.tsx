@@ -46,6 +46,12 @@ const Final = ({
     vscode.getState();
   };
 
+  const onCancelGenerating = () => {
+    vscode.postMessage({
+      command: "cancelGenerating",
+    });
+  };
+
   return (
     <div className="final-container">
       <h3 className="final-title">Progress</h3>
@@ -79,7 +85,11 @@ const Final = ({
             </VSCodeButton>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <VSCodeButton className="resetButton" onClick={onCancelGenerating}>
+          Cancel
+        </VSCodeButton>
+      )}
     </div>
   );
 };

@@ -24,6 +24,7 @@ let specifiedDefs: { ref: string; finalPath: string }[];
 let uniqueDefs: any;
 
 export const updateValueCompletions: DocUpdate = async function (
+  event,
   document,
   docUri,
   docHash,
@@ -60,6 +61,16 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       console.log("enumArrayVC", enumArray);
       console.log("valueCompletionsAllYamlKeysVC", allYamlKeys);
     }
+
+    // When a few letters of the key are already typed when hitting auto completion
+    const lineText: string = document.lineAt(position.line).text;
+    const lastColonIndex: number = lineText.lastIndexOf(":");
+
+    const textBetweenColonAndCursor: string =
+      lastColonIndex !== -1
+        ? lineText.substring(lastColonIndex + 1, position.character).trim()
+        : "";
+
     const valueCompletions: vscode.CompletionItem[] = [];
     const line = position.line;
     const keyAtCursor = findKeyForValueCompletion(line, document, position);
@@ -125,7 +136,18 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     const existing = valueCompletions.find(
                       (existingComp) => existingComp.label === myEnum
                     );
-                    if (existing === undefined) {
+
+                    let filterExistingCharacters = false;
+                    if (textBetweenColonAndCursor !== "") {
+                      filterExistingCharacters = myEnum.startsWith(textBetweenColonAndCursor);
+                      if (DEV) {
+                        console.log("fECVC", filterExistingCharacters);
+                      }
+                    } else {
+                      filterExistingCharacters = true;
+                    }
+
+                    if (filterExistingCharacters && existing === undefined) {
                       valueCompletions.push(completion);
                     }
                   }
@@ -158,7 +180,18 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     const existing = valueCompletions.find(
                       (existingComp) => existingComp.label === myEnum
                     );
-                    if (existing === undefined) {
+
+                    let filterExistingCharacters = false;
+                    if (textBetweenColonAndCursor !== "") {
+                      filterExistingCharacters = myEnum.startsWith(textBetweenColonAndCursor);
+                      if (DEV) {
+                        console.log("fECVC", filterExistingCharacters);
+                      }
+                    } else {
+                      filterExistingCharacters = true;
+                    }
+
+                    if (filterExistingCharacters && existing === undefined) {
                       valueCompletions.push(completion);
                     }
                   }
@@ -183,7 +216,18 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                       const existing = valueCompletions.find(
                         (existingComp) => existingComp.label === myEnum
                       );
-                      if (existing === undefined) {
+
+                      let filterExistingCharacters = false;
+                      if (textBetweenColonAndCursor !== "") {
+                        filterExistingCharacters = myEnum.startsWith(textBetweenColonAndCursor);
+                        if (DEV) {
+                          console.log("fECVC", filterExistingCharacters);
+                        }
+                      } else {
+                        filterExistingCharacters = true;
+                      }
+
+                      if (filterExistingCharacters && existing === undefined) {
                         valueCompletions.push(completion);
                       }
                     }
