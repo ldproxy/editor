@@ -235,14 +235,18 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     item: vscode.CompletionItem,
     token: vscode.CancellationToken
   ): Thenable<vscode.CompletionItem> | undefined {
-    console.log("iopuuu1", item);
+    if (DEV) {
+      console.log("iop1", item);
+    }
     if (item.detail === "Enum" || item.detail === "obj") {
       return new Promise((resolve) => {
         // Trigger the suggest widget after a delay to ensure the previous session has ended
-        console.log("resolve1 wurde aufgerufen", item);
+        if (DEV) {
+          console.log("resolve1 wurde aufgerufen", item);
+        }
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 3000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln. Nac Änderung mit Verwendung von enumArray eher 3 sec. Nach Andreas' Änderungen reicht wieder 1 sec.
+        }, 1000);
         resolve(item);
       });
     }
@@ -505,14 +509,18 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     item: vscode.CompletionItem,
     token: vscode.CancellationToken
   ): Thenable<vscode.CompletionItem> | undefined {
-    console.log("iopuuu2", item);
+    if (DEV) {
+      console.log("iop2", item);
+    }
     if (item.detail === "Enum" || item.detail === "obj") {
       return new Promise((resolve) => {
         // Trigger the suggest widget after a delay to ensure the previous session has ended
-        console.log("resolve2 wurde aufgerufen", item);
+        if (DEV) {
+          console.log("resolve2 wurde aufgerufen", item);
+        }
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 3000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln. Nac Änderung mit Verwendung von enumArray eher 3 sec. Nach Andreas' Änderungen reicht wieder 1 sec.
+        }, 1000);
         resolve(item);
       });
     }
@@ -761,14 +769,18 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     item: vscode.CompletionItem,
     token: vscode.CancellationToken
   ): Thenable<vscode.CompletionItem> | undefined {
-    console.log("iopuuu3", item);
+    if (DEV) {
+      console.log("iop3", item);
+    }
     if (item.detail === "Enum" || item.detail === "obj") {
       return new Promise((resolve) => {
         // Trigger the suggest widget after a delay to ensure the previous session has ended
-        console.log("resolve3 wurde aufgerufen", item);
+        if (DEV) {
+          console.log("resolve3 wurde aufgerufen", item);
+        }
         setTimeout(() => {
           vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 3000); // Mit 1000 klappt es nicht. Alles zwischen 1000 und 2000 könnte man also mal ausprobieren, um den möglichst niedrigsten Wert zu ermitteln. Nac Änderung mit Verwendung von enumArray eher 3 sec. Nach Andreas' Änderungen reicht wieder 1 sec.
+        }, 1000);
         resolve(item);
       });
     }
