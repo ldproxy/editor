@@ -108,6 +108,11 @@ export function processProperties(
             lastPartValue = reference.substring(lastSlashIndex + 1);
           }
 
+          let propDefinitionType;
+          if (propDefinition && propDefinition.type && propDefinition.type === "object") {
+            propDefinitionType = "object";
+          }
+
           let referenceInConditionLastPart;
           if (
             propDefinition &&
@@ -174,6 +179,7 @@ export function processProperties(
                 : additionalReferenceInConditionLastPart
                 ? additionalReferenceInConditionLastPart
                 : "",
+            type: propDefinitionType,
             deprecated: propDefinition.deprecated ? true : false,
           }),
             (lastPartValue = "");
@@ -294,6 +300,12 @@ export function getRequiredProperties(schema: DefinitionsMap): DefinitionsMap {
         if (prop.$ref) {
           lastSlashIndex = prop.$ref.lastIndexOf("/");
         }
+
+        let propDefinitionType;
+        if (prop && prop.type && prop.type === "object") {
+          propDefinitionType = "object";
+        }
+
         let lastPartValueAddRed = "";
         let additionalReference = "";
         if (prop.additionalProperties && prop.additionalProperties.$ref) {
@@ -328,6 +340,7 @@ export function getRequiredProperties(schema: DefinitionsMap): DefinitionsMap {
           deprecated: prop.deprecated ? true : false,
           ref: prop.$ref ? prop.$ref.substring(lastSlashIndex + 1) : "",
           addRef: lastPartValueAddRed !== "" ? lastPartValueAddRed : "",
+          type: propDefinitionType,
         };
       });
     }

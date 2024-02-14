@@ -1,9 +1,7 @@
 ---
 serviceType: OGC_API
+metadata:
+  contactEmail: eee
 collections:
   building:
     id: building
-collections:
-  building:
-    api:
-      - buildingBlock: QUERYABLES
