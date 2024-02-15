@@ -450,6 +450,7 @@ describe("getRequiredProperties", function () {
         noCondition: true,
         ref: "",
         title: "serviceType",
+        type: undefined,
       },
     };
 

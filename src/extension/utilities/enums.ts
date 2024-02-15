@@ -134,7 +134,7 @@ export function buildEnumArray(
     }
   }
   if (DEV) {
-    console.log("localEnumArray", localEnumArray);
+    console.log("localEnumArray", JSON.stringify(localEnumArray));
   }
   return localEnumArray;
 }
