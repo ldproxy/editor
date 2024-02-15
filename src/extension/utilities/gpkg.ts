@@ -47,7 +47,7 @@ async function readAllFilesInDirectory(directoryUri: any) {
   return allFiles;
 }
 
-export async function uploadedGpkg(gpkgToUpload: any, filename: string, action?: string) {
+export async function uploadedGpkg(gpkgToUpload: any, filename: string) {
   cancel = false;
 
   const cancelPromise = new Promise((resolve, reject) => {
@@ -75,40 +75,20 @@ export async function uploadedGpkg(gpkgToUpload: any, filename: string, action?:
 
       const filePath = vscode.Uri.joinPath(directoryUri, filename);
 
-      if (action === "appendTrue" && filePath) {
+      try {
+        await vscode.workspace.fs.createDirectory(directoryUri);
         try {
           await vscode.workspace.fs.stat(filePath);
-
-          // Read the existing file
-          const existingData = await vscode.workspace.fs.readFile(filePath);
-
-          // Concatenate the new data to the existing data
-          const combinedData = new Uint8Array(existingData.length + uint8Array.length);
-          combinedData.set(existingData);
-          combinedData.set(uint8Array, existingData.length);
-
-          // Write the combined data back to the file
-          await vscode.workspace.fs.writeFile(filePath, combinedData);
-          return `Datei erfolgreich erweitert: ${filePath.fsPath}`;
-        } catch (error) {
-          return `Error appending to Geopackage. ${error}${filePath.fsPath}`;
-        }
-      } else if (action !== "appendTrue") {
-        try {
-          await vscode.workspace.fs.createDirectory(directoryUri);
-          try {
-            await vscode.workspace.fs.stat(filePath);
-            return `Geopackage already exists.`;
-          } catch {
-            if (cancel) {
-              return;
-            }
-            await vscode.workspace.fs.writeFile(filePath, uint8Array);
-            return `Datei erfolgreich geschrieben: ${filePath.fsPath}`;
+          return `Geopackage already exists.`;
+        } catch {
+          if (cancel) {
+            return;
           }
-        } catch (error) {
-          return `Error uploading Geopackage. ${error}`;
+          await vscode.workspace.fs.writeFile(filePath, uint8Array);
+          return `Datei erfolgreich geschrieben: ${filePath.fsPath}`;
         }
+      } catch (error) {
+        return `Error uploading Geopackage. ${error}`;
       }
     }
   })();
@@ -133,7 +113,6 @@ export async function uploadedGpkg(gpkgToUpload: any, filename: string, action?:
         }
       }
     }
-    console.log("resultBackend", result);
     return result;
   } finally {
     cancel = false;
