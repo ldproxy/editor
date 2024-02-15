@@ -31,7 +31,7 @@ api:
     // test whether the parsed data is as expected
     deepStrictEqual(parseYaml(documentArray), expectedYamlKeysArray);
   });
-  /*
+
   it("should build allYamlKeys for case arrayWithObject", function () {
     var documentArrayWithObject = `---
 api:									
@@ -272,6 +272,72 @@ collections2:
   });
 });
 
+it("should build allYamlKeys for all cases even though there are illegitimate keys", function () {
+  // variables:
+
+  var expectedYamlKeysAll = [
+    { path: "id", index: 0, lineOfPath: 3 },
+    { path: "api", index: 0, lineOfPath: 5 },
+    { path: "api.buildingBlock", index: 4, lineOfPath: 6, startOfArray: 6, arrayIndex: 0 },
+    { path: "api.enabled", index: 4, lineOfPath: 8, startOfArray: 6, arrayIndex: 0 },
+    { path: "api.buildingBlock", index: 4, lineOfPath: 9, startOfArray: 9, arrayIndex: 1 },
+    { path: "api.metadata", index: 4, lineOfPath: 10, startOfArray: 9, arrayIndex: 1 },
+    { path: "api.metadata.email", index: 6, lineOfPath: 12, startOfArray: 9, arrayIndex: 1 },
+    { path: "api.buildingBlock", index: 4, lineOfPath: 13, startOfArray: 13, arrayIndex: 2 },
+    { path: "api.metadata", index: 4, lineOfPath: 14, startOfArray: 13, arrayIndex: 2 },
+    { path: "api.metadata.metadata2", index: 6, lineOfPath: 15, startOfArray: 13, arrayIndex: 2 },
+    {
+      path: "api.metadata.metadata2.email",
+      index: 8,
+      lineOfPath: 17,
+      startOfArray: 13,
+      arrayIndex: 2,
+    },
+    { path: "api.buildingBlock", index: 4, lineOfPath: 18, startOfArray: 18, arrayIndex: 3 },
+    { path: "api.additionalLinks", index: 4, lineOfPath: 19, startOfArray: 18, arrayIndex: 3 },
+    {
+      path: "api.additionalLinks.rel",
+      index: 8,
+      lineOfPath: 20,
+      startOfArray: 20,
+      arrayIndex: 4,
+    },
+    { path: "api.buildingBlock", index: 4, lineOfPath: 21, startOfArray: 21, arrayIndex: 4 },
+    { path: "collections", index: 0, lineOfPath: 22 },
+    { path: "collections.umweltzone", index: 2, lineOfPath: 23 },
+    { path: "collections.umweltzone.id", index: 4, lineOfPath: 25 },
+  ];
+
+  var documentAll = `---
+sdsd
+id: bla
+sdsdsd
+api:
+  - buildingBlock: COLLECTIONS
+    ijijiji
+    enabled: true
+  - buildingBlock: STYLES
+    metadata:
+      ijij
+      email: bla
+  - buildingBlock: TILES
+    metadata:
+      metadata2: 
+        jijijij
+        email: bla
+  - buildingBlock: BLA
+    additionalLinks:
+      - rel: describedby
+  - buildingBlock: BLUE
+collections:
+  umweltzone:
+    ijijij
+    id: umweltzone`;
+
+  // test whether the parsed data is as expected
+  deepStrictEqual(parseYaml(documentAll), expectedYamlKeysAll);
+});
+
 describe("defineDefs", function () {
   it("should get specifiedDefs", function () {
     // variables:
@@ -455,5 +521,4 @@ describe("getEnums", function () {
 
     deepStrictEqual(buildEnumArray(schema), expectedRef);
   });
-  */
 });
