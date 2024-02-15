@@ -217,6 +217,12 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                           if (DEV) {
                             console.log("completion1", finalValue);
                           }
+                          if (completion.detail === "Enum" || completion.detail === "obj") {
+                            completion.command = {
+                              title: "Trigger Suggest",
+                              command: "editor.action.triggerSuggest",
+                            };
+                          }
                           refCompletions.push(completion);
                         }
                       }
@@ -229,26 +235,6 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
         }
         return refCompletions;
       }
-    }
-  },
-  resolveCompletionItem(
-    item: vscode.CompletionItem,
-    token: vscode.CancellationToken
-  ): Thenable<vscode.CompletionItem> | undefined {
-    if (DEV) {
-      console.log("iop1", item);
-    }
-    if (item.detail === "Enum" || item.detail === "obj") {
-      return new Promise((resolve) => {
-        // Trigger the suggest widget after a delay to ensure the previous session has ended
-        if (DEV) {
-          console.log("resolve1 wurde aufgerufen", item);
-        }
-        setTimeout(() => {
-          vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 1000);
-        resolve(item);
-      });
     }
   },
 };
@@ -387,6 +373,12 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     if (DEV) {
                       console.log("completion21", value);
                     }
+                    if (completion.detail === "Enum" || completion.detail === "obj") {
+                      completion.command = {
+                        title: "Trigger Suggest",
+                        command: "editor.action.triggerSuggest",
+                      };
+                    }
                     completions.push(completion);
                   }
                 }
@@ -494,6 +486,12 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     if (DEV) {
                       console.log("completion22", value);
                     }
+                    if (completion.detail === "Enum" || completion.detail === "obj") {
+                      completion.command = {
+                        title: "Trigger Suggest",
+                        command: "editor.action.triggerSuggest",
+                      };
+                    }
                     completions.push(completion);
                   }
                 }
@@ -504,26 +502,6 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       }
     });
     return completions;
-  },
-  resolveCompletionItem(
-    item: vscode.CompletionItem,
-    token: vscode.CancellationToken
-  ): Thenable<vscode.CompletionItem> | undefined {
-    if (DEV) {
-      console.log("iop2", item);
-    }
-    if (item.detail === "Enum" || item.detail === "obj") {
-      return new Promise((resolve) => {
-        // Trigger the suggest widget after a delay to ensure the previous session has ended
-        if (DEV) {
-          console.log("resolve2 wurde aufgerufen", item);
-        }
-        setTimeout(() => {
-          vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 1000);
-        resolve(item);
-      });
-    }
   },
 };
 
@@ -752,6 +730,12 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                         if (DEV) {
                           console.log("completion3", value);
                         }
+                        if (completion.detail === "Enum" || completion.detail === "obj") {
+                          completion.command = {
+                            title: "Trigger Suggest",
+                            command: "editor.action.triggerSuggest",
+                          };
+                        }
                         refCompletions.push(completion);
                       }
                     }
@@ -763,26 +747,6 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
         }
       }
       return refCompletions;
-    }
-  },
-  resolveCompletionItem(
-    item: vscode.CompletionItem,
-    token: vscode.CancellationToken
-  ): Thenable<vscode.CompletionItem> | undefined {
-    if (DEV) {
-      console.log("iop3", item);
-    }
-    if (item.detail === "Enum" || item.detail === "obj") {
-      return new Promise((resolve) => {
-        // Trigger the suggest widget after a delay to ensure the previous session has ended
-        if (DEV) {
-          console.log("resolve3 wurde aufgerufen", item);
-        }
-        setTimeout(() => {
-          vscode.commands.executeCommand("editor.action.triggerSuggest");
-        }, 1000);
-        resolve(item);
-      });
     }
   },
 };

@@ -1,7 +1,11 @@
 ---
 serviceType: OGC_API
 metadata:
-  contactEmail: eee
+  contactEmail: huhuhuh
+enabled: true
+api:
+  - buildingBlock: CITY_JSON
+    enabled: true
 collections:
   building:
-    id: building
+    enabled: false
