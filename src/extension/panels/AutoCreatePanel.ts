@@ -75,7 +75,7 @@ export class AutoCreatePanel {
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
 
-    watcherOnDidCreate.onDidCreate(async (e) => {
+    /*watcherOnDidCreate.onDidCreate(async (e) => {
       this._panel.webview.postMessage({
         command: "setGeopackages",
         existingGeopackages: await listGpkgFilesInDirectory(),
@@ -93,7 +93,7 @@ export class AutoCreatePanel {
         deletedGpkg: e.fsPath,
       });
     });
-    this._disposables.push(watcherOnDidDelete);
+    this._disposables.push(watcherOnDidDelete);*/
 
     xtracfg.listen(
       (response) => {
@@ -252,10 +252,13 @@ export class AutoCreatePanel {
             }
             break;
           case "uploadGpkg":
-            this._panel.webview.postMessage({
-              command: "uploadedGpkg",
-              uploadedGpkg: await uploadedGpkg(text[0], text[1], text[2]),
-            });
+            const response = await uploadedGpkg(text[0], text[1], text[2]);
+            if (response) {
+              this._panel.webview.postMessage({
+                command: "uploadedGpkg",
+                uploadedGpkg: response,
+              });
+            }
             break;
           case "cancelSavingGpkg":
             setCancel();

@@ -75,7 +75,7 @@ export async function uploadedGpkg(gpkgToUpload: any, filename: string, action?:
 
       const filePath = vscode.Uri.joinPath(directoryUri, filename);
 
-      if (action === "appendTrue" && filePath) {
+      if (action === "append" && filePath) {
         try {
           await vscode.workspace.fs.stat(filePath);
 
@@ -93,7 +93,7 @@ export async function uploadedGpkg(gpkgToUpload: any, filename: string, action?:
         } catch (error) {
           return `Error appending to Geopackage. ${error}${filePath.fsPath}`;
         }
-      } else if (action !== "appendTrue") {
+      } else if (action === "create") {
         try {
           await vscode.workspace.fs.createDirectory(directoryUri);
           try {
