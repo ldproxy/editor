@@ -170,6 +170,8 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                         const completion = new vscode.CompletionItem(finalValue);
                         if (obj2.type && obj2.type === "object") {
                           completion.insertText = `${finalValue}: \n  `;
+                        } else if (obj2.type && obj2.type === "array") {
+                          completion.insertText = `${finalValue}: \n  - `;
                         } else {
                           completion.insertText = `${finalValue}: `;
                         }
@@ -187,6 +189,8 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                           completion.detail = "Enum";
                         } else if (obj2.type === "object" && obj2.ref !== "") {
                           completion.detail = "obj";
+                        } else if (obj2.type === "array" && obj2.ref !== "") {
+                          completion.detail = "array";
                         }
 
                         if (obj2.description !== "") {
@@ -216,8 +220,13 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                         if (filterExistingCharacters && existing === undefined) {
                           if (DEV) {
                             console.log("completion1", finalValue);
+                            console.log("insertText1", completion.insertText);
                           }
-                          if (completion.detail === "Enum" || completion.detail === "obj") {
+                          if (
+                            completion.detail === "Enum" ||
+                            completion.detail === "obj" ||
+                            completion.detail === "array"
+                          ) {
                             completion.command = {
                               title: "Trigger Suggest",
                               command: "editor.action.triggerSuggest",
@@ -345,6 +354,8 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
 
                   if (obj.type && obj.type === "object") {
                     completion.insertText = `${value}: \n  `;
+                  } else if (obj.type && obj.type === "array") {
+                    completion.insertText = `${value}: \n  - `;
                   } else {
                     completion.insertText = `${value}: `;
                   }
@@ -364,6 +375,8 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     completion.detail = "Enum";
                   } else if (obj.type === "object" && obj.ref !== "") {
                     completion.detail = "obj";
+                  } else if (obj.type === "array" && obj.ref !== "") {
+                    completion.detail = "array";
                   }
 
                   if (obj.description !== "") {
@@ -372,8 +385,13 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                   if (filterExistingCharacters) {
                     if (DEV) {
                       console.log("completion21", value);
+                      console.log("insertText21", completion.insertText);
                     }
-                    if (completion.detail === "Enum" || completion.detail === "obj") {
+                    if (
+                      completion.detail === "Enum" ||
+                      completion.detail === "obj" ||
+                      completion.detail === "array"
+                    ) {
                       completion.command = {
                         title: "Trigger Suggest",
                         command: "editor.action.triggerSuggest",
@@ -442,6 +460,8 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                   const completion = new vscode.CompletionItem(value);
                   if (obj.type && obj.type === "object") {
                     completion.insertText = `${value}: \n  `;
+                  } else if (obj.type && obj.type === "array") {
+                    completion.insertText = `${value}: \n  - `;
                   } else {
                     completion.insertText = `${value}: `;
                   }
@@ -459,6 +479,8 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                     completion.detail = "Enum";
                   } else if (obj.type === "object" && obj.ref !== "") {
                     completion.detail = "obj";
+                  } else if (obj.type === "array" && obj.ref !== "") {
+                    completion.detail = "array";
                   }
 
                   completion.kind = vscode.CompletionItemKind.Method;
@@ -485,8 +507,13 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                   if (filterExistingCharacters && existing === undefined) {
                     if (DEV) {
                       console.log("completion22", value);
+                      console.log("insertText22", completion.insertText);
                     }
-                    if (completion.detail === "Enum" || completion.detail === "obj") {
+                    if (
+                      completion.detail === "Enum" ||
+                      completion.detail === "obj" ||
+                      completion.detail === "array"
+                    ) {
                       completion.command = {
                         title: "Trigger Suggest",
                         command: "editor.action.triggerSuggest",
@@ -687,6 +714,8 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
 
                       if (obj2.type && obj2.type === "object") {
                         completion.insertText = `${finalValue}: \n  `;
+                      } else if (obj2.type && obj2.type === "array") {
+                        completion.insertText = `${finalValue}: \n  - `;
                       } else {
                         completion.insertText = `${finalValue}: `;
                       }
@@ -704,6 +733,8 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                         completion.detail = "Enum";
                       } else if (obj2.type === "object" && obj2.ref !== "") {
                         completion.detail = "obj";
+                      } else if (obj2.type === "array" && obj2.ref !== "") {
+                        completion.detail = "array";
                       }
 
                       if (obj2.description !== "") {
@@ -729,8 +760,13 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                       if (filterExistingCharacters && existing === undefined) {
                         if (DEV) {
                           console.log("completion3", value);
+                          console.log("insertText3", completion.insertText);
                         }
-                        if (completion.detail === "Enum" || completion.detail === "obj") {
+                        if (
+                          completion.detail === "Enum" ||
+                          completion.detail === "obj" ||
+                          completion.detail === "array"
+                        ) {
                           completion.command = {
                             title: "Trigger Suggest",
                             command: "editor.action.triggerSuggest",

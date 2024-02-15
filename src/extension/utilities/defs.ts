@@ -122,6 +122,13 @@ export function processProperties(
             propDefinition.allOf[0].then.items &&
             propDefinition.allOf[0].then.items.$ref
           ) {
+            if (
+              propDefinition.allOf[0].if &&
+              propDefinition.allOf[0].if.type &&
+              propDefinition.allOf[0].if.type === "array"
+            ) {
+              propDefinitionType = "array";
+            }
             const ref = propDefinition.allOf[0].then.items.$ref;
             if (ref && ref.length > 0 && ref !== undefined) {
               const lastSlashIndex = ref.lastIndexOf("/");
