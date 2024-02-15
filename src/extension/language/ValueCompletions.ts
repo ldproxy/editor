@@ -230,6 +230,36 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                       if (filterExistingCharacters && existing === undefined) {
                         valueCompletions.push(completion);
                       }
+                      // case Array
+                    } else if (
+                      key !== undefined &&
+                      myEnum !== undefined &&
+                      def.ref === enumGroupname &&
+                      def.finalPath.includes("[")
+                    ) {
+                      const completion = new vscode.CompletionItem(myEnum);
+                      completion.kind = vscode.CompletionItemKind.Method;
+                      completion.command = {
+                        command: "editor.action.ldproxy: Create new entities",
+                        title: "Re-trigger completions...",
+                      };
+                      const existing = valueCompletions.find(
+                        (existingComp) => existingComp.label === myEnum
+                      );
+
+                      let filterExistingCharacters = false;
+                      if (textBetweenColonAndCursor !== "") {
+                        filterExistingCharacters = myEnum.startsWith(textBetweenColonAndCursor);
+                        if (DEV) {
+                          console.log("fECVC", filterExistingCharacters);
+                        }
+                      } else {
+                        filterExistingCharacters = true;
+                      }
+
+                      if (filterExistingCharacters && existing === undefined) {
+                        valueCompletions.push(completion);
+                      }
                     }
                   });
                 }

@@ -14,7 +14,10 @@ export function buildEnumArray(
       if (definition && definition.hasOwnProperty("enum")) {
         definition.enum.forEach((enumValue: string) => {
           const existing = localEnumArray.find(
-            (existingEnum) => existingEnum.key === key && existingEnum.enum === enumValue
+            (existingEnum) =>
+              existingEnum.key === key &&
+              existingEnum.enum === enumValue &&
+              existingEnum.groupname === ""
           );
           if (existing === undefined) {
             localEnumArray.push({ key: key, enum: enumValue, groupname: "" });
@@ -43,7 +46,10 @@ export function buildEnumArray(
             }
             propDefinition.enum.forEach((enumValue: string) => {
               const existing = localEnumArray.find(
-                (existingEnum) => existingEnum.key === propKey && existingEnum.enum === enumValue
+                (existingEnum) =>
+                  existingEnum.key === propKey &&
+                  existingEnum.enum === enumValue &&
+                  existingEnum.groupname === ""
               );
               if (existing === undefined) {
                 localEnumArray.push({ key: propKey, enum: enumValue, groupname: "" });
@@ -65,7 +71,10 @@ export function buildEnumArray(
           if (propDefinition && propDefinition.hasOwnProperty("enum")) {
             propDefinition.enum.forEach((enumValue: string) => {
               const existing = localEnumArray.find(
-                (existingEnum) => existingEnum.key === propKey && existingEnum.enum === enumValue
+                (existingEnum) =>
+                  existingEnum.key === propKey &&
+                  existingEnum.enum === enumValue &&
+                  existingEnum.groupname === key
               );
               if (existing === undefined) {
                 localEnumArray.push({ key: propKey, enum: enumValue, groupname: key });
@@ -80,10 +89,44 @@ export function buildEnumArray(
         if (propDefinition && propDefinition.hasOwnProperty("enum")) {
           propDefinition.enum.forEach((enumValue: string) => {
             const existing = localEnumArray.find(
-              (existingEnum) => existingEnum.key === propKey && existingEnum.enum === enumValue
+              (existingEnum) =>
+                existingEnum.key === propKey &&
+                existingEnum.enum === enumValue &&
+                existingEnum.groupname === key
             );
             if (existing === undefined) {
               localEnumArray.push({ key: propKey, enum: enumValue, groupname: key });
+            }
+          });
+        } else if (
+          propDefinition &&
+          propDefinition.hasOwnProperty("oneOf") &&
+          propDefinition.hasOwnProperty("title")
+        ) {
+          propDefinition.oneOf.forEach((obj: any) => {
+            if (obj && obj.hasOwnProperty("type") && obj.type === "boolean") {
+              const existingWithTrue = localEnumArray.find(
+                (existingEnum) =>
+                  existingEnum.key === propDefinition.title &&
+                  existingEnum.enum === "true" &&
+                  existingEnum.groupname === key
+              );
+
+              const existingWithFalse = localEnumArray.find(
+                (existingEnum) =>
+                  existingEnum.key === propDefinition.title &&
+                  existingEnum.enum === "false" &&
+                  existingEnum.groupname === key
+              );
+
+              if (existingWithTrue === undefined && existingWithFalse === undefined) {
+                localEnumArray.push({ key: propDefinition.title, enum: "true", groupname: key });
+                localEnumArray.push({ key: propDefinition.title, enum: "false", groupname: key });
+              } else if (existingWithTrue === undefined) {
+                localEnumArray.push({ key: propDefinition.title, enum: "true", groupname: key });
+              } else if (existingWithFalse === undefined) {
+                localEnumArray.push({ key: propDefinition.title, enum: "false", groupname: key });
+              }
             }
           });
         }
