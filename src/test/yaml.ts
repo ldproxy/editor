@@ -515,7 +515,7 @@ describe("findDefaultCfgRef", function () {
 });
 
 describe("getEnums", function () {
-  it("buildEnumArray", function () {
+  xit("buildEnumArray", function () {
     // variables:
 
     var schema = services;

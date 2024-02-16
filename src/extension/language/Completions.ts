@@ -83,9 +83,17 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       console.log("indentationUsedInYaml", indentationUsedInYaml, indentationOfpathAtCursor);
     }
 
-    const currentStartOfArray = allYamlKeys.find(
+    let currentStartOfArray = allYamlKeys.find(
       (item) => item.lineOfPath === line - 1
     )?.startOfArray;
+
+    // If there is a hyphen in the line, it's a new object and doesn't belong to the one above
+    const myLine = document.lineAt(line - 1).text;
+    console.log("myLine", myLine);
+    if (myLine.trim().startsWith("-")) {
+      currentStartOfArray = -1;
+    }
+
     if (DEV) {
       console.log("textBeforeCursor1", textBeforeCursor.trim(), indentation);
       console.log("pathAtCursor: " + pathAtCursor);
@@ -145,6 +153,7 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
                       const finalValue = obj2.title;
                       if (DEV) {
                         console.log("allYamlKeys: ", allYamlKeys);
+                        console.log("finalValueProv1", finalValue);
                       }
                       if (
                         finalValue !== undefined &&
@@ -301,7 +310,7 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
       );
       let maxLine: number | undefined;
       if (minLine) {
-        maxLine = getMaxLine(allYamlKeys, minLine);
+        maxLine = getMaxLine(allYamlKeys, minLine, document);
       }
       const keyAtStartOfArray = allYamlKeys.find((key) => key.lineOfPath === minLine);
       const columnOfArray = keyAtStartOfArray ? keyAtStartOfArray.index : 0;
