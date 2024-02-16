@@ -93,7 +93,7 @@ const hover: vscode.HoverProvider = {
       );
       let maxLine: number | undefined;
       if (minLine) {
-        maxLine = getMaxLine(yamlKeysHover, minLine);
+        maxLine = getMaxLine(yamlKeysHover, minLine, document);
       }
       if (pathInYaml) {
         if (DEV) {

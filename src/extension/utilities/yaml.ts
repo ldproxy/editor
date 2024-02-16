@@ -361,6 +361,7 @@ export function getLinesForArrayIndex(
     console.log("lineYamlArrays", line);
     console.log("pathiToUse", pathToUse);
   }
+
   if (line > 0) {
     return line;
   }
@@ -373,7 +374,8 @@ export function getMaxLine(
     startOfArray?: number;
     arrayIndex?: number;
   }[],
-  minLine: number
+  minLine: number,
+  document: vscode.TextDocument
 ): number | undefined {
   let myItem:
     | {
@@ -400,7 +402,27 @@ export function getMaxLine(
         console.log("currentItem", currentItem);
         console.log("startIndex", startIndex, myItem);
       }
-      if (
+
+      let lineOfHyphenBeforeCurrentItem = -1;
+      if (currentItem && currentItem.lineOfPath) {
+        for (let lineIndex = minLine; lineIndex < currentItem.lineOfPath; lineIndex++) {
+          const line = document.lineAt(lineIndex).text;
+          const hyphenIndex = line.indexOf("-");
+          if (DEV) {
+            console.log("IndexYaml1", lineIndex, hyphenIndex);
+          }
+          if (hyphenIndex !== -1 && hyphenIndex <= myItem.index - 2) {
+            if (DEV) {
+              console.log("IndexYaml", lineIndex, hyphenIndex);
+            }
+            lineOfHyphenBeforeCurrentItem = lineIndex;
+          }
+        }
+      }
+
+      if (lineOfHyphenBeforeCurrentItem !== -1) {
+        return lineOfHyphenBeforeCurrentItem;
+      } else if (
         (myItem && currentItem.startOfArray !== myItem.startOfArray) ||
         (myItem && !currentItem.hasOwnProperty("arrayIndex")) ||
         (myItem && i === allYamlKeys.length - 1)
