@@ -9,6 +9,7 @@ import {
 } from "../extension/utilities/defs";
 import { expectedDefMap, expectedRef } from "./data/expected";
 import { services } from "./data/services";
+import { servicesNew } from "./data/newServices";
 
 describe("getYamlKeys", function () {
   // create a mocha test case. To test different cases (arrays, objects, etc.), just change the
@@ -515,10 +516,10 @@ describe("findDefaultCfgRef", function () {
 });
 
 describe("getEnums", function () {
-  xit("buildEnumArray", function () {
+  it("buildEnumArray", function () {
     // variables:
 
-    var schema = services;
+    var schema = servicesNew;
 
     deepStrictEqual(buildEnumArray(schema), expectedRef);
   });
