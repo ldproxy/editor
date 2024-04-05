@@ -104,14 +104,17 @@ const provider1: vscode.CompletionItemProvider<vscode.CompletionItem> = {
     if (
       (textBeforeCursor.trim() === "" &&
         currentStartOfArray &&
-        column === indentationOfpathAtCursor + indentationUsedInYaml * 2) ||
+        (column === indentationOfpathAtCursor + indentationUsedInYaml * 1 ||
+          column === indentationOfpathAtCursor + indentationUsedInYaml * 2)) ||
       (textBeforeCursor.trim() === "" &&
         column === indentationOfpathAtCursor + indentationUsedInYaml) ||
       (textBeforeCursor.trim() !== "" &&
         !textBeforeCursor.trim().includes("-") &&
         currentStartOfArray &&
-        column ===
-          indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength) ||
+        (column ===
+          indentationOfpathAtCursor + indentationUsedInYaml * 1 + textBeforeCursorLength ||
+          column ===
+            indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength)) ||
       (textBeforeCursor.trim() !== "" &&
         textBeforeCursor.trim() === "-" &&
         column ===
@@ -418,13 +421,16 @@ const provider2: vscode.CompletionItemProvider<vscode.CompletionItem> = {
           (pathAtCursor &&
             pathAtCursor.trim() !== "" &&
             textBeforeCursor.trim() === "" &&
-            column === indentationOfpathAtCursor + indentationUsedInYaml * 2) ||
+            (column === indentationOfpathAtCursor + indentationUsedInYaml * 1 ||
+              column === indentationOfpathAtCursor + indentationUsedInYaml * 2)) ||
           (pathAtCursor &&
             pathAtCursor.trim() !== "" &&
             textBeforeCursor.trim() !== "" &&
             !textBeforeCursor.trim().includes("-") &&
-            column ===
-              indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength) ||
+            (column ===
+              indentationOfpathAtCursor + indentationUsedInYaml * 1 + textBeforeCursorLength ||
+              column ===
+                indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength)) ||
           (textBeforeCursor.trim() !== "" &&
             textBeforeCursor.trim() === "-" &&
             column ===
@@ -650,16 +656,21 @@ const provider3: vscode.CompletionItemProvider<vscode.CompletionItem> = {
               if (
                 (textBeforeCursor.trim() === "" &&
                   arrayIndex !== -1 &&
-                  column === indentationOfpathAtCursor + indentationUsedInYaml * 2) ||
+                  (column === indentationOfpathAtCursor + indentationUsedInYaml * 1 ||
+                    column === indentationOfpathAtCursor + indentationUsedInYaml * 2)) ||
                 (textBeforeCursor.trim() === "" &&
                   column === indentationOfpathAtCursor + indentationUsedInYaml) ||
                 (textBeforeCursor.trim() !== "" &&
                   !textBeforeCursor.trim().includes("-") &&
                   arrayIndex !== -1 &&
-                  column ===
+                  (column ===
                     indentationOfpathAtCursor +
-                      indentationUsedInYaml * 2 +
-                      textBeforeCursorLength) ||
+                      indentationUsedInYaml * 1 +
+                      textBeforeCursorLength ||
+                    column ===
+                      indentationOfpathAtCursor +
+                        indentationUsedInYaml * 2 +
+                        textBeforeCursorLength)) ||
                 (textBeforeCursor.trim() !== "" &&
                   textBeforeCursor.trim() === "-" &&
                   column ===
