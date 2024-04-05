@@ -92,10 +92,6 @@ export const updateDiagnostics: DocUpdate = async function (
     console.log("yamlKeysDiagnosticUpdateDiagnostics", newAllYamlKeys);
   }
 
-  if (!document.uri.path.includes(".yml")) {
-    collection.clear();
-  }
-
   const diagnostics: vscode.Diagnostic[] = [];
   const path = getRelativeFilePath(document.uri);
 
@@ -171,8 +167,6 @@ export const updateDiagnostics: DocUpdate = async function (
           );
 
           diagnostics.push(diagnostic);
-
-          collection.set(document.uri, diagnostics);
         }
       } else {
         console.error(`Key "${lastKey}" not found in path "${infoWord}"`);
@@ -181,4 +175,6 @@ export const updateDiagnostics: DocUpdate = async function (
       console.error("Error parsing YAML:", e);
     }
   });
+
+  collection.set(document.uri, diagnostics);
 };
