@@ -61,6 +61,8 @@ type GeoPackageProps = {
   };
 };
 
+const maxSize = 104857600;
+
 function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoPackageProps) {
   const gpkgData = useRecoilValue(gpkgDataSelector);
 
@@ -76,6 +78,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const [gpkgIsUploading, setGpkgIsUploading] = useRecoilState<boolean>(gpkgIsUploadingAtom);
   const [gpkgIsSaving, setGpkgIsSaving] = useRecoilState<boolean>(gpkgIsSavingAtom);
   const [fileReader, setFileReader] = useState<FileReader | null>(null);
+  const [msg, setMsg] = useState<string>();
 
   useEffect(() => {
     if (newGPKG !== "") {
@@ -93,8 +96,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   }, []);
 */
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setGpkgIsUploading(true);
-    setBase64String("");
+    setMsg(undefined);
     if (DEV) {
       console.log("isUploading", gpkgIsUploading);
     }
@@ -103,6 +105,13 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       if (DEV) {
         console.log("GP", file);
       }
+      if (file.size > maxSize) {
+        handleReset();
+        setMsg(`File '${file.name}' is too large. Currently only files smaller than 100MB can be uploaded. You may copy the file directly into the store instead.`);
+        return;
+      }
+      setGpkgIsUploading(true);
+      setBase64String("");
       setFilename(file.name);
       setNewGPKG(file.name);
       setFileReader(null);
@@ -118,6 +127,11 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       reader.readAsArrayBuffer(file);
     }
   };
+
+  const onFileSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setExistingGPKG(event.target.value);
+    setMsg(undefined);
+  }
 
   const postUploadMessage = (base64String: string, filename: string) => {
     setGpkgIsUploading(false);
@@ -231,6 +245,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     setStateOfGpkgToUpload("");
     setCurrentlySelectedGPKG("");
     setBase64String("");
+    setMsg(undefined);
     hasSubmittedDataRef.current = false;
     const fileInput = document.getElementById("geoInput") as HTMLInputElement | null;
     if (fileInput) {
@@ -314,9 +329,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           className="dropdown"
           placeholder="Choose existing File..."
           value={existingGPKG}
-          onChange={(event) => {
-            setExistingGPKG(event.target.value);
-          }}
+          onChange={onFileSelect}
           disabled={inProgress || !!newGPKG || base64String !== ""}>
           <option value="" hidden>
             Choose existing File...
@@ -342,11 +355,12 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           <input
             id={"geoInput"}
             type="file"
-            onChange={(event) => onFileChange(event)}
+            onChange={onFileChange}
             accept=".gpkg"
             multiple={false}
             disabled={inProgress || !!existingGPKG || gpkgIsUploading || gpkgIsSaving}
           />
+          {msg && <div style={{textAlign: "left"}}>{msg}</div>}
           {gpkgIsUploading ? (
             <div className="progress-container">
               <VSCodeProgressRing className="progressRing" />
