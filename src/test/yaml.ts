@@ -85,7 +85,7 @@ api:
       { path: "api", index: 0, lineOfPath: 2 },
       { path: "api.buildingBlock", index: 4, lineOfPath: 3, startOfArray: 3, arrayIndex: 0 },
       { path: "api.additionalLinks", index: 4, lineOfPath: 4, startOfArray: 3, arrayIndex: 0 },
-      { path: "api.additionalLinks.rel", index: 8, lineOfPath: 5, startOfArray: 5, arrayIndex: 1 },
+      { path: "api.additionalLinks.rel", index: 8, lineOfPath: 5, startOfArray: 5, arrayIndex: 0 },
     ];
 
     var documentArrayWithArray = `---
@@ -105,7 +105,7 @@ api:
       { path: "api", index: 0, lineOfPath: 2 },
       { path: "api.buildingBlock", index: 4, lineOfPath: 3, startOfArray: 3, arrayIndex: 0 },
       { path: "api.additionalLinks", index: 4, lineOfPath: 4, startOfArray: 3, arrayIndex: 0 },
-      { path: "api.additionalLinks.rel", index: 8, lineOfPath: 5, startOfArray: 5, arrayIndex: 1 },
+      { path: "api.additionalLinks.rel", index: 8, lineOfPath: 5, startOfArray: 5, arrayIndex: 0 },
       { path: "api.buildingBlock", index: 4, lineOfPath: 6, startOfArray: 6, arrayIndex: 1 },
     ];
 
@@ -221,7 +221,7 @@ id: bla`;
         index: 8,
         lineOfPath: 15,
         startOfArray: 15,
-        arrayIndex: 4,
+        arrayIndex: 0,
       },
       { path: "api.buildingBlock", index: 4, lineOfPath: 16, startOfArray: 16, arrayIndex: 4 },
       { path: "metadata", index: 0, lineOfPath: 17 },
@@ -301,7 +301,7 @@ it("should build allYamlKeys for all cases even though there are illegitimate ke
       index: 8,
       lineOfPath: 20,
       startOfArray: 20,
-      arrayIndex: 4,
+      arrayIndex: 0,
     },
     { path: "api.buildingBlock", index: 4, lineOfPath: 21, startOfArray: 21, arrayIndex: 4 },
     { path: "collections", index: 0, lineOfPath: 22 },

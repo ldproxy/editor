@@ -1,11 +1,98 @@
 ---
+id: strassen
+createdAt: 1616851636788
+lastModified: 1616851636788
+entityStorageVersion: 2
+enabled: ${ENABLE_STRASSEN:-true}
+label: Straßennetz Landesbetrieb Straßenbau NRW
+description: "Der Datenbestand wird vorgehalten für die öffentlichen Straßen der Straßenklassen Bundesautobahnen, Bundesstraßen, Landesstraßen und Kreisstraßen, die innerhalb des Bundeslandes Nordrhein-Westfalen liegen."
 serviceType: OGC_API
 metadata:
-  contactEmail: huhuhuh
-enabled: true
+  creatorName: Landesbetrieb Straßenbau Nordrhein-Westfalen (Straßen.NRW)
+  creatorUrl: https://www.strassen.nrw.de/
+  licenseName: Datenlizenz Deutschland - Namensnennung - Version 2.0
+  licenseUrl: https://www.govdata.de/dl-de/by-2-0
+  attribution: "&copy; 2022 Landesbetrieb Straßenbau Nordrhein-Westfalen (Straßen.NRW)"
 api:
-  - buildingBlock: CITY_JSON
+  - buildingBlock: COLLECTIONS
+    additionalLinks:
+      - rel: related
+        type: text/html
+        title: "OpenGeodata.NRW: Straßenbezogene Informationen des Landesbetrieb Straßenbau NRW"
+        href: "https://www.opengeodata.nrw.de/produkte/transport_verkehr/strassennetz/"
+        hreflang: de
+  - buildingBlock: CRS
+    additionalCrs:
+      - code: 25832
+        forceAxisOrder: NONE
+      - code: 4258
+        forceAxisOrder: NONE
+      - code: 4326
+        forceAxisOrder: NONE
+      - code: 3857
+        forceAxisOrder: NONE
+  - buildingBlock: GEO_JSON
+    transformations:
+      "*":
+        flatten: "."
+  - buildingBlock: HTML
+    collectionDescriptionsInOverview: true
+    basemapUrl: https://sgx.geodatenzentrum.de/wmts_basemapde/tile/1.0.0/de_basemapde_web_raster_grau/default/GLOBAL_WEBMERCATOR/{z}/{y}/{x}.png
+    basemapAttribution: "&copy; basemap.de / BKG"
+    defaultStyle: default
+  - buildingBlock: FEATURES_HTML
+    mapPosition: TOP
+  - buildingBlock: TILES
     enabled: true
+    # mapClientType: OPEN_LAYERS
+  - buildingBlock: TILE_MATRIX_SETS
+    enabled: true
+    includePredefined:
+      - WebMercatorQuad
+      - AdV_25832
+      - EU_25832
+      - gdi_de_25832
+  - buildingBlock: STYLES
+    enabled: true
+    resourcesEnabled: false
+    deriveCollectionStyles: true
+    webmapWithPopup: true
+    webmapWithLayerControl: true
+    layerControlAllLayers: true
 collections:
-  building:
-    enabled: false
+  abschnitteaeste:
+    id: abschnitteaeste
+    label: abschnitteaeste
+    enabled: true
+    extent:
+      spatialComputed: true
+      temporalComputed: true
+    additionalLinks:
+      - rel: enclosure
+        type: application/x-shape
+        title: "Download der Daten als Shapefile"
+        href: "https://www.opengeodata.nrw.de/produkte/transport_verkehr/strassennetz/AbschnitteAeste_EPSG25832_Shape.zip"
+        hreflang: de
+    api:
+      - buildingBlock: QUERYABLES
+        included:
+          - geometry
+          - netzstand
+          - kennung
+          - strasse.bez
+          - absnr
+          - vwbez.name
+          - strasse.klasse
+          - strasse.nummer
+          - strasse.zusatz
+          - absast
+          - statanf
+          - laenge_m
+          - vwbez.knz
+      - buildingBlock: SORTING
+        included:
+          - kennung
+          - absnr
+          - absast
+          - statanf
+          - laenge_m

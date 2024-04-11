@@ -26,7 +26,7 @@ export function parseYaml(document: string) {
 
   allYamlKeys = [];
   allYamlKeys = getAllYamlPaths(document, yamlObject[0].value.items, "");
-  if (DEV) {
+  if (DEVYAMLKEYS) {
     console.log("yamlKeysIndex", allYamlKeys);
   }
   return allYamlKeys;
@@ -66,6 +66,7 @@ function getAllYamlPaths(
         object.value.items[0].value.items[0]
       ) {
         // Hier wird der erste Teil des Pfades (z.B. api) gebaut:
+        arrayIndex = -1;
 
         const originalNewPath: string = object.key.source.replace(/\./g, "/");
         let newPath: string = originalNewPath;
@@ -94,10 +95,9 @@ function getAllYamlPaths(
         }
         // Hier geht man in den tastächlichen Array rein:
         object.value.items.forEach((array: any) => {
-          if (!yamlKeys.some((yk) => yk.path === path)) {
+          /* if (!yamlKeys.some((yk) => yk.path === path)) {
             arrayIndex = -1;
-          }
-          arrayIndex++;
+          }*/
           if (DEVYAMLKEYS) {
             console.log("arrayGetKeys", array);
           }
@@ -113,6 +113,8 @@ function getAllYamlPaths(
           if (arrayStartOffset) {
             startOfArray = getLineNumber(document, arrayStartOffset);
           }
+          arrayIndex++;
+
           if (array && array.value && array.value.items) {
             array.value.items.forEach((object2: any) => {
               if (object2 && object2.key && object2.key.source) {
@@ -350,15 +352,40 @@ export function getLinesForArrayIndex(
   path: string
 ): number | undefined {
   let line: number = 0;
+  if (DEVYAMLKEYS) {
+    console.log("pathMinLine", path);
+  }
   const pathToUse = path.replace(/\[\d+\]/g, "");
 
   for (const obj of allYamlKeys) {
-    if (obj.startOfArray && obj.arrayIndex === index && obj.path === pathToUse) {
+    if (DEVYAMLKEYS) {
+      console.log(
+        "startOfArray",
+        obj.startOfArray,
+        "index",
+        obj.arrayIndex,
+        index,
+        "path",
+        obj.path,
+        "path2",
+        pathToUse,
+        "path3",
+        path
+      );
+    }
+    if (
+      obj.startOfArray &&
+      obj.path &&
+      pathToUse &&
+      obj.arrayIndex === index &&
+      obj.path === pathToUse
+    ) {
       line = obj.startOfArray;
+      console.log("lineYamlArrays", line);
+      break;
     }
   }
-  if (DEV) {
-    console.log("lineYamlArrays", line);
+  if (DEVYAMLKEYS) {
     console.log("pathiToUse", pathToUse);
   }
 
@@ -398,7 +425,7 @@ export function getMaxLine(
   if (startIndex > 0) {
     for (let i = startIndex; i < allYamlKeys.length; i++) {
       const currentItem = allYamlKeys[i];
-      if (DEV) {
+      if (DEVYAMLKEYS) {
         console.log("currentItem", currentItem);
         console.log("startIndex", startIndex, myItem);
       }
@@ -408,11 +435,11 @@ export function getMaxLine(
         for (let lineIndex = minLine; lineIndex < currentItem.lineOfPath; lineIndex++) {
           const line = document.lineAt(lineIndex).text;
           const hyphenIndex = line.indexOf("-");
-          if (DEV) {
+          if (DEVYAMLKEYS) {
             console.log("IndexYaml1", lineIndex, hyphenIndex);
           }
           if (hyphenIndex !== -1 && hyphenIndex <= myItem.index - 2) {
-            if (DEV) {
+            if (DEVYAMLKEYS) {
               console.log("IndexYaml", lineIndex, hyphenIndex);
             }
             lineOfHyphenBeforeCurrentItem = lineIndex;
@@ -427,11 +454,11 @@ export function getMaxLine(
         (myItem && !currentItem.hasOwnProperty("arrayIndex")) ||
         (myItem && i === allYamlKeys.length - 1)
       ) {
-        if (DEV) {
+        if (DEVYAMLKEYS) {
           console.log("iiii", i);
         }
         if (i === allYamlKeys.length - 1 && currentItem && currentItem.lineOfPath) {
-          if (DEV) {
+          if (DEVYAMLKEYS) {
             console.log("landet hier", currentItem.lineOfPath);
           }
           return currentItem.lineOfPath + 2;
@@ -448,7 +475,7 @@ export function extractIndexFromPath(path: string): number | null {
   const regex = /\[(\d+)\]/;
 
   const match = path.match(regex);
-  if (DEV) {
+  if (DEVYAMLKEYS) {
     console.log("match", match);
   }
   if (match && match[1]) {
@@ -469,7 +496,7 @@ export function hashDoc(document?: vscode.TextDocument): string {
 export function hashText(text?: string): string {
   if (text && text !== "") {
     const hashString = md5(text);
-    if (DEV) {
+    if (DEVYAMLKEYS) {
       console.log("Hash:", hashString);
     }
 
