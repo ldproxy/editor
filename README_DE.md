@@ -4,7 +4,7 @@ Eine [VS Code](https://code.visualstudio.com) Extension, die Sie bei der Erstell
 
 ## Aktueller Stand
 
-Eine Vorschauversion (`v0.9.0`) ist verfügbar.
+Der erste stabile Release (`v1.0.0`) ist verfügbar.
 
 ### Verteilung
 
@@ -12,12 +12,15 @@ Derzeit ist die einzige Möglichkeit, die Erweiterung zu nutzen, das zur Verfüg
 
 ### Funktionen
 
-Derzeit hat die Erweiterung nur eine einzige Funktion, den Befehl `Create new entities`. Dieser bietet einen grafischen Assistenten zur automatischen Generierung von Provider- und Service-Konfigurationen aus Datenquellen.
+- Befehl `Create new entities`: bietet einen grafischen Assistenten zur automatischen Generierung von Provider- und Service-Konfigurationen aus Datenquellen.
+- IntelliSense: zeigt verfügbare Properties in YAML-Konfigurationsdateien an.
+- Syntax checks: erkennt unbekannte oder veraltete Properties in YAML-Konfigurationsdateien.
+- Tooltips: zeigt die Dokumentation für Properties in YAML-Konfigurationsdateien an.
 
 ## Ausblick
 
-- `v1.0.0` IntelliSense-Unterstützung für YAML-Konfigurationsdateien (Autovervollständigung, Syntaxprüfung, Dokumentationstooltips)
-- `v1.1.0` allgemeine Verfügbarkeit der Erweiterung für VS Code Desktop (macOS, Windows, Linux)
+- `v1.1.0` automatische Generierung und Bearbeitung von MapLibre-Styles
+- `v2.0.0` allgemeine Verfügbarkeit der Erweiterung für VS Code Desktop (macOS, Windows, Linux)
 
 ## Installation
 
@@ -28,6 +31,9 @@ Um den Editor mit Ihrem ldproxy-Konfigurationsverzeichnis in `/home/user/ldproxy
 ```sh
 docker run -d -p 8080:80 -v /home/user/ldproxycfg:/data ghcr.io/ldproxy/editor
 ```
+
+> [!NOTE]
+> Der Zugriff auf den Editor via `http` funktioniert nur mit `localhost`. Um den Editor für Remote-Zugriff bereitzustellen, wird ein Reverse-Proxy mit `https` benötigt.
 
 ## Verwendung
 
@@ -45,3 +51,10 @@ Er ermöglicht es Ihnen, automatisch Provider- und Service-Konfigurationen aus _
 > Wenn Sie versuchen, auf eine _PostgreSQL_-Datenbank auf demselben Host zuzugreifen, auf dem der Docker-Container läuft, müssen Sie `host.docker.internal` anstelle von `localhost` verwenden.
 
 ![](screenshot.png)
+
+### IntelliSense (Autovervollständigung)
+
+Um eine Liste aller verfügbaren Properties an einer bestimmten Stelle in einer YAML-Konfigurationsdatei zu erhalten, kann man `Ctrl+Space` drücken. (Es heißt `Trigger suggest` in der [Befehlspalette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette), dort wird auch der konfigurierte Hotkey angezeigt.)
+Dann kann man mit den Cursor-Tasten durch die Vorschläge navigieren und mit `Enter` einen auswählen. Man kann auch vor oder nach dem Triggern anfangen zu tippen, um die Vorschläge einzugrenzen.
+
+![](screenshot2.png)
