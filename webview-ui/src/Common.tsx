@@ -26,7 +26,7 @@ function Common({ disabled, error }: CommonProps) {
           <VSCodeTextField
             value={id}
             disabled={disabled}
-            onChange={(e) => {
+            onInput={(e) => {
               const target = e.target as HTMLInputElement;
               if (target) {
                 setId(target.value);
