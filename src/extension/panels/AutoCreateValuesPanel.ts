@@ -90,7 +90,7 @@ export class AutoCreateValuesPanel {
         // Panel view type
         "ldproxy-editor.showAutoCreateValues",
         // Panel title
-        "Create new entities",
+        "Create new values",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations

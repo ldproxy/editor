@@ -1,0 +1,323 @@
+html,
+#root {
+  height: 100%;
+}
+
+body {
+  height: 98%;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  font-family: sans-serif;
+}
+
+.component-container > * {
+  margin: 0.25rem 0;
+}
+
+.component-example {
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.component-example > p {
+  margin-bottom: 0.5rem;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  align-items: start;
+  text-align: center;
+}
+
+#GpkgName {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+
+#geoInput {
+  display: none;
+}
+
+.resetButton {
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: medium;
+  font-weight: bold;
+  height: 28px;
+  width: 60px;
+}
+
+.vscode-button {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  cursor: pointer;
+  border-radius: 2px;
+  border: calc(var(--border-width) * 1px) solid var(--button-border);
+  font-family: var(--font-family);
+  font-size: var(--type-ramp-base-font-size);
+  line-height: var(--type-ramp-base-line-height);
+  padding: var(--button-padding-vertical) var(--button-padding-horizontal);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+vscode-button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.submitAndReset {
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+#uploadLabelDisabled {
+  opacity: var(--disabled-opacity);
+  background: var(--button-primary-background);
+  cursor: not-allowed;
+  border-radius: 2px;
+  border: calc(var(--border-width) * 1px) solid var(--button-border);
+  font-family: var(--font-family);
+  font-size: var(--type-ramp-base-font-size);
+  line-height: var(--type-ramp-base-line-height);
+  padding: var(--button-padding-vertical) var(--button-padding-horizontal);
+  fill: currentcolor;
+}
+
+.dropdown {
+  max-width: 100%;
+  height: 25px;
+}
+
+.checkbox-fieldset {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#outerContainerCheckboxes {
+  margin-top: 10px;
+  height: 85%;
+  overflow-y: auto;
+}
+
+#everything fieldset {
+  margin-bottom: 10px;
+}
+
+.submitButton {
+  width: 60px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  padding-top: 10px;
+}
+
+.progressRing {
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+}
+
+.frame {
+  margin-bottom: 10px;
+}
+
+#progressText {
+  font-size: 13px;
+}
+
+.postgresWfsOuterContainer {
+  width: 166.67px;
+  margin-bottom: 10px;
+}
+
+.mappedCheckboxesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.mappedCheckboxesContainer fieldset {
+  width: calc(50% - 50px);
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: #ff0000;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.final-container {
+  margin-top: 20px;
+}
+
+/* Switch in Wfs.tsx */
+
+#switchDiv {
+  margin-bottom: 15px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 1px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+#switchDiv label[for="basicAuthSwitch"] {
+  color: #000;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* Final: */
+
+.final-title {
+  margin-bottom: 20px;
+}
+
+.final-link {
+  display: block;
+  margin: 10px 0px;
+  cursor: pointer;
+}
+
+.final-buttons {
+  margin-top: 30px;
+}
+
+.final-dismiss,
+.final-create-another {
+  margin-right: 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: medium;
+  font-weight: bold;
+  height: 28px;
+}
+
+/* Progress.tsx */
+
+.schema-bullet {
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  margin-right: 4px;
+  font-weight: bold;
+}
+.schema-bullet:before {
+  content: "";
+  float: left;
+  display: list-item;
+  list-style-type: disc;
+  list-style-position: inside;
+  width: 20px;
+  margin-left: 10px;
+  font-size: 12px;
+}
+
+.table-item {
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.progress {
+  margin-bottom: 50px;
+}
+
+.spinnerTable {
+  display: flex;
+  align-items: center;
+}
+
+.progressRing2 {
+  width: 9px;
+  height: 15px;
+  margin-right: 0.3em;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+}
+li {
+  list-style-type: none;
+  padding-left: 30px;
+}
+li:before {
+  content: "";
+  float: left;
+  display: list-item;
+  list-style-type: disc;
+  list-style-position: inside;
+  width: 20px;
+  margin-left: -20px;
+}

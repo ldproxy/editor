@@ -1,11 +1,11 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilValue } from "recoil";
 
-import { vscode } from "./utilities/vscode";
+import { vscode } from "../utilities/vscode";
 import Progress from "./Progress";
 import { selectedTablesAtom, TableData } from "./Tables";
 import { dataProcessingAtom } from "./App";
-import { atomSyncStringArray } from "./utilities/recoilSyncWrapper";
+import { atomSyncStringArray } from "../utilities/recoilSyncWrapper";
 
 export const namesOfCreatedFilesAtom = atomSyncStringArray("namesOfCreatedFiles", [""]);
 

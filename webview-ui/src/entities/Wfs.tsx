@@ -5,10 +5,10 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 
-import { BasicData } from "./utilities/xtracfg";
+import { BasicData } from "../utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncBoolean } from "./utilities/recoilSyncWrapper";
-import { DEV } from "./utilities/constants";
+import { atomSyncString, atomSyncBoolean } from "../utilities/recoilSyncWrapper";
+import { DEV } from "../utilities/constants";
 
 export const urlAtom = atomSyncString("url", "");
 

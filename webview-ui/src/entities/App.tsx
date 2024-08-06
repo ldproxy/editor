@@ -1,17 +1,21 @@
 import { useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
-import { vscode } from "./utilities/vscode";
+import { vscode } from "../utilities/vscode";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
 import Wfs, { WfsData, wfsDataSelector } from "./Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
 import Final from "./Final";
-import { BasicData, Response, Error, xtracfg } from "./utilities/xtracfg";
-import { DEV } from "./utilities/constants";
+import { BasicData, Response, Error, xtracfg } from "../utilities/xtracfg";
+import { DEV } from "../utilities/constants";
 import { namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncObject, atomSyncStringArray } from "./utilities/recoilSyncWrapper";
+import {
+  atomSyncString,
+  atomSyncObject,
+  atomSyncStringArray,
+} from "../utilities/recoilSyncWrapper";
 
 import "./App.css";
 
