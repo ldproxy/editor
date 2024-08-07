@@ -6,8 +6,9 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
-import { atomSyncString } from "../utilities/recoilSyncWrapper";
+import { atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
 import { Response, Error, xtracfg } from "../utilities/xtracfgValues";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useEffect } from "react";
 import { vscode } from "../utilities/vscode";
 import Final from "./Final";
@@ -18,6 +19,7 @@ export const typeAtom = atomSyncString("type", "maplibre-styles");
 export const workspaceAtom = atomSyncString("workspace", "");
 export const successAtom = atomSyncString("success", "");
 export const errorAtom = atomSyncString("error", "");
+export const loadingAtom = atomSyncBoolean("loading", false);
 
 export type valueData = {
   apiId: string;
@@ -57,6 +59,7 @@ function App() {
   const valueData = useRecoilValue<valueData>(valueDataSelector);
   const [success, setSuccess] = useRecoilState(successAtom);
   const [error, setError] = useRecoilState(errorAtom);
+  const [loading, setLoading] = useRecoilState(loadingAtom);
 
   useEffect(() => {
     vscode.listen(handleVscode);
@@ -90,9 +93,11 @@ function App() {
       default:
         console.log("Message received from vscode", message);
     }
+    setLoading(false);
   };
 
   const submitData = (data: valueData) => {
+    setLoading(true);
     const basicData: BasicData = {
       ...data,
       subcommand: "generate",
@@ -147,16 +152,21 @@ function App() {
               </VSCodeTextField>
             </section>
           </div>
-          <div className="postgresWfsSubmit">
+          <div className="postgresWfsSubmit" style={{ display: "flex", alignItems: "center" }}>
             <VSCodeButton
               className="submitButton"
               onClick={() => submitData(valueData)}
               disabled={!apiName || !valueFileName}
-              style={{ marginBottom: "15px" }}>
+              style={{ marginBottom: "15px", marginRight: "20px" }}>
               Next
             </VSCodeButton>
-            {error && <div style={{ color: "red" }}>{error}</div>}
+            {loading && (
+              <VSCodeProgressRing
+                style={{ marginBottom: "12px", width: "1.3em", height: "1.3em" }}
+              />
+            )}
           </div>
+          {error && <div style={{ color: "red" }}>{error}</div>}
         </main>
       </>
     );
