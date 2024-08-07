@@ -1,48 +1,110 @@
-import { useEffect } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
-
-import { vscode } from "../utilities/vscode";
-import { BasicData, Response, Error, xtracfg } from "../utilities/xtracfg";
-import { DEV } from "../utilities/constants";
-
 import {
-  atomSyncString,
-  atomSyncObject,
-  atomSyncStringArray,
-} from "../utilities/recoilSyncWrapper";
+  VSCodeTextField,
+  VSCodeRadioGroup,
+  VSCodeRadio,
+  VSCodeButton,
+} from "@vscode/webview-ui-toolkit/react";
+import { useRecoilState, selector, useRecoilValue } from "recoil";
 
-import "./App.css";
+import { atomSyncString } from "../utilities/recoilSyncWrapper";
+import { Response, Error, xtracfg } from "../utilities/xtracfgValues";
 
-type FieldErrors = {
-  [key: string]: string;
+export const apiNameAtom = atomSyncString("apiName", "");
+export const valueFileNameAtom = atomSyncString("valueFileName", "");
+export const typeAtom = atomSyncString("type", "maplibre-style");
+
+export const valueDataSelector = selector({
+  key: "valueDataSelector",
+  get: ({ get }) => {
+    const apiId = get(apiNameAtom);
+    const name = get(valueFileNameAtom);
+    const type = get(typeAtom);
+    const source = "/Users/pascal/Documents/ldproxy_mount";
+    const command = "autoValue";
+    return {
+      apiId,
+      name,
+      type,
+      source,
+      command,
+    };
+  },
+});
+
+export type valueData = {
+  apiId: string;
+  name: string;
+  type: string;
+  source: string;
+  command: string;
 };
 
-export const dataProcessingAtom = atomSyncString("dataProcessing", "");
-
-export const existingGeopackageAtom = atomSyncStringArray("existingGeopackage", [""]);
-
-export const workspaceAtom = atomSyncString("workspace", "");
-
-export const errorAtom = atomSyncObject<FieldErrors>("error", {});
-
-export const generateProgressAtom = atomSyncString("generateProgress", "");
+export type BasicData = valueData & {
+  subcommand: string;
+};
 
 function App() {
-  const [existingGeopackages, setExistingGeopackages] =
-    useRecoilState<string[]>(existingGeopackageAtom);
-  const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
-  const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
-  const [generateProgress, setGenerateProgress] = useRecoilState<string>(generateProgressAtom);
+  const [apiName, setApiName] = useRecoilState(apiNameAtom);
+  const [valueFileName, setValueFileName] = useRecoilState(valueFileNameAtom);
+  const [type, setType] = useRecoilState(typeAtom);
+  const valueData = useRecoilValue<valueData>(valueDataSelector);
 
-  const [error, setError] = useRecoilState<FieldErrors>(errorAtom);
+  const submitData = (data: valueData) => {
+    const basicData: BasicData = {
+      ...data,
+      subcommand: "generate",
+    };
+
+    xtracfg.send(basicData);
+  };
 
   return (
     <>
-      {dataProcessing === "" || dataProcessing === "inProgress" ? (
-        <main>Huuuuuhuuuuuuu</main>
-      ) : (
-        "An Error Occurred"
-      )}
+      <main>
+        <h3>Create new values</h3>
+        <div className="input-container">
+          <section className="component-example">
+            <VSCodeTextField
+              value={apiName}
+              onChange={(e) => {
+                const target = e.target as HTMLInputElement;
+                if (target) {
+                  setApiName(target.value);
+                }
+              }}>
+              Api Name
+            </VSCodeTextField>
+          </section>
+          <section className="component-example">
+            <VSCodeTextField
+              value={valueFileName}
+              onChange={(e) => {
+                const target = e.target as HTMLInputElement;
+                if (target) {
+                  setValueFileName(target.value);
+                }
+              }}>
+              Value Filename
+            </VSCodeTextField>
+          </section>
+        </div>
+        <section className="component-example">
+          <VSCodeRadioGroup name="ValueType" value={type} orientation="vertical">
+            <label slot="label">Value Type</label>
+            <VSCodeRadio
+              id="MapLibreStyle"
+              value="maplibre-style"
+              onChange={() => setType("maplibre-style")}>
+              maplibre-style
+            </VSCodeRadio>
+          </VSCodeRadioGroup>
+        </section>
+        <div className="postgresWfsSubmit">
+          <VSCodeButton className="submitButton" onClick={() => submitData(valueData)}>
+            Next
+          </VSCodeButton>
+        </div>
+      </main>
     </>
   );
 }
