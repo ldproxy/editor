@@ -1,7 +1,6 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 import { vscode } from "../utilities/vscode";
-import { atomSyncStringArray } from "../utilities/recoilSyncWrapper";
 
 type FinalProps = {
   workspace: string;
@@ -39,7 +38,7 @@ const Final = ({ workspace, nameOfCreatedFile, apiId, type }: FinalProps) => {
             className="final-link"
             style={{ cursor: "pointer" }}
             onClick={() => onLinkClick(nameOfCreatedFile)}>
-            {nameOfCreatedFile}
+            {`values/${type}/${apiId}/${nameOfCreatedFile}.yml`}
           </a>
         </li>
       </ul>

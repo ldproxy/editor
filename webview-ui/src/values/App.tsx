@@ -99,17 +99,6 @@ function App() {
     xtracfg.send(basicData);
   };
 
-  useEffect(() => {
-    console.log("App loaded with state:", {
-      apiName,
-      valueFileName,
-      type,
-      workspace,
-      success,
-      error,
-    });
-  }, [apiName, valueFileName, type, workspace, success, error]);
-
   if (success) {
     return (
       <Final nameOfCreatedFile={valueFileName} workspace={workspace} apiId={apiName} type={type} />
@@ -119,7 +108,18 @@ function App() {
       <>
         <main>
           <h3>Create new values</h3>
-          <div className="input-container" style={{ marginBottom: "15px" }}>
+          <div className="input-container">
+            <section className="component-example" style={{ marginBottom: "15px" }}>
+              <VSCodeRadioGroup name="ValueType" value={type} orientation="vertical">
+                <label slot="label">Value Type</label>
+                <VSCodeRadio
+                  id="MapLibreStyles"
+                  value="maplibre-styles"
+                  onChange={() => setType("maplibre-styles")}>
+                  maplibre-style
+                </VSCodeRadio>
+              </VSCodeRadioGroup>
+            </section>
             <section className="component-example" style={{ marginBottom: "10px" }}>
               <VSCodeTextField
                 value={apiName}
@@ -132,7 +132,7 @@ function App() {
                 Api Name
               </VSCodeTextField>
             </section>
-            <section className="component-example">
+            <section className="component-example" style={{ marginBottom: "15px" }}>
               <VSCodeTextField
                 value={valueFileName}
                 onChange={(e) => {
@@ -145,17 +145,6 @@ function App() {
               </VSCodeTextField>
             </section>
           </div>
-          <section className="component-example" style={{ marginBottom: "15px" }}>
-            <VSCodeRadioGroup name="ValueType" value={type} orientation="vertical">
-              <label slot="label">Value Type</label>
-              <VSCodeRadio
-                id="MapLibreStyles"
-                value="maplibre-styles"
-                onChange={() => setType("maplibre-styles")}>
-                maplibre-style
-              </VSCodeRadio>
-            </VSCodeRadioGroup>
-          </section>
           <div className="postgresWfsSubmit">
             <VSCodeButton className="submitButton" onClick={() => submitData(valueData)}>
               Next
