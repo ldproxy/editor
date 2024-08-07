@@ -77,13 +77,15 @@ function App() {
         setWorkspace(workspaceRoot);
         break;
       case "xtracfg":
-        if (message.response) {
+        if (
+          message &&
+          message.response &&
+          message.response.results[0] &&
+          message.response.results[0].status === "SUCCESS"
+        ) {
           setSuccess(message.response.results[0].message);
-          console.log("Message received from vscode", message.response.results[0].message);
-        } else {
-          setError(message.error);
-          console.log("Message received from vscode", message.error);
-        }
+        } else if (message && message.error && message.error.notification)
+          setError(message.error.notification);
         break;
       default:
         console.log("Message received from vscode", message);
@@ -123,7 +125,7 @@ function App() {
             <section className="component-example" style={{ marginBottom: "10px" }}>
               <VSCodeTextField
                 value={apiName}
-                onChange={(e) => {
+                onInput={(e) => {
                   const target = e.target as HTMLInputElement;
                   if (target) {
                     setApiName(target.value);
@@ -135,7 +137,7 @@ function App() {
             <section className="component-example" style={{ marginBottom: "15px" }}>
               <VSCodeTextField
                 value={valueFileName}
-                onChange={(e) => {
+                onInput={(e) => {
                   const target = e.target as HTMLInputElement;
                   if (target) {
                     setValueFileName(target.value);
@@ -146,7 +148,11 @@ function App() {
             </section>
           </div>
           <div className="postgresWfsSubmit">
-            <VSCodeButton className="submitButton" onClick={() => submitData(valueData)}>
+            <VSCodeButton
+              className="submitButton"
+              onClick={() => submitData(valueData)}
+              disabled={!apiName || !valueFileName}
+              style={{ marginBottom: "15px" }}>
               Next
             </VSCodeButton>
             {error && <div style={{ color: "red" }}>{error}</div>}
