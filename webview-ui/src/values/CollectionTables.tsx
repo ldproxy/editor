@@ -72,11 +72,6 @@ const CollectionTables = ({
     setSelectedTables({});
   };
 
-  useEffect(() => {
-    console.log("selectedTables", selectedTables);
-    console.log("allTables", allTables);
-  }, [selectedTables, allTables]);
-
   return (
     <>
       <form id="outerContainerCheckboxes">

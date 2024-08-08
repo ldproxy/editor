@@ -55,7 +55,7 @@ function App() {
       if (DEV) {
         const collectionColors = "TEST";
       }
-      const collectionColors = JSON.stringify(get(collections));
+      //  const collectionColors = JSON.stringify(get(collections));
 
       return {
         apiId,
@@ -63,7 +63,7 @@ function App() {
         type,
         source,
         command,
-        collectionColors,
+        //  collectionColors,
       };
     },
   });
@@ -88,8 +88,6 @@ function App() {
       case "setWorkspace":
         const workspaceRoot = message.workspaceRoot;
 
-        console.log("workspace root:", workspaceRoot);
-
         setWorkspace(workspaceRoot);
         break;
       case "xtracfg":
@@ -103,7 +101,6 @@ function App() {
         ) {
           const collections = message.response.details["Collection Colors"];
           setResultDetails(collections);
-          console.log("details", collections);
         } else if (
           message &&
           message.response &&
@@ -154,11 +151,6 @@ function App() {
 
     xtracfg.send(basicData);
   };
-
-  useEffect(() => {
-    console.log("dudu", collectionColors, success, Object.keys(collectionColors).length === 0);
-    console.log("bla", resultDetails);
-  }, [collectionColors, success, resultDetails]);
 
   if (
     resultDetails &&
