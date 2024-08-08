@@ -1,0 +1,158 @@
+import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { useRecoilState, useRecoilValue } from "recoil";
+
+import { SetterOrUpdater } from "recoil";
+
+import { atomSyncString, atomSyncObject, atomSyncBoolean } from "../utilities/recoilSyncWrapper";
+import { DEV } from "../utilities/constants";
+import { useEffect, useState } from "react";
+
+export const selectedTablesAtom = atomSyncObject<TableData>("selectedTables", {});
+
+export type TableData = {
+  [key: string]: string;
+};
+
+export const currentTableAtom = atomSyncString("currentTable", "");
+
+type TablesProps = {
+  details: TableData;
+  generate(data: Object): void;
+  success: string;
+  error: string;
+  setCollectionColors: SetterOrUpdater<object>;
+};
+
+const CollectionTables = ({
+  generate,
+  details,
+  success,
+  error,
+  setCollectionColors,
+}: TablesProps) => {
+  const allTables: TableData = details;
+  const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleTableSelection = (tableName: string) => {
+    if (selectedTables[tableName]) {
+      const updatedSelectedTables = { ...selectedTables };
+      delete updatedSelectedTables[tableName];
+      setSelectedTables(updatedSelectedTables);
+    } else {
+      setSelectedTables({
+        ...selectedTables,
+        [tableName]: allTables[tableName],
+      });
+    }
+  };
+
+  const handleSelectAllTables = () => {
+    const allSelected = Object.keys(allTables).length === Object.keys(selectedTables).length;
+
+    if (!allSelected) {
+      setSelectedTables({ ...allTables });
+    } else {
+      setSelectedTables({});
+    }
+  };
+
+  const areAllTablesSelected = () => {
+    return Object.keys(allTables).length === Object.keys(selectedTables).length;
+  };
+
+  const handleColorChange = (tableName: string, color: string) => {
+    setSelectedTables({
+      ...selectedTables,
+      [tableName]: color,
+    });
+  };
+
+  const handleBack = () => {
+    setSelectedTables({});
+  };
+
+  useEffect(() => {
+    console.log("selectedTables", selectedTables);
+    console.log("allTables", allTables);
+  }, [selectedTables, allTables]);
+
+  return (
+    <>
+      <form id="outerContainerCheckboxes">
+        <h3>Select all Collections</h3>
+        {Object.keys(allTables).length > 1 && (
+          <div id="everything">
+            <fieldset key="everything">
+              <legend>Select all Tables</legend>
+              <VSCodeCheckbox
+                key="everything"
+                checked={areAllTablesSelected()}
+                onClick={handleSelectAllTables}>
+                All
+              </VSCodeCheckbox>
+            </fieldset>
+          </div>
+        )}
+        <div className="mappedCheckboxesContainer">
+          <fieldset className="checkbox-fieldset">
+            <legend>Collections</legend>
+            {Object.keys(allTables).map((tableName) => (
+              <div
+                className="checkbox-container"
+                style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <VSCodeCheckbox
+                  key={tableName}
+                  checked={!!selectedTables[tableName]}
+                  onClick={() => handleTableSelection(tableName)}>
+                  {tableName}
+                </VSCodeCheckbox>
+                <div>
+                  <input
+                    type="color"
+                    value={selectedTables[tableName] || allTables[tableName]}
+                    onChange={(e) => handleColorChange(tableName, e.target.value)}
+                  />
+                </div>
+              </div>
+            ))}
+          </fieldset>
+        </div>
+      </form>
+      <div
+        className="submitAndReset"
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          marginTop: "15px",
+          marginBottom: "15px",
+        }}>
+        <VSCodeButton className="submitButton" style={{ marginRight: "10px" }} onClick={handleBack}>
+          Back
+        </VSCodeButton>
+        <VSCodeButton
+          className="submitButton"
+          style={{ marginRight: "15px" }}
+          onClick={() => {
+            generate(selectedTables);
+            setLoading(true);
+            setCollectionColors(selectedTables);
+          }}
+          disabled={Object.keys(selectedTables).length === 0}>
+          Next
+        </VSCodeButton>
+        {success === "" && error === "" && loading && (
+          <div className="progress-container">
+            <VSCodeProgressRing
+              className="progressRing"
+              style={{ width: "1.3em", height: "1.3em" }}
+            />
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default CollectionTables;

@@ -24,7 +24,7 @@ const Final = ({ workspace, nameOfCreatedFile, apiId, type }: FinalProps) => {
   const onLinkClick = (file: string) => {
     vscode.postMessage({
       command: "success",
-      text: `${workspace}/values/${type}/${apiId}/${file}.yml`,
+      text: `${workspace}/values/${type}/${apiId}/${file}.json`,
     });
     vscode.getState();
   };
@@ -38,7 +38,7 @@ const Final = ({ workspace, nameOfCreatedFile, apiId, type }: FinalProps) => {
             className="final-link"
             style={{ cursor: "pointer" }}
             onClick={() => onLinkClick(nameOfCreatedFile)}>
-            {`values/${type}/${apiId}/${nameOfCreatedFile}.yml`}
+            {`values/${type}/${apiId}/${nameOfCreatedFile}.json`}
           </a>
         </li>
       </ul>

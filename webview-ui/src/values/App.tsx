@@ -6,12 +6,13 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
-import { atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
+import { atomSyncBoolean, atomSyncObject, atomSyncString } from "../utilities/recoilSyncWrapper";
 import { Response, Error, xtracfg } from "../utilities/xtracfgValues";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useEffect } from "react";
 import { vscode } from "../utilities/vscode";
 import Final from "./Final";
+import CollectionTables, { TableData } from "./CollectionTables";
 
 export const apiNameAtom = atomSyncString("apiName", "");
 export const valueFileNameAtom = atomSyncString("valueFileName", "");
@@ -20,6 +21,8 @@ export const workspaceAtom = atomSyncString("workspace", "");
 export const successAtom = atomSyncString("success", "");
 export const errorAtom = atomSyncString("error", "");
 export const loadingAtom = atomSyncBoolean("loading", false);
+export const details = atomSyncObject<TableData>("details", {});
+export const collections = atomSyncObject<Response>("collections", {});
 
 export type valueData = {
   apiId: string;
@@ -27,6 +30,7 @@ export type valueData = {
   type: string;
   source: string;
   command: string;
+  collectionColors?: string;
 };
 
 export type BasicData = valueData & {
@@ -38,6 +42,7 @@ function App() {
   const [valueFileName, setValueFileName] = useRecoilState(valueFileNameAtom);
   const [type, setType] = useRecoilState(typeAtom);
   const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
+  const DEV = false;
   const valueDataSelector = selector({
     key: "uniqueValueDataSelector_v1",
     get: ({ get }) => {
@@ -47,12 +52,18 @@ function App() {
       // const source = "/Users/pascal/Documents/ldproxy_mount";
       const source = workspace;
       const command = "autoValue";
+      if (DEV) {
+        const collectionColors = "TEST";
+      }
+      const collectionColors = JSON.stringify(get(collections));
+
       return {
         apiId,
         name,
         type,
         source,
         command,
+        collectionColors,
       };
     },
   });
@@ -60,6 +71,8 @@ function App() {
   const [success, setSuccess] = useRecoilState(successAtom);
   const [error, setError] = useRecoilState(errorAtom);
   const [loading, setLoading] = useRecoilState(loadingAtom);
+  const [resultDetails, setResultDetails] = useRecoilState<TableData>(details);
+  const [collectionColors, setCollectionColors] = useRecoilState(collections);
 
   useEffect(() => {
     vscode.listen(handleVscode);
@@ -83,12 +96,31 @@ function App() {
         if (
           message &&
           message.response &&
+          message.response.details &&
+          typeof message.response.details === "object" &&
+          Object.keys(message.response.details).length > 0 &&
+          message.response.details["Collection Colors"]
+        ) {
+          const collections = message.response.details["Collection Colors"];
+          setResultDetails(collections);
+          console.log("details", collections);
+        } else if (
+          message &&
+          message.response &&
           message.response.results[0] &&
-          message.response.results[0].status === "SUCCESS"
+          message.response.results[0].status === "SUCCESS" &&
+          message.response.results[0].message
         ) {
           setSuccess(message.response.results[0].message);
-        } else if (message && message.error && message.error.notification)
+        } else if (message && message.error && message.error.notification) {
           setError(message.error.notification);
+        } else if (message && message.error) {
+          if (typeof message.error === "string") {
+            setError(message.error);
+          } else if (message.error.error) {
+            setError(message.error.error);
+          }
+        }
         break;
       default:
         console.log("Message received from vscode", message);
@@ -96,17 +128,53 @@ function App() {
     setLoading(false);
   };
 
+  // step 1: analyze
   const submitData = (data: valueData) => {
     setLoading(true);
     const basicData: BasicData = {
       ...data,
+      subcommand: "analyze",
+    };
+
+    xtracfg.send(basicData);
+  };
+
+  // step 2: generate
+  const generate = (collectionColors: object) => {
+    setLoading(true);
+    const basicData: BasicData = {
+      apiId: apiName,
+      name: valueFileName,
+      type,
+      source: workspace,
+      command: "autoValue",
+      collectionColors: JSON.stringify(collectionColors),
       subcommand: "generate",
     };
 
     xtracfg.send(basicData);
   };
 
-  if (success) {
+  useEffect(() => {
+    console.log("dudu", collectionColors, success, Object.keys(collectionColors).length === 0);
+    console.log("bla", resultDetails);
+  }, [collectionColors, success, resultDetails]);
+
+  if (
+    resultDetails &&
+    Object.keys(resultDetails).length > 0 &&
+    Object.keys(collectionColors).length === 0
+  ) {
+    return (
+      <CollectionTables
+        generate={generate}
+        details={resultDetails}
+        success={success}
+        error={error}
+        setCollectionColors={setCollectionColors}
+      />
+    );
+  } else if (success && collectionColors && Object.keys(collectionColors).length !== 0) {
     return (
       <Final nameOfCreatedFile={valueFileName} workspace={workspace} apiId={apiName} type={type} />
     );

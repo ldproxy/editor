@@ -12,20 +12,15 @@ type BasicData = {
 
 export type Response = {
   error?: string;
-  /*  details?: {
-    new_files?: string[];
-    currentTable?: string;
-    currentCount?: number;
-    targetCount?: number;
-  }; */
+  details?: {
+    key: string;
+    collectionColors: object;
+  };
   results?: Array<{ status: string; message: string }>;
 };
 
 export type Error = {
   notification?: string;
-  fields?: {
-    [key: string]: string;
-  };
 };
 
 export const xtracfg = {
@@ -100,41 +95,11 @@ const parseError = (response: Response): Error | undefined => {
   if (error === "No 'command' given: {}") {
     return { notification: "Empty Fields" };
   }
-  /*
-  if (message.includes("host") && !message.includes("refused")) {
-    return { fields: { host: message.split(",")[0] } };
-  } else if (error.includes("Host") && !message.includes("refused")) {
-    return { fields: { host: error } };
-  } else if (message.includes("database")) {
-    return { fields: { database: message } };
-  } else if (message.includes("user name")) {
-    return { fields: { user: message } };
-  } else if (message.includes("password")) {
-    return { fields: { user: message, password: message } };
-  } else if (error.includes("No id given")) {
-    return { fields: { id: error } };
-  } else if (error.includes("Id has to")) {
-    return { fields: { id: error } };
-  } else if (error.includes("with id")) {
-    return { fields: { id: error } };
-  } else if (message.includes("url")) {
-    return { fields: { url: message } };
-  }
-
-  if (
-    (!message.includes("host") &&
-      !message.includes("url") &&
-      !message.includes("database") &&
-      !message.includes("user") &&
-      !message.includes("password")) ||
-    message.includes("refused")
-  ) {
-    return { notification: error.length > 0 ? error : message };
-  }
-*/
 
   if (message.length > 0) {
     return { notification: message };
+  } else if (error.length > 0) {
+    return { notification: error };
   }
 
   if (DEV) {
