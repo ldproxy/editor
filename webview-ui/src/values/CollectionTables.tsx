@@ -77,7 +77,7 @@ const CollectionTables = ({
       <form id="outerContainerCheckboxes">
         <h3>Select all Collections</h3>
         {Object.keys(allTables).length > 1 && (
-          <div id="everything">
+          <div id="everything" style={{ marginBottom: "15px" }}>
             <fieldset key="everything">
               <legend>Select all Tables</legend>
               <VSCodeCheckbox
@@ -95,7 +95,12 @@ const CollectionTables = ({
             {Object.keys(allTables).map((tableName) => (
               <div
                 className="checkbox-container"
-                style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginBottom: "10px",
+                }}>
                 <VSCodeCheckbox
                   key={tableName}
                   checked={!!selectedTables[tableName]}
@@ -107,6 +112,12 @@ const CollectionTables = ({
                     type="color"
                     value={selectedTables[tableName] || allTables[tableName]}
                     onChange={(e) => handleColorChange(tableName, e.target.value)}
+                    style={{
+                      border: "none",
+                      outline: "none",
+                      padding: "0",
+                      margin: "0",
+                    }}
                   />
                 </div>
               </div>
