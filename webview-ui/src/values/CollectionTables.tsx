@@ -99,7 +99,7 @@ const CollectionTables = ({
                   display: "flex",
                   flexDirection: "row",
                   alignItems: "center",
-                  marginBottom: "10px",
+                  marginBottom: "5px",
                 }}>
                 <VSCodeCheckbox
                   key={tableName}
@@ -117,6 +117,8 @@ const CollectionTables = ({
                       outline: "none",
                       padding: "0",
                       margin: "0",
+                      cursor: "pointer",
+                      height: "23px",
                     }}
                   />
                 </div>
