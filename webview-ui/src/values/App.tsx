@@ -15,7 +15,7 @@ import Final from "./Final";
 import CollectionTables, { TableData } from "./CollectionTables";
 
 export const apiNameAtom = atomSyncString("apiName", "");
-export const valueFileNameAtom = atomSyncString("valueFileName", "");
+export const valueFileNameAtom = atomSyncString("valueFileName", "default");
 export const typeAtom = atomSyncString("type", "maplibre-styles");
 export const workspaceAtom = atomSyncString("workspace", "");
 export const successAtom = atomSyncString("success", "");

@@ -34,6 +34,10 @@ const CollectionTables = ({
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
   const [loading, setLoading] = useState<boolean>(false);
 
+  useEffect(() => {
+    setSelectedTables(allTables);
+  }, [allTables, setSelectedTables]);
+
   const handleTableSelection = (tableName: string) => {
     if (selectedTables[tableName]) {
       const updatedSelectedTables = { ...selectedTables };
