@@ -3,13 +3,20 @@ import {
   VSCodeRadioGroup,
   VSCodeRadio,
   VSCodeButton,
+  VSCodeDropdown,
+  VSCodeOption,
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
-import { atomSyncBoolean, atomSyncObject, atomSyncString } from "../utilities/recoilSyncWrapper";
+import {
+  atomSyncBoolean,
+  atomSyncObject,
+  atomSyncString,
+  atomSyncStringArray,
+} from "../utilities/recoilSyncWrapper";
 import { Response, Error, xtracfg } from "../utilities/xtracfgValues";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { vscode } from "../utilities/vscode";
 import Final from "./Final";
 import CollectionTables, { TableData } from "./CollectionTables";
@@ -23,6 +30,7 @@ export const errorAtom = atomSyncString("error", "");
 export const loadingAtom = atomSyncBoolean("loading", false);
 export const details = atomSyncObject<TableData>("details", {});
 export const collections = atomSyncObject<Response>("collections", {});
+export const existingApisAtom = atomSyncStringArray("existingApis", [""]);
 
 export type valueData = {
   apiId: string;
@@ -42,6 +50,8 @@ function App() {
   const [valueFileName, setValueFileName] = useRecoilState(valueFileNameAtom);
   const [type, setType] = useRecoilState(typeAtom);
   const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
+  const [existingApis, setExistingApis] = useRecoilState<string[]>(existingApisAtom);
+  const [selectedApiInDropdown, setSelectedApiInDropdown] = useState(false);
   const DEV = false;
   const valueDataSelector = selector({
     key: "uniqueValueDataSelector_v1",
@@ -81,7 +91,28 @@ function App() {
       command: "onLoad",
       text: "onLoad",
     });
+    vscode.postMessage({
+      command: "setExistingApis",
+      text: "setExistingApis",
+    });
   }, []);
+
+  const onFileSelect = (apiName: string) => {
+    setApiName(apiName);
+  };
+
+  window.addEventListener("message", (event) => {
+    const message = event.data;
+
+    switch (message.command) {
+      case "setApis":
+        setExistingApis(message.existingApis);
+        if (!DEV) {
+          console.log("existing Apis:", message.existingApis);
+        }
+        break;
+    }
+  });
 
   const handleVscode = (message: any) => {
     switch (message.command) {
@@ -188,16 +219,24 @@ function App() {
               </VSCodeRadioGroup>
             </section>
             <section className="component-example" style={{ marginBottom: "10px" }}>
-              <VSCodeTextField
-                value={apiName}
-                onInput={(e) => {
-                  const target = e.target as HTMLInputElement;
-                  if (target) {
-                    setApiName(target.value);
-                  }
-                }}>
-                Api Name
-              </VSCodeTextField>
+              <div className="dropdown">
+                <VSCodeDropdown
+                  id="my-dropdown"
+                  disabled={existingApis.length === 0}
+                  value={apiName}
+                  onChange={(e) => {
+                    onFileSelect((e.target as HTMLInputElement).value);
+                    setSelectedApiInDropdown(true);
+                  }}>
+                  {!selectedApiInDropdown && <VSCodeOption value="">Choose Api...</VSCodeOption>}
+                  {existingApis.length > 0 &&
+                    existingApis.map((option) => (
+                      <VSCodeOption key={option} value={option}>
+                        {option}
+                      </VSCodeOption>
+                    ))}
+                </VSCodeDropdown>
+              </div>
             </section>
             <section className="component-example" style={{ marginBottom: "15px" }}>
               <VSCodeTextField

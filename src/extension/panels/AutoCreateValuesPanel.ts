@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 import { newXtracfg } from "../utilities/xtracfg";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
 import { Registration } from "../utilities/registration";
+import { listApisInDirectory } from "../utilities/apis";
 
 const workspaceFolders = vscode.workspace.workspaceFolders;
 if (!workspaceFolders) {
@@ -212,6 +213,12 @@ export class AutoCreateValuesPanel {
             if (message.request) {
               xtracfg.send(JSON.parse(message.request));
             }
+            break;
+          case "setExistingApis":
+            this._panel.webview.postMessage({
+              command: "setApis",
+              existingApis: await listApisInDirectory(),
+            });
             break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)
