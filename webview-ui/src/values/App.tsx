@@ -254,6 +254,11 @@ function App() {
                   if (target) {
                     setValueFileName(target.value);
                   }
+                }}
+                onFocus={() => {
+                  if (valueFileName === "default") {
+                    setValueFileName("");
+                  }
                 }}>
                 Value Filename
               </VSCodeTextField>
