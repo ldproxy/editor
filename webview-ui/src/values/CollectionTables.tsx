@@ -81,7 +81,7 @@ const CollectionTables = ({
         {Object.keys(allTables).length > 1 && (
           <div id="everything" style={{ marginBottom: "15px" }}>
             <fieldset key="everything">
-              <legend>Select all Tables</legend>
+              <legend>Select all Collections</legend>
               <VSCodeCheckbox
                 key="everything"
                 checked={areAllTablesSelected()}

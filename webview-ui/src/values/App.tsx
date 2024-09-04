@@ -111,7 +111,8 @@ function App() {
 
     switch (message.command) {
       case "setApis":
-        setExistingApis(message.existingApis);
+        const sortedApis = message.existingApis.sort((a: string, b: string) => a.localeCompare(b));
+        setExistingApis(sortedApis);
         if (!DEV) {
           console.log("existing Apis:", message.existingApis);
         }
@@ -255,10 +256,8 @@ function App() {
                     setValueFileName(target.value);
                   }
                 }}
-                onFocus={() => {
-                  if (valueFileName === "default") {
-                    setValueFileName("");
-                  }
+                onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
+                  e.target.select();
                 }}>
                 Value Filename
               </VSCodeTextField>
