@@ -21,6 +21,7 @@ type TablesProps = {
   success: string;
   error: string;
   setCollectionColors: SetterOrUpdater<object>;
+  onBack: () => void;
 };
 
 const CollectionTables = ({
@@ -29,6 +30,7 @@ const CollectionTables = ({
   success,
   error,
   setCollectionColors,
+  onBack,
 }: TablesProps) => {
   const allTables: TableData = details;
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
@@ -70,10 +72,6 @@ const CollectionTables = ({
       ...selectedTables,
       [tableName]: color,
     });
-  };
-
-  const handleBack = () => {
-    setSelectedTables({});
   };
 
   return (
@@ -140,7 +138,7 @@ const CollectionTables = ({
           marginTop: "15px",
           marginBottom: "15px",
         }}>
-        <VSCodeButton className="submitButton" style={{ marginRight: "10px" }} onClick={handleBack}>
+        <VSCodeButton className="submitButton" style={{ marginRight: "10px" }} onClick={onBack}>
           Back
         </VSCodeButton>
         <VSCodeButton

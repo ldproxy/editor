@@ -52,6 +52,7 @@ function App() {
   const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
   const [existingApis, setExistingApis] = useRecoilState<string[]>(existingApisAtom);
   const [selectedApiInDropdown, setSelectedApiInDropdown] = useState(false);
+  const [currentView, setCurrentView] = useState("main");
   const DEV = false;
   const valueDataSelector = selector({
     key: "uniqueValueDataSelector_v1",
@@ -83,6 +84,10 @@ function App() {
   const [loading, setLoading] = useRecoilState(loadingAtom);
   const [resultDetails, setResultDetails] = useRecoilState<TableData>(details);
   const [collectionColors, setCollectionColors] = useRecoilState(collections);
+
+  const handleBack = () => {
+    setCurrentView("main");
+  };
 
   useEffect(() => {
     vscode.listen(handleVscode);
@@ -165,6 +170,7 @@ function App() {
     };
 
     xtracfg.send(basicData);
+    setCurrentView("collectionTables");
   };
 
   // step 2: generate
@@ -184,6 +190,7 @@ function App() {
   };
 
   if (
+    currentView === "collectionTables" &&
     resultDetails &&
     Object.keys(resultDetails).length > 0 &&
     Object.keys(collectionColors).length === 0
@@ -195,6 +202,7 @@ function App() {
         success={success}
         error={error}
         setCollectionColors={setCollectionColors}
+        onBack={handleBack}
       />
     );
   } else if (success && collectionColors && Object.keys(collectionColors).length !== 0) {
@@ -254,7 +262,9 @@ function App() {
           <div className="postgresWfsSubmit" style={{ display: "flex", alignItems: "center" }}>
             <VSCodeButton
               className="submitButton"
-              onClick={() => submitData(valueData)}
+              onClick={() => {
+                submitData(valueData);
+              }}
               disabled={!apiName || !valueFileName}
               style={{ marginBottom: "15px", marginRight: "20px" }}>
               Next
