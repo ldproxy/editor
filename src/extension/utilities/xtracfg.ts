@@ -1,4 +1,4 @@
-import * as xtracfgLib from "xtracfg-lib";
+import xtracfgLib from "xtracfg-lib";
 
 import * as vscode from "vscode";
 import { Mutex } from "async-mutex";
@@ -85,10 +85,10 @@ const simulateListen = () => {
     }
   };
 };
-
+/*
 type Socket = () => Promise<WebSocket>;
 
-/*
+
 export const newXtracfg = () => {
   const ensureOpen = socket();
 
@@ -189,7 +189,7 @@ const parseError = (response: Response): Error | undefined => {
 
   return { error, status, message };
 };
-
+/*
 const mutex = new Mutex();
 let _socket: WebSocket;
 
@@ -237,3 +237,4 @@ const socket = (): Socket => {
     });
   };
 };
+*/
