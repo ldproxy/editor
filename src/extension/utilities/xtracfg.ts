@@ -1,3 +1,5 @@
+import * as xtracfgLib from "xtracfg-lib";
+
 import * as vscode from "vscode";
 import { Mutex } from "async-mutex";
 import { DEV } from "./constants";
@@ -27,8 +29,66 @@ export type Error = {
   };
 };
 
+export const newXtracfg = () => {
+  return {
+    send: executeXtracfgLib(),
+    listen: simulateListen(),
+  };
+};
+
+const executeXtracfgLib = () => {
+  return (request: Request) => {
+    const cmd = JSON.stringify(request);
+
+    if (DEV) {
+      console.log("executing XtracfgLib with command", cmd);
+    }
+
+    try {
+      const result = xtracfgLib.xtracfgLib(cmd);
+      console.log("Result:", result);
+    } catch (error) {
+      console.error("Could not execute XtracfgLib command");
+    }
+  };
+};
+
+const simulateListen = () => {
+  return (successHandler: (response: Response) => void, errorHandler: (error: Error) => void) => {
+    const request: Request = {
+      command: "simulate",
+      subcommand: "listen",
+    };
+    const cmd = JSON.stringify(request);
+
+    if (DEV) {
+      console.log("simulating listen with command", cmd);
+    }
+
+    try {
+      const result = xtracfgLib.xtracfgLib(cmd);
+      const response = JSON.parse(result);
+
+      if (DEV) {
+        console.log("received from xtracfgLib", response);
+      }
+
+      const error = parseError(response);
+
+      if (!error) {
+        successHandler(response);
+      } else {
+        errorHandler(error);
+      }
+    } catch (error) {
+      console.error("Could not simulate listen command");
+    }
+  };
+};
+
 type Socket = () => Promise<WebSocket>;
 
+/*
 export const newXtracfg = () => {
   const ensureOpen = socket();
 
@@ -79,6 +139,8 @@ const listen = (ensureOpen: Socket) => {
         console.error("Could not listen to xtracfg", error.message || error);
       });
 };
+
+*/
 
 const parseError = (response: Response): Error | undefined => {
   const error = response.error || "";
