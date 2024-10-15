@@ -15,7 +15,7 @@ const webpack = require("webpack");
 /** @type WebpackConfig */
 const webExtensionConfig = {
   mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
-  target: "webworker", // extensions run in a webworker context
+  target: "node", // extensions run in a webworker context
   entry: {
     extension: "./src/extension/index.ts", // source of the web extension main file
     //'test/suite/index': './src/web/test/suite/index.ts', // source of the web extension test runner
@@ -50,6 +50,10 @@ const webExtensionConfig = {
             loader: "ts-loader",
           },
         ],
+      },
+      {
+        test: /\.node$/,
+        use: "node-loader",
       },
     ],
   },
