@@ -55,33 +55,31 @@ const executeXtracfgLib = () => {
 
 const simulateListen = () => {
   return (successHandler: (response: Response) => void, errorHandler: (error: Error) => void) => {
-    const request: Request = {
-      command: "simulate",
-      subcommand: "listen",
+    const simulatedResponse = {
+      results: [
+        {
+          status: "WARNING",
+          message: "Blub",
+        },
+        {
+          status: "INFO",
+          message: "  - $.api[10].maxLevel: is unknown for type TilesConfiguration",
+        },
+        {
+          status: "INFO",
+          message:
+            "  - $.collections.building.api[3].transformations.function.asLink: is unknown for type PropertyTransformation",
+        },
+      ],
+      details: {
+        path: "entities/instances/services/cologne_lod2.yml",
+      },
     };
-    const cmd = JSON.stringify(request);
 
-    if (DEV) {
-      console.log("simulating listen with command", cmd);
-    }
-
-    try {
-      const result = xtracfgLib.xtracfgLib(cmd);
-      const response = JSON.parse(result);
-
-      if (DEV) {
-        console.log("received from xtracfgLib", response);
-      }
-
-      const error = parseError(response);
-
-      if (!error) {
-        successHandler(response);
-      } else {
-        errorHandler(error);
-      }
-    } catch (error) {
-      console.error("Could not simulate listen command");
+    if (simulatedResponse) {
+      successHandler(simulatedResponse);
+    } else {
+      errorHandler({ error: "Could not simulate listen" });
     }
   };
 };

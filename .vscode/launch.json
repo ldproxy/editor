@@ -9,13 +9,9 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}" // Lädt deine Extension
       ],
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js" // Zeigt den kompilierten Code an
-      ],
-      "preLaunchTask": "build:native", // Dieser Task muss definiert sein
-      "env": {
-        "NODE_ENV": "development" // Setzt die Umgebung auf 'development'
-      }
+      "outFiles": ["${workspaceFolder}/dist/*.js"],
+
+      "preLaunchTask": "build:native" // Dieser Task muss definiert sein
     }
   ]
 }
