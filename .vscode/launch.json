@@ -1,36 +1,21 @@
-// A launch configuration that compiles the extension and then opens it inside a new window
-// Use IntelliSense to learn about possible attributes.
-// Hover to view descriptions of existing attributes.
-// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 {
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Web Extension ",
-      "type": "pwa-extensionHost",
-      "debugWebWorkerHost": true,
-      "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionDevelopmentKind=web",
-        "${workspaceFolder}/data"
-      ],
-      "outFiles": ["${workspaceFolder}/dist/*.js"],
-      "preLaunchTask": "${defaultBuildTask}",
-      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
-    },
-    {
-      "name": "Extension Tests",
+      "name": "Run Extension",
       "type": "extensionHost",
-      "debugWebWorkerHost": true,
       "request": "launch",
+      "runtimeExecutable": "${execPath}", // Startet eine neue VS Code Instanz
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionDevelopmentKind=web",
-        "--extensionTestsPath=${workspaceFolder}/dist/extension/test/suite/index"
+        "--extensionDevelopmentPath=${workspaceFolder}" // Lädt deine Extension
       ],
-      "outFiles": ["${workspaceFolder}/dist/extension/**/*.js"],
-      "preLaunchTask": "${defaultBuildTask}"
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js" // Zeigt den kompilierten Code an
+      ],
+      "preLaunchTask": "build:native", // Dieser Task muss definiert sein
+      "env": {
+        "NODE_ENV": "development" // Setzt die Umgebung auf 'development'
+      }
     }
   ]
 }
