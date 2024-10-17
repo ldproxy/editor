@@ -1,4 +1,5 @@
-import { newXtracfg } from "./xtracfg";
+import { connect } from "xtracfg";
+import transport from "xtracfg-transport-websocket";
 import { getCurrentFilePath, getWorkspacePath } from "./paths";
 import { DEV } from "./constants";
 import { extractSingleRefs } from "./refs";
@@ -12,7 +13,7 @@ interface FileType {
   discriminatorValue?: string;
 }
 
-const xtracfg = newXtracfg();
+const xtracfg = connect(transport, { debug: true });
 
 let allSchemas: Promise<DefinitionsMap>;
 
