@@ -4,9 +4,28 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "type": "npm",
+      "script": "build:all",
+      "path": "web",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "watch-web",
+      "path": "web",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": "$tsc-watch"
+    },
+    {
       "label": "build:native",
       "type": "npm",
-      "script": "build:native", // Dies sollte mit der package.json übereinstimmen
+      "script": "build:native",
+      "path": "native",
       "group": {
         "kind": "build",
         "isDefault": true

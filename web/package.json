@@ -11,9 +11,11 @@
   "categories": [
     "Other"
   ],
+  "type": "module",
   "engines": {
     "vscode": "^1.82.2"
   },
+  "browser": "./dist/extension.js",
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -27,7 +29,20 @@
       }
     ]
   },
+  "scripts": {
+    "install:all": "npm install && cd webview-ui && npm install",
+    "build:all": "npm run build:webview && npm run compile-web && npm run compile-native",
+    "build:webview": "cd webview-ui && npm run build",
+    "start:webview": "cd webview-ui && npm run start",
+    "compile-web": "webpack --mode development",
+    "watch-web": "webpack --mode development --watch",
+    "vscode:prepublish": "VITE_DEV=false npm run build:webview && npm run package-web",
+    "package-web": "webpack --mode production --devtool hidden-source-map",
+    "package": "vsce package -o dist/ldproxy-editor.vsix -t web --pre-release",
+    "lint": "eslint src --ext ts"
+  },
   "devDependencies": {
+    "@types/atob": "^2.1.4",
     "@types/glob": "^7.2.0",
     "@types/jest": "^29.5.13",
     "@types/js-yaml": "^4.0.9",

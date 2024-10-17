@@ -11,9 +11,11 @@
   "categories": [
     "Other"
   ],
+  "type": "commonjs",
   "engines": {
     "vscode": "^1.82.2"
   },
+  "main": "./dist/extension.js",
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -26,6 +28,25 @@
         "icon": "$(add)"
       }
     ]
+  },
+  "scripts": {
+    "install:all": "npm install && cd webview-ui && npm install",
+    "compile-native": "tsc -p ./",
+    "watch-native": "tsc -watch -p ./",
+    "build:native": "npm run compile-native && webpack --config webpack.config.cjs",
+    "start:native": "npm run watch-native",
+    "build:all": "npm run build:webview && npm run compile-web && npm run compile-native",
+    "compile-web": "webpack --mode development",
+    "watch-web": "webpack --mode development --watch",
+    "vscode:prepublish": "VITE_DEV=false npm run build:webview && npm run package-web",
+    "package-web": "webpack --mode production --devtool hidden-source-map",
+    "package": "vsce package -o dist/ldproxy-editor.vsix -t web --pre-release",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "anymatch": "^3.1.3",
+    "xtracfg": "/Users/pascal/Documents/GitHub/xtraplatform-cli/libxtracfg/js/xtracfg",
+    "xtracfg-transport-websocket": "/Users/pascal/Documents/GitHub/xtraplatform-cli/libxtracfg/js/xtracfg-transport-websocket"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
