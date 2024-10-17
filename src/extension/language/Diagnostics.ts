@@ -1,10 +1,11 @@
 import * as vscode from "vscode";
-import { newXtracfg } from "../utilities/xtracfg";
+import { connect } from "xtracfg";
+import transport from "xtracfg-transport-websocket";
 import { getRelativeFilePath, getWorkspacePath } from "../utilities/paths";
 import { DEV } from "../utilities/constants";
 import { DocEvent, DocUpdate, Registration } from "../utilities/registration";
 
-const xtracfg = newXtracfg();
+const xtracfg = connect(transport, { debug: true });
 
 const diagnosticsResults: {
   [key: string]: {

@@ -12,7 +12,8 @@ import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
 import { listGpkgFilesInDirectory, uploadedGpkg, setCancel } from "../utilities/gpkg";
 import * as vscode from "vscode";
-import { newXtracfg } from "../utilities/xtracfg";
+import { connect } from "xtracfg";
+import transport from "xtracfg-transport-websocket";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
 import { Registration } from "../utilities/registration";
 
@@ -29,7 +30,7 @@ const watcherOnDidCreate = vscode.workspace.createFileSystemWatcher(
 );
 
 const workspaceUri = getWorkspaceUri();
-const xtracfg = newXtracfg();
+const xtracfg = connect(transport, { debug: true });
 
 export const registerShowAutoCreate: Registration = (context) => {
   return [
