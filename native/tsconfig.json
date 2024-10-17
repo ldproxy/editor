@@ -3,11 +3,13 @@
     "module": "commonjs",
     "target": "ES2022",
     "outDir": "dist",
-    "lib": ["ES2022", "dom"],
+    "lib": ["ES2022"],
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": "../",
     "strict": true,
+    "baseUrl": ".",
     "types": ["node"]
   },
+  "include": ["../shared/extension", "src"],
   "exclude": ["node_modules", ".vscode-test-web", "webview-ui"]
 }
