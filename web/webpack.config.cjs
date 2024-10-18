@@ -17,7 +17,7 @@ const webExtensionConfig = {
   mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
   target: "webworker",
   entry: {
-    extension: "./src/extension/index.ts", // source of the web extension main file
+    extension: "../shared/extension/index.ts", // source of the web extension main file
     //'test/suite/index': './src/web/test/suite/index.ts', // source of the web extension test runner
   },
   output: {
@@ -38,6 +38,7 @@ const webExtensionConfig = {
       // for the list of Node.js core module polyfills.
       assert: require.resolve("assert"),
       path: require.resolve("path-browserify"),
+      process: false,
     },
   },
   module: {

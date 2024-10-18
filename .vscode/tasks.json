@@ -4,12 +4,12 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "build:web",
       "type": "npm",
       "script": "build:all",
       "path": "web",
       "group": {
-        "kind": "build",
-        "isDefault": true
+        "kind": "build"
       },
       "problemMatcher": []
     },
@@ -24,13 +24,13 @@
     {
       "label": "build:native",
       "type": "npm",
-      "script": "build:native",
+      "script": "build:all",
       "path": "native",
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "problemMatcher": "$tsc-watch"
+      "problemMatcher": []
     }
   ]
 }

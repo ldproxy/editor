@@ -11,12 +11,12 @@
       "debugWebWorkerHost": true,
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionDevelopmentPath=${workspaceFolder}/web",
         "--extensionDevelopmentKind=web",
         "${workspaceFolder}/data"
       ],
       "outFiles": ["${workspaceFolder}/dist/*.js"],
-      "preLaunchTask": "${defaultBuildTask}",
+      "preLaunchTask": "build:web",
       "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {
