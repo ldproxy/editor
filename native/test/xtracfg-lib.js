@@ -1,16 +1,22 @@
-import xtracfgLib from "xtracfg-lib";
+import { connect } from "xtracfg";
+import transport from "xtracfg-transport-websocket";
 
-function testBasic() {
+const xtracfg = connect(transport);
+
+async function testBasic() {
   const command = '{"command": "info", "source": "/Users/pascal/Documents/GitHub/demo"}';
 
-  const result = xtracfgLib.xtracfgLib(command);
-
-  console.log("Result:", result);
+  try {
+    const result = await xtracfg.send(command);
+    console.log("Result:", result);
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
 /*
 function testSubscribe() {
-  if (typeof xtracfgLib.subscribe === "function") {
-    xtracfgLib.subscribe(console.log); // Übergabe von console.log als Callback
+  if (typeof xtracfg.subscribe === "function") {
+    xtracfg.subscribe(console.log); // Übergabe von console.log als Callback
   } else {
     console.error("subscribe is not a function");
   }
