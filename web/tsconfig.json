@@ -5,9 +5,9 @@
     "outDir": "dist",
     "lib": ["ES2022", "dom"],
     "sourceMap": true,
-    "rootDir": "../",
+    "rootDir": "../shared/extension",
     "strict": true
   },
-  "include": ["../shared"],
+  "include": ["../shared/extension"],
   "exclude": ["node_modules", ".vscode-test-web", "webview-ui"]
 }

@@ -30,10 +30,10 @@
     ]
   },
   "scripts": {
-    "install:all": "npm install && cd webview-ui && npm install",
-    "build:all": "npm run build:webview && npm run compile-web && npm run compile-native",
-    "build:webview": "cd webview-ui && npm run build",
-    "start:webview": "cd webview-ui && npm run start",
+    "install:all": "npm install && cd ../webview-ui && npm install",
+    "build:all": "npm run build:webview && npm run compile-web",
+    "build:webview": "cd ../webview-ui && npm run build",
+    "start:webview": "cd ../webview-ui && npm run start",
     "compile-web": "webpack --mode development",
     "watch-web": "webpack --mode development --watch",
     "vscode:prepublish": "VITE_DEV=false npm run build:webview && npm run package-web",
