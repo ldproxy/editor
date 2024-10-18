@@ -11,7 +11,7 @@
   "categories": [
     "Other"
   ],
-  "type": "module",
+  "type": "commonjs",
   "engines": {
     "vscode": "^1.82.2"
   },

@@ -27,7 +27,7 @@ const webExtensionConfig = {
     devtoolModuleFilenameTemplate: "../[resource-path]",
   },
   resolve: {
-    mainFields: ["browser", "module", "main"], // look for `browser` entry point in imported node modules
+    mainFields: ["module", "main"], // look for `browser` entry point in imported node modules
     extensions: [".ts", ".js"], // support ts-files and js-files
     alias: {
       // provides alternate implementation for node module and source files

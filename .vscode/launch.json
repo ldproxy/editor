@@ -33,15 +33,12 @@
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
-      "name": "Run Extension",
+      "name": "Run Native Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}" // Lädt deine Extension
-      ],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/native", "${workspaceFolder}/data"],
       "outFiles": ["${workspaceFolder}/dist/*.js"],
-
-      "preLaunchTask": "build:native" // Dieser Task muss definiert sein
+      "preLaunchTask": "build:native"
     }
   ]
 }
