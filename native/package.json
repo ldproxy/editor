@@ -30,16 +30,14 @@
     ]
   },
   "scripts": {
-    "install:all": "npm install && cd webview-ui && npm install",
-    "compile-native": "tsc -p ./",
-    "watch-native": "tsc -watch -p ./",
-    "build:native": "npm run compile-native && webpack --config webpack.config.cjs",
-    "start:native": "npm run watch-native",
-    "build:all": "npm run build:webview && npm run compile-web && npm run compile-native",
-    "compile-web": "webpack --mode development",
-    "watch-web": "webpack --mode development --watch",
+    "install:all": "npm install && cd ../webview-ui && npm install",
+    "build:all": "npm run build:webview && npm run compile-native",
+    "build:webview": "cd ../webview-ui && npm run build",
+    "start:webview": "cd ../webview-ui && npm run start",
+    "compile-native": "webpack --mode development",
+    "watch-native": "webpack --mode development --watch",
     "vscode:prepublish": "VITE_DEV=false npm run build:webview && npm run package-web",
-    "package-web": "webpack --mode production --devtool hidden-source-map",
+    "package-native": "webpack --mode production --devtool hidden-source-map",
     "package": "vsce package -o dist/ldproxy-editor.vsix -t web --pre-release",
     "lint": "eslint src --ext ts"
   },
