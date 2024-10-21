@@ -28,10 +28,11 @@ export const updateValueCompletions: DocUpdate = async function (
   document,
   docUri,
   docHash,
-  newAllYamlKeys
+  newAllYamlKeys,
+  transport
 ) {
   allYamlKeys = newAllYamlKeys;
-  const schema = await getSchema();
+  const schema = await getSchema(transport);
   const text = document.getText();
   if (text && schema) {
     specifiedDefs = extractDocRefs(text, schema, docUri, docHash);
@@ -42,13 +43,13 @@ export const updateValueCompletions: DocUpdate = async function (
   }
 };
 
-export const registerValueCompletions: Registration = () => {
-  return [vscode.languages.registerCompletionItemProvider("yaml", provider)];
+export const registerValueCompletions: Registration = (context, transport) => {
+  return [vscode.languages.registerCompletionItemProvider("yaml", provider(transport))];
 };
 
-const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+const provider = (transport: any): vscode.CompletionItemProvider<vscode.CompletionItem> => ({
   async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const schema = await getSchema();
+    const schema = await getSchema(transport);
 
     if (!schema) {
       return [];
@@ -272,7 +273,7 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
 
     return valueCompletions;
   },
-};
+});
 
 function findKeyForValueCompletion(line: number, document: vscode.TextDocument, position: any) {
   const textBeforeCursor = document.getText(

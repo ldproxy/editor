@@ -1,11 +1,8 @@
 import * as vscode from "vscode";
 import { connect } from "@xtracfg/core";
-import transport from "@xtracfg/transport-websocket";
 import { getRelativeFilePath, getWorkspacePath } from "../utilities/paths";
 import { DEV } from "../utilities/constants";
 import { DocEvent, DocUpdate, Registration } from "../utilities/registration";
-
-const xtracfg = connect(transport, { debug: true });
 
 const diagnosticsResults: {
   [key: string]: {
@@ -18,7 +15,9 @@ const diagnosticsResults: {
 
 const collection = vscode.languages.createDiagnosticCollection("ldproxy-editor");
 
-export const registerDiagnostics: Registration = () => {
+export const registerDiagnostics: Registration = (transport?: any) => {
+  const xtracfg = connect(transport, { debug: true });
+
   xtracfg.listen(
     (response) => {
       if (DEV) {
@@ -49,7 +48,7 @@ export const registerDiagnostics: Registration = () => {
   return [];
 };
 
-const requestDiagnostics = async (path: string): Promise<string[]> => {
+const requestDiagnostics = async (path: string, xtracfg: any): Promise<string[]> => {
   if (!path) {
     return Promise.resolve([]);
   }
@@ -83,8 +82,11 @@ export const updateDiagnostics: DocUpdate = async function (
   document,
   docUri,
   docHash,
-  newAllYamlKeys
+  newAllYamlKeys,
+  transport?
 ) {
+  const xtracfg = connect(transport, { debug: true });
+
   if (event !== DocEvent.OPEN && event !== DocEvent.SAVE) {
     return;
   }
@@ -100,7 +102,7 @@ export const updateDiagnostics: DocUpdate = async function (
     return;
   }
 
-  const results = await requestDiagnostics(path);
+  const results = await requestDiagnostics(path, xtracfg);
 
   results.forEach((info) => {
     const infoText = info.match(/\$.(.*):/);

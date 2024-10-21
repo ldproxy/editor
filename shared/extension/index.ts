@@ -14,7 +14,7 @@ import { registeTreeViews } from "./trees";
 
 let initialized = false;
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext, transport: any) {
   if (initialized) {
     return;
   }
@@ -30,10 +30,11 @@ export function activate(context: ExtensionContext) {
 
   initialized = true;
 
-  initSchemas();
+  initSchemas(transport);
 
   register(
     context,
+    transport,
     registeTreeViews,
     registerShowAutoCreate,
     registerHover,
@@ -44,7 +45,7 @@ export function activate(context: ExtensionContext) {
     registerCodeActions
   );
 
-  onDocUpdate(DocEvent.OPEN, window.activeTextEditor?.document);
+  onDocUpdate(DocEvent.OPEN, window.activeTextEditor?.document, transport);
 }
 
 export function deactivate() {}
@@ -74,7 +75,7 @@ const registerDocHandlers: Registration = () => {
   ];
 };
 
-const onDocUpdate = function (event: DocEvent, document?: TextDocument) {
+export const onDocUpdate = function (event: DocEvent, document?: TextDocument, transport?: any) {
   if (document) {
     const text = document.getText();
     const uri = document.uri.toString();
@@ -83,10 +84,10 @@ const onDocUpdate = function (event: DocEvent, document?: TextDocument) {
     if (hash && hash !== "") {
       const allYamlKeys = parseYaml(text);
 
-      updateHover(event, document, uri, hash, allYamlKeys);
-      updateCompletions(event, document, uri, hash, allYamlKeys);
-      updateValueCompletions(event, document, uri, hash, allYamlKeys);
-      updateDiagnostics(event, document, uri, hash, allYamlKeys);
+      updateHover(event, document, uri, hash, allYamlKeys, transport);
+      updateCompletions(event, document, uri, hash, allYamlKeys, transport);
+      updateValueCompletions(event, document, uri, hash, allYamlKeys, transport);
+      updateDiagnostics(event, document, uri, hash, allYamlKeys, transport);
     }
   }
 };
