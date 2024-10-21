@@ -1,5 +1,4 @@
 import { connect } from "@xtracfg/core";
-import transport from "@xtracfg/transport-websocket";
 import { getCurrentFilePath, getWorkspacePath } from "./paths";
 import { DEV } from "./constants";
 import { extractSingleRefs } from "./refs";
@@ -13,8 +12,6 @@ interface FileType {
   discriminatorValue?: string;
 }
 
-const xtracfg = connect(transport, { debug: true });
-
 let allSchemas: Promise<DefinitionsMap>;
 
 const fileTypes: {
@@ -25,7 +22,9 @@ const fileTypes: {
   };
 } = {};
 
-export const initSchemas = () => {
+export const initSchemas = (transport: any) => {
+  const xtracfg = connect(transport, { debug: true });
+
   if (DEV) {
     console.log("INIT SCHEMAS");
   }
@@ -76,9 +75,11 @@ export const initSchemas = () => {
   xtracfg.send({ command: "schemas", source: getWorkspacePath(), verbose: true, debug: true });
 };
 
-export const getSchema = async (): Promise<LooseDefinition | undefined> => {
+export const getSchema = async (transport: any): Promise<LooseDefinition | undefined> => {
+  const xtracfg = connect(transport, { debug: true });
+
   const schemas = await allSchemas;
-  const fileType = await getCurrentFileType();
+  const fileType = await getCurrentFileType(xtracfg);
 
   if (!schemas || !fileType) {
     return undefined;
@@ -114,7 +115,7 @@ export const getSchema = async (): Promise<LooseDefinition | undefined> => {
   return schema;
 };
 
-const getCurrentFileType = async (): Promise<FileType | undefined> => {
+const getCurrentFileType = async (xtracfg: any): Promise<FileType | undefined> => {
   const currentFilePath = getCurrentFilePath();
 
   if (!currentFilePath) {
