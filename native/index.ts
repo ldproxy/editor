@@ -1,4 +1,4 @@
-import transport from "@xtracfg/transport-websocket";
+import transport from "@xtracfg/transport-native";
 import {
   activate as sharedActivate,
   deactivate as sharedDeactivate,
