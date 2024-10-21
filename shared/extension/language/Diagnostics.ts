@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { connect } from "xtracfg";
-import transport from "xtracfg-transport-websocket";
+import { connect } from "@xtracfg/core";
+import transport from "@xtracfg/transport-websocket";
 import { getRelativeFilePath, getWorkspacePath } from "../utilities/paths";
 import { DEV } from "../utilities/constants";
 import { DocEvent, DocUpdate, Registration } from "../utilities/registration";

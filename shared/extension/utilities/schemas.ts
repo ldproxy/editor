@@ -1,5 +1,5 @@
-import { connect } from "xtracfg";
-import transport from "xtracfg-transport-websocket";
+import { connect } from "@xtracfg/core";
+import transport from "@xtracfg/transport-websocket";
 import { getCurrentFilePath, getWorkspacePath } from "./paths";
 import { DEV } from "./constants";
 import { extractSingleRefs } from "./refs";
