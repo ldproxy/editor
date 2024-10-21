@@ -26,11 +26,10 @@ export const updateCompletions: DocUpdate = async function (
   document,
   docUri,
   docHash,
-  newAllYamlKeys,
-  transport
+  newAllYamlKeys
 ) {
   allYamlKeys = newAllYamlKeys;
-  const schema = await getSchema(transport);
+  const schema = await getSchema();
   const text = document.getText();
   if (text) {
     if (text && schema) {
