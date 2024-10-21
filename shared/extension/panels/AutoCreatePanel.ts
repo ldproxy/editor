@@ -12,7 +12,7 @@ import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
 import { listGpkgFilesInDirectory, uploadedGpkg, setCancel } from "../utilities/gpkg";
 import * as vscode from "vscode";
-import { connect } from "@xtracfg/core";
+import { connect, TransportCreator, Xtracfg } from "@xtracfg/core";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
 import { Registration } from "../utilities/registration";
 
@@ -29,14 +29,17 @@ const watcherOnDidCreate = vscode.workspace.createFileSystemWatcher(
 );
 
 const workspaceUri = getWorkspaceUri();
+let xtracfg: Xtracfg;
 
 export const registerShowAutoCreate: Registration = (
   context: ExtensionContext,
-  transport: any
+  transport: TransportCreator
 ): Disposable[] => {
+  xtracfg = connect(transport, { debug: true });
+
   return [
     commands.registerCommand("ldproxy-editor.showAutoCreate", () => {
-      AutoCreatePanel.render(context.extensionUri, transport);
+      AutoCreatePanel.render(context.extensionUri);
     }),
   ];
 };
@@ -63,9 +66,7 @@ export class AutoCreatePanel {
    * @param panel A reference to the webview panel
    * @param extensionUri The URI of the directory containing the extension
    */
-  private constructor(panel: WebviewPanel, extensionUri: Uri, transport: any) {
-    const xtracfg = connect(transport, { debug: true });
-
+  private constructor(panel: WebviewPanel, extensionUri: Uri) {
     this._panel = panel;
     this._extensionUri = extensionUri;
 
@@ -77,7 +78,7 @@ export class AutoCreatePanel {
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
 
     // Set an event listener to listen for messages passed from the webview context
-    this._setWebviewMessageListener(this._panel.webview, transport);
+    this._setWebviewMessageListener(this._panel.webview);
 
     watcherOnDidCreate.onDidCreate(async (e) => {
       this._panel.webview.postMessage({
@@ -121,7 +122,7 @@ export class AutoCreatePanel {
    *
    * @param extensionUri The URI of the directory containing the extension.
    */
-  public static render(extensionUri: Uri, transport: any) {
+  public static render(extensionUri: Uri) {
     if (AutoCreatePanel.currentPanel) {
       // If the webview panel already exists reveal it
       AutoCreatePanel.currentPanel._panel.reveal(ViewColumn.One);
@@ -145,7 +146,7 @@ export class AutoCreatePanel {
           ],
         }
       );
-      AutoCreatePanel.currentPanel = new AutoCreatePanel(panel, extensionUri, transport);
+      AutoCreatePanel.currentPanel = new AutoCreatePanel(panel, extensionUri);
     }
   }
 
@@ -229,9 +230,7 @@ export class AutoCreatePanel {
    * @param context A reference to the extension context
    */
 
-  private _setWebviewMessageListener(webview: Webview, transport: any) {
-    const xtracfg = connect(transport, { debug: true });
-
+  private _setWebviewMessageListener(webview: Webview) {
     webview.onDidReceiveMessage(
       async (message: any) => {
         const command = message.command;

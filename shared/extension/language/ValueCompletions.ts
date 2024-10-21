@@ -7,6 +7,7 @@ import { extractDocRefs } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
 import { AllYamlKeys } from "../utilities/yaml";
 import { DocUpdate, Registration } from "../utilities/registration";
+import { TransportCreator } from "@xtracfg/core";
 
 interface LooseDefinition {
   title?: string;
@@ -28,11 +29,10 @@ export const updateValueCompletions: DocUpdate = async function (
   document,
   docUri,
   docHash,
-  newAllYamlKeys,
-  transport
+  newAllYamlKeys
 ) {
   allYamlKeys = newAllYamlKeys;
-  const schema = await getSchema(transport);
+  const schema = await getSchema();
   const text = document.getText();
   if (text && schema) {
     specifiedDefs = extractDocRefs(text, schema, docUri, docHash);
@@ -43,13 +43,13 @@ export const updateValueCompletions: DocUpdate = async function (
   }
 };
 
-export const registerValueCompletions: Registration = (context, transport) => {
-  return [vscode.languages.registerCompletionItemProvider("yaml", provider(transport))];
+export const registerValueCompletions: Registration = () => {
+  return [vscode.languages.registerCompletionItemProvider("yaml", provider())];
 };
 
-const provider = (transport: any): vscode.CompletionItemProvider<vscode.CompletionItem> => ({
+const provider = (): vscode.CompletionItemProvider<vscode.CompletionItem> => ({
   async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const schema = await getSchema(transport);
+    const schema = await getSchema();
 
     if (!schema) {
       return [];

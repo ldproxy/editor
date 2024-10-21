@@ -21,11 +21,10 @@ export const updateHover: DocUpdate = async function (
   document,
   docUri,
   docHash,
-  newAllYamlKeys,
-  transport
+  newAllYamlKeys
 ) {
   yamlKeysHover = newAllYamlKeys;
-  const schema = await getSchema(transport);
+  const schema = await getSchema();
   const text = document.getText();
   if (text && schema) {
     specifiedDefs = extractDocRefs(text, schema, docUri, docHash);

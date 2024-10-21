@@ -11,10 +11,11 @@ import { initSchemas } from "./utilities/schemas";
 import { parseYaml, hashText } from "./utilities/yaml";
 import { Registration, register, DocEvent } from "./utilities/registration";
 import { registeTreeViews } from "./trees";
+import { TransportCreator } from "@xtracfg/core";
 
 let initialized = false;
 
-export function activate(context: ExtensionContext, transport: any) {
+export function activate(context: ExtensionContext, transport: TransportCreator) {
   if (initialized) {
     return;
   }
@@ -45,12 +46,12 @@ export function activate(context: ExtensionContext, transport: any) {
     registerCodeActions
   );
 
-  onDocUpdate(DocEvent.OPEN, window.activeTextEditor?.document, transport);
+  onDocUpdate(DocEvent.OPEN, window.activeTextEditor?.document);
 }
 
 export function deactivate() {}
 
-const registerDocHandlers: Registration = () => {
+const registerDocHandlers: Registration = (context, transport) => {
   return [
     window.onDidChangeActiveTextEditor((editor) => {
       const document = window.activeTextEditor?.document;
@@ -75,7 +76,7 @@ const registerDocHandlers: Registration = () => {
   ];
 };
 
-export const onDocUpdate = function (event: DocEvent, document?: TextDocument, transport?: any) {
+export const onDocUpdate = function (event: DocEvent, document?: TextDocument) {
   if (document) {
     const text = document.getText();
     const uri = document.uri.toString();
@@ -84,10 +85,10 @@ export const onDocUpdate = function (event: DocEvent, document?: TextDocument, t
     if (hash && hash !== "") {
       const allYamlKeys = parseYaml(text);
 
-      updateHover(event, document, uri, hash, allYamlKeys, transport);
-      updateCompletions(event, document, uri, hash, allYamlKeys, transport);
-      updateValueCompletions(event, document, uri, hash, allYamlKeys, transport);
-      updateDiagnostics(event, document, uri, hash, allYamlKeys, transport);
+      updateHover(event, document, uri, hash, allYamlKeys);
+      updateCompletions(event, document, uri, hash, allYamlKeys);
+      updateValueCompletions(event, document, uri, hash, allYamlKeys);
+      updateDiagnostics(event, document, uri, hash, allYamlKeys);
     }
   }
 };
