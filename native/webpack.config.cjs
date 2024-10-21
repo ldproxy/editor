@@ -11,11 +11,16 @@
 
 const path = require("path");
 const webpack = require("webpack");
+const CopyPlugin = require("copy-webpack-plugin");
 
 /** @type WebpackConfig */
-const webExtensionConfig = {
+const nativeExtensionConfig = {
   mode: "none", // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
   target: "node",
+  node: {
+    __dirname: false, // required for native node addons
+  },
+  //stats: "verbose",
   entry: {
     extension: "./index.ts", // source of the web extension main file
     //'test/suite/index': './src/web/test/suite/index.ts', // source of the web extension test runner
@@ -51,10 +56,6 @@ const webExtensionConfig = {
           },
         ],
       },
-      {
-        test: /\.node$/,
-        use: "node-loader",
-      },
     ],
   },
   plugins: [
@@ -63,6 +64,15 @@ const webExtensionConfig = {
     }),
     new webpack.ProvidePlugin({
       process: "process", // provide a shim for the global `process` variable
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          context: "./node_modules/@xtracfg/native",
+          from: "prebuilds/**/*.node",
+          to: "./",
+        },
+      ],
     }),
   ],
   externals: {
@@ -77,4 +87,4 @@ const webExtensionConfig = {
   },
 };
 
-module.exports = [webExtensionConfig];
+module.exports = [nativeExtensionConfig];
