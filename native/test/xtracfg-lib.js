@@ -1,5 +1,5 @@
-import { connect } from "xtracfg";
-import transport from "xtracfg-transport-websocket";
+import { connect } from "@xtracfg/core";
+import transport from "@xtracfg/transport-websocket";
 
 const xtracfg = connect(transport);
 

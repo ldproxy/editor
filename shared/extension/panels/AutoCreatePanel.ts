@@ -12,8 +12,8 @@ import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
 import { listGpkgFilesInDirectory, uploadedGpkg, setCancel } from "../utilities/gpkg";
 import * as vscode from "vscode";
-import { connect } from "xtracfg";
-import transport from "xtracfg-transport-websocket";
+import { connect } from "@xtracfg/core";
+import transport from "@xtracfg/transport-websocket";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
 import { Registration } from "../utilities/registration";
 
