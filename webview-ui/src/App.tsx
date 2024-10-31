@@ -206,9 +206,7 @@ function App() {
     if (DEV) {
       console.log("setDataProcessing, CaseGenerate");
     }
-    setTimeout(() => {
-      setDataProcessing("inProgressGenerating");
-    }, 100);
+    setDataProcessing("inProgressGenerating");
   };
   return (
     <>
