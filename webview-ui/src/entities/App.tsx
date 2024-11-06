@@ -2,14 +2,14 @@ import { useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
-import { vscode } from "./utilities/vscode";
+import { vscode } from "../utilities/vscode";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
 import Wfs, { WfsData, wfsDataSelector } from "./Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
 import Final from "./Final";
-import { BasicData, Response, Error, xtracfg } from "./utilities/xtracfg";
-import { DEV } from "./utilities/constants";
+import { BasicData, Response, Error, xtracfg } from "../utilities/xtracfg";
+import { DEV } from "../utilities/constants";
 import { namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
 import {
@@ -17,7 +17,7 @@ import {
   atomSyncObject,
   atomSyncStringArray,
   atomSyncBoolean,
-} from "./utilities/recoilSyncWrapper";
+} from "../utilities/recoilSyncWrapper";
 
 import "./App.css";
 
@@ -100,6 +100,7 @@ function App() {
       case "xtracfg":
         if (message.response) {
           handleSuccess(message.response);
+
           if (
             message.response.details &&
             message.response.details.types &&
@@ -252,14 +253,17 @@ function App() {
       ) : dataProcessing === "analyzed" && !types ? (
         <div>
           <h3 className="final-title">No types found</h3>
+
           <div className="submitAndReset">
             <VSCodeButton className="submitButton" onClick={() => setDataProcessing("")}>
               Back
             </VSCodeButton>
+
             <VSCodeButton
               className="final-dismiss"
               onClick={() => {
                 vscode.postMessage({ command: "closeWebview" });
+
                 setDataProcessing("");
               }}>
               Close

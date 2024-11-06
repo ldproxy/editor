@@ -26,6 +26,12 @@
         "title": "Create new entities",
         "category": "ldproxy",
         "icon": "$(add)"
+      },
+      {
+        "command": "ldproxy-editor.showAutoCreateValues",
+        "title": "Create new values",
+        "category": "ldproxy",
+        "icon": "$(add)"
       }
     ]
   },
