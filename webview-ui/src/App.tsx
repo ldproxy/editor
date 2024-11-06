@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 import { vscode } from "./utilities/vscode";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
@@ -11,7 +12,12 @@ import { BasicData, Response, Error, xtracfg } from "./utilities/xtracfg";
 import { DEV } from "./utilities/constants";
 import { namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncObject, atomSyncStringArray } from "./utilities/recoilSyncWrapper";
+import {
+  atomSyncString,
+  atomSyncObject,
+  atomSyncStringArray,
+  atomSyncBoolean,
+} from "./utilities/recoilSyncWrapper";
 
 import "./App.css";
 
@@ -31,7 +37,10 @@ export const generateProgressAtom = atomSyncString("generateProgress", "");
 
 export const progressAtom = atomSyncObject<TableData>("progress", {});
 
+export const typesAtom = atomSyncBoolean("types", false);
+
 function App() {
+  const [types, setTypes] = useRecoilState(typesAtom);
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
   const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
@@ -91,6 +100,15 @@ function App() {
       case "xtracfg":
         if (message.response) {
           handleSuccess(message.response);
+          if (
+            message.response.details &&
+            message.response.details.types &&
+            Object.keys(message.response.details.types).length > 0
+          ) {
+            setTypes(true);
+          } else {
+            setTypes(false);
+          }
         } else {
           handleError(message.error);
         }
@@ -229,8 +247,25 @@ function App() {
             <Wfs submitData={analyze} inProgress={dataProcessing === "inProgress"} error={error} />
           )}
         </main>
-      ) : dataProcessing === "analyzed" ? (
+      ) : dataProcessing === "analyzed" && types ? (
         <Tables generateProgress={generateProgress} generate={generate} />
+      ) : dataProcessing === "analyzed" && !types ? (
+        <div>
+          <h3 className="final-title">No types found</h3>
+          <div className="submitAndReset">
+            <VSCodeButton className="submitButton" onClick={() => setDataProcessing("")}>
+              Back
+            </VSCodeButton>
+            <VSCodeButton
+              className="final-dismiss"
+              onClick={() => {
+                vscode.postMessage({ command: "closeWebview" });
+                setDataProcessing("");
+              }}>
+              Close
+            </VSCodeButton>
+          </div>
+        </div>
       ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
         <Final
           workspace={workspace}
