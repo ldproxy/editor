@@ -198,7 +198,7 @@ export class AutoCreatePanel {
           <title>Hello World</title>    
         </head>
         <body>
-          <div id="root"></div>
+          <div id="root" data-create-values="false"></div>
           <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
         </body>
       </html>

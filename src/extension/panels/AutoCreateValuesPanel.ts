@@ -162,7 +162,7 @@ export class AutoCreateValuesPanel {
             <title>Hello World</title>    
           </head>
           <body>
-            <div id="root"></div>
+            <div id="root" data-create-values="true"></div>
             <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
           </body>
         </html>
