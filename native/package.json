@@ -36,9 +36,9 @@
     "start:webview": "cd ../webview-ui && npm run start",
     "compile-native": "webpack --mode development",
     "watch-native": "webpack --mode development --watch",
-    "vscode:prepublish": "VITE_DEV=false npm run build:webview && npm run package-web",
+    "vscode:prepublish": "VITE_DEV=false npm run build:webview && npm run package-native",
     "package-native": "webpack --mode production --devtool hidden-source-map",
-    "package": "vsce package -o dist/ldproxy-editor.vsix -t web --pre-release",
+    "package": "vsce package -o dist/ldproxy-editor.vsix -t darwin-arm64 --pre-release",
     "lint": "eslint src --ext ts"
   },
   "dependencies": {
