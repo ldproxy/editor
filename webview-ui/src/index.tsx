@@ -1,12 +1,18 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
+import AppEntities from "./entities/App";
+import AppValues from "./values/App";
 import { RecoilRoot, DefaultValue } from "recoil";
 import { RecoilSync } from "recoil-sync";
 import { vscode } from "./utilities/vscode";
 import { DEBUG_RECOIL } from "./utilities/constants";
 
 const DEFAULT_VALUE = new DefaultValue();
+
+const rootDiv = document.getElementById("root");
+const createValues = rootDiv?.getAttribute("data-create-values") === "true";
+
+const App = createValues ? AppValues : AppEntities;
 
 ReactDOM.render(
   <React.StrictMode>
@@ -39,5 +45,5 @@ ReactDOM.render(
       </RecoilSync>
     </RecoilRoot>
   </React.StrictMode>,
-  document.getElementById("root")
+  rootDiv
 );

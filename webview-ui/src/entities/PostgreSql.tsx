@@ -5,9 +5,9 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 
-import { BasicData } from "./utilities/xtracfg";
+import { BasicData } from "../utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString } from "./utilities/recoilSyncWrapper";
+import { atomSyncString } from "../utilities/recoilSyncWrapper";
 
 const hostAtom = atomSyncString("host", "");
 

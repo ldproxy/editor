@@ -7,11 +7,11 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
-import { BasicData } from "./utilities/xtracfg";
+import { BasicData } from "../utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncBoolean, atomSyncString } from "./utilities/recoilSyncWrapper";
-import { vscode } from "./utilities/vscode";
-import { DEV } from "./utilities/constants";
+import { atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
+import { vscode } from "../utilities/vscode";
+import { DEV } from "../utilities/constants";
 import { useRef } from "react";
 import { set } from "@recoiljs/refine";
 
