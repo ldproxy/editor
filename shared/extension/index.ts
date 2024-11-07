@@ -1,6 +1,8 @@
 import { ExtensionContext, TextDocument, window, workspace } from "vscode";
 
 import { registerShowAutoCreate } from "./panels/AutoCreatePanel";
+import { registerShowAutoCreateValues } from "./panels/AutoCreateValuesPanel";
+
 import { registerDiagnostics, updateDiagnostics } from "./language/Diagnostics";
 import { registerCompletions, updateCompletions } from "./language/Completions";
 import { registerValueCompletions, updateValueCompletions } from "./language/ValueCompletions";
@@ -38,6 +40,7 @@ export function activate(context: ExtensionContext, transport: TransportCreator)
     transport,
     registeTreeViews,
     registerShowAutoCreate,
+    registerShowAutoCreateValues,
     registerHover,
     registerCompletions,
     registerValueCompletions,

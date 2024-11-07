@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
-import { BasicData } from "./utilities/xtracfg";
+import { BasicData } from "../utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncBoolean, atomSyncString } from "./utilities/recoilSyncWrapper";
-import { vscode } from "./utilities/vscode";
-import { DEV } from "./utilities/constants";
+import { atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
+import { vscode } from "../utilities/vscode";
+import { DEV } from "../utilities/constants";
 import { useRef } from "react";
 import { set } from "@recoiljs/refine";
 
@@ -107,7 +107,9 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       }
       if (file.size > maxSize) {
         handleReset();
-        setMsg(`File '${file.name}' is too large. Currently only files smaller than 100MB can be uploaded. You may copy the file directly into the store instead.`);
+        setMsg(
+          `File '${file.name}' is too large. Currently only files smaller than 100MB can be uploaded. You may copy the file directly into the store instead.`
+        );
         return;
       }
       setGpkgIsUploading(true);
@@ -131,7 +133,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   const onFileSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setExistingGPKG(event.target.value);
     setMsg(undefined);
-  }
+  };
 
   const postUploadMessage = (base64String: string, filename: string) => {
     setGpkgIsUploading(false);
@@ -360,7 +362,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             multiple={false}
             disabled={inProgress || !!existingGPKG || gpkgIsUploading || gpkgIsSaving}
           />
-          {msg && <div style={{textAlign: "left"}}>{msg}</div>}
+          {msg && <div style={{ textAlign: "left" }}>{msg}</div>}
           {gpkgIsUploading ? (
             <div className="progress-container">
               <VSCodeProgressRing className="progressRing" />
