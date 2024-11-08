@@ -7,7 +7,7 @@ import { selectedTablesAtom, TableData } from "./Tables";
 import { dataProcessingAtom } from "./App";
 import { atomSyncStringArray } from "../utilities/recoilSyncWrapper";
 
-export const namesOfCreatedFilesAtom = atomSyncStringArray("namesOfCreatedFiles", [""]);
+export const namesOfCreatedFilesAtom = atomSyncStringArray("namesOfCreatedFiles", [""], "StoreB");
 
 type FinalProps = {
   workspace: string;

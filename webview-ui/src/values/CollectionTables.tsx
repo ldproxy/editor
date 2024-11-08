@@ -7,13 +7,13 @@ import { atomSyncString, atomSyncObject, atomSyncBoolean } from "../utilities/re
 import { DEV } from "../utilities/constants";
 import { useEffect, useState } from "react";
 
-export const selectedTablesAtom = atomSyncObject<TableData>("selectedTables", {});
+export const selectedTablesAtom = atomSyncObject<TableData>("selectedTables", {}, "StoreA");
 
 export type TableData = {
   [key: string]: string;
 };
 
-export const currentTableAtom = atomSyncString("currentTable", "");
+export const currentTableAtom = atomSyncString("currentTable", "", "StoreA");
 
 type TablesProps = {
   details: TableData;
