@@ -7,13 +7,15 @@ import { atomSyncString, atomSyncObject, atomSyncBoolean } from "../utilities/re
 import { DEV } from "../utilities/constants";
 import { useEffect, useState } from "react";
 
-export const selectedTablesAtom = atomSyncObject<TableData>("selectedTables", {}, "StoreA");
+export const selectedTablesAtom = atomSyncObject<TableData>("selectedTablesValues", {}, "StoreA");
+
+export const allTablesAtom = atomSyncObject<TableData>("allTablesValues", {}, "StoreA");
 
 export type TableData = {
   [key: string]: string;
 };
 
-export const currentTableAtom = atomSyncString("currentTable", "", "StoreA");
+export const currentTableAtom = atomSyncString("currentTableValues", "", "StoreA");
 
 type TablesProps = {
   details: TableData;
@@ -32,9 +34,13 @@ const CollectionTables = ({
   setCollectionColors,
   onBack,
 }: TablesProps) => {
-  const allTables: TableData = details;
+  const [allTables, setAllTables] = useRecoilState<TableData>(allTablesAtom);
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setAllTables(details);
+  }, [details]);
 
   useEffect(() => {
     setSelectedTables(allTables);
