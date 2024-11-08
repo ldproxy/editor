@@ -11,6 +11,8 @@ export const selectedTablesAtom = atomSyncObject<TableData>("selectedTablesValue
 
 export const allTablesAtom = atomSyncObject<TableData>("allTablesValues", {}, "StoreA");
 
+export const loadingAtom = atomSyncBoolean("loadingValues", false, "StoreA");
+
 export type TableData = {
   [key: string]: string;
 };
@@ -36,7 +38,7 @@ const CollectionTables = ({
 }: TablesProps) => {
   const [allTables, setAllTables] = useRecoilState<TableData>(allTablesAtom);
   const [selectedTables, setSelectedTables] = useRecoilState<TableData>(selectedTablesAtom);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useRecoilState<boolean>(loadingAtom);
 
   useEffect(() => {
     setAllTables(details);
