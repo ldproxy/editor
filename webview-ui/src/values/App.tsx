@@ -31,6 +31,7 @@ export const loadingAtom = atomSyncBoolean("loading", false, "StoreA");
 export const details = atomSyncObject<TableData>("details", {}, "StoreA");
 export const collections = atomSyncObject<Response>("collections", {}, "StoreA");
 export const existingApisAtom = atomSyncStringArray("existingApis", [""], "StoreA");
+export const currentViewAtom = atomSyncString("currentView", "main", "StoreA");
 
 export type valueData = {
   apiId: string;
@@ -52,8 +53,9 @@ function App() {
   const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
   const [existingApis, setExistingApis] = useRecoilState<string[]>(existingApisAtom);
   const [selectedApiInDropdown, setSelectedApiInDropdown] = useState(false);
-  const [currentView, setCurrentView] = useState("main");
+  const [currentView, setCurrentView] = useRecoilState(currentViewAtom);
   const DEV = false;
+
   const valueDataSelector = selector({
     key: "uniqueValueDataSelector_v1",
     get: ({ get }) => {
