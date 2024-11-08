@@ -9,13 +9,13 @@ import { BasicData } from "../utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
 
-const hostAtom = atomSyncString("host", "");
+const hostAtom = atomSyncString("host", "", "StoreB");
 
-const databaseAtom = atomSyncString("database", "");
+const databaseAtom = atomSyncString("database", "", "StoreB");
 
-export const userAtom = atomSyncString("user", "");
+export const userAtom = atomSyncString("user", "", "StoreB");
 
-export const passwordAtom = atomSyncString("password", "");
+export const passwordAtom = atomSyncString("password", "", "StoreB");
 
 export const sqlDataSelector = selector({
   key: "sqlDataSelector",

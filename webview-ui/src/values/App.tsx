@@ -21,16 +21,16 @@ import { vscode } from "../utilities/vscode";
 import Final from "./Final";
 import CollectionTables, { TableData } from "./CollectionTables";
 
-export const apiNameAtom = atomSyncString("apiName", "");
-export const valueFileNameAtom = atomSyncString("valueFileName", "default");
-export const typeAtom = atomSyncString("type", "maplibre-styles");
-export const workspaceAtom = atomSyncString("workspace", "");
-export const successAtom = atomSyncString("success", "");
-export const errorAtom = atomSyncString("error", "");
-export const loadingAtom = atomSyncBoolean("loading", false);
-export const details = atomSyncObject<TableData>("details", {});
-export const collections = atomSyncObject<Response>("collections", {});
-export const existingApisAtom = atomSyncStringArray("existingApis", [""]);
+export const apiNameAtom = atomSyncString("apiName", "", "StoreA");
+export const valueFileNameAtom = atomSyncString("valueFileName", "default", "StoreA");
+export const typeAtom = atomSyncString("type", "maplibre-styles", "StoreA");
+export const workspaceAtom = atomSyncString("workspace", "", "StoreA");
+export const successAtom = atomSyncString("success", "", "StoreA");
+export const errorAtom = atomSyncString("error", "", "StoreA");
+export const loadingAtom = atomSyncBoolean("loading", false, "StoreA");
+export const details = atomSyncObject<TableData>("details", {}, "StoreA");
+export const collections = atomSyncObject<Response>("collections", {}, "StoreA");
+export const existingApisAtom = atomSyncStringArray("existingApis", [""], "StoreA");
 
 export type valueData = {
   apiId: string;

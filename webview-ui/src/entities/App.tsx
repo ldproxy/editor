@@ -25,19 +25,19 @@ type FieldErrors = {
   [key: string]: string;
 };
 
-export const dataProcessingAtom = atomSyncString("dataProcessing", "");
+export const dataProcessingAtom = atomSyncString("dataProcessing", "", "StoreB");
 
-export const existingGeopackageAtom = atomSyncStringArray("existingGeopackage", [""]);
+export const existingGeopackageAtom = atomSyncStringArray("existingGeopackage", [""], "StoreB");
 
-export const workspaceAtom = atomSyncString("workspace", "");
+export const workspaceAtom = atomSyncString("workspace", "", "StoreB");
 
-export const errorAtom = atomSyncObject<FieldErrors>("error", {});
+export const errorAtom = atomSyncObject<FieldErrors>("error", {}, "StoreB");
 
-export const generateProgressAtom = atomSyncString("generateProgress", "");
+export const generateProgressAtom = atomSyncString("generateProgress", "", "StoreB");
 
-export const progressAtom = atomSyncObject<TableData>("progress", {});
+export const progressAtom = atomSyncObject<TableData>("progress", {}, "StoreB");
 
-export const typesAtom = atomSyncBoolean("types", false);
+export const typesAtom = atomSyncBoolean("types", false, "StoreB");
 
 function App() {
   const [types, setTypes] = useRecoilState(typesAtom);

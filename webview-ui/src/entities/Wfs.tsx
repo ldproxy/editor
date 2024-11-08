@@ -10,11 +10,11 @@ import Common, { idAtom, featureProviderTypeAtom } from "./Common";
 import { atomSyncString, atomSyncBoolean } from "../utilities/recoilSyncWrapper";
 import { DEV } from "../utilities/constants";
 
-export const urlAtom = atomSyncString("url", "");
+export const urlAtom = atomSyncString("url", "", "StoreB");
 
-const userAtom = atomSyncString("userWFS", "");
+const userAtom = atomSyncString("userWFS", "", "StoreB");
 
-const passwordAtom = atomSyncString("passwordWFS", "");
+const passwordAtom = atomSyncString("passwordWFS", "", "StoreB");
 
 export const wfsDataSelector = selector({
   key: "wfsDataSelector",
@@ -55,7 +55,7 @@ type PostgreSqlProps = {
   };
 };
 
-export const isSwitchOnAtom = atomSyncBoolean("isSwitchOn", false);
+export const isSwitchOnAtom = atomSyncBoolean("isSwitchOn", false, "StoreB");
 
 function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
   const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
