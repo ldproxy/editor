@@ -74,14 +74,14 @@ export class AutoCreateValuesPanel {
     this._setWebviewMessageListener(this._panel.webview);
 
     xtracfg.listen(
-      (response) => {
-        this._panel.webview.postMessage({
+      async (response) => {
+        await this._panel.webview.postMessage({
           command: "xtracfg",
           response,
         });
       },
-      (error) => {
-        this._panel.webview.postMessage({
+      async (error) => {
+        await this._panel.webview.postMessage({
           command: "xtracfg",
           error,
         });
