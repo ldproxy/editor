@@ -86,7 +86,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
             <VSCodeTextField
               value={url ? url : undefined || ""}
               disabled={inProgress}
-              onChange={(e) => {
+              onInput={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
                   setUrl(target.value);
@@ -114,7 +114,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
                 <VSCodeTextField
                   value={user ? user : undefined || ""}
                   disabled={inProgress}
-                  onChange={(e) => {
+                  onInput={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
                       setUser(target.value);
@@ -128,7 +128,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
                 <VSCodeTextField
                   value={password ? password : undefined || ""}
                   disabled={inProgress}
-                  onChange={(e) => {
+                  onInput={(e) => {
                     const target = e.target as HTMLInputElement;
                     if (target) {
                       setPassword(target.value);
