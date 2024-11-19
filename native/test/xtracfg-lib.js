@@ -1,10 +1,10 @@
 import { connect } from "@xtracfg/core";
-import transport from "@xtracfg/transport-websocket";
+import transport from "@xtracfg/transport-native";
 
 const xtracfg = connect(transport);
 
 async function testBasic() {
-  const command = '{"command": "info", "source": "/Users/pascal/Documents/GitHub/demo"}';
+  const command = '{"command": "info", "source": "../../data"}';
 
   try {
     const result = await xtracfg.send(command);

@@ -2,11 +2,12 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "ES2022",
-    "outDir": "dist",
+    "outDir": "../dist/web",
     "lib": ["ES2022", "dom"],
     "sourceMap": true,
     "rootDir": "../",
-    "strict": true
+    "strict": true,
+    "esModuleInterop": true
   },
   "include": ["../shared/extension", "./index.ts"],
   "exclude": ["node_modules", ".vscode-test-web", "webview-ui"]

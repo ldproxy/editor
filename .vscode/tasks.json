@@ -4,10 +4,19 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build:web",
+      "label": "prelaunch:native",
       "type": "npm",
-      "script": "build:all",
-      "path": "web",
+      "script": "prelaunch:native",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "prelaunch:web",
+      "type": "npm",
+      "script": "prelaunch:web",
       "group": {
         "kind": "build"
       },
@@ -15,22 +24,10 @@
     },
     {
       "type": "npm",
-      "script": "watch-web",
-      "path": "web",
+      "script": "watch:web",
       "group": "build",
       "isBackground": true,
       "problemMatcher": "$tsc-watch"
-    },
-    {
-      "label": "build:native",
-      "type": "npm",
-      "script": "build:all",
-      "path": "native",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": []
     }
   ]
 }
