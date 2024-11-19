@@ -6,17 +6,25 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run Native Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}", "${workspaceFolder}/data"],
+      "outFiles": ["${workspaceFolder}/dist/dev/*.js"],
+      "preLaunchTask": "prelaunch:native"
+    },
+    {
       "name": "Run Web Extension ",
       "type": "extensionHost",
       "debugWebWorkerHost": true,
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/web",
+        "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionDevelopmentKind=web",
         "${workspaceFolder}/data"
       ],
-      "outFiles": ["${workspaceFolder}/dist/*.js"],
-      "preLaunchTask": "build:web",
+      "outFiles": ["${workspaceFolder}/dist/dev/*.js"],
+      "preLaunchTask": "prelaunch:web",
       "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {
@@ -31,14 +39,6 @@
       ],
       "outFiles": ["${workspaceFolder}/dist/extension/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}"
-    },
-    {
-      "name": "Run Native Extension",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}/native", "${workspaceFolder}/data"],
-      "outFiles": ["${workspaceFolder}/dist/*.js"],
-      "preLaunchTask": "build:native"
     }
   ]
 }
