@@ -1,7 +1,7 @@
 when:
   event: push
 
-pipeline:
+steps:
   native:
     image: node:20-alpine
     commands:

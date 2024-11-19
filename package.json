@@ -36,7 +36,7 @@
     ]
   },
   "scripts": {
-    "install:all": "npm install && cd ../webview-ui && npm install",
+    "install:all": "npm install && cd webview-ui && npm install",
     "build:ui": "cd webview-ui && npm run build",
     "start:ui": "cd webview-ui && npm run start",
     "dev:native": "cd native && webpack --mode development",
