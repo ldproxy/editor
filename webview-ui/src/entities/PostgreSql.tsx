@@ -74,7 +74,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
             <VSCodeTextField
               value={host}
               disabled={inProgress}
-              onChange={(e) => {
+              onInput={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
                   setHost(target.value);
@@ -88,7 +88,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
             <VSCodeTextField
               value={database}
               disabled={inProgress}
-              onChange={(e) => {
+              onInput={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
                   setDatabase(target.value);
@@ -102,7 +102,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
             <VSCodeTextField
               value={user}
               disabled={inProgress}
-              onChange={(e) => {
+              onInput={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
                   setUser(target.value);
@@ -116,7 +116,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
             <VSCodeTextField
               value={password}
               disabled={inProgress}
-              onChange={(e) => {
+              onInput={(e) => {
                 const target = e.target as HTMLInputElement;
                 if (target) {
                   setPassword(target.value);
