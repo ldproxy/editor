@@ -129,6 +129,8 @@ export class AutoCreateValuesPanel {
   public dispose() {
     AutoCreateValuesPanel.currentPanel = undefined;
 
+    xtracfg.disconnect();
+
     // Dispose of the current webview panel
     this._panel.dispose();
 
