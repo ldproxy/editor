@@ -156,6 +156,8 @@ export class AutoCreatePanel {
   public dispose() {
     AutoCreatePanel.currentPanel = undefined;
 
+    xtracfg.disconnect();
+
     // Dispose of the current webview panel
     this._panel.dispose();
 
