@@ -18,6 +18,10 @@ import { shouldShowCompletionsProv1, getRefCompletionsProv1 } from "../utilities
 import { getPathAtCursor } from "../utilities/completions";
 import { shouldFilterExistingCharacters, createCompletionItem } from "../utilities/completions";
 import { shouldShowCompletionsProv2 } from "../utilities/completionsProv2";
+import {
+  shouldShowCompletionsProv3,
+  createCompletionItemProv3,
+} from "../utilities/completionsProv3";
 
 let enumArray: { key: string; enum: string; groupname: string }[];
 
@@ -411,39 +415,14 @@ const additionalReferencesFromSpecifiedDefs: vscode.CompletionItemProvider<vscod
                 // here we push all keys as completions, which have the same groupname as the addRef in question
                 // For explanation of if statement see Provider1
                 if (
-                  (textBeforeCursor.trim() === "" &&
-                    arrayIndex !== -1 &&
-                    (column === indentationOfpathAtCursor + indentationUsedInYaml * 1 ||
-                      column === indentationOfpathAtCursor + indentationUsedInYaml * 2)) ||
-                  (textBeforeCursor.trim() === "" &&
-                    column === indentationOfpathAtCursor + indentationUsedInYaml) ||
-                  (textBeforeCursor.trim() !== "" &&
-                    !textBeforeCursor.trim().includes("-") &&
-                    arrayIndex !== -1 &&
-                    (column ===
-                      indentationOfpathAtCursor +
-                        indentationUsedInYaml * 1 +
-                        textBeforeCursorLength ||
-                      column ===
-                        indentationOfpathAtCursor +
-                          indentationUsedInYaml * 2 +
-                          textBeforeCursorLength)) ||
-                  (textBeforeCursor.trim() !== "" &&
-                    textBeforeCursor.trim() === "-" &&
-                    column ===
-                      indentationOfpathAtCursor +
-                        indentationUsedInYaml +
-                        textBeforeCursorLength +
-                        1) ||
-                  (textBeforeCursor.trim() !== "" &&
-                    textBeforeCursor.trim() !== "-" &&
-                    textBeforeCursor.trim().includes("-") &&
-                    column ===
-                      indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength) ||
-                  (textBeforeCursor.trim() !== "" &&
-                    !textBeforeCursor.trim().includes("-") &&
-                    column ===
-                      indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength)
+                  shouldShowCompletionsProv3(
+                    textBeforeCursor,
+                    arrayIndex,
+                    column,
+                    indentationOfpathAtCursor,
+                    indentationUsedInYaml,
+                    textBeforeCursorLength
+                  )
                 ) {
                   for (const key2 in definitionsMap) {
                     if (definitionsMap.hasOwnProperty(key2)) {
@@ -478,58 +457,24 @@ const additionalReferencesFromSpecifiedDefs: vscode.CompletionItemProvider<vscod
                         allYamlKeys &&
                         !allYamlKeys.some((key) => key.path === `${pathAtCursor}.${finalValue}`)
                       ) {
-                        const completion = new vscode.CompletionItem(finalValue);
+                        const completion = createCompletionItemProv3(
+                          finalValue,
+                          obj2,
+                          enumArray,
+                          DEV
+                        );
 
-                        if (obj2.type && obj2.type === "object") {
-                          completion.insertText = `${finalValue}: \n  `;
-                        } else if (obj2.type && obj2.type === "array") {
-                          completion.insertText = `${finalValue}: \n  - `;
-                        } else {
-                          completion.insertText = `${finalValue}: `;
-                        }
-                        completion.kind = vscode.CompletionItemKind.Method;
-                        if (
-                          enumArray.length > 0 &&
-                          enumArray.some((enumItem) => {
-                            return (
-                              obj2.title === enumItem.key &&
-                              (obj2.groupname === enumItem.groupname ||
-                                (obj2.groupname === "_TOP_LEVEL_" && enumItem.groupname === ""))
-                            );
-                          })
-                        ) {
-                          completion.detail = "Enum";
-                        } else if (obj2.type === "object" && obj2.ref !== "") {
-                          completion.detail = "obj";
-                        } else if (obj2.type === "array" && obj2.ref !== "") {
-                          completion.detail = "array";
-                        }
-
-                        if (obj2.description !== "") {
-                          completion.documentation = new vscode.MarkdownString(obj2.description);
-                        }
-                        let filterExistingCharacters;
-                        if (textBeforeCursor.trim() !== "") {
-                          if (textBeforeCursor.trim().includes("-")) {
-                            const textWithoutHyphen = textBeforeCursor.trim().replace("-", "");
-                            filterExistingCharacters = finalValue.startsWith(
-                              textWithoutHyphen.trim()
-                            );
-                          } else {
-                            filterExistingCharacters = finalValue.startsWith(
-                              textBeforeCursor.trim()
-                            );
-                          }
-                        } else {
-                          filterExistingCharacters = true;
-                        }
+                        const filterExistingCharacters = shouldFilterExistingCharacters(
+                          textBeforeCursor,
+                          finalValue
+                        );
 
                         const existing = refCompletions.find(
                           (existingComp) => existingComp.label === finalValue
                         );
                         if (filterExistingCharacters && existing === undefined) {
                           if (DEV) {
-                            console.log("completion3", value);
+                            console.log("completion3", finalValue);
                             console.log("insertText3", completion.insertText);
                           }
                           if (
