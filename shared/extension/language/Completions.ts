@@ -16,6 +16,8 @@ import { buildEnumArray } from "../utilities/enums";
 import { DocUpdate, Registration } from "../utilities/registration";
 import { shouldShowCompletionsProv1, getRefCompletionsProv1 } from "../utilities/completionsProv1";
 import { getPathAtCursor } from "../utilities/completions";
+import { shouldFilterExistingCharacters, createCompletionItem } from "../utilities/completions";
+import { shouldShowCompletionsProv2 } from "../utilities/completionsProv2";
 
 let enumArray: { key: string; enum: string; groupname: string }[];
 
@@ -56,7 +58,6 @@ export const registerCompletions: Registration = () => {
 
 const referencesFromSpecifiedDefs: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    // Gathering information for the final if-statement
     const line = position.line + 1;
     const column = position.character;
 
@@ -219,64 +220,12 @@ const nonIndentedKeysAndArrays: vscode.CompletionItemProvider<vscode.CompletionI
                     return key.path === fullPath;
                   })
                 ) {
-                  const completion = new vscode.CompletionItem(value);
-                  let filterExistingCharacters;
-                  if (textBeforeCursor.trim() !== "") {
-                    filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
-                  } else {
-                    filterExistingCharacters = true;
-                  }
-                  if (DEV) {
-                    console.log("existingCharacters", filterExistingCharacters);
-                    console.log("valueInProvider", value);
-                    console.log("testEC", value.startsWith(textBeforeCursor));
-                  }
-
-                  if (obj.type && obj.type === "object") {
-                    completion.insertText = `${value}: \n  `;
-                  } else if (obj.type && obj.type === "array") {
-                    completion.insertText = `${value}: \n  - `;
-                  } else {
-                    completion.insertText = `${value}: `;
-                  }
-
-                  completion.kind = vscode.CompletionItemKind.Method;
-
-                  if (
-                    enumArray.length > 0 &&
-                    enumArray.some((enumItem) => {
-                      return (
-                        obj.title === enumItem.key &&
-                        (obj.groupname === enumItem.groupname ||
-                          (obj.groupname === "_TOP_LEVEL_" && enumItem.groupname === ""))
-                      );
-                    })
-                  ) {
-                    completion.detail = "Enum";
-                  } else if (obj.type === "object" && obj.ref !== "") {
-                    completion.detail = "obj";
-                  } else if (obj.type === "array" && obj.ref !== "") {
-                    completion.detail = "array";
-                  }
-
-                  if (obj.description !== "") {
-                    completion.documentation = new vscode.MarkdownString(obj.description);
-                  }
+                  const completion = createCompletionItem(value, obj, enumArray, DEV);
+                  const filterExistingCharacters = shouldFilterExistingCharacters(
+                    textBeforeCursor,
+                    value
+                  );
                   if (filterExistingCharacters) {
-                    if (DEV) {
-                      console.log("completion21", value);
-                      console.log("insertText21", completion.insertText);
-                    }
-                    if (
-                      completion.detail === "Enum" ||
-                      completion.detail === "obj" ||
-                      completion.detail === "array"
-                    ) {
-                      completion.command = {
-                        title: "Trigger Suggest",
-                        command: "editor.action.triggerSuggest",
-                      };
-                    }
                     completions.push(completion);
                   }
                 }
@@ -293,29 +242,15 @@ const nonIndentedKeysAndArrays: vscode.CompletionItemProvider<vscode.CompletionI
         definitionsMap &&
         (indentation === columnOfArray || column === columnOfArray)
       ) {
-        // For explanation of if-statement see Provider1
         if (
-          (pathAtCursor &&
-            pathAtCursor.trim() !== "" &&
-            textBeforeCursor.trim() === "" &&
-            (column === indentationOfpathAtCursor + indentationUsedInYaml * 1 ||
-              column === indentationOfpathAtCursor + indentationUsedInYaml * 2)) ||
-          (pathAtCursor &&
-            pathAtCursor.trim() !== "" &&
-            textBeforeCursor.trim() !== "" &&
-            !textBeforeCursor.trim().includes("-") &&
-            (column ===
-              indentationOfpathAtCursor + indentationUsedInYaml * 1 + textBeforeCursorLength ||
-              column ===
-                indentationOfpathAtCursor + indentationUsedInYaml * 2 + textBeforeCursorLength)) ||
-          (textBeforeCursor.trim() !== "" &&
-            textBeforeCursor.trim() === "-" &&
-            column ===
-              indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength + 1) ||
-          (textBeforeCursor.trim() !== "" &&
-            textBeforeCursor.trim() !== "-" &&
-            textBeforeCursor.trim().includes("-") &&
-            column === indentationOfpathAtCursor + indentationUsedInYaml + textBeforeCursorLength)
+          shouldShowCompletionsProv2(
+            pathAtCursor,
+            textBeforeCursor,
+            column,
+            indentationOfpathAtCursor,
+            indentationUsedInYaml,
+            textBeforeCursorLength
+          )
         ) {
           if (DEV) {
             console.log("columnOfArray", columnOfArray);
@@ -340,68 +275,13 @@ const nonIndentedKeysAndArrays: vscode.CompletionItemProvider<vscode.CompletionI
                     return key.path === fullPath && key.startOfArray === minLine;
                   })
                 ) {
-                  const completion = new vscode.CompletionItem(value);
-                  if (obj.type && obj.type === "object") {
-                    completion.insertText = `${value}: \n  `;
-                  } else if (obj.type && obj.type === "array") {
-                    completion.insertText = `${value}: \n  - `;
-                  } else {
-                    completion.insertText = `${value}: `;
-                  }
-
-                  if (
-                    enumArray.length > 0 &&
-                    enumArray.some((enumItem) => {
-                      return (
-                        obj.title === enumItem.key &&
-                        (obj.groupname === enumItem.groupname ||
-                          (obj.groupname === "_TOP_LEVEL_" && enumItem.groupname === ""))
-                      );
-                    })
-                  ) {
-                    completion.detail = "Enum";
-                  } else if (obj.type === "object" && obj.ref !== "") {
-                    completion.detail = "obj";
-                  } else if (obj.type === "array" && obj.ref !== "") {
-                    completion.detail = "array";
-                  }
-
-                  completion.kind = vscode.CompletionItemKind.Method;
-                  if (obj.description !== "") {
-                    completion.documentation = new vscode.MarkdownString(obj.description);
-                  }
+                  const completion = createCompletionItem(value, obj, enumArray, DEV);
+                  const filterExistingCharacters = shouldFilterExistingCharacters(
+                    textBeforeCursor,
+                    value
+                  );
                   const existing = completions.find((existingComp) => existingComp.label === value);
-                  let filterExistingCharacters;
-                  if (textBeforeCursor.trim() !== "") {
-                    if (textBeforeCursor.trim().includes("-")) {
-                      const textWithoutHyphen = textBeforeCursor.trim().replace("-", "");
-                      filterExistingCharacters = value.startsWith(textWithoutHyphen.trim());
-                    } else {
-                      filterExistingCharacters = value.startsWith(textBeforeCursor.trim());
-                    }
-                  } else {
-                    filterExistingCharacters = true;
-                  }
-                  if (DEV) {
-                    console.log("existingCharacters", filterExistingCharacters);
-                    console.log("valueInProvider", value);
-                    console.log("testEC", value.startsWith(textBeforeCursor));
-                  }
                   if (filterExistingCharacters && existing === undefined) {
-                    if (DEV) {
-                      console.log("completion22", value);
-                      console.log("insertText22", completion.insertText);
-                    }
-                    if (
-                      completion.detail === "Enum" ||
-                      completion.detail === "obj" ||
-                      completion.detail === "array"
-                    ) {
-                      completion.command = {
-                        title: "Trigger Suggest",
-                        command: "editor.action.triggerSuggest",
-                      };
-                    }
                     completions.push(completion);
                   }
                 }
