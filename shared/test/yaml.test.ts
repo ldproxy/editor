@@ -1,5 +1,9 @@
 import { deepStrictEqual } from "assert";
-import { parseYaml } from "../extension/utilities/yaml";
+import {
+  parseYaml,
+  getIndentation,
+  indentationOfYamlObjectAboveCursor,
+} from "../extension/utilities/yaml";
 import { extractDocRefs, extractSingleRefs } from "../extension/utilities/refs";
 import { buildEnumArray } from "../extension/utilities/enums";
 import {
@@ -7,9 +11,35 @@ import {
   getRequiredProperties,
   findObjectsWithRef,
 } from "../extension/utilities/defs";
-import { expectedDefMap, expectedRef } from "./data/expected";
+import {
+  expectedDefMap,
+  expectedRef,
+  expectedYamlKeysAll,
+  yamlKeysGetPathAtCursor,
+  exampleDocument,
+  defMapProv1Completion,
+} from "./data/expected";
 import { services } from "./data/services";
 import { servicesNew } from "./data/newServices";
+import { getPathAtCursor } from "../extension/utilities/completions";
+import {
+  shouldShowCompletionsProv1,
+  getRefCompletionsProv1,
+} from "../extension/utilities/completionsProv1";
+import * as vscode from "vscode";
+
+import mock = require("mock-require");
+
+mock("vscode", {
+  languages: {
+    registerCompletionItemProvider: () => {},
+  },
+  CompletionItem: class {},
+  CompletionItemKind: {
+    Method: 0,
+  },
+  MarkdownString: class {},
+});
 
 describe("getYamlKeys", function () {
   // create a mocha test case. To test different cases (arrays, objects, etc.), just change the
@@ -195,51 +225,6 @@ id: bla`;
 
   it("should build allYamlKeys for all cases in 1 config", function () {
     // variables:
-
-    var expectedYamlKeysAll = [
-      { path: "id", index: 0, lineOfPath: 2 },
-      { path: "api", index: 0, lineOfPath: 3 },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 4, startOfArray: 4, arrayIndex: 0 },
-      { path: "api.metadata", index: 4, lineOfPath: 5, startOfArray: 4, arrayIndex: 0 },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 6, startOfArray: 6, arrayIndex: 1 },
-      { path: "api.metadata", index: 4, lineOfPath: 7, startOfArray: 6, arrayIndex: 1 },
-      { path: "api.metadata.email", index: 6, lineOfPath: 8, startOfArray: 6, arrayIndex: 1 },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 9, startOfArray: 9, arrayIndex: 2 },
-      { path: "api.metadata", index: 4, lineOfPath: 10, startOfArray: 9, arrayIndex: 2 },
-      { path: "api.metadata.metadata2", index: 6, lineOfPath: 11, startOfArray: 9, arrayIndex: 2 },
-      {
-        path: "api.metadata.metadata2.email",
-        index: 8,
-        lineOfPath: 12,
-        startOfArray: 9,
-        arrayIndex: 2,
-      },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 13, startOfArray: 13, arrayIndex: 3 },
-      { path: "api.additionalLinks", index: 4, lineOfPath: 14, startOfArray: 13, arrayIndex: 3 },
-      {
-        path: "api.additionalLinks.rel",
-        index: 8,
-        lineOfPath: 15,
-        startOfArray: 15,
-        arrayIndex: 0,
-      },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 16, startOfArray: 16, arrayIndex: 4 },
-      { path: "metadata", index: 0, lineOfPath: 17 },
-      { path: "metadata.keywords", index: 2, lineOfPath: 18 },
-      { path: "collections", index: 0, lineOfPath: 20 },
-      { path: "collections.umweltzone", index: 2, lineOfPath: 21 },
-      { path: "collections.umweltzone.id", index: 4, lineOfPath: 22 },
-      { path: "collections2", index: 0, lineOfPath: 23 },
-      { path: "collections2.umweltzone", index: 2, lineOfPath: 24 },
-      { path: "collections2.umweltzone.additionalLinks", index: 4, lineOfPath: 25 },
-      {
-        path: "collections2.umweltzone.additionalLinks.rel",
-        index: 8,
-        lineOfPath: 26,
-        startOfArray: 26,
-        arrayIndex: 0,
-      },
-    ];
 
     var documentAll = `---
 id: bla
@@ -522,5 +507,50 @@ describe("getEnums", function () {
     var schema = servicesNew;
 
     deepStrictEqual(buildEnumArray(schema), expectedRef);
+  });
+});
+
+describe("Provider1 Comppletions", function () {
+  it("getPathAtCursor", function () {
+    deepStrictEqual(getPathAtCursor(yamlKeysGetPathAtCursor, 8, 6), "api.metadata");
+  });
+
+  it("getIndentation", function () {
+    deepStrictEqual(getIndentation(exampleDocument), 2);
+  });
+
+  it("indentationOfYamlObjectAboveCursor", function () {
+    deepStrictEqual(
+      indentationOfYamlObjectAboveCursor(yamlKeysGetPathAtCursor, 8, "api.metadata"),
+      4
+    );
+  });
+
+  it("shouldShowCompletionsProv1", function () {
+    deepStrictEqual(shouldShowCompletionsProv1("", 6, 4, 2, 0, 6), true);
+  });
+
+  it("getRefCompletionsProv1", function () {
+    const actual = getRefCompletionsProv1(
+      "metadata",
+      undefined,
+      "",
+      defMapProv1Completion,
+      false,
+      yamlKeysGetPathAtCursor,
+      expectedRef
+    );
+
+    const expected = [new vscode.CompletionItem("contactName: ", vscode.CompletionItemKind.Method)];
+    expected[0].detail = "Enum";
+    expected[0].documentation = new vscode.MarkdownString();
+    expected[0].command = {
+      title: "Trigger Suggest",
+      command: "editor.action.triggerSuggest",
+    };
+    expected[0].insertText = "contactName: \n  ";
+    expected[0].kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(actual, expected);
   });
 });
