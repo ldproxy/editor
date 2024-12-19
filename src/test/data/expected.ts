@@ -286,7 +286,6 @@ export const expectedDefMap = {
 };
 
 export const expectedRef = [
-  { key: "contactName", enum: "false", groupname: "ApiMetadata" },
   { key: "serviceType", enum: "OGC_API", groupname: "" },
   { key: "enabled", enum: "true", groupname: "OgcApiDataV2" },
   { key: "enabled", enum: "false", groupname: "OgcApiDataV2" },
@@ -700,3 +699,7 @@ export const defMapProv1Completion = {
     type: "object",
   },
 };
+
+export const expectedRefProvider1 = [
+  { key: "contactName", enum: "false", groupname: "ApiMetadata" },
+];
