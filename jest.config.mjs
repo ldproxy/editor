@@ -15,6 +15,9 @@ const config = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
   coverageProvider: "v8",
+  moduleNameMapper: {
+    "^vscode$": "<rootDir>/__mocks__/vscode.js",
+  },
 };
 
 export default config;
