@@ -3,6 +3,9 @@ import {
   parseYaml,
   getIndentation,
   indentationOfYamlObjectAboveCursor,
+  extractIndexFromPath,
+  getLinesForArrayIndex,
+  getMaxLine,
 } from "../extension/utilities/yaml";
 import { extractDocRefs, extractSingleRefs } from "../extension/utilities/refs";
 import { buildEnumArray } from "../extension/utilities/enums";
@@ -18,6 +21,7 @@ import {
   yamlKeysGetPathAtCursor,
   exampleDocument,
   defMapProv1Completion,
+  expectedRefProvider1,
 } from "./data/expected";
 import { services } from "./data/services";
 import { servicesNew } from "./data/newServices";
@@ -26,9 +30,15 @@ import {
   shouldShowCompletionsProv1,
   getRefCompletionsProv1,
 } from "../extension/utilities/completionsProv1";
+import {
+  shouldFilterExistingCharacters,
+  createCompletionItem,
+} from "../extension/utilities/completions";
+
 import * as vscode from "vscode";
 
 import mock = require("mock-require");
+import { create } from "domain";
 
 mock("vscode", {
   languages: {
@@ -510,7 +520,7 @@ describe("getEnums", function () {
   });
 });
 
-describe("Provider1 Comppletions", function () {
+describe("Provider1 Completions", function () {
   it("getPathAtCursor", function () {
     deepStrictEqual(getPathAtCursor(yamlKeysGetPathAtCursor, 8, 6), "api.metadata");
   });
@@ -538,7 +548,7 @@ describe("Provider1 Comppletions", function () {
       defMapProv1Completion,
       false,
       yamlKeysGetPathAtCursor,
-      expectedRef
+      expectedRefProvider1
     );
 
     const expected = [new vscode.CompletionItem("contactName: ", vscode.CompletionItemKind.Method)];
@@ -552,5 +562,82 @@ describe("Provider1 Comppletions", function () {
     expected[0].kind = vscode.CompletionItemKind.Method;
 
     deepStrictEqual(actual, expected);
+  });
+});
+
+describe("Provider2 Completions", function () {
+  it("extractIndexFromPath", function () {
+    deepStrictEqual(extractIndexFromPath("api.buildingBlock[14]"), 14);
+  });
+
+  it("getLinesFromArrayIndex", function () {
+    deepStrictEqual(getLinesForArrayIndex(yamlKeysGetPathAtCursor, 1, "api.buildingBlock[1]"), 6);
+  });
+
+  it("shouldFilterExistingCharacters", function () {
+    deepStrictEqual(shouldFilterExistingCharacters("meta", "metadata"), true);
+  });
+
+  it("shouldFilterExistingCharacters", function () {
+    deepStrictEqual(shouldFilterExistingCharacters("meba", "metadata"), false);
+  });
+
+  it("shouldFilterExistingCharactersWithDash", function () {
+    deepStrictEqual(shouldFilterExistingCharacters("- building", "buildingBlock"), true);
+  });
+
+  it("createCompletionItem", function () {
+    const expected = new vscode.CompletionItem("metadata", vscode.CompletionItemKind.Method);
+    expected.command = { title: "Trigger Suggest", command: "editor.action.triggerSuggest" };
+    expected.detail = "obj";
+    expected.documentation = new vscode.MarkdownString();
+    expected.insertText = "metadata: \n  ";
+    expected.kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(
+      createCompletionItem(
+        "metadata",
+        {
+          groupname: "OgcApiDataV2",
+          title: "metadata",
+          description: "General [Metadata](#metadata) for the API.",
+          ref: "ApiMetadata",
+          addRef: "",
+          deprecated: false,
+          type: "object",
+        },
+        buildEnumArray(servicesNew),
+        false
+      ),
+      expected
+    );
+  });
+
+  it("createCompletionItemArray", function () {
+    const expected = new vscode.CompletionItem("textSequences", vscode.CompletionItemKind.Method);
+    expected.command = { title: "Trigger Suggest", command: "editor.action.triggerSuggest" };
+    expected.detail = "Enum";
+    expected.documentation = new vscode.MarkdownString();
+    expected.insertText = "textSequences: ";
+    expected.kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(
+      createCompletionItem(
+        "textSequences",
+        {
+          addRef: "",
+          deprecated: false,
+          description:
+            "Enables support for CityJSON text sequences (media type `application/city+json-seq`).     Requires version 1.1 or later.",
+          groupname: "CityJsonConfiguration",
+          ref: "",
+          title: "textSequences",
+          type: undefined,
+        },
+        buildEnumArray(servicesNew),
+        false
+      ),
+      expected
+    );
   });
 });
