@@ -15,7 +15,7 @@ import { getSchema } from "../utilities/schemas";
 import { buildEnumArray } from "../utilities/enums";
 import { DocUpdate, Registration } from "../utilities/registration";
 import { shouldShowCompletionsProv1, getRefCompletionsProv1 } from "../utilities/completionsProv1";
-import { getPathAtCursor } from "../utilities/completions";
+import { gatherInformation, getPathAtCursor } from "../utilities/completions";
 import { shouldFilterExistingCharacters, createCompletionItem } from "../utilities/completions";
 import { shouldShowCompletionsProv2 } from "../utilities/completionsProv2";
 import {
@@ -62,36 +62,16 @@ export const registerCompletions: Registration = () => {
 
 const referencesFromSpecifiedDefs: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const line = position.line + 1;
-    const column = position.character;
-
-    // When a few letters of the key are already typed when hitting auto completion
-    const textBeforeCursor: string = document
-      .lineAt(position.line)
-      .text.substring(0, position.character);
-    const lineText: string = document.lineAt(position.line).text;
-    const indentation: number = lineText.search(/\S|$/);
-    const textBeforeCursorLength: number = textBeforeCursor.trim().length;
-
-    const text = document.getText();
-    const lines = text.split("\n");
-    const currentLine = lines[line - 1];
-    const pathAtCursor = currentLine.includes(":")
-      ? undefined
-      : textBeforeCursor.trim() !== ""
-      ? getPathAtCursor(allYamlKeys, line - 1, indentation)
-      : getPathAtCursor(allYamlKeys, line, column);
-
-    // Only show Completions when the Cursor has exactly the correct indentation
-    const indentationUsedInYaml = getIndentation(document.getText());
-    const indentationOfpathAtCursor = indentationOfYamlObjectAboveCursor(
-      allYamlKeys,
+    const {
+      textBeforeCursor,
+      textBeforeCursorLength,
+      indentation,
+      indentationOfpathAtCursor,
       line,
-      pathAtCursor
-    );
-    if (DEV) {
-      console.log("indentationUsedInYaml", indentationUsedInYaml, indentationOfpathAtCursor);
-    }
+      column,
+      indentationUsedInYaml,
+      pathAtCursor,
+    } = gatherInformation(position, document, allYamlKeys);
 
     let currentStartOfArray = allYamlKeys.find(
       (item) => item.lineOfPath === line - 1
@@ -136,33 +116,16 @@ const referencesFromSpecifiedDefs: vscode.CompletionItemProvider<vscode.Completi
 
 const nonIndentedKeysAndArrays: vscode.CompletionItemProvider<vscode.CompletionItem> = {
   provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-    const line = position.line + 1;
-    const column = position.character;
-
-    // When a few letters of the key are already typed when hitting auto completion
-    const textBeforeCursor: string = document
-      .lineAt(position.line)
-      .text.substring(0, position.character);
-    const lineText: string = document.lineAt(position.line).text;
-    const indentation: number = lineText.search(/\S|$/);
-    const textBeforeCursorLength: number = textBeforeCursor.trim().length;
-
-    const text = document.getText();
-    const lines = text.split("\n");
-    const currentLine = lines[line - 1];
-    const pathAtCursor = currentLine.includes(":")
-      ? undefined
-      : textBeforeCursor.trim() !== ""
-      ? getPathAtCursor(allYamlKeys, line - 1, indentation)
-      : getPathAtCursor(allYamlKeys, line, column);
-
-    // Only show Completions when the Cursor has exactly the correct indentation
-    const indentationUsedInYaml = getIndentation(document.getText());
-    const indentationOfpathAtCursor = indentationOfYamlObjectAboveCursor(
-      allYamlKeys,
+    const {
+      textBeforeCursor,
+      textBeforeCursorLength,
+      indentation,
+      indentationOfpathAtCursor,
       line,
-      pathAtCursor
-    );
+      column,
+      indentationUsedInYaml,
+      pathAtCursor,
+    } = gatherInformation(position, document, allYamlKeys);
 
     const completions: vscode.CompletionItem[] = [];
     const uniqueDefs = removeDuplicates(specifiedDefs);
@@ -302,39 +265,22 @@ const nonIndentedKeysAndArrays: vscode.CompletionItemProvider<vscode.CompletionI
 const additionalReferencesFromSpecifiedDefs: vscode.CompletionItemProvider<vscode.CompletionItem> =
   {
     provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-      const line = position.line + 1;
-      const column = position.character;
-      const uniqueDefs = removeDuplicates(specifiedDefs);
-
-      // When a few letters of the key are already typed when hitting auto completion
-      const textBeforeCursor: string = document
-        .lineAt(position.line)
-        .text.substring(0, position.character);
-      const lineText: string = document.lineAt(position.line).text;
-      const indentation: number = lineText.search(/\S|$/);
-      const textBeforeCursorLength: number = textBeforeCursor.trim().length;
-
-      const text = document.getText();
-      const lines = text.split("\n");
-      const currentLine = lines[line - 1];
-      const pathAtCursor = currentLine.includes(":")
-        ? undefined
-        : textBeforeCursor.trim() !== ""
-        ? getPathAtCursor(allYamlKeys, line - 1, indentation)
-        : getPathAtCursor(allYamlKeys, line, column);
-
-      // Only show Completions when the Cursor has exactly the correct indentation
-      const indentationUsedInYaml = getIndentation(document.getText());
-      const indentationOfpathAtCursor = indentationOfYamlObjectAboveCursor(
-        allYamlKeys,
+      const {
+        textBeforeCursor,
+        textBeforeCursorLength,
+        indentation,
+        indentationOfpathAtCursor,
         line,
-        pathAtCursor
-      );
+        column,
+        indentationUsedInYaml,
+        pathAtCursor,
+      } = gatherInformation(position, document, allYamlKeys);
 
       if (DEV) {
         console.log("pathAtCursorInProvider3: " + pathAtCursor);
         console.log("textBeforeCursor3", textBeforeCursor, indentation);
       }
+      const uniqueDefs = removeDuplicates(specifiedDefs);
 
       if (Object.keys(definitionsMap).length > 0) {
         const refCompletions: vscode.CompletionItem[] = [];

@@ -5,7 +5,6 @@ import {
   indentationOfYamlObjectAboveCursor,
   extractIndexFromPath,
   getLinesForArrayIndex,
-  getMaxLine,
 } from "../extension/utilities/yaml";
 import { extractDocRefs, extractSingleRefs } from "../extension/utilities/refs";
 import { buildEnumArray } from "../extension/utilities/enums";
@@ -39,6 +38,7 @@ import * as vscode from "vscode";
 
 import mock = require("mock-require");
 import { create } from "domain";
+import { createCompletionItemProv3 } from "../extension/utilities/completionsProv3";
 
 mock("vscode", {
   languages: {
@@ -633,6 +633,63 @@ describe("Provider2 Completions", function () {
           ref: "",
           title: "textSequences",
           type: undefined,
+        },
+        buildEnumArray(servicesNew),
+        false
+      ),
+      expected
+    );
+  });
+});
+
+describe("Provider3 Completions", function () {
+  it("gatherInformation", function () {
+    const expected = new vscode.CompletionItem(
+      "persistentUriTemplate",
+      vscode.CompletionItemKind.Method
+    );
+    expected.documentation = new vscode.MarkdownString();
+    expected.insertText = "persistentUriTemplate: ";
+    expected.kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(
+      createCompletionItemProv3(
+        "persistentUriTemplate",
+        {
+          groupname: "FeatureTypeConfigurationOgcApi",
+          title: "persistentUriTemplate",
+          description:
+            "The *Feature* resource defines a unique URI for every feature, but this URI is only     stable as long as the API URI stays the same. For use cases where external persistent     feature URIs, which redirect to the current API URI, are used, this option allows to use     such URIs as canonical URI of every feature. To enable this option, provide an URI template     where `{{value}}` is replaced with the feature id.",
+          type: ["string", "number", "boolean", "null"],
+          ref: "",
+          addRef: "",
+          deprecated: false,
+        },
+        buildEnumArray(servicesNew),
+        false
+      ),
+      expected
+    );
+  });
+
+  it("createCompletionItemProv3Example2", function () {
+    const expected = new vscode.CompletionItem("transformations", vscode.CompletionItemKind.Method);
+    expected.documentation = new vscode.MarkdownString();
+    expected.insertText = "transformations: \n  ";
+    expected.kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(
+      createCompletionItemProv3(
+        "transformations",
+        {
+          groupname: "GltfConfiguration",
+          title: "transformations",
+          description:
+            "[Property transformations](../../providers/details/transformations.md) do not affect     data sources, they are applied on-the-fly as part of the encoding. Filter expressions do     not take transformations into account, they have to be based on the source values. That     means queryable properties (see `queryables` in [Features](features.md)) should not use     transformations in most cases. The exception to the rule is the HTML encoding, where     readability might be more important than filter support.",
+          type: "object",
+          ref: "",
+          addRef: "PropertyTransformation",
+          deprecated: false,
         },
         buildEnumArray(servicesNew),
         false
