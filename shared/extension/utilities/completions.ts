@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { getIndentation, indentationOfYamlObjectAboveCursor } from "./yaml";
 
 interface YamlKey {
   path: string;
@@ -7,6 +8,51 @@ interface YamlKey {
   startOfArray?: number;
   arrayIndex?: number;
 }
+
+export const gatherInformation = (
+  position: vscode.Position,
+  document: vscode.TextDocument,
+  allYamlKeys: any
+) => {
+  const line = position.line + 1;
+  const column = position.character;
+
+  // When a few letters of the key are already typed when hitting auto completion
+  const textBeforeCursor: string = document
+    .lineAt(position.line)
+    .text.substring(0, position.character);
+  const lineText: string = document.lineAt(position.line).text;
+  const indentation: number = lineText.search(/\S|$/);
+  const textBeforeCursorLength: number = textBeforeCursor.trim().length;
+
+  const text = document.getText();
+  const lines = text.split("\n");
+  const currentLine = lines[line - 1];
+  const pathAtCursor = currentLine.includes(":")
+    ? undefined
+    : textBeforeCursor.trim() !== ""
+    ? getPathAtCursor(allYamlKeys, line - 1, indentation)
+    : getPathAtCursor(allYamlKeys, line, column);
+
+  // Only show Completions when the Cursor has exactly the correct indentation
+  const indentationUsedInYaml = getIndentation(document.getText());
+  const indentationOfpathAtCursor = indentationOfYamlObjectAboveCursor(
+    allYamlKeys,
+    line,
+    pathAtCursor
+  );
+
+  return {
+    textBeforeCursor,
+    textBeforeCursorLength,
+    indentation,
+    indentationOfpathAtCursor,
+    line,
+    column,
+    indentationUsedInYaml,
+    pathAtCursor,
+  };
+};
 
 export function getPathAtCursor(allYamlKeys: YamlKey[], line: number, column: number): string {
   // Wenn textBeforeCursor existiert, muss in getPathAtCursor nicht von der Einrückung des Cursors,
