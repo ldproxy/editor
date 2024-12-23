@@ -340,6 +340,7 @@ li:before {
   border: none;
   border-radius: 5px 5px 0 0;
   background-color: transparent;
+  color: #666666;
 }
 
 .tab:hover {
@@ -352,6 +353,7 @@ li:before {
   border: none;
   margin: 1px 1px 1px 1px;
   padding: 9px 19px;
+  color: #000;
 }
 
 .tab + .tab {
