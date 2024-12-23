@@ -25,7 +25,7 @@
     "commands": [
       {
         "command": "ldproxy-editor.showAutoCreate",
-        "title": "Create new entities",
+        "title": "Create Configuration",
         "category": "ldproxy",
         "icon": "$(add)"
       },

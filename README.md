@@ -64,7 +64,7 @@ You can then use the cursor keys to navigate the suggestions and choose one with
 
 ### Creating new entities
 
-When you open the [command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) and start typing `ldproxy`, the command `ldproxy: Create new entities` should appear at the top. Upon selecting, the graphical wizard will open in a new tab.
+When you open the [command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) and start typing `ldproxy`, the command `ldproxy: Create Configuration` should appear at the top. Upon selecting, the graphical wizard will open in a new tab.
 
 It allows you to automatically generate provider and service configurations from _PostgreSQL/PostGIS_, _GeoPackage_ and _WFS_ data sources.
 
