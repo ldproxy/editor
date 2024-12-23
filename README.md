@@ -12,7 +12,7 @@ Currently the only way to use the extension is the provided docker image that co
 
 ### Features
 
-- Command `Create new entities`: provides a graphical wizard to automatically generate provider and service configurations from data sources.
+- Command `Create Configuration`: provides a graphical wizard to automatically generate provider and service configurations from data sources.
 - IntelliSense: shows available properties in YAML configuration files.
 - Syntax checks: detects unknown or deprecated properties in YAML configuration files.
 - Tooltips: shows documentation for properties in YAML configuration files.
@@ -43,7 +43,7 @@ For general help, check the documentation for [VS Code](https://code.visualstudi
 
 ### Creating new entities
 
-When you open the [command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) and start typing `ldproxy`, the command `ldproxy: Create new entities` should appear at the top. Upon selecting, the graphical wizard will open in a new tab.
+When you open the [command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) and start typing `ldproxy`, the command `ldproxy: Create Configuration` should appear at the top. Upon selecting, the graphical wizard will open in a new tab.
 
 It allows you to automatically generate provider and service configurations from _PostgreSQL/PostGIS_, _GeoPackage_ and _WFS_ data sources.
 

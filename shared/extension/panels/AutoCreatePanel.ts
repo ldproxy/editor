@@ -132,7 +132,7 @@ export class AutoCreatePanel {
         // Panel view type
         "ldproxy-editor.showAutoCreate",
         // Panel title
-        "Create new entities",
+        "Create Configuration",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
@@ -142,7 +142,8 @@ export class AutoCreatePanel {
           // Restrict the webview to only load resources from the `out` and `webview-ui/build` directories
           localResourceRoots: [
             Uri.joinPath(extensionUri, "out"),
-            Uri.joinPath(extensionUri, "../webview-ui/build"),
+            Uri.joinPath(extensionUri, "webview-ui/build"),
+            Uri.joinPath(extensionUri, "webview-ui/build/assets"),
           ],
         }
       );
@@ -187,21 +188,9 @@ export class AutoCreatePanel {
    */
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
     // The CSS file from the React build output
-    const stylesUri = getUri(webview, extensionUri, [
-      "..",
-      "webview-ui",
-      "build",
-      "assets",
-      "index.css",
-    ]);
+    const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
     // The JS file from the React build output
-    const scriptUri = getUri(webview, extensionUri, [
-      "..",
-      "webview-ui",
-      "build",
-      "assets",
-      "index.js",
-    ]);
+    const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
 
     const nonce = getNonce();
 

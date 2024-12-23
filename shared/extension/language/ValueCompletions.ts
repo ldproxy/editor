@@ -131,7 +131,7 @@ const provider = (): vscode.CompletionItemProvider<vscode.CompletionItem> => ({
                     const completion = new vscode.CompletionItem(myEnum);
                     completion.kind = vscode.CompletionItemKind.Method;
                     completion.command = {
-                      command: "editor.action.ldproxy: Create new entities",
+                      command: "editor.action.ldproxy: Create Configuration",
                       title: "Re-trigger completions...",
                     };
                     const existing = valueCompletions.find(
@@ -175,7 +175,7 @@ const provider = (): vscode.CompletionItemProvider<vscode.CompletionItem> => ({
                     const completion = new vscode.CompletionItem(myEnum);
                     completion.kind = vscode.CompletionItemKind.Method;
                     completion.command = {
-                      command: "editor.action.ldproxy: Create new entities",
+                      command: "editor.action.ldproxy: Create Configuration",
                       title: "Re-trigger completions...",
                     };
                     const existing = valueCompletions.find(
@@ -211,7 +211,7 @@ const provider = (): vscode.CompletionItemProvider<vscode.CompletionItem> => ({
                       const completion = new vscode.CompletionItem(myEnum);
                       completion.kind = vscode.CompletionItemKind.Method;
                       completion.command = {
-                        command: "editor.action.ldproxy: Create new entities",
+                        command: "editor.action.ldproxy: Create Configuration",
                         title: "Re-trigger completions...",
                       };
                       const existing = valueCompletions.find(
@@ -241,7 +241,7 @@ const provider = (): vscode.CompletionItemProvider<vscode.CompletionItem> => ({
                       const completion = new vscode.CompletionItem(myEnum);
                       completion.kind = vscode.CompletionItemKind.Method;
                       completion.command = {
-                        command: "editor.action.ldproxy: Create new entities",
+                        command: "editor.action.ldproxy: Create Configuration",
                         title: "Re-trigger completions...",
                       };
                       const existing = valueCompletions.find(

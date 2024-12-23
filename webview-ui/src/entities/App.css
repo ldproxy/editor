@@ -20,7 +20,7 @@ main {
 }
 
 .component-example {
-  margin-bottom: 0.5rem;
+  margin-bottom: 20px;
   width: 100%;
 }
 
@@ -171,6 +171,7 @@ vscode-button:hover {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
 }
 
 .final-container {
@@ -320,4 +321,39 @@ li:before {
   list-style-position: inside;
   width: 20px;
   margin-left: -20px;
+}
+.tabs-container {
+  display: flex;
+  margin-top: 25px;
+  background-color: #f0f0f0;
+  border-radius: 5px 5px 0 0;
+  padding: 5px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: none;
+  border-radius: 5px 5px 0 0;
+  background-color: transparent;
+}
+
+.tab:hover {
+  background-color: #e0e0e0;
+}
+
+.tab.active {
+  background-color: #ffffff;
+  font-weight: 500;
+  border: none;
+  margin: 1px 1px 1px 1px;
+  padding: 9px 19px;
+}
+
+.tab + .tab {
+  border-left: none;
 }

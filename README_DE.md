@@ -12,7 +12,7 @@ Derzeit ist die einzige Möglichkeit, die Erweiterung zu nutzen, das zur Verfüg
 
 ### Funktionen
 
-- Befehl `Create new entities`: bietet einen grafischen Assistenten zur automatischen Generierung von Provider- und Service-Konfigurationen aus Datenquellen.
+- Befehl `Create Configuration`: bietet einen grafischen Assistenten zur automatischen Generierung von Provider- und Service-Konfigurationen aus Datenquellen.
 - IntelliSense: zeigt verfügbare Properties in YAML-Konfigurationsdateien an.
 - Syntax checks: erkennt unbekannte oder veraltete Properties in YAML-Konfigurationsdateien.
 - Tooltips: zeigt die Dokumentation für Properties in YAML-Konfigurationsdateien an.
