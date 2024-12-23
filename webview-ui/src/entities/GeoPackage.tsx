@@ -330,7 +330,6 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
 
   return (
     <>
-      <Common error={error} disabled={inProgress} />
       <div className="dropdown">
         <VSCodeDropdown
           id="my-dropdown"

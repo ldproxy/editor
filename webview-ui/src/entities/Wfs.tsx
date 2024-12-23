@@ -78,8 +78,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
   }
 
   return (
-    <div className="frame">
-      <Common error={error} disabled={inProgress} />
+    <>
       <div className="postgresWfsOuterContainer">
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
@@ -156,7 +155,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
           <span id="progressText">Data is being processed...</span>
         </div>
       )}{" "}
-    </div>
+    </>
   );
 }
 

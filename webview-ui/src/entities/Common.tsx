@@ -9,13 +9,16 @@ import {
 import { useRecoilState } from "recoil";
 
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
-import { useEffect } from "react";
 
 export const idAtom = atomSyncString("id", "");
 
 export const featureProviderTypeAtom = atomSyncString("featureProviderType", "PGIS", "StoreB");
 
-export const tabSelectionAtom = atomSyncString("tabSelection", "generateFromDataSource");
+export const createCfgOptionAtom = atomSyncString(
+  "createCfgOption",
+  "generateFromDataSource",
+  "StoreB"
+);
 
 type CommonProps = {
   disabled: boolean;
@@ -27,7 +30,7 @@ type CommonProps = {
 function Common({ disabled, error }: CommonProps) {
   const [id, setId] = useRecoilState(idAtom);
   const [featureProviderType, setFeatureProviderType] = useRecoilState(featureProviderTypeAtom);
-  const [tabSelection, setTabSelection] = useRecoilState(tabSelectionAtom);
+  const [createCfgOption, setCreateCfgOption] = useRecoilState(createCfgOptionAtom);
 
   const tabs = [
     { id: "generateFromDataSource", label: "From Data Source" },
@@ -37,7 +40,7 @@ function Common({ disabled, error }: CommonProps) {
   ];
 
   const handleTabChange = (id: string) => {
-    setTabSelection(id);
+    setCreateCfgOption(id);
   };
 
   return (
@@ -48,14 +51,14 @@ function Common({ disabled, error }: CommonProps) {
           {tabs.map((tab) => (
             <div
               key={tab.id}
-              className={`tab ${tabSelection === tab.id ? "active" : ""}`}
+              className={`tab ${createCfgOption === tab.id ? "active" : ""}`}
               onClick={() => handleTabChange(tab.id)}>
               {tab.label}
             </div>
           ))}
         </div>
         <div className="tab-content">
-          {tabSelection === "generateFromDataSource" && (
+          {createCfgOption === "generateFromDataSource" && (
             <section className="component-example">
               <div className="input-container">
                 <VSCodeTextField
@@ -97,11 +100,11 @@ function Common({ disabled, error }: CommonProps) {
               </VSCodeRadioGroup>
             </section>
           )}
-          {tabSelection === "generateFromExistingEntity" && (
+          {createCfgOption === "generateFromExistingEntity" && (
             <p>Content for Generate From Existing Entity</p>
           )}
-          {tabSelection === "copyOfExistingFile" && <p>Content for Copy Of Existing File</p>}
-          {tabSelection === "fromScratch" && <p>Content for From Scratch</p>}
+          {createCfgOption === "copyOfExistingFile" && <p>Content for Copy Of Existing File</p>}
+          {createCfgOption === "fromScratch" && <p>Content for From Scratch</p>}
         </div>
       </section>
     </>

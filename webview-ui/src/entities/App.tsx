@@ -11,7 +11,8 @@ import Final from "./Final";
 import { BasicData, Response, Error, xtracfg } from "../utilities/xtracfg";
 import { DEV } from "../utilities/constants";
 import { namesOfCreatedFilesAtom } from "./Final";
-import { featureProviderTypeAtom } from "./Common";
+import { featureProviderTypeAtom, createCfgOptionAtom } from "./Common";
+import Common from "./Common";
 import {
   atomSyncString,
   atomSyncObject,
@@ -47,6 +48,7 @@ function App() {
   const [existingGeopackages, setExistingGeopackages] =
     useRecoilState<string[]>(existingGeopackageAtom);
   const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
+  const selectedCreateCfgOption = useRecoilValue(createCfgOptionAtom);
   const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
   const [allTables, setAllTables] = useRecoilState<TableData>(allTablesAtom);
   const [namesOfCreatedFiles, setNamesOfCreatedFiles] =
@@ -231,22 +233,31 @@ function App() {
     <>
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
-          {selectedDataSource === "PGIS" ? (
-            <PostgreSql
-              submitData={analyze}
-              inProgress={dataProcessing === "inProgress"}
-              error={error}
-            />
-          ) : selectedDataSource === "GPKG" ? (
-            <GeoPackage
-              submitData={analyze}
-              inProgress={dataProcessing === "inProgress"}
-              existingGeopackages={existingGeopackages}
-              error={error}
-            />
-          ) : (
-            <Wfs submitData={analyze} inProgress={dataProcessing === "inProgress"} error={error} />
-          )}
+          <div className="frame">
+            <Common disabled={dataProcessing === "inProgress"} error={error} />
+            {selectedDataSource === "PGIS" &&
+            selectedCreateCfgOption === "generateFromDataSource" ? (
+              <PostgreSql
+                submitData={analyze}
+                inProgress={dataProcessing === "inProgress"}
+                error={error}
+              />
+            ) : selectedDataSource === "GPKG" &&
+              selectedCreateCfgOption === "generateFromDataSource" ? (
+              <GeoPackage
+                submitData={analyze}
+                inProgress={dataProcessing === "inProgress"}
+                existingGeopackages={existingGeopackages}
+                error={error}
+              />
+            ) : selectedCreateCfgOption === "generateFromDataSource" ? (
+              <Wfs
+                submitData={analyze}
+                inProgress={dataProcessing === "inProgress"}
+                error={error}
+              />
+            ) : null}
+          </div>
         </main>
       ) : dataProcessing === "analyzed" && types ? (
         <Tables generateProgress={generateProgress} generate={generate} />

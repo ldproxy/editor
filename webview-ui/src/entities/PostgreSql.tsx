@@ -66,8 +66,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
   const sqlData = useRecoilValue(sqlDataSelector);
 
   return (
-    <div className="frame">
-      <Common error={error} disabled={inProgress} />
+    <>
       <div className="postgresWfsOuterContainer">
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
@@ -142,7 +141,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
           <span id="progressText">Analyzing database ...</span>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
