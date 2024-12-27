@@ -30,6 +30,12 @@ export const dataProcessingAtom = atomSyncString("dataProcessing", "", "StoreB")
 
 export const existingGeopackageAtom = atomSyncStringArray("existingGeopackage", [""], "StoreB");
 
+export const existingConfigurationsAtom = atomSyncStringArray(
+  "existingConfigurations",
+  [""],
+  "StoreB"
+);
+
 export const workspaceAtom = atomSyncString("workspace", "", "StoreB");
 
 export const errorAtom = atomSyncObject<FieldErrors>("error", {}, "StoreB");
@@ -47,6 +53,9 @@ function App() {
   const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
   const [existingGeopackages, setExistingGeopackages] =
     useRecoilState<string[]>(existingGeopackageAtom);
+  const [existingCOnfigurations, setExistingConfigurations] = useRecoilState<string[]>(
+    existingConfigurationsAtom
+  );
   const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
   const selectedCreateCfgOption = useRecoilValue(createCfgOptionAtom);
   const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
@@ -82,6 +91,11 @@ function App() {
       command: "setExistingGpkg",
       text: "setExistingGpkg",
     });
+
+    vscode.postMessage({
+      command: "setExistingCfgs",
+      text: "setExistingCfgs",
+    });
   }, []);
 
   const handleVscode = (message: any) => {
@@ -97,6 +111,12 @@ function App() {
         setExistingGeopackages(message.existingGeopackages);
         if (DEV) {
           console.log("existing GeoPackages:", message.existingGeopackages);
+        }
+        break;
+      case "setConfigurations":
+        setExistingConfigurations(message.existingCfgs);
+        if (DEV) {
+          console.log("existing Configurations:", message.existingCfgs);
         }
         break;
       case "xtracfg":
@@ -234,7 +254,11 @@ function App() {
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
           <div className="frame">
-            <Common disabled={dataProcessing === "inProgress"} error={error} />
+            <Common
+              disabled={dataProcessing === "inProgress"}
+              error={error}
+              existingConfigurations={existingCOnfigurations}
+            />
             {selectedDataSource === "PGIS" &&
             selectedCreateCfgOption === "generateFromDataSource" ? (
               <PostgreSql

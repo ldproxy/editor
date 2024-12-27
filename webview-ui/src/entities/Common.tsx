@@ -1,10 +1,10 @@
+import React, { useState } from "react";
 import {
   VSCodeTextField,
   VSCodeRadioGroup,
   VSCodeRadio,
-  VSCodePanels,
-  VSCodePanelTab,
-  VSCodePanelView,
+  VSCodeDropdown,
+  VSCodeOption,
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState } from "recoil";
 
@@ -25,12 +25,14 @@ type CommonProps = {
   error: {
     id?: string;
   };
+  existingConfigurations: string[];
 };
 
-function Common({ disabled, error }: CommonProps) {
+function Common({ disabled, error, existingConfigurations }: CommonProps) {
   const [id, setId] = useRecoilState(idAtom);
   const [featureProviderType, setFeatureProviderType] = useRecoilState(featureProviderTypeAtom);
   const [createCfgOption, setCreateCfgOption] = useRecoilState(createCfgOptionAtom);
+  const [selectedConfig, setSelectedConfig] = useState("");
 
   const tabs = [
     { id: "generateFromDataSource", label: "From Data Source" },
@@ -58,23 +60,25 @@ function Common({ disabled, error }: CommonProps) {
           ))}
         </div>
         <div className="tab-content">
+          <section className="component-example">
+            <div className="input-container">
+              <VSCodeTextField
+                style={{ marginTop: "15px" }}
+                value={id}
+                disabled={disabled}
+                onInput={(e) => {
+                  const target = e.target as HTMLInputElement;
+                  if (target) {
+                    setId(target.value);
+                  }
+                }}>
+                Id
+              </VSCodeTextField>
+              {error.id && <span className="error-message">{error.id}</span>}
+            </div>
+          </section>
           {createCfgOption === "generateFromDataSource" && (
             <section className="component-example">
-              <div className="input-container">
-                <VSCodeTextField
-                  style={{ marginTop: "15px", marginBottom: "15px" }}
-                  value={id}
-                  disabled={disabled}
-                  onInput={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    if (target) {
-                      setId(target.value);
-                    }
-                  }}>
-                  Id
-                </VSCodeTextField>
-                {error.id && <span className="error-message">{error.id}</span>}
-              </div>
               <VSCodeRadioGroup
                 style={{ marginBottom: "10px" }}
                 name="DataType"
@@ -101,9 +105,22 @@ function Common({ disabled, error }: CommonProps) {
             </section>
           )}
           {createCfgOption === "generateFromExistingEntity" && (
-            <p>Content for Generate From Existing Entity</p>
+            <section className="component-example">
+              <label style={{ marginBottom: "3px", display: "block", color: "#666666" }}>
+                Configuration
+              </label>
+              <VSCodeDropdown style={{ height: "26px" }} value={selectedConfig}>
+                {existingConfigurations.map((config, index) => (
+                  <VSCodeOption key={index} value={config} title={config}>
+                    {config}
+                  </VSCodeOption>
+                ))}
+              </VSCodeDropdown>
+            </section>
           )}
-          {createCfgOption === "copyOfExistingFile" && <p>Content for Copy Of Existing File</p>}
+          {createCfgOption === "copyOfExistingFile" && (
+            <p>Content for Copy Of Existing File. Use future component in App.tsx</p>
+          )}
           {createCfgOption === "fromScratch" && <p>Content for From Scratch</p>}
         </div>
       </section>

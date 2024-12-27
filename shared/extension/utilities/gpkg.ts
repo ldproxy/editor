@@ -32,7 +32,7 @@ export async function listGpkgFilesInDirectory() {
   }
 }
 
-async function readAllFilesInDirectory(directoryUri: any) {
+export async function readAllFilesInDirectory(directoryUri: any) {
   const files = await vscode.workspace.fs.readDirectory(directoryUri);
   let allFiles: string[] = [];
 

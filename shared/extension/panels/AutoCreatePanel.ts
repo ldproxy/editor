@@ -11,6 +11,7 @@ import {
 import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
 import { listGpkgFilesInDirectory, uploadedGpkg, setCancel } from "../utilities/gpkg";
+import { listCfgFilesInDirectory } from "../utilities/cfgs";
 import * as vscode from "vscode";
 import { connect, TransportCreator, Xtracfg } from "@xtracfg/core";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
@@ -258,6 +259,12 @@ export class AutoCreatePanel {
             this._panel.webview.postMessage({
               command: "setGeopackages",
               existingGeopackages: await listGpkgFilesInDirectory(),
+            });
+            break;
+          case "setExistingCfgs":
+            this._panel.webview.postMessage({
+              command: "setConfigurations",
+              existingCfgs: await listCfgFilesInDirectory(),
             });
             break;
           case "closeWebview":
