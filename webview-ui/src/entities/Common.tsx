@@ -5,10 +5,13 @@ import {
   VSCodeRadio,
   VSCodeDropdown,
   VSCodeOption,
+  VSCodeButton,
+  VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState } from "recoil";
 
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
+import TypeCheckboxes from "../components/TypeCheckboxes";
 
 export const idAtom = atomSyncString("id", "");
 
@@ -21,14 +24,14 @@ export const createCfgOptionAtom = atomSyncString(
 );
 
 type CommonProps = {
-  disabled: boolean;
   error: {
     id?: string;
   };
   existingConfigurations: string[];
+  fromExistingSubbmit: () => void;
 };
 
-function Common({ disabled, error, existingConfigurations }: CommonProps) {
+function Common({ error, existingConfigurations, fromExistingSubbmit }: CommonProps) {
   const [id, setId] = useRecoilState(idAtom);
   const [featureProviderType, setFeatureProviderType] = useRecoilState(featureProviderTypeAtom);
   const [createCfgOption, setCreateCfgOption] = useRecoilState(createCfgOptionAtom);
@@ -65,7 +68,6 @@ function Common({ disabled, error, existingConfigurations }: CommonProps) {
               <VSCodeTextField
                 style={{ marginTop: "15px" }}
                 value={id}
-                disabled={disabled}
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
                   if (target) {
@@ -83,8 +85,7 @@ function Common({ disabled, error, existingConfigurations }: CommonProps) {
                 style={{ marginBottom: "10px" }}
                 name="DataType"
                 value={featureProviderType}
-                orientation="vertical"
-                disabled={disabled}>
+                orientation="vertical">
                 <label slot="label">Data Source Type</label>
                 <VSCodeRadio
                   id="PostgreSQL"
@@ -105,18 +106,26 @@ function Common({ disabled, error, existingConfigurations }: CommonProps) {
             </section>
           )}
           {createCfgOption === "generateFromExistingEntity" && (
-            <section className="component-example">
-              <label style={{ marginBottom: "3px", display: "block", color: "#666666" }}>
-                Configuration
-              </label>
-              <VSCodeDropdown style={{ height: "26px" }} value={selectedConfig}>
-                {existingConfigurations.map((config, index) => (
-                  <VSCodeOption key={index} value={config} title={config}>
-                    {config}
-                  </VSCodeOption>
-                ))}
-              </VSCodeDropdown>
-            </section>
+            <>
+              <section className="component-example">
+                <label style={{ marginBottom: "3px", display: "block", color: "#666666" }}>
+                  Configuration
+                </label>
+                <VSCodeDropdown style={{ height: "26px" }} value={selectedConfig}>
+                  {existingConfigurations.map((config, index) => (
+                    <VSCodeOption key={index} value={config} title={config}>
+                      {config}
+                    </VSCodeOption>
+                  ))}
+                </VSCodeDropdown>
+              </section>
+              <TypeCheckboxes />
+              <div className="submitAndReset">
+                <VSCodeButton className="submitButton" onClick={() => fromExistingSubbmit()}>
+                  Next
+                </VSCodeButton>
+              </div>
+            </>
           )}
           {createCfgOption === "copyOfExistingFile" && (
             <p>Content for Copy Of Existing File. Use future component in App.tsx</p>

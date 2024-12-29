@@ -5,10 +5,11 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 
-import { BasicData } from "../utilities/xtracfg";
-import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncBoolean } from "../utilities/recoilSyncWrapper";
-import { DEV } from "../utilities/constants";
+import { BasicData } from "../../utilities/xtracfg";
+import Common, { idAtom, featureProviderTypeAtom } from "../Common";
+import { atomSyncString, atomSyncBoolean } from "../../utilities/recoilSyncWrapper";
+import { DEV } from "../../utilities/constants";
+import TypeCheckboxes from "../../components/TypeCheckboxes";
 
 export const urlAtom = atomSyncString("url", "", "StoreB");
 
@@ -83,7 +84,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
-              value={url ? url : undefined || ""}
+              value={url ? url : ""}
               disabled={inProgress}
               onInput={(e) => {
                 const target = e.target as HTMLInputElement;
@@ -111,7 +112,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
             <>
               <section className="component-example">
                 <VSCodeTextField
-                  value={user ? user : undefined || ""}
+                  value={user ? user : ""}
                   disabled={inProgress}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
@@ -125,7 +126,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
               </section>
               <section className="component-example">
                 <VSCodeTextField
-                  value={password ? password : undefined || ""}
+                  value={password ? password : ""}
                   disabled={inProgress}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
@@ -139,6 +140,9 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
               </section>
             </>
           ) : null}
+        </div>
+        <div style={{ width: "700px", marginTop: "20px", marginBottom: "25px" }}>
+          <TypeCheckboxes />
         </div>
         <div className="postgresWfsSubmit">
           <VSCodeButton

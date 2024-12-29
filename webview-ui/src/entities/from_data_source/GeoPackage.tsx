@@ -7,12 +7,13 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
-import { BasicData } from "../utilities/xtracfg";
-import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
-import { vscode } from "../utilities/vscode";
-import { DEV } from "../utilities/constants";
+import { BasicData } from "../../utilities/xtracfg";
+import Common, { idAtom, featureProviderTypeAtom } from "../Common";
+import { atomSyncBoolean, atomSyncString } from "../../utilities/recoilSyncWrapper";
+import { vscode } from "../../utilities/vscode";
+import { DEV } from "../../utilities/constants";
 import { useRef } from "react";
+import TypeCheckboxes from "../../components/TypeCheckboxes";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "", "StoreB");
 
@@ -382,6 +383,11 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             </div>
           ) : null}
         </div>
+      </div>
+      <div style={{ marginBottom: "-10px" }}>
+        <TypeCheckboxes />
+      </div>
+      <div className="button-container">
         <div className="submitAndReset">
           {gpkgIsUploading ? (
             <VSCodeButton className="resetButton" onClick={onCancelUpload}>

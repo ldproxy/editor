@@ -3,7 +3,7 @@ import { useRecoilValue } from "recoil";
 
 import { vscode } from "../utilities/vscode";
 import Progress from "./Progress";
-import { selectedTablesAtom, TableData } from "./Tables";
+import { selectedTablesAtom, TableData } from "./from_data_source/Tables";
 import { dataProcessingAtom } from "./App";
 import { atomSyncStringArray } from "../utilities/recoilSyncWrapper";
 

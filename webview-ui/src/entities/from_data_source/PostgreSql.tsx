@@ -5,9 +5,10 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 
-import { BasicData } from "../utilities/xtracfg";
-import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString } from "../utilities/recoilSyncWrapper";
+import { BasicData } from "../../utilities/xtracfg";
+import Common, { idAtom, featureProviderTypeAtom } from "../Common";
+import { atomSyncString } from "../../utilities/recoilSyncWrapper";
+import TypeCheckboxes from "../../components/TypeCheckboxes";
 
 const hostAtom = atomSyncString("host", "", "StoreB");
 
@@ -125,6 +126,9 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
             </VSCodeTextField>
             {error.password && <span className="error-message">{error.password}</span>}
           </section>
+        </div>
+        <div style={{ width: "700px" }}>
+          <TypeCheckboxes />
         </div>
         <div className="submitAndReset">
           <VSCodeButton

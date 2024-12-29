@@ -3,10 +3,10 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 import { vscode } from "../utilities/vscode";
-import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
-import Wfs, { WfsData, wfsDataSelector } from "./Wfs";
-import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
-import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
+import GeoPackage, { GpkgData, gpkgDataSelector } from "./from_data_source/GeoPackage";
+import Wfs, { WfsData, wfsDataSelector } from "./from_data_source/Wfs";
+import PostgreSql, { sqlDataSelector, SqlData } from "./from_data_source/PostgreSql";
+import Tables, { TableData, allTablesAtom, currentTableAtom } from "./from_data_source/Tables";
 import Final from "./Final";
 import { BasicData, Response, Error, xtracfg } from "../utilities/xtracfg";
 import { DEV } from "../utilities/constants";
@@ -249,15 +249,20 @@ function App() {
     }
     setDataProcessing("inProgressGenerating");
   };
+
+  const fromExistingSubbmit = () => {
+    console.log("fromExistingSubbmit");
+  };
+
   return (
     <>
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
           <div className="frame">
             <Common
-              disabled={dataProcessing === "inProgress"}
               error={error}
               existingConfigurations={existingCOnfigurations}
+              fromExistingSubbmit={fromExistingSubbmit}
             />
             {selectedDataSource === "PGIS" &&
             selectedCreateCfgOption === "generateFromDataSource" ? (
