@@ -4,6 +4,7 @@ import TypeCheckboxes from "../components/TypeCheckboxes";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 import { typeObjectAtom } from "../components/TypeCheckboxes";
 import { existingConfigurationsAtom } from "./App";
+import { idAtom } from "./Common";
 
 type FromExistingEntityProps = {
   fromExistingSubmit: (submitData: Object) => void;
@@ -15,8 +16,10 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
   const fromExistingSelector = selector({
     key: "fromExistingCfgSelector",
     get: ({ get }) => {
+      const id = get(idAtom);
       const typeObject = get(typeObjectAtom);
       return {
+        id,
         selectedConfig,
         typeObject,
       };

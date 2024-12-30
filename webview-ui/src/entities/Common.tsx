@@ -13,6 +13,7 @@ import { useRecoilState } from "recoil";
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
 import TypeCheckboxes, { typeObjectAtom } from "../components/TypeCheckboxes";
 import FromExistingEntity from "./FromExistingEntity";
+import CopyFromExistingEntity from "./CopyFromExisting";
 
 export const idAtom = atomSyncString("id", "");
 
@@ -29,9 +30,10 @@ type CommonProps = {
     id?: string;
   };
   fromExistingSubmit: (submitData: object) => void;
+  copySubmit: (submitData: object) => void;
 };
 
-function Common({ error, fromExistingSubmit }: CommonProps) {
+function Common({ error, fromExistingSubmit, copySubmit }: CommonProps) {
   const [id, setId] = useRecoilState(idAtom);
   const [featureProviderType, setFeatureProviderType] = useRecoilState(featureProviderTypeAtom);
   const [createCfgOption, setCreateCfgOption] = useRecoilState(createCfgOptionAtom);
@@ -108,7 +110,7 @@ function Common({ error, fromExistingSubmit }: CommonProps) {
             <FromExistingEntity fromExistingSubmit={fromExistingSubmit} />
           )}
           {createCfgOption === "copyOfExistingFile" && (
-            <p>Content for Copy Of Existing File. Use future component in App.tsx</p>
+            <CopyFromExistingEntity copySubmit={copySubmit} />
           )}
           {createCfgOption === "fromScratch" && <p>Content for From Scratch</p>}
         </div>

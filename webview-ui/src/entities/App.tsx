@@ -251,8 +251,26 @@ function App() {
     setDataProcessing("inProgressGenerating");
   };
 
-  const fromExistingSubmit = (submitData: Object) => {
+  const fromExistingSubmit = (submitData: any) => {
     console.log("submitDataExisting", submitData);
+    setDataProcessing("generated");
+    setNamesOfCreatedFiles(
+      [
+        submitData.selectedConfig,
+        submitData.typeObject.provider ? "provider" : undefined,
+        submitData.typeObject.service ? "service" : undefined,
+        submitData.typeObject.tileProvider ? "tileProvider" : undefined,
+        submitData.typeObject.style ? "style" : undefined,
+      ].filter(Boolean)
+    );
+  };
+
+  const copySubmit = (submitData: any) => {
+    setDataProcessing("generated");
+    setNamesOfCreatedFiles([
+      submitData.selectedConfigSelector,
+      ...submitData.selectedSubConfigsSelector,
+    ]);
   };
 
   return (
@@ -260,7 +278,7 @@ function App() {
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
           <div className="frame">
-            <Common error={error} fromExistingSubmit={fromExistingSubmit} />
+            <Common error={error} fromExistingSubmit={fromExistingSubmit} copySubmit={copySubmit} />
             {selectedDataSource === "PGIS" &&
             selectedCreateCfgOption === "generateFromDataSource" ? (
               <PostgreSql
