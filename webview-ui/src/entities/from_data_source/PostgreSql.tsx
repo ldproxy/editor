@@ -8,7 +8,7 @@ import { useRecoilState, useRecoilValue, selector } from "recoil";
 import { BasicData } from "../../utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "../Common";
 import { atomSyncString } from "../../utilities/recoilSyncWrapper";
-import TypeCheckboxes from "../../components/TypeCheckboxes";
+import TypeCheckboxes, { typeObjectAtom } from "../../components/TypeCheckboxes";
 
 const hostAtom = atomSyncString("host", "", "StoreB");
 
@@ -27,6 +27,7 @@ export const sqlDataSelector = selector({
     const database = get(databaseAtom);
     const user = get(userAtom);
     const password = get(passwordAtom);
+    const typeObject = get(typeObjectAtom);
     return {
       id,
       featureProviderType,
@@ -34,6 +35,7 @@ export const sqlDataSelector = selector({
       database,
       user,
       password,
+      typeObject,
     };
   },
 });
@@ -45,6 +47,7 @@ export type SqlData = BasicData & {
   database?: string;
   user?: string;
   password?: string;
+  typeObject?: object;
 };
 
 type PostgreSqlProps = {
@@ -128,7 +131,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
           </section>
         </div>
         <div style={{ width: "700px" }}>
-          <TypeCheckboxes />
+          <TypeCheckboxes mode="fromData" />
         </div>
         <div className="submitAndReset">
           <VSCodeButton

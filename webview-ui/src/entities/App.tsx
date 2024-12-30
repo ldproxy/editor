@@ -53,7 +53,7 @@ function App() {
   const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
   const [existingGeopackages, setExistingGeopackages] =
     useRecoilState<string[]>(existingGeopackageAtom);
-  const [existingCOnfigurations, setExistingConfigurations] = useRecoilState<string[]>(
+  const [existingConfigurations, setExistingConfigurations] = useRecoilState<string[]>(
     existingConfigurationsAtom
   );
   const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
@@ -211,6 +211,7 @@ function App() {
       console.log("setDataProcessing, CaseAnalyze");
     }
     setDataProcessing("inProgress");
+    console.log("types", connectionInfo);
 
     xtracfg.send({
       ...basicData,
@@ -250,8 +251,8 @@ function App() {
     setDataProcessing("inProgressGenerating");
   };
 
-  const fromExistingSubbmit = () => {
-    console.log("fromExistingSubbmit");
+  const fromExistingSubmit = (submitData: Object) => {
+    console.log("submitDataExisting", submitData);
   };
 
   return (
@@ -259,11 +260,7 @@ function App() {
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
           <div className="frame">
-            <Common
-              error={error}
-              existingConfigurations={existingCOnfigurations}
-              fromExistingSubbmit={fromExistingSubbmit}
-            />
+            <Common error={error} fromExistingSubmit={fromExistingSubmit} />
             {selectedDataSource === "PGIS" &&
             selectedCreateCfgOption === "generateFromDataSource" ? (
               <PostgreSql

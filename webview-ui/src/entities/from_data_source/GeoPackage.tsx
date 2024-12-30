@@ -13,7 +13,7 @@ import { atomSyncBoolean, atomSyncString } from "../../utilities/recoilSyncWrapp
 import { vscode } from "../../utilities/vscode";
 import { DEV } from "../../utilities/constants";
 import { useRef } from "react";
-import TypeCheckboxes from "../../components/TypeCheckboxes";
+import TypeCheckboxes, { typeObjectAtom } from "../../components/TypeCheckboxes";
 
 export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "", "StoreB");
 
@@ -37,10 +37,12 @@ export const gpkgDataSelector = selector({
     const database = get(currentlySelectedGPKGAtom);
     const id = get(idAtom);
     const featureProviderType = get(featureProviderTypeAtom);
+    const typeObject = get(typeObjectAtom);
     return {
       database,
       id,
       featureProviderType,
+      typeObject,
     };
   },
 });
@@ -64,6 +66,7 @@ type GeoPackageProps = {
     user?: string;
     password?: string;
   };
+  typeObject?: object;
 };
 
 const maxSize = 104857600;
@@ -385,7 +388,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
         </div>
       </div>
       <div style={{ marginBottom: "-10px" }}>
-        <TypeCheckboxes />
+        <TypeCheckboxes mode="fromData" />
       </div>
       <div className="button-container">
         <div className="submitAndReset">

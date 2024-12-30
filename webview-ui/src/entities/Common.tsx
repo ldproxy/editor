@@ -11,7 +11,8 @@ import {
 import { useRecoilState } from "recoil";
 
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
-import TypeCheckboxes from "../components/TypeCheckboxes";
+import TypeCheckboxes, { typeObjectAtom } from "../components/TypeCheckboxes";
+import FromExistingEntity from "./FromExistingEntity";
 
 export const idAtom = atomSyncString("id", "");
 
@@ -27,15 +28,13 @@ type CommonProps = {
   error: {
     id?: string;
   };
-  existingConfigurations: string[];
-  fromExistingSubbmit: () => void;
+  fromExistingSubmit: (submitData: object) => void;
 };
 
-function Common({ error, existingConfigurations, fromExistingSubbmit }: CommonProps) {
+function Common({ error, fromExistingSubmit }: CommonProps) {
   const [id, setId] = useRecoilState(idAtom);
   const [featureProviderType, setFeatureProviderType] = useRecoilState(featureProviderTypeAtom);
   const [createCfgOption, setCreateCfgOption] = useRecoilState(createCfgOptionAtom);
-  const [selectedConfig, setSelectedConfig] = useState("");
 
   const tabs = [
     { id: "generateFromDataSource", label: "From Data Source" },
@@ -106,26 +105,7 @@ function Common({ error, existingConfigurations, fromExistingSubbmit }: CommonPr
             </section>
           )}
           {createCfgOption === "generateFromExistingEntity" && (
-            <>
-              <section className="component-example">
-                <label style={{ marginBottom: "3px", display: "block", color: "#666666" }}>
-                  Configuration
-                </label>
-                <VSCodeDropdown style={{ height: "26px" }} value={selectedConfig}>
-                  {existingConfigurations.map((config, index) => (
-                    <VSCodeOption key={index} value={config} title={config}>
-                      {config}
-                    </VSCodeOption>
-                  ))}
-                </VSCodeDropdown>
-              </section>
-              <TypeCheckboxes />
-              <div className="submitAndReset">
-                <VSCodeButton className="submitButton" onClick={() => fromExistingSubbmit()}>
-                  Next
-                </VSCodeButton>
-              </div>
-            </>
+            <FromExistingEntity fromExistingSubmit={fromExistingSubmit} />
           )}
           {createCfgOption === "copyOfExistingFile" && (
             <p>Content for Copy Of Existing File. Use future component in App.tsx</p>

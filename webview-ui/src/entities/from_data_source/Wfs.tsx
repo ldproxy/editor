@@ -9,7 +9,7 @@ import { BasicData } from "../../utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "../Common";
 import { atomSyncString, atomSyncBoolean } from "../../utilities/recoilSyncWrapper";
 import { DEV } from "../../utilities/constants";
-import TypeCheckboxes from "../../components/TypeCheckboxes";
+import TypeCheckboxes, { typeObjectAtom } from "../../components/TypeCheckboxes";
 
 export const urlAtom = atomSyncString("url", "", "StoreB");
 
@@ -25,12 +25,14 @@ export const wfsDataSelector = selector({
     const user = get(userAtom);
     const password = get(passwordAtom);
     const featureProviderType = get(featureProviderTypeAtom);
+    const typeObject = get(typeObjectAtom);
     return {
       id,
       ...(url ? { url } : null),
       ...(user ? { user } : null),
       ...(password ? { password } : null),
       featureProviderType,
+      typeObject,
     };
   },
 });
@@ -41,6 +43,7 @@ export type WfsData = BasicData & {
   user?: string;
   password?: string;
   featureProviderType?: string;
+  typeObject?: object;
 };
 
 type PostgreSqlProps = {
@@ -142,7 +145,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
           ) : null}
         </div>
         <div style={{ width: "700px", marginTop: "20px", marginBottom: "25px" }}>
-          <TypeCheckboxes />
+          <TypeCheckboxes mode="fromData" />
         </div>
         <div className="postgresWfsSubmit">
           <VSCodeButton
