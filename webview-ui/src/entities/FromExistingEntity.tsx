@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { VSCodeDropdown, VSCodeOption, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import TypeCheckboxes from "../components/TypeCheckboxes";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
@@ -37,6 +37,12 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
   };
 
   const selectedType = getTypeFromConfig(selectedConfig);
+
+  useEffect(() => {
+    if (existingConfigurations.length > 0 && !selectedConfig) {
+      setSelectedConfig(existingConfigurations[0]);
+    }
+  }, [existingConfigurations]);
 
   return (
     <>

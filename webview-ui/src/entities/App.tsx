@@ -287,12 +287,31 @@ function App() {
     ]);
   };
 
+  const fromScratchSubmit = (submitData: any) => {
+    console.log("submitDataScratch", submitData);
+    setDataProcessing("generated");
+    setNamesOfCreatedFiles(
+      [
+        submitData.id,
+        submitData.typeObject.provider ? "provider" : undefined,
+        submitData.typeObject.service ? "service" : undefined,
+        submitData.typeObject.tileProvider ? "tileProvider" : undefined,
+        submitData.typeObject.style ? "style" : undefined,
+      ].filter(Boolean)
+    );
+  };
+
   return (
     <>
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
           <div className="frame">
-            <Common error={error} fromExistingSubmit={fromExistingSubmit} copySubmit={copySubmit} />
+            <Common
+              error={error}
+              fromExistingSubmit={fromExistingSubmit}
+              copySubmit={copySubmit}
+              fromScratchSubmit={fromScratchSubmit}
+            />
             {selectedDataSource === "PGIS" &&
             selectedCreateCfgOption === "generateFromDataSource" ? (
               <PostgreSql

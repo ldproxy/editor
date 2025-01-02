@@ -13,6 +13,7 @@ type TypeCheckboxesProps = {
 function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
   const [typeObject, setTypeObject] = useRecoilState(typeObjectAtom);
   const [isServiceChecked, setIsServiceChecked] = useState(false);
+  const [isProviderChecked, setIsProviderChecked] = useState(false);
   const [isTileProviderChecked, setIsTileProviderChecked] = useState(false);
   const [isStyleChecked, setIsStyleChecked] = useState(false);
 
@@ -44,6 +45,11 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
     setIsTileProviderChecked(target.checked);
   };
 
+  const handleProviderChange = (e: any) => {
+    const target = e.target as HTMLInputElement;
+    setIsProviderChecked(target.checked);
+  };
+
   const handleStyleChange = (e: any) => {
     const target = e.target as HTMLInputElement;
     setIsStyleChecked(target.checked);
@@ -54,7 +60,10 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
       <section className="component-example">
         <h4>Select Types</h4>
         <div style={{ display: "flex", gap: "20px", flexWrap: "nowrap", marginTop: "-5px" }}>
-          <VSCodeCheckbox checked={!selectedType || selectedType !== "service"} disabled>
+          <VSCodeCheckbox
+            checked={(mode && (!selectedType || selectedType !== "service")) || isProviderChecked}
+            onChange={handleProviderChange}
+            disabled={mode !== undefined}>
             Provider
           </VSCodeCheckbox>
           <VSCodeCheckbox

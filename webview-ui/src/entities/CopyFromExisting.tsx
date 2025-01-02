@@ -6,7 +6,6 @@ import {
   VSCodeCheckbox,
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
-import { typeObjectAtom } from "../components/TypeCheckboxes";
 import { existingConfigurationsAtom, existingStylesAtom } from "./App";
 import { idAtom } from "./Common";
 import { atomSyncString, atomSyncStringArray } from "../utilities/recoilSyncWrapper";
