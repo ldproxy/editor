@@ -75,13 +75,16 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
           <VSCodeCheckbox
             checked={isTileProviderChecked}
             onChange={handleTileProviderChange}
-            disabled={mode === "fromExisting" && selectedType === "service"}>
+            disabled={
+              mode === "fromDataWfs" || (mode === "fromExisting" && selectedType === "service")
+            }>
             Tile Provider
           </VSCodeCheckbox>
           <VSCodeCheckbox
             checked={isStyleChecked}
             onChange={handleStyleChange}
             disabled={
+              mode === "fromDataWfs" ||
               (mode === "fromData" && !isServiceChecked) ||
               (mode === "fromExisting" && !isServiceChecked && selectedType !== "service")
             }>

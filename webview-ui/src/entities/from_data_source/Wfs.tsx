@@ -145,7 +145,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
           ) : null}
         </div>
         <div style={{ width: "700px", marginTop: "20px", marginBottom: "25px" }}>
-          <TypeCheckboxes mode="fromData" />
+          <TypeCheckboxes mode="fromDataWfs" />
         </div>
         <div className="postgresWfsSubmit">
           <VSCodeButton
