@@ -7,7 +7,7 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 import { typeObjectAtom } from "../components/TypeCheckboxes";
-import { existingConfigurationsAtom } from "./App";
+import { existingConfigurationsAtom, existingStylesAtom } from "./App";
 import { idAtom } from "./Common";
 import { atomSyncString, atomSyncStringArray } from "../utilities/recoilSyncWrapper";
 
@@ -24,8 +24,9 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
   const [selectedSubConfigs, setSelectedSubConfigs] = useRecoilState(selectedSubConfigsAtom);
 
   const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
+  const existingStyles = useRecoilValue(existingStylesAtom);
   const fromCopySelector = selector({
-    key: "copyExistingCfgSelector",
+    key: `copyExistingCfgSelector_${Math.random()}`,
     get: ({ get }) => {
       const id = get(idAtom);
       const selectedConfigSelector = get(selectedConfigAtom);
@@ -64,11 +65,19 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
     (config: string) => getMainNameCfg(config) === mainNameSelectedCfg && config !== selectedConfig
   );
 
+  const relatedStylesKeys: string[] = Object.keys(existingStyles).filter(
+    (styleKey: string) => getMainNameCfg(styleKey) === mainNameSelectedCfg
+  );
+
   useEffect(() => {
     if (existingConfigurations.length > 0 && !selectedConfig) {
       setSelectedConfig(existingConfigurations[0]);
     }
   }, [existingConfigurations]);
+
+  const getBasename = (filePath: string) => {
+    return filePath.split("/").pop();
+  };
 
   return (
     <>
@@ -87,20 +96,45 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
           ))}
         </VSCodeDropdown>
       </section>
-      {selectedConfig && selectedConfig.length > 0 && (
+      {subConfigs && subConfigs.length > 0 && (
         <section className="component-example">
-          <label style={{ marginBottom: "3px", display: "block", color: "#666666" }}>
+          <label style={{ marginBottom: "7px", display: "block", color: "#666666" }}>
             Related Configurations
           </label>
           {subConfigs.map((config: string, index: number) => (
-            <VSCodeCheckbox
-              key={index}
-              value={config}
-              checked={selectedSubConfigs.includes(config)}
-              onChange={handleSubConfigChange}>
-              {config}
-            </VSCodeCheckbox>
+            <div key={`${index}`}>
+              <VSCodeCheckbox
+                key={index}
+                value={config}
+                checked={selectedSubConfigs.includes(config)}
+                onChange={handleSubConfigChange}>
+                {config}
+              </VSCodeCheckbox>
+            </div>
           ))}
+        </section>
+      )}
+      {relatedStylesKeys.length > 0 && (
+        <section className="component-example">
+          <label style={{ marginBottom: "7px", display: "block", color: "#666666" }}>
+            Related Styles
+          </label>
+          {relatedStylesKeys.map((styleKey: string, index: number) =>
+            existingStyles[styleKey].map((styleValue: string, subIndex: number) => {
+              const basename = getBasename(styleValue);
+              return basename ? (
+                <div key={`${index}-${subIndex}`}>
+                  <VSCodeCheckbox
+                    key={`${index}-${subIndex}`}
+                    value={styleValue}
+                    checked={selectedSubConfigs.includes(styleValue)}
+                    onChange={handleSubConfigChange}>
+                    {basename}
+                  </VSCodeCheckbox>
+                </div>
+              ) : null;
+            })
+          )}
         </section>
       )}
       <div className="submitAndReset">

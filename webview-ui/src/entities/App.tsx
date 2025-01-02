@@ -36,6 +36,8 @@ export const existingConfigurationsAtom = atomSyncStringArray(
   "StoreB"
 );
 
+export const existingStylesAtom = atomSyncStringArray("existingStyles", {}, "StoreB");
+
 export const workspaceAtom = atomSyncString("workspace", "", "StoreB");
 
 export const errorAtom = atomSyncObject<FieldErrors>("error", {}, "StoreB");
@@ -56,6 +58,7 @@ function App() {
   const [existingConfigurations, setExistingConfigurations] = useRecoilState<string[]>(
     existingConfigurationsAtom
   );
+  const [existingStyles, setExistingStyles] = useRecoilState<{}>(existingStylesAtom);
   const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
   const selectedCreateCfgOption = useRecoilValue(createCfgOptionAtom);
   const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
@@ -96,6 +99,11 @@ function App() {
       command: "setExistingCfgs",
       text: "setExistingCfgs",
     });
+
+    vscode.postMessage({
+      command: "setExistingStyles",
+      text: "setExistingStyles",
+    });
   }, []);
 
   const handleVscode = (message: any) => {
@@ -117,6 +125,12 @@ function App() {
         setExistingConfigurations(message.existingCfgs);
         if (DEV) {
           console.log("existing Configurations:", message.existingCfgs);
+        }
+        break;
+      case "setStyles":
+        setExistingStyles(message.existingStyles);
+        if (DEV) {
+          console.log("existing Styles:", message.existingStyles);
         }
         break;
       case "xtracfg":
