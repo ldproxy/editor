@@ -24,12 +24,13 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
       tileProvider: isTileProviderChecked,
       style: isStyleChecked,
     }));
-  }, [isServiceChecked, isTileProviderChecked, isStyleChecked, setTypeObject]);
+  }, [isServiceChecked, isTileProviderChecked, isStyleChecked, isProviderChecked, setTypeObject]);
 
   useEffect(() => {
     setIsServiceChecked(false);
     setIsTileProviderChecked(false);
     setIsStyleChecked(false);
+    setIsProviderChecked(false);
   }, [selectedType]);
 
   const handleServiceChange = (e: any) => {

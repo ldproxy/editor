@@ -8,7 +8,7 @@ import {
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
 import { BasicData } from "../../utilities/xtracfg";
-import Common, { idAtom, featureProviderTypeAtom } from "../Common";
+import Common, { idAtom, featureProviderTypeAtom } from "../../components/Common";
 import { atomSyncBoolean, atomSyncString } from "../../utilities/recoilSyncWrapper";
 import { vscode } from "../../utilities/vscode";
 import { DEV } from "../../utilities/constants";

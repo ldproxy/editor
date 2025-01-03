@@ -7,7 +7,7 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 import { existingConfigurationsAtom, existingStylesAtom } from "./App";
-import { idAtom } from "./Common";
+import { idAtom } from "../components/Common";
 import { atomSyncString, atomSyncStringArray } from "../utilities/recoilSyncWrapper";
 
 export const selectedConfigAtom = atomSyncString("selectedConfigAtom", "", "StoreB");

@@ -2,7 +2,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import TypeCheckboxes from "../components/TypeCheckboxes";
 import { useRecoilValue, selector } from "recoil";
 import { typeObjectAtom } from "../components/TypeCheckboxes";
-import { idAtom } from "./Common";
+import { idAtom } from "../components/Common";
 
 type FromScratchProps = {
   fromScratchSubmit: (submitData: Object) => void;
@@ -10,7 +10,7 @@ type FromScratchProps = {
 
 function FromScratch({ fromScratchSubmit }: FromScratchProps) {
   const fromScratchSelector = selector({
-    key: "fromScratchSelector",
+    key: `fromScratchSelector_${Math.random()}`,
     get: ({ get }) => {
       const id = get(idAtom);
       const typeObject = get(typeObjectAtom);

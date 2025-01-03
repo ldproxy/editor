@@ -11,8 +11,8 @@ import Final from "./Final";
 import { BasicData, Response, Error, xtracfg } from "../utilities/xtracfg";
 import { DEV } from "../utilities/constants";
 import { namesOfCreatedFilesAtom } from "./Final";
-import { featureProviderTypeAtom, createCfgOptionAtom } from "./Common";
-import Common from "./Common";
+import { featureProviderTypeAtom, createCfgOptionAtom } from "../components/Common";
+import Common from "../components/Common";
 import {
   atomSyncString,
   atomSyncObject,

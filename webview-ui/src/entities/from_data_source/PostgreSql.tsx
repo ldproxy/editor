@@ -6,7 +6,7 @@ import {
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 
 import { BasicData } from "../../utilities/xtracfg";
-import Common, { idAtom, featureProviderTypeAtom } from "../Common";
+import Common, { idAtom, featureProviderTypeAtom } from "../../components/Common";
 import { atomSyncString } from "../../utilities/recoilSyncWrapper";
 import TypeCheckboxes, { typeObjectAtom } from "../../components/TypeCheckboxes";
 

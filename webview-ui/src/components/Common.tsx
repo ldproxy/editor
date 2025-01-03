@@ -1,20 +1,11 @@
-import React, { useState } from "react";
-import {
-  VSCodeTextField,
-  VSCodeRadioGroup,
-  VSCodeRadio,
-  VSCodeDropdown,
-  VSCodeOption,
-  VSCodeButton,
-  VSCodeProgressRing,
-} from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState } from "recoil";
 
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
-import TypeCheckboxes, { typeObjectAtom } from "../components/TypeCheckboxes";
-import FromExistingEntity from "./FromExistingEntity";
-import CopyFromExistingEntity from "./CopyFromExisting";
-import FromScratch from "./FromScratch";
+import TypeCheckboxes, { typeObjectAtom } from "./TypeCheckboxes";
+import FromExistingEntity from "../entities/FromExistingEntity";
+import CopyFromExistingEntity from "../entities/CopyFromExisting";
+import FromScratch from "../entities/FromScratch";
 
 export const idAtom = atomSyncString("id", "");
 
