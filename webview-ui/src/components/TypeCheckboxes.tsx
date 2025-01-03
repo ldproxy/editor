@@ -19,7 +19,7 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
 
   useEffect(() => {
     setTypeObject(() => ({
-      provider: true,
+      provider: isProviderChecked,
       service: isServiceChecked,
       tileProvider: isTileProviderChecked,
       style: isStyleChecked,
@@ -62,7 +62,10 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
         <h4>Select Types</h4>
         <div style={{ display: "flex", gap: "20px", flexWrap: "nowrap", marginTop: "-5px" }}>
           <VSCodeCheckbox
-            checked={(mode && (!selectedType || selectedType !== "service")) || isProviderChecked}
+            checked={
+              (mode !== undefined && (!selectedType || selectedType !== "service")) ||
+              isProviderChecked
+            }
             onChange={handleProviderChange}
             disabled={mode !== undefined}>
             Provider

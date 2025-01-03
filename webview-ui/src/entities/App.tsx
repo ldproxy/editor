@@ -270,6 +270,7 @@ function App() {
     setDataProcessing("generated");
     setNamesOfCreatedFiles(
       [
+        submitData.id,
         submitData.selectedConfig,
         submitData.typeObject.provider ? "provider" : undefined,
         submitData.typeObject.service ? "service" : undefined,
@@ -282,6 +283,7 @@ function App() {
   const copySubmit = (submitData: any) => {
     setDataProcessing("generated");
     setNamesOfCreatedFiles([
+      submitData.id,
       submitData.selectedConfigSelector,
       ...submitData.selectedSubConfigsSelector,
     ]);

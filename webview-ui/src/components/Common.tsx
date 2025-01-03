@@ -4,7 +4,7 @@ import { useRecoilState } from "recoil";
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
 import TypeCheckboxes, { typeObjectAtom } from "./TypeCheckboxes";
 import FromExistingEntity from "../entities/FromExistingEntity";
-import CopyFromExistingEntity from "../entities/CopyFromExisting";
+import CopyFromExistingEntity from "../entities/CopyOfExisting";
 import FromScratch from "../entities/FromScratch";
 
 export const idAtom = atomSyncString("id", "");
