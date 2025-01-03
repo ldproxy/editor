@@ -113,7 +113,10 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
           ))}
         </section>
       )}
-      {relatedStylesKeys.length > 0 && (
+      {relatedStylesKeys.some(
+        (styleKey: string) =>
+          Array.isArray(existingStyles[styleKey]) && existingStyles[styleKey].length > 0
+      ) && (
         <section className="component-example">
           <label style={{ marginBottom: "7px", display: "block", color: "#666666" }}>
             Related Styles

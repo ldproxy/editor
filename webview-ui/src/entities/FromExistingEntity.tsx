@@ -38,11 +38,15 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
 
   const selectedType = getTypeFromConfig(selectedConfig);
 
+  const filteredConfigurations = existingConfigurations.filter(
+    (config: string) => !config.startsWith("defaults/") && !config.includes("-tiles")
+  );
+
   useEffect(() => {
-    if (existingConfigurations.length > 0 && !selectedConfig) {
-      setSelectedConfig(existingConfigurations[0]);
+    if (filteredConfigurations.length > 0 && !selectedConfig) {
+      setSelectedConfig(filteredConfigurations[0]);
     }
-  }, [existingConfigurations]);
+  }, [filteredConfigurations]);
 
   return (
     <>
@@ -54,7 +58,7 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
           style={{ height: "26px" }}
           value={selectedConfig}
           onChange={handleDropdownChange}>
-          {existingConfigurations.map((config: string, index: number) => (
+          {filteredConfigurations.map((config: string, index: number) => (
             <VSCodeOption key={index} value={config} title={config}>
               {config}
             </VSCodeOption>
