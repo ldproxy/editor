@@ -59,7 +59,9 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
   return (
     <>
       <section className="component-example">
-        <h4>Select Types</h4>
+        <label style={{ display: "block", marginBottom: "10px" }} className="vscode-text">
+          Select Types
+        </label>
         <div style={{ display: "flex", gap: "20px", flexWrap: "nowrap", marginTop: "-5px" }}>
           <VSCodeCheckbox
             checked={

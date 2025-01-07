@@ -56,6 +56,14 @@ main {
   width: 60px;
 }
 
+.vscode-text {
+  color: var(--vscode-quickInput-foreground);
+  font-family: var(--font-family);
+  font-size: var(--type-ramp-base-font-size);
+  line-height: var(--type-ramp-base-line-height);
+  margin-bottom: 2px;
+}
+
 .vscode-button {
   background-color: var(--vscode-button-background);
   color: var(--vscode-button-foreground);

@@ -73,7 +73,6 @@ const maxSize = 104857600;
 
 function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoPackageProps) {
   const gpkgData = useRecoilValue(gpkgDataSelector);
-
   const [currentlySelectedGPKG, setCurrentlySelectedGPKG] =
     useRecoilState<string>(currentlySelectedGPKGAtom);
   const [newGPKG, setNewGPKG] = useRecoilState<string>(newGPKGAtom);
@@ -137,11 +136,6 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       };
       reader.readAsArrayBuffer(file);
     }
-  };
-
-  const onFileSelect = (gpkgName: string) => {
-    setExistingGPKG(gpkgName);
-    setMsg(undefined);
   };
 
   const postUploadMessage = (base64String: string, filename: string) => {
@@ -249,8 +243,8 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
   };
 
   const handleReset = () => {
-    setSelectedGpkgInDropdown(false);
     setExistingGPKG("");
+    setSelectedGpkgInDropdown(false);
     setFileReader(null);
     setNewGPKG("");
     setFilename("");
@@ -328,23 +322,39 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     };
   }, [existingGPKG]);
 
+  const onFileSelect = (gpkgName: string) => {
+    setExistingGPKG(gpkgName);
+    setMsg(undefined);
+  };
+
   if (DEV) {
     console.log("inProgressGPKG", inProgress);
+    console.log("existingGPKG", existingGPKG);
+    console.log("existingGeopackages", existingGeopackages);
   }
+
+  // necessary for empty dropdown after initialisation
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setExistingGPKG("Initialising...");
+      setExistingGPKG("");
+    }, 1);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <>
+      <label style={{ display: "block" }} className="vscode-text">
+        Choose existing File
+      </label>
       <div className="dropdown">
         <VSCodeDropdown
-          id="my-dropdown"
           disabled={inProgress || !!newGPKG || base64String !== ""}
-          //  value={selected ? existingGPKG : ""}
           value={existingGPKG}
           onChange={(e) => {
             onFileSelect((e.target as HTMLInputElement).value);
             setSelectedGpkgInDropdown(true);
           }}>
-          {!selectedGpkgInDropdown && <VSCodeOption value="">Choose existing File...</VSCodeOption>}
           {existingGeopackages.length > 0 &&
             existingGeopackages.map((option) => (
               <VSCodeOption key={option} value={option}>
@@ -373,23 +383,23 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
             multiple={false}
             disabled={inProgress || !!existingGPKG || gpkgIsUploading || gpkgIsSaving}
           />
-          {msg && <div style={{ textAlign: "left" }}>{msg}</div>}
-          {gpkgIsUploading ? (
-            <div className="progress-container">
-              <VSCodeProgressRing className="progressRing" />
-              <span id="progressText">Uploading {filename}...</span>
-            </div>
-          ) : gpkgIsSaving ? (
-            <div className="progress-container">
-              <VSCodeProgressRing className="progressRing" />
-              <span id="progressText">Saving {filename}...</span>
-            </div>
-          ) : null}
         </div>
       </div>
-      <div style={{ marginBottom: "-10px" }}>
+      <div style={{ marginBottom: "-10px", marginTop: "10px" }}>
         <TypeCheckboxes mode="fromData" />
       </div>
+      {msg && <div style={{ textAlign: "left" }}>{msg}</div>}
+      {gpkgIsUploading ? (
+        <div className="progress-container">
+          <VSCodeProgressRing className="progressRing" />
+          <span id="progressText">Uploading {filename}...</span>
+        </div>
+      ) : gpkgIsSaving ? (
+        <div className="progress-container">
+          <VSCodeProgressRing className="progressRing" />
+          <span id="progressText">Saving {filename}...</span>
+        </div>
+      ) : null}
       <div className="button-container">
         <div className="submitAndReset">
           {gpkgIsUploading ? (

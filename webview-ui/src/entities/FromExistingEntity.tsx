@@ -42,16 +42,10 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
     (config: string) => !config.startsWith("defaults/") && !config.includes("-tiles")
   );
 
-  useEffect(() => {
-    if (filteredConfigurations.length > 0 && !selectedConfig) {
-      setSelectedConfig(filteredConfigurations[0]);
-    }
-  }, [filteredConfigurations]);
-
   return (
     <>
       <section className="component-example">
-        <label style={{ marginBottom: "3px", display: "block", color: "#666666" }}>
+        <label style={{ display: "block" }} className="vscode-text">
           Configuration
         </label>
         <VSCodeDropdown

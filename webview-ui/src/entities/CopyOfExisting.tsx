@@ -68,11 +68,14 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
     (styleKey: string) => getMainNameCfg(styleKey) === mainNameSelectedCfg
   );
 
+  // necessary for empty dropdown after initialisation
   useEffect(() => {
-    if (existingConfigurations.length > 0 && !selectedConfig) {
-      setSelectedConfig(existingConfigurations[0]);
-    }
-  }, [existingConfigurations]);
+    const timeoutId = setTimeout(() => {
+      setSelectedConfig("Initialising...");
+      setSelectedConfig("");
+    }, 1);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const getBasename = (filePath: string) => {
     return filePath.split("/").pop();
@@ -81,7 +84,7 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
   return (
     <>
       <section className="component-example">
-        <label style={{ marginBottom: "3px", display: "block", color: "#666666" }}>
+        <label style={{ display: "block" }} className="vscode-text">
           Configuration
         </label>
         <VSCodeDropdown
@@ -97,7 +100,7 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
       </section>
       {subConfigs && subConfigs.length > 0 && (
         <section className="component-example">
-          <label style={{ marginBottom: "7px", display: "block", color: "#666666" }}>
+          <label style={{ display: "block" }} className="vscode-text">
             Related Configurations
           </label>
           {subConfigs.map((config: string, index: number) => (
