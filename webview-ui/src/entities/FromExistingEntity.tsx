@@ -5,13 +5,22 @@ import { useRecoilState, useRecoilValue, selector } from "recoil";
 import { typeObjectAtom } from "../components/TypeCheckboxes";
 import { existingConfigurationsAtom } from "./App";
 import { idAtom } from "../components/Common";
+import { atomSyncString } from "../utilities/recoilSyncWrapper";
 
 type FromExistingEntityProps = {
   fromExistingSubmit: (submitData: Object) => void;
 };
 
+export const selectedTypeAtom = atomSyncString("selectedType", "", "StoreB");
+export const selectedConfigFromExistingAtom = atomSyncString(
+  "selectedConfigFromExistingAtom",
+  "",
+  "StoreB"
+);
+
 function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
-  const [selectedConfig, setSelectedConfig] = useState("");
+  const [selectedConfig, setSelectedConfig] = useRecoilState(selectedConfigFromExistingAtom);
+  const [selectedType, setSelectedType] = useRecoilState(selectedTypeAtom);
   const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
   const fromExistingSelector = selector({
     key: `fromExistingCfgSelector_${Math.random()}`,
@@ -36,7 +45,9 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
     return match ? match[1] : "";
   };
 
-  const selectedType = getTypeFromConfig(selectedConfig);
+  useEffect(() => {
+    setSelectedType(getTypeFromConfig(selectedConfig));
+  }, [selectedConfig]);
 
   const filteredConfigurations = existingConfigurations.filter(
     (config: string) => !config.startsWith("defaults/") && !config.includes("-tiles")

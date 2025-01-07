@@ -12,7 +12,13 @@ import { atomSyncString, atomSyncStringArray } from "../utilities/recoilSyncWrap
 
 export const selectedConfigAtom = atomSyncString("selectedConfigAtom", "", "StoreB");
 
+export const basenameAtom = atomSyncString("basenameAtom", "", "StoreB");
+
+export const mainNameSelectedCfgAtom = atomSyncString("mainNameSelectedCfgAtom", "", "StoreB");
+
 export const selectedSubConfigsAtom = atomSyncStringArray("selectedSubConfigsAtom", [], "StoreB");
+
+export const relatedStylesAtom = atomSyncStringArray("relatedStylesAtom", [], "StoreB");
 
 type CopyExistingEntityProps = {
   copySubmit: (submitData: Object) => void;
@@ -25,6 +31,9 @@ type ExistingStyles = {
 function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
   const [selectedConfig, setSelectedConfig] = useRecoilState(selectedConfigAtom);
   const [selectedSubConfigs, setSelectedSubConfigs] = useRecoilState(selectedSubConfigsAtom);
+  const [relatedStyles, setRelatedStyles] = useRecoilState(relatedStylesAtom);
+  const [basename, setBasename] = useRecoilState(basenameAtom);
+  const [mainNameSelectedCfg, setMainNameSelectedCfg] = useRecoilState(mainNameSelectedCfgAtom);
 
   const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
   const existingStyles = useRecoilValue<ExistingStyles>(existingStylesAtom);
@@ -63,27 +72,38 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
       .trim();
   };
 
-  const mainNameSelectedCfg = getMainNameCfg(selectedConfig);
   const subConfigs: string[] = existingConfigurations.filter(
     (config: string) => getMainNameCfg(config) === mainNameSelectedCfg && config !== selectedConfig
   );
 
-  const relatedStylesKeys: string[] = Object.keys(existingStyles).filter(
-    (styleKey: string) => getMainNameCfg(styleKey) === mainNameSelectedCfg
-  );
-
-  // necessary for empty dropdown after initialisation
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setSelectedConfig("Initialising...");
-      setSelectedConfig("");
-    }, 1);
-    return () => clearTimeout(timeoutId);
-  }, []);
+    const mainNameCfg = getMainNameCfg(selectedConfig);
+    if (mainNameCfg) {
+      setMainNameSelectedCfg(mainNameCfg);
+    }
+
+    const styles = Object.keys(existingStyles).filter(
+      (styleKey: string) => getMainNameCfg(styleKey) === mainNameSelectedCfg
+    );
+    if (styles) {
+      setRelatedStyles(styles);
+    }
+  }, [existingStyles, mainNameSelectedCfg, selectedConfig]);
 
   const getBasename = (filePath: string) => {
     return filePath.split("/").pop();
   };
+
+  // necessary for empty dropdown after initialisation
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (selectedConfig === "") {
+        setSelectedConfig("Initialising...");
+        setSelectedConfig("");
+      }
+    }, 1);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <>
@@ -120,7 +140,7 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
           ))}
         </section>
       )}
-      {relatedStylesKeys.some(
+      {relatedStyles.some(
         (styleKey: string) =>
           Array.isArray(existingStyles[styleKey]) && existingStyles[styleKey].length > 0
       ) && (
@@ -128,9 +148,12 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
           <label style={{ marginBottom: "7px", display: "block", color: "#666666" }}>
             Related Styles
           </label>
-          {relatedStylesKeys.map((styleKey: string, index: number) =>
+          {relatedStyles.map((styleKey: string, index: number) =>
             existingStyles[styleKey].map((styleValue: string, subIndex: number) => {
-              const basename = getBasename(styleValue);
+              const myBasename = getBasename(styleValue);
+              if (myBasename) {
+                setBasename(myBasename);
+              }
               return basename ? (
                 <div key={`${index}-${subIndex}`}>
                   <VSCodeCheckbox

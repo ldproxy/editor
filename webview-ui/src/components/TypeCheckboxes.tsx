@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { atomSyncObject } from "../utilities/recoilSyncWrapper";
+import { atomSyncObject, atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
 import { useRecoilState } from "recoil";
 
 export const typeObjectAtom = atomSyncObject("typeObject", {}, "StoreB");
+export const isServiceCheckedAtom = atomSyncBoolean("isServiceChecked", false, "StoreB");
+export const isTileProviderCheckedAtom = atomSyncBoolean("isTileProviderChecked", false, "StoreB");
+export const isProviderCheckedAtom = atomSyncBoolean("isProviderChecked", false, "StoreB");
+export const isStyleCheckedAtom = atomSyncBoolean("isStyleChecked", false, "StoreB");
+
+export const typeAtom = atomSyncString("typeAtom", "", "StoreB");
+export const modeAtom = atomSyncString("modeAtom", "", "StoreB");
 
 type TypeCheckboxesProps = {
   mode?: string;
@@ -11,11 +18,25 @@ type TypeCheckboxesProps = {
 };
 
 function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
+  const [type, setType] = useRecoilState(typeAtom);
+  const [createCfgMode, setCreateCfgMode] = useRecoilState(modeAtom);
   const [typeObject, setTypeObject] = useRecoilState(typeObjectAtom);
-  const [isServiceChecked, setIsServiceChecked] = useState(false);
-  const [isProviderChecked, setIsProviderChecked] = useState(false);
-  const [isTileProviderChecked, setIsTileProviderChecked] = useState(false);
-  const [isStyleChecked, setIsStyleChecked] = useState(false);
+  const [isServiceChecked, setIsServiceChecked] = useRecoilState(isServiceCheckedAtom);
+  const [isProviderChecked, setIsProviderChecked] = useRecoilState(isProviderCheckedAtom);
+  const [isTileProviderChecked, setIsTileProviderChecked] =
+    useRecoilState(isTileProviderCheckedAtom);
+  const [isStyleChecked, setIsStyleChecked] = useRecoilState(isStyleCheckedAtom);
+
+  useEffect(() => {
+    if (selectedType !== type || mode !== createCfgMode) {
+      if (selectedType && selectedType !== undefined) {
+        setType(selectedType);
+      } else setType("undefined");
+      if (mode && mode !== undefined) {
+        setCreateCfgMode(mode);
+      } else setCreateCfgMode("undefined");
+    }
+  }, [selectedType, mode]);
 
   useEffect(() => {
     setTypeObject(() => ({
@@ -27,11 +48,18 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
   }, [isServiceChecked, isTileProviderChecked, isStyleChecked, isProviderChecked, setTypeObject]);
 
   useEffect(() => {
-    setIsServiceChecked(false);
-    setIsTileProviderChecked(false);
-    setIsStyleChecked(false);
-    setIsProviderChecked(false);
-  }, [selectedType]);
+    if (
+      (mode && mode !== createCfgMode) ||
+      (createCfgMode !== "undefined" && mode === undefined) ||
+      (selectedType && type !== selectedType) ||
+      (type !== "undefined" && selectedType === undefined)
+    ) {
+      setIsServiceChecked(false);
+      setIsTileProviderChecked(false);
+      setIsStyleChecked(false);
+      setIsProviderChecked(false);
+    }
+  }, [type, selectedType, mode, createCfgMode]);
 
   const handleServiceChange = (e: any) => {
     const target = e.target as HTMLInputElement;
@@ -65,24 +93,24 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
         <div style={{ display: "flex", gap: "20px", flexWrap: "nowrap", marginTop: "-5px" }}>
           <VSCodeCheckbox
             checked={
-              (mode !== undefined && (!selectedType || selectedType !== "service")) ||
-              isProviderChecked
+              (createCfgMode !== undefined && (!type || type !== "service")) || isProviderChecked
             }
             onChange={handleProviderChange}
-            disabled={mode !== undefined}>
+            disabled={createCfgMode !== undefined}>
             Provider
           </VSCodeCheckbox>
           <VSCodeCheckbox
-            checked={isServiceChecked || selectedType === "service"}
+            checked={isServiceChecked || type === "service"}
             onChange={handleServiceChange}
-            disabled={mode === "fromExisting" && selectedType === "service"}>
+            disabled={createCfgMode === "fromExisting" && type === "service"}>
             Service
           </VSCodeCheckbox>
           <VSCodeCheckbox
             checked={isTileProviderChecked}
             onChange={handleTileProviderChange}
             disabled={
-              mode === "fromDataWfs" || (mode === "fromExisting" && selectedType === "service")
+              createCfgMode === "fromDataWfs" ||
+              (createCfgMode === "fromExisting" && type === "service")
             }>
             Tile Provider
           </VSCodeCheckbox>
@@ -90,9 +118,9 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
             checked={isStyleChecked}
             onChange={handleStyleChange}
             disabled={
-              mode === "fromDataWfs" ||
-              (mode === "fromData" && !isServiceChecked) ||
-              (mode === "fromExisting" && !isServiceChecked && selectedType !== "service")
+              createCfgMode === "fromDataWfs" ||
+              (createCfgMode === "fromData" && !isServiceChecked) ||
+              (createCfgMode === "fromExisting" && !isServiceChecked && type !== "service")
             }>
             Style
           </VSCodeCheckbox>
