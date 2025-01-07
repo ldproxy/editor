@@ -304,8 +304,10 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
     const handleMessage = (event: MessageEvent) => {
       const message = event.data;
       const deletedGpkg = event.data.deletedGpkg;
-      const deletedGpkgName = deletedGpkg.split("\\").pop();
-
+      let deletedGpkgName;
+      if (deletedGpkg !== undefined) {
+        deletedGpkgName = deletedGpkg.split("\\").pop();
+      }
       switch (message.command) {
         case "selectedGeoPackageDeleted":
           if (existingGPKG !== "" && deletedGpkgName === existingGPKG) {

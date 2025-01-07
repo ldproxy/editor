@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as vscode from "vscode";
+import { Buffer } from "buffer";
 
 const atob = (input: string): string => Buffer.from(input, "base64").toString("binary");
 
