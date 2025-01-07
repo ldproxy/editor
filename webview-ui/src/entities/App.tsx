@@ -36,7 +36,7 @@ export const existingConfigurationsAtom = atomSyncStringArray(
   "StoreB"
 );
 
-export const existingStylesAtom = atomSyncStringArray("existingStyles", {}, "StoreB");
+export const existingStylesAtom = atomSyncObject("existingStyles", {}, "StoreB");
 
 export const workspaceAtom = atomSyncString("workspace", "", "StoreB");
 

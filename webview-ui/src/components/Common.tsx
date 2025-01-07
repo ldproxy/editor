@@ -7,7 +7,7 @@ import FromExistingEntity from "../entities/FromExistingEntity";
 import CopyFromExistingEntity from "../entities/CopyOfExisting";
 import FromScratch from "../entities/FromScratch";
 
-export const idAtom = atomSyncString("id", "");
+export const idAtom = atomSyncString("id", "", "StoreB");
 
 export const featureProviderTypeAtom = atomSyncString("featureProviderType", "PGIS", "StoreB");
 

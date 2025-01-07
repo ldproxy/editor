@@ -18,12 +18,16 @@ type CopyExistingEntityProps = {
   copySubmit: (submitData: Object) => void;
 };
 
+type ExistingStyles = {
+  [key: string]: string[];
+};
+
 function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
   const [selectedConfig, setSelectedConfig] = useRecoilState(selectedConfigAtom);
   const [selectedSubConfigs, setSelectedSubConfigs] = useRecoilState(selectedSubConfigsAtom);
 
   const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
-  const existingStyles = useRecoilValue(existingStylesAtom);
+  const existingStyles = useRecoilValue<ExistingStyles>(existingStylesAtom);
   const fromCopySelector = selector({
     key: `copyExistingCfgSelector_${Math.random()}`,
     get: ({ get }) => {
