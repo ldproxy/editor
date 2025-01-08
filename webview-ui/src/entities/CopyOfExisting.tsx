@@ -105,6 +105,26 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
     return () => clearTimeout(timeoutId);
   }, []);
 
+  const filterAndFormatConfigurations = (config: string) => {
+    if (config.startsWith("defaults/")) {
+      if (config.startsWith("defaults/services") || config.startsWith("defaults/providers")) {
+        const parts = config.split("/");
+        let lastPart = parts.pop();
+        const parentPart = parts.pop();
+        const match = config.match(/\(([^)]+)\)/);
+        const suffix = match ? match[1] : parentPart;
+        lastPart = lastPart?.replace(/\s*\([^)]*\)/, "");
+        return `${lastPart} (defaults/${suffix})`;
+      }
+      return null;
+    }
+    return config;
+  };
+
+  const formattedConfigurations = existingConfigurations
+    .map(filterAndFormatConfigurations)
+    .filter((config: string) => config !== null);
+
   return (
     <>
       <section className="component-example">
@@ -115,7 +135,7 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
           style={{ height: "26px" }}
           value={selectedConfig}
           onChange={handleDropdownChange}>
-          {existingConfigurations.map((config: string, index: number) => (
+          {formattedConfigurations.map((config: string, index: number) => (
             <VSCodeOption key={index} value={config} title={config}>
               {config}
             </VSCodeOption>
