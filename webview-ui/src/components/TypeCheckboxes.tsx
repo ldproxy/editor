@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeCheckbox, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { atomSyncObject, atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
 import { useRecoilState } from "recoil";
 
@@ -87,9 +87,10 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
   return (
     <>
       <section className="component-example">
-        <label style={{ display: "block", marginBottom: "10px" }} className="vscode-text">
-          Select Types
+        <label style={{ display: "block" }} className="vscode-text">
+          <strong>Select Types</strong>
         </label>
+        <VSCodeDivider style={{ marginBottom: "10px", width: "410px" }} />
         <div style={{ display: "flex", gap: "20px", flexWrap: "nowrap", marginTop: "-5px" }}>
           <VSCodeCheckbox
             checked={

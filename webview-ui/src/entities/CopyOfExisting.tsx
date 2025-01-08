@@ -4,6 +4,7 @@ import {
   VSCodeOption,
   VSCodeButton,
   VSCodeCheckbox,
+  VSCodeDivider,
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 import { existingConfigurationsAtom, existingStylesAtom } from "./App";
@@ -129,10 +130,11 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
     <>
       <section className="component-example">
         <label style={{ display: "block" }} className="vscode-text">
-          Configuration
+          <strong>Configuration</strong>
         </label>
+        <VSCodeDivider style={{ marginBottom: "10px", width: "165px" }} />
         <VSCodeDropdown
-          style={{ height: "26px" }}
+          style={{ height: "26px", minWidth: "165px" }}
           value={selectedConfig}
           onChange={handleDropdownChange}>
           {formattedConfigurations.map((config: string, index: number) => (

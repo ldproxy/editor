@@ -1,4 +1,9 @@
-import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
+import {
+  VSCodeTextField,
+  VSCodeRadioGroup,
+  VSCodeRadio,
+  VSCodeDivider,
+} from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState } from "recoil";
 
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
@@ -68,19 +73,19 @@ function Common({ error, fromExistingSubmit, copySubmit, fromScratchSubmit }: Co
                     setId(target.value);
                   }
                 }}>
-                Id
+                <strong>Id</strong>
+                <VSCodeDivider style={{ marginBottom: "10px", width: "100%" }} />
               </VSCodeTextField>
               {error.id && <span className="error-message">{error.id}</span>}
             </div>
           </section>
           {createCfgOption === "generateFromDataSource" && (
             <section className="component-example">
-              <VSCodeRadioGroup
-                style={{ marginBottom: "10px" }}
-                name="DataType"
-                value={featureProviderType}
-                orientation="vertical">
-                <label slot="label">Data Source Type</label>
+              <VSCodeRadioGroup name="DataType" value={featureProviderType} orientation="vertical">
+                <label slot="label">
+                  <strong>Data Source Type</strong>
+                </label>
+                <VSCodeDivider style={{ marginTop: "-1px", marginBottom: "10px", width: "100%" }} />
                 <VSCodeRadio
                   id="PostgreSQL"
                   value="PGIS"
