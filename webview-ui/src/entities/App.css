@@ -333,9 +333,10 @@ li:before {
 .tabs-container {
   display: flex;
   margin-top: 25px;
-  background-color: #f0f0f0;
   border-radius: 5px 5px 0 0;
   padding: 5px;
+  background-color: var(--vscode-sideBar-background);
+  border: 1px solid white;
 }
 
 .tab {
@@ -348,11 +349,12 @@ li:before {
   border: none;
   border-radius: 5px 5px 0 0;
   background-color: transparent;
-  color: #666666;
+  color: var(--vscode-foreground);
 }
 
 .tab:hover {
   background-color: #e0e0e0;
+  color: #000;
 }
 
 .tab.active {
@@ -362,6 +364,9 @@ li:before {
   margin: 1px 1px 1px 1px;
   padding: 9px 19px;
   color: #000;
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .tab + .tab {
