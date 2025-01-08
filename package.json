@@ -35,6 +35,14 @@
         "category": "ldproxy",
         "icon": "$(add)"
       }
+    ],
+    "languages": [
+      {
+        "id": "ldproxy-configuration",
+        "aliases": [
+          "ldproxy-configuration"
+        ]
+      }
     ]
   },
   "scripts": {
