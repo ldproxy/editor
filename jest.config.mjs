@@ -7,7 +7,7 @@
 const config = {
   preset: "ts-jest",
   testEnvironment: "node",
-  roots: ["<rootDir>/src/test", "<rootDir>/native/dist/shared/test"],
+  roots: ["<rootDir>/shared/test"],
   transform: {
     "^.+\\.tsx?$": "ts-jest",
   },
