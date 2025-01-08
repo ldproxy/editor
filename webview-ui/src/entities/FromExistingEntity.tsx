@@ -11,6 +11,7 @@ import { typeObjectAtom } from "../components/TypeCheckboxes";
 import { existingConfigurationsAtom } from "./App";
 import { idAtom } from "../components/Common";
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
+import { object } from "@recoiljs/refine";
 
 type FromExistingEntityProps = {
   fromExistingSubmit: (submitData: Object) => void;
@@ -23,15 +24,21 @@ export const selectedConfigFromExistingAtom = atomSyncString(
   "StoreB"
 );
 
+type TypeObject = {
+  [key: string]: boolean;
+};
+
 function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
   const [selectedConfig, setSelectedConfig] = useRecoilState(selectedConfigFromExistingAtom);
   const [selectedType, setSelectedType] = useRecoilState(selectedTypeAtom);
   const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
+  const typeObject = useRecoilValue<TypeObject>(typeObjectAtom);
   const fromExistingSelector = selector({
     key: `fromExistingCfgSelector_${Math.random()}`,
     get: ({ get }) => {
       const id = get(idAtom);
       const typeObject = get(typeObjectAtom);
+
       return {
         id,
         selectedConfig,
@@ -58,6 +65,19 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
     (config: string) => !config.startsWith("defaults/") && !config.includes("-tiles")
   );
 
+  const isNextButtonDisabled = () => {
+    if (!selectedConfig) {
+      return true;
+    }
+    if (selectedConfig.endsWith("(provider)")) {
+      return !Object.keys(typeObject).some((key) => key !== "provider" && typeObject[key] === true);
+    }
+    if (selectedConfig.endsWith("(service)")) {
+      return !typeObject["style"];
+    }
+    return false;
+  };
+
   return (
     <>
       <section className="component-example">
@@ -78,7 +98,10 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
       </section>
       <TypeCheckboxes mode="fromExisting" selectedType={selectedType} />
       <div className="submitAndReset">
-        <VSCodeButton className="submitButton" onClick={() => fromExistingSubmit(fromExistingData)}>
+        <VSCodeButton
+          className="submitButton"
+          onClick={() => fromExistingSubmit(fromExistingData)}
+          disabled={isNextButtonDisabled()}>
           Next
         </VSCodeButton>
       </div>

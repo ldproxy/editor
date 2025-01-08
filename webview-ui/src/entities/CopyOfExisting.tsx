@@ -192,7 +192,10 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
         </section>
       )}
       <div className="submitAndReset">
-        <VSCodeButton className="submitButton" onClick={() => copySubmit(copyData)}>
+        <VSCodeButton
+          className="submitButton"
+          onClick={() => copySubmit(copyData)}
+          disabled={!selectedConfig}>
           Next
         </VSCodeButton>
       </div>
