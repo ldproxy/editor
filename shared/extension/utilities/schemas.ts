@@ -1,4 +1,4 @@
-import { newXtracfg } from "./xtracfg";
+import { connect, Xtracfg } from "@xtracfg/core";
 import { getCurrentFilePath, getWorkspacePath } from "./paths";
 import { DEV } from "./constants";
 import { extractSingleRefs } from "./refs";
@@ -12,8 +12,7 @@ interface FileType {
   discriminatorValue?: string;
 }
 
-const xtracfg = newXtracfg();
-
+let xtracfg: Xtracfg;
 let allSchemas: Promise<DefinitionsMap>;
 
 const fileTypes: {
@@ -24,7 +23,9 @@ const fileTypes: {
   };
 } = {};
 
-export const initSchemas = () => {
+export const initSchemas = (transport: any) => {
+  xtracfg = connect(transport, { debug: true });
+
   if (DEV) {
     console.log("INIT SCHEMAS");
   }

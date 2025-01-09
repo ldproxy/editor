@@ -2,12 +2,12 @@ import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webvie
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import { dataProcessingAtom } from "./App";
-import { atomSyncString, atomSyncObject } from "./utilities/recoilSyncWrapper";
-import { DEV } from "./utilities/constants";
+import { atomSyncString, atomSyncObject } from "../utilities/recoilSyncWrapper";
+import { DEV } from "../utilities/constants";
 
-export const allTablesAtom = atomSyncObject<TableData>("allTables", {});
+export const allTablesAtom = atomSyncObject<TableData>("allTables", {}, "StoreB");
 
-export const selectedTablesAtom = atomSyncObject<TableData>("selectedTables", {});
+export const selectedTablesAtom = atomSyncObject<TableData>("selectedTables", {}, "StoreB");
 
 export type TableData = {
   [key: string]: string[];

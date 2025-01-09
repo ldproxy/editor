@@ -1,6 +1,8 @@
 import { ExtensionContext, TextDocument, window, workspace } from "vscode";
 
 import { registerShowAutoCreate } from "./panels/AutoCreatePanel";
+import { registerShowAutoCreateValues } from "./panels/AutoCreateValuesPanel";
+
 import { registerDiagnostics, updateDiagnostics } from "./language/Diagnostics";
 import { registerCompletions, updateCompletions } from "./language/Completions";
 import { registerValueCompletions, updateValueCompletions } from "./language/ValueCompletions";
@@ -11,10 +13,11 @@ import { initSchemas } from "./utilities/schemas";
 import { parseYaml, hashText } from "./utilities/yaml";
 import { Registration, register, DocEvent } from "./utilities/registration";
 import { registeTreeViews } from "./trees";
+import { TransportCreator } from "@xtracfg/core";
 
 let initialized = false;
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext, transport: TransportCreator) {
   if (initialized) {
     return;
   }
@@ -30,12 +33,14 @@ export function activate(context: ExtensionContext) {
 
   initialized = true;
 
-  initSchemas();
+  initSchemas(transport);
 
   register(
     context,
+    transport,
     registeTreeViews,
     registerShowAutoCreate,
+    registerShowAutoCreateValues,
     registerHover,
     registerCompletions,
     registerValueCompletions,
@@ -49,7 +54,7 @@ export function activate(context: ExtensionContext) {
 
 export function deactivate() {}
 
-const registerDocHandlers: Registration = () => {
+const registerDocHandlers: Registration = (context, transport) => {
   return [
     window.onDidChangeActiveTextEditor((editor) => {
       const document = window.activeTextEditor?.document;
@@ -74,7 +79,7 @@ const registerDocHandlers: Registration = () => {
   ];
 };
 
-const onDocUpdate = function (event: DocEvent, document?: TextDocument) {
+export const onDocUpdate = function (event: DocEvent, document?: TextDocument) {
   if (document) {
     const text = document.getText();
     const uri = document.uri.toString();

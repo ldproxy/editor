@@ -10,31 +10,29 @@ import {
 } from "vscode";
 import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
-import { listGpkgFilesInDirectory, uploadedGpkg, setCancel } from "../utilities/gpkg";
 import * as vscode from "vscode";
-import { newXtracfg } from "../utilities/xtracfg";
+import { connect, TransportCreator, Xtracfg } from "@xtracfg/core";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
 import { Registration } from "../utilities/registration";
+import { listApisInDirectory } from "../utilities/apis";
 
 const workspaceFolders = vscode.workspace.workspaceFolders;
 if (!workspaceFolders) {
   throw new Error("No workspace folder...");
 }
-const watcherOnDidDelete = vscode.workspace.createFileSystemWatcher(
-  new vscode.RelativePattern(workspaceFolders[0], "resources/features/**")
-);
-
-const watcherOnDidCreate = vscode.workspace.createFileSystemWatcher(
-  new vscode.RelativePattern(workspaceFolders[0], "resources/features/**")
-);
 
 const workspaceUri = getWorkspaceUri();
-const xtracfg = newXtracfg();
+let xtracfg: Xtracfg;
 
-export const registerShowAutoCreate: Registration = (context) => {
+export const registerShowAutoCreateValues: Registration = (
+  context: ExtensionContext,
+  transport: TransportCreator
+): Disposable[] => {
+  xtracfg = connect(transport, { debug: true });
+
   return [
-    commands.registerCommand("ldproxy-editor.showAutoCreate", () => {
-      AutoCreatePanel.render(context.extensionUri);
+    commands.registerCommand("ldproxy-editor.showAutoCreateValues", () => {
+      AutoCreateValuesPanel.render(context.extensionUri);
     }),
   ];
 };
@@ -49,8 +47,8 @@ export const registerShowAutoCreate: Registration = (context) => {
  * - Setting the HTML (and by proxy CSS/JavaScript) content of the webview panel
  * - Setting message listeners so data can be passed between the webview and extension
  */
-export class AutoCreatePanel {
-  public static currentPanel: AutoCreatePanel | undefined;
+export class AutoCreateValuesPanel {
+  public static currentPanel: AutoCreateValuesPanel | undefined;
   private readonly _panel: WebviewPanel;
   private readonly _extensionUri: Uri;
   private _disposables: Disposable[] = [];
@@ -75,35 +73,15 @@ export class AutoCreatePanel {
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
 
-    watcherOnDidCreate.onDidCreate(async (e) => {
-      this._panel.webview.postMessage({
-        command: "setGeopackages",
-        existingGeopackages: await listGpkgFilesInDirectory(),
-      });
-    });
-    this._disposables.push(watcherOnDidCreate);
-
-    watcherOnDidDelete.onDidDelete(async (e) => {
-      this._panel.webview.postMessage({
-        command: "setGeopackages",
-        existingGeopackages: await listGpkgFilesInDirectory(),
-      });
-      this._panel.webview.postMessage({
-        command: "selectedGeoPackageDeleted",
-        deletedGpkg: e.fsPath,
-      });
-    });
-    this._disposables.push(watcherOnDidDelete);
-
     xtracfg.listen(
-      (response) => {
-        this._panel.webview.postMessage({
+      async (response) => {
+        await this._panel.webview.postMessage({
           command: "xtracfg",
           response,
         });
       },
-      (error) => {
-        this._panel.webview.postMessage({
+      async (error) => {
+        await this._panel.webview.postMessage({
           command: "xtracfg",
           error,
         });
@@ -118,16 +96,16 @@ export class AutoCreatePanel {
    * @param extensionUri The URI of the directory containing the extension.
    */
   public static render(extensionUri: Uri) {
-    if (AutoCreatePanel.currentPanel) {
+    if (AutoCreateValuesPanel.currentPanel) {
       // If the webview panel already exists reveal it
-      AutoCreatePanel.currentPanel._panel.reveal(ViewColumn.One);
+      AutoCreateValuesPanel.currentPanel._panel.reveal(ViewColumn.One);
     } else {
       // If a webview panel does not already exist create and show a new one
       const panel = window.createWebviewPanel(
         // Panel view type
-        "ldproxy-editor.showAutoCreate",
+        "ldproxy-editor.showAutoCreateValues",
         // Panel title
-        "Create new entities",
+        "Create new values",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
@@ -137,11 +115,11 @@ export class AutoCreatePanel {
           // Restrict the webview to only load resources from the `out` and `webview-ui/build` directories
           localResourceRoots: [
             Uri.joinPath(extensionUri, "out"),
-            Uri.joinPath(extensionUri, "webview-ui/build"),
+            Uri.joinPath(extensionUri, "../webview-ui/build"),
           ],
         }
       );
-      AutoCreatePanel.currentPanel = new AutoCreatePanel(panel, extensionUri);
+      AutoCreateValuesPanel.currentPanel = new AutoCreateValuesPanel(panel, extensionUri);
     }
   }
 
@@ -149,7 +127,9 @@ export class AutoCreatePanel {
    * Cleans up and disposes of webview resources when the webview panel is closed.
    */
   public dispose() {
-    AutoCreatePanel.currentPanel = undefined;
+    AutoCreateValuesPanel.currentPanel = undefined;
+
+    xtracfg.disconnect();
 
     // Dispose of the current webview panel
     this._panel.dispose();
@@ -180,29 +160,41 @@ export class AutoCreatePanel {
    */
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
     // The CSS file from the React build output
-    const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
+    const stylesUri = getUri(webview, extensionUri, [
+      "..",
+      "webview-ui",
+      "build",
+      "assets",
+      "index.css",
+    ]);
     // The JS file from the React build output
-    const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
+    const scriptUri = getUri(webview, extensionUri, [
+      "..",
+      "webview-ui",
+      "build",
+      "assets",
+      "index.js",
+    ]);
 
     const nonce = getNonce();
 
     // Tip: Install the es6-string-html VS Code extension to enable code highlighting below
     return /*html*/ `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; connect-src 'self' ws:;">
-          <link rel="stylesheet" type="text/css" href="${stylesUri}">
-          <title>Hello World</title>    
-        </head>
-        <body>
-          <div id="root"></div>
-          <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
-        </body>
-      </html>
-    `;
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; connect-src 'self' ws:;">
+            <link rel="stylesheet" type="text/css" href="${stylesUri}">
+            <title>Hello World</title>    
+          </head>
+          <body>
+            <div id="root" data-create-values="true"></div>
+            <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
+          </body>
+        </html>
+      `;
   }
 
   /**
@@ -233,12 +225,6 @@ export class AutoCreatePanel {
               workspaceRoot: getWorkspacePath(),
             });
             break;
-          case "setExistingGpkg":
-            this._panel.webview.postMessage({
-              command: "setGeopackages",
-              existingGeopackages: await listGpkgFilesInDirectory(),
-            });
-            break;
           case "closeWebview":
             this.dispose();
             break;
@@ -251,22 +237,16 @@ export class AutoCreatePanel {
               await vscode.commands.executeCommand("vscode.open", fileUri, { preview: false });
             }
             break;
-          case "uploadGpkg":
-            this._panel.webview.postMessage({
-              command: "uploadedGpkg",
-              uploadedGpkg: await uploadedGpkg(text[0], text[1]),
-            });
-            break;
-          case "cancelSavingGpkg":
-            setCancel();
-            break;
           case "xtracfg":
             if (message.request) {
               xtracfg.send(JSON.parse(message.request));
             }
             break;
-          case "geoPackageWasUploaded":
-            window.showInformationMessage(text);
+          case "setExistingApis":
+            this._panel.webview.postMessage({
+              command: "setApis",
+              existingApis: await listApisInDirectory(),
+            });
             break;
           // Add more switch case statements here as more webview message commands
           // are created within the webview context (i.e. inside media/main.js)

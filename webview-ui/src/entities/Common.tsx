@@ -1,11 +1,11 @@
 import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState } from "recoil";
 
-import { atomSyncString } from "./utilities/recoilSyncWrapper";
+import { atomSyncString } from "../utilities/recoilSyncWrapper";
 
 export const idAtom = atomSyncString("id", "");
 
-export const featureProviderTypeAtom = atomSyncString("featureProviderType", "PGIS");
+export const featureProviderTypeAtom = atomSyncString("featureProviderType", "PGIS", "StoreB");
 
 type CommonProps = {
   disabled: boolean;

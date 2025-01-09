@@ -7,6 +7,7 @@ import { extractDocRefs } from "../utilities/refs";
 import { DEV } from "../utilities/constants";
 import { AllYamlKeys } from "../utilities/yaml";
 import { DocUpdate, Registration } from "../utilities/registration";
+import { TransportCreator } from "@xtracfg/core";
 
 interface LooseDefinition {
   title?: string;
@@ -43,10 +44,10 @@ export const updateValueCompletions: DocUpdate = async function (
 };
 
 export const registerValueCompletions: Registration = () => {
-  return [vscode.languages.registerCompletionItemProvider("yaml", provider)];
+  return [vscode.languages.registerCompletionItemProvider("yaml", provider())];
 };
 
-const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
+const provider = (): vscode.CompletionItemProvider<vscode.CompletionItem> => ({
   async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
     const schema = await getSchema();
 
@@ -272,7 +273,7 @@ const provider: vscode.CompletionItemProvider<vscode.CompletionItem> = {
 
     return valueCompletions;
   },
-};
+});
 
 function findKeyForValueCompletion(line: number, document: vscode.TextDocument, position: any) {
   const textBeforeCursor = document.getText(

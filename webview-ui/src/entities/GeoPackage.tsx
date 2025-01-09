@@ -7,29 +7,28 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, selector, useRecoilValue } from "recoil";
 
-import { BasicData } from "./utilities/xtracfg";
+import { BasicData } from "../utilities/xtracfg";
 import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncBoolean, atomSyncString } from "./utilities/recoilSyncWrapper";
-import { vscode } from "./utilities/vscode";
-import { DEV } from "./utilities/constants";
+import { atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
+import { vscode } from "../utilities/vscode";
+import { DEV } from "../utilities/constants";
 import { useRef } from "react";
-import { set } from "@recoiljs/refine";
 
-export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "");
+export const currentlySelectedGPKGAtom = atomSyncString("currentlySelectedGPKG", "", "StoreB");
 
-export const newGPKGAtom = atomSyncString("newGPKG", "");
+export const newGPKGAtom = atomSyncString("newGPKG", "", "StoreB");
 
-export const existingGPKGAtom = atomSyncString("existingGPKG", "");
+export const existingGPKGAtom = atomSyncString("existingGPKG", "", "StoreB");
 
-export const filenameAtom = atomSyncString("filename", "");
+export const filenameAtom = atomSyncString("filename", "", "StoreB");
 
-export const stateOfGpkgToUploadAtom = atomSyncString("stateOfGpkgToUpload", "");
+export const stateOfGpkgToUploadAtom = atomSyncString("stateOfGpkgToUpload", "", "StoreB");
 
-export const base64StringAtom = atomSyncString("base64String", "");
+export const base64StringAtom = atomSyncString("base64String", "", "StoreB");
 
-export const gpkgIsUploadingAtom = atomSyncBoolean("gpkgIsUploading", false);
+export const gpkgIsUploadingAtom = atomSyncBoolean("gpkgIsUploading", false, "StoreB");
 
-export const gpkgIsSavingAtom = atomSyncBoolean("gpkgIsSaved", false);
+export const gpkgIsSavingAtom = atomSyncBoolean("gpkgIsSaved", false, "StoreB");
 
 export const gpkgDataSelector = selector({
   key: "gpkgDataSelector",

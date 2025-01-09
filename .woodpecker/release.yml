@@ -1,7 +1,7 @@
 when:
   event: tag
 
-pipeline:
+steps:
   docker:
     image: woodpeckerci/plugin-docker-buildx
     # TODO: see https://codeberg.org/woodpecker-plugins/docker-buildx/issues/50
@@ -15,7 +15,7 @@ pipeline:
       pull_image: true
       platforms:
         - linux/amd64
-        - linux/arm64
+        #- linux/arm64
       logins:
         - registry: ghcr.io
           username:

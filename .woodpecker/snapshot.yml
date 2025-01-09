@@ -1,7 +1,14 @@
 when:
   event: push
 
-pipeline:
+steps:
+  native:
+    image: node:20-alpine
+    commands:
+      - npm run install:all
+      - npm test
+      - npm run package:native
+
   docker:
     image: woodpeckerci/plugin-docker-buildx
     # TODO: see https://codeberg.org/woodpecker-plugins/docker-buildx/issues/50
@@ -15,7 +22,7 @@ pipeline:
       pull_image: true
       platforms:
         - linux/amd64
-        - linux/arm64
+        #- linux/arm64
       logins:
         - registry: ghcr.io
           username:

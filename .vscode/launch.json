@@ -6,8 +6,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run Native Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}", "${workspaceFolder}/data"],
+      "outFiles": ["${workspaceFolder}/dist/dev/*.js"],
+      "preLaunchTask": "prelaunch:native"
+    },
+    {
       "name": "Run Web Extension ",
-      "type": "pwa-extensionHost",
+      "type": "extensionHost",
       "debugWebWorkerHost": true,
       "request": "launch",
       "args": [
@@ -15,8 +23,8 @@
         "--extensionDevelopmentKind=web",
         "${workspaceFolder}/data"
       ],
-      "outFiles": ["${workspaceFolder}/dist/*.js"],
-      "preLaunchTask": "${defaultBuildTask}",
+      "outFiles": ["${workspaceFolder}/dist/dev/*.js"],
+      "preLaunchTask": "prelaunch:web",
       "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
     },
     {

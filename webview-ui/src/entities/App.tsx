@@ -1,17 +1,23 @@
 import { useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
-import { vscode } from "./utilities/vscode";
+import { vscode } from "../utilities/vscode";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
 import Wfs, { WfsData, wfsDataSelector } from "./Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
 import Final from "./Final";
-import { BasicData, Response, Error, xtracfg } from "./utilities/xtracfg";
-import { DEV } from "./utilities/constants";
+import { BasicData, Response, Error, xtracfg } from "../utilities/xtracfg";
+import { DEV } from "../utilities/constants";
 import { namesOfCreatedFilesAtom } from "./Final";
 import { featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncObject, atomSyncStringArray } from "./utilities/recoilSyncWrapper";
+import {
+  atomSyncString,
+  atomSyncObject,
+  atomSyncStringArray,
+  atomSyncBoolean,
+} from "../utilities/recoilSyncWrapper";
 
 import "./App.css";
 
@@ -19,19 +25,22 @@ type FieldErrors = {
   [key: string]: string;
 };
 
-export const dataProcessingAtom = atomSyncString("dataProcessing", "");
+export const dataProcessingAtom = atomSyncString("dataProcessing", "", "StoreB");
 
-export const existingGeopackageAtom = atomSyncStringArray("existingGeopackage", [""]);
+export const existingGeopackageAtom = atomSyncStringArray("existingGeopackage", [""], "StoreB");
 
-export const workspaceAtom = atomSyncString("workspace", "");
+export const workspaceAtom = atomSyncString("workspace", "", "StoreB");
 
-export const errorAtom = atomSyncObject<FieldErrors>("error", {});
+export const errorAtom = atomSyncObject<FieldErrors>("error", {}, "StoreB");
 
-export const generateProgressAtom = atomSyncString("generateProgress", "");
+export const generateProgressAtom = atomSyncString("generateProgress", "", "StoreB");
 
-export const progressAtom = atomSyncObject<TableData>("progress", {});
+export const progressAtom = atomSyncObject<TableData>("progress", {}, "StoreB");
+
+export const typesAtom = atomSyncBoolean("types", false, "StoreB");
 
 function App() {
+  const [types, setTypes] = useRecoilState(typesAtom);
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
   const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
@@ -91,6 +100,16 @@ function App() {
       case "xtracfg":
         if (message.response) {
           handleSuccess(message.response);
+
+          if (
+            message.response.details &&
+            message.response.details.types &&
+            Object.keys(message.response.details.types).length > 0
+          ) {
+            setTypes(true);
+          } else {
+            setTypes(false);
+          }
         } else {
           handleError(message.error);
         }
@@ -206,9 +225,7 @@ function App() {
     if (DEV) {
       console.log("setDataProcessing, CaseGenerate");
     }
-    setTimeout(() => {
-      setDataProcessing("inProgressGenerating");
-    }, 100);
+    setDataProcessing("inProgressGenerating");
   };
   return (
     <>
@@ -231,8 +248,28 @@ function App() {
             <Wfs submitData={analyze} inProgress={dataProcessing === "inProgress"} error={error} />
           )}
         </main>
-      ) : dataProcessing === "analyzed" ? (
+      ) : dataProcessing === "analyzed" && types ? (
         <Tables generateProgress={generateProgress} generate={generate} />
+      ) : dataProcessing === "analyzed" && !types ? (
+        <div>
+          <h3 className="final-title">No types found</h3>
+
+          <div className="submitAndReset">
+            <VSCodeButton className="submitButton" onClick={() => setDataProcessing("")}>
+              Back
+            </VSCodeButton>
+
+            <VSCodeButton
+              className="final-dismiss"
+              onClick={() => {
+                vscode.postMessage({ command: "closeWebview" });
+
+                setDataProcessing("");
+              }}>
+              Close
+            </VSCodeButton>
+          </div>
+        </div>
       ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
         <Final
           workspace={workspace}

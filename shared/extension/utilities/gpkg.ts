@@ -1,6 +1,8 @@
 import * as path from "path";
 import * as vscode from "vscode";
 
+const atob = (input: string): string => Buffer.from(input, "base64").toString("binary");
+
 let cancel = false;
 export const setCancel = () => {
   cancel = true;
