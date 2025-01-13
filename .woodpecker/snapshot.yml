@@ -11,6 +11,8 @@ steps:
 
   nexus:
     image: rockdrilla/woodpecker-sonatype-nexus
+    commands:
+      - publish-nexus
     secrets:
       - nexus_auth_b64
     environment:
