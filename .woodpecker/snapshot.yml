@@ -25,9 +25,9 @@ steps:
         from_secret: nexus_auth_b64
   #      upload: '[{"repository": "ldproxy", "paths": ["dist/vsix/*.vsix"], "directory": "/editor/"}]'
   #        - repository: ldproxy
-  #          directory: /editor/
   #          paths:
   #            - dist/vsix/*.vsix
+  #          directory: /editor/
 
   docker:
     image: woodpeckerci/plugin-docker-buildx
