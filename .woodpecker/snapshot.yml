@@ -9,6 +9,18 @@ steps:
       - npm test
       - npm run package:native
 
+  nexus:
+    image: rockdrilla/woodpecker-sonatype-nexus
+    settings:
+      url: https://dl.interactive-instruments.de
+      auth.base64:
+        from_secret: nexus_auth_b64
+      upload:
+        - repository: ldproxy
+          directory: /editor/
+          paths:
+            - dist/vsix/*.vsix
+
   docker:
     image: woodpeckerci/plugin-docker-buildx
     # TODO: see https://codeberg.org/woodpecker-plugins/docker-buildx/issues/50
