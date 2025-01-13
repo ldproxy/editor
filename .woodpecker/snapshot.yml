@@ -12,8 +12,8 @@ steps:
   nexus:
     image: rockdrilla/woodpecker-sonatype-nexus
     settings:
-      url: https://dl.interactive-instruments.de
-      auth.base64:
+      nexus_url: https://dl.interactive-instruments.de
+      auth_base64:
         from_secret: nexus_auth_b64
       upload:
         - repository: ldproxy
