@@ -15,7 +15,7 @@ steps:
       nexus_url: https://dl.interactive-instruments.de
       auth_base64:
         from_secret: nexus_auth_b64
-      upload: '[{"repository": "ldproxy", "directory": "/editor/", "paths": ["dist/vsix/*.vsix"]}]'
+      upload: '[{"repository": "ldproxy", "paths": ["dist/vsix/*.vsix"]}]'
   #        - repository: ldproxy
   #          directory: /editor/
   #          paths:
