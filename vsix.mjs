@@ -1,4 +1,5 @@
-import { writeFileSync, mkdirSync, copyFileSync } from "fs";
+import { writeFileSync, mkdirSync } from "fs";
+import { copySync } from "fs-extra/esm";
 import pkg from "./package.json" with { type: "json" };
 
 const target = process.argv[2];
@@ -28,5 +29,8 @@ prebuilds/**
 `);
 }
 
-copyFileSync("README.md", `dist/${target}/README.md`);
-copyFileSync("LICENSE", `dist/${target}/LICENSE`);
+copySync("README.md", `dist/${target}/README.md`);
+copySync("LICENSE", `dist/${target}/LICENSE`);
+
+mkdirSync(`dist/${target}/webview-ui/build`, { recursive: true });
+copySync("webview-ui/build", `dist/${target}/webview-ui/build`);
