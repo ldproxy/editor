@@ -597,3 +597,109 @@ export const expectedRef = [
   { key: "enabled", enum: "true", groupname: "FeatureTypeConfigurationOgcApi" },
   { key: "enabled", enum: "false", groupname: "FeatureTypeConfigurationOgcApi" },
 ];
+
+export const expectedYamlKeysAll = [
+  { path: "id", index: 0, lineOfPath: 2 },
+  { path: "api", index: 0, lineOfPath: 3 },
+  { path: "api.buildingBlock", index: 4, lineOfPath: 4, startOfArray: 4, arrayIndex: 0 },
+  { path: "api.metadata", index: 4, lineOfPath: 5, startOfArray: 4, arrayIndex: 0 },
+  { path: "api.buildingBlock", index: 4, lineOfPath: 6, startOfArray: 6, arrayIndex: 1 },
+  { path: "api.metadata", index: 4, lineOfPath: 7, startOfArray: 6, arrayIndex: 1 },
+  { path: "api.metadata.email", index: 6, lineOfPath: 8, startOfArray: 6, arrayIndex: 1 },
+  { path: "api.buildingBlock", index: 4, lineOfPath: 9, startOfArray: 9, arrayIndex: 2 },
+  { path: "api.metadata", index: 4, lineOfPath: 10, startOfArray: 9, arrayIndex: 2 },
+  { path: "api.metadata.metadata2", index: 6, lineOfPath: 11, startOfArray: 9, arrayIndex: 2 },
+  {
+    path: "api.metadata.metadata2.email",
+    index: 8,
+    lineOfPath: 12,
+    startOfArray: 9,
+    arrayIndex: 2,
+  },
+  { path: "api.buildingBlock", index: 4, lineOfPath: 13, startOfArray: 13, arrayIndex: 3 },
+  { path: "api.additionalLinks", index: 4, lineOfPath: 14, startOfArray: 13, arrayIndex: 3 },
+  {
+    path: "api.additionalLinks.rel",
+    index: 8,
+    lineOfPath: 15,
+    startOfArray: 15,
+    arrayIndex: 0,
+  },
+  { path: "api.buildingBlock", index: 4, lineOfPath: 16, startOfArray: 16, arrayIndex: 4 },
+  { path: "metadata", index: 0, lineOfPath: 17 },
+  { path: "metadata.keywords", index: 2, lineOfPath: 18 },
+  { path: "collections", index: 0, lineOfPath: 20 },
+  { path: "collections.umweltzone", index: 2, lineOfPath: 21 },
+  { path: "collections.umweltzone.id", index: 4, lineOfPath: 22 },
+  { path: "collections2", index: 0, lineOfPath: 23 },
+  { path: "collections2.umweltzone", index: 2, lineOfPath: 24 },
+  { path: "collections2.umweltzone.additionalLinks", index: 4, lineOfPath: 25 },
+  {
+    path: "collections2.umweltzone.additionalLinks.rel",
+    index: 8,
+    lineOfPath: 26,
+    startOfArray: 26,
+    arrayIndex: 0,
+  },
+];
+
+export const yamlKeysGetPathAtCursor = [
+  { path: "id", index: 0, lineOfPath: 2 },
+  { path: "api", index: 0, lineOfPath: 3 },
+  { path: "api.buildingBlock", index: 4, lineOfPath: 4, startOfArray: 4, arrayIndex: 0 },
+  { path: "api.metadata", index: 4, lineOfPath: 5, startOfArray: 4, arrayIndex: 0 },
+  { path: "api.buildingBlock", index: 4, lineOfPath: 6, startOfArray: 6, arrayIndex: 1 },
+  { path: "api.metadata", index: 4, lineOfPath: 7, startOfArray: 6, arrayIndex: 1 },
+];
+
+export const exampleDocument = `---
+id: bla
+api:
+  - buildingBlock: COLLECTIONS
+    metadata: true
+  - buildingBlock: STYLES
+    metadata:
+      email: bla
+  - buildingBlock: TILES
+    metadata:
+      metadata2: 
+        email: bla
+  - buildingBlock: BLA
+    additionalLinks:
+      - rel: describedby
+  - buildingBlock: BLUE
+metadata:
+  keywords:
+    - Umweltzonen
+collections:
+  umweltzone:
+    id: umweltzone
+collections2:
+  umweltzone:
+    additionalLinks:
+      - rel: tag`;
+
+export const defMapProv1Completion = {
+  contactName: {
+    groupname: "ApiMetadata",
+    title: "contactName",
+    description: "Optional name of a contact person or organization for the API.",
+    type: "object",
+    ref: "",
+    addRef: "",
+    deprecated: false,
+  },
+  metadata: {
+    groupname: "OgcApiDataV2",
+    title: "metadata",
+    description: "General [Metadata](#metadata) for the API.",
+    ref: "ApiMetadata",
+    addRef: "",
+    deprecated: false,
+    type: "object",
+  },
+};
+
+export const expectedRefProvider1 = [
+  { key: "contactName", enum: "false", groupname: "ApiMetadata" },
+];

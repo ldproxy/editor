@@ -1,5 +1,11 @@
 import { deepStrictEqual } from "assert";
-import { parseYaml } from "../extension/utilities/yaml";
+import {
+  parseYaml,
+  getIndentation,
+  indentationOfYamlObjectAboveCursor,
+  extractIndexFromPath,
+  getLinesForArrayIndex,
+} from "../extension/utilities/yaml";
 import { extractDocRefs, extractSingleRefs } from "../extension/utilities/refs";
 import { buildEnumArray } from "../extension/utilities/enums";
 import {
@@ -7,9 +13,43 @@ import {
   getRequiredProperties,
   findObjectsWithRef,
 } from "../extension/utilities/defs";
-import { expectedDefMap, expectedRef } from "./data/expected";
+import {
+  expectedDefMap,
+  expectedRef,
+  expectedYamlKeysAll,
+  yamlKeysGetPathAtCursor,
+  exampleDocument,
+  defMapProv1Completion,
+  expectedRefProvider1,
+} from "./data/expected";
 import { services } from "./data/services";
 import { servicesNew } from "./data/newServices";
+import { getPathAtCursor } from "../extension/utilities/completions";
+import {
+  shouldShowCompletionsProv1,
+  getRefCompletionsProv1,
+} from "../extension/utilities/completionsProv1";
+import {
+  shouldFilterExistingCharacters,
+  createCompletionItem,
+} from "../extension/utilities/completions";
+
+import * as vscode from "vscode";
+
+import mock = require("mock-require");
+import { create } from "domain";
+import { createCompletionItemProv3 } from "../extension/utilities/completionsProv3";
+
+mock("vscode", {
+  languages: {
+    registerCompletionItemProvider: () => {},
+  },
+  CompletionItem: class {},
+  CompletionItemKind: {
+    Method: 0,
+  },
+  MarkdownString: class {},
+});
 
 describe("getYamlKeys", function () {
   // create a mocha test case. To test different cases (arrays, objects, etc.), just change the
@@ -195,51 +235,6 @@ id: bla`;
 
   it("should build allYamlKeys for all cases in 1 config", function () {
     // variables:
-
-    var expectedYamlKeysAll = [
-      { path: "id", index: 0, lineOfPath: 2 },
-      { path: "api", index: 0, lineOfPath: 3 },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 4, startOfArray: 4, arrayIndex: 0 },
-      { path: "api.metadata", index: 4, lineOfPath: 5, startOfArray: 4, arrayIndex: 0 },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 6, startOfArray: 6, arrayIndex: 1 },
-      { path: "api.metadata", index: 4, lineOfPath: 7, startOfArray: 6, arrayIndex: 1 },
-      { path: "api.metadata.email", index: 6, lineOfPath: 8, startOfArray: 6, arrayIndex: 1 },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 9, startOfArray: 9, arrayIndex: 2 },
-      { path: "api.metadata", index: 4, lineOfPath: 10, startOfArray: 9, arrayIndex: 2 },
-      { path: "api.metadata.metadata2", index: 6, lineOfPath: 11, startOfArray: 9, arrayIndex: 2 },
-      {
-        path: "api.metadata.metadata2.email",
-        index: 8,
-        lineOfPath: 12,
-        startOfArray: 9,
-        arrayIndex: 2,
-      },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 13, startOfArray: 13, arrayIndex: 3 },
-      { path: "api.additionalLinks", index: 4, lineOfPath: 14, startOfArray: 13, arrayIndex: 3 },
-      {
-        path: "api.additionalLinks.rel",
-        index: 8,
-        lineOfPath: 15,
-        startOfArray: 15,
-        arrayIndex: 0,
-      },
-      { path: "api.buildingBlock", index: 4, lineOfPath: 16, startOfArray: 16, arrayIndex: 4 },
-      { path: "metadata", index: 0, lineOfPath: 17 },
-      { path: "metadata.keywords", index: 2, lineOfPath: 18 },
-      { path: "collections", index: 0, lineOfPath: 20 },
-      { path: "collections.umweltzone", index: 2, lineOfPath: 21 },
-      { path: "collections.umweltzone.id", index: 4, lineOfPath: 22 },
-      { path: "collections2", index: 0, lineOfPath: 23 },
-      { path: "collections2.umweltzone", index: 2, lineOfPath: 24 },
-      { path: "collections2.umweltzone.additionalLinks", index: 4, lineOfPath: 25 },
-      {
-        path: "collections2.umweltzone.additionalLinks.rel",
-        index: 8,
-        lineOfPath: 26,
-        startOfArray: 26,
-        arrayIndex: 0,
-      },
-    ];
 
     var documentAll = `---
 id: bla
@@ -522,5 +517,184 @@ describe("getEnums", function () {
     var schema = servicesNew;
 
     deepStrictEqual(buildEnumArray(schema), expectedRef);
+  });
+});
+
+describe("Provider1 Completions", function () {
+  it("getPathAtCursor", function () {
+    deepStrictEqual(getPathAtCursor(yamlKeysGetPathAtCursor, 8, 6), "api.metadata");
+  });
+
+  it("getIndentation", function () {
+    deepStrictEqual(getIndentation(exampleDocument), 2);
+  });
+
+  it("indentationOfYamlObjectAboveCursor", function () {
+    deepStrictEqual(
+      indentationOfYamlObjectAboveCursor(yamlKeysGetPathAtCursor, 8, "api.metadata"),
+      4
+    );
+  });
+
+  it("shouldShowCompletionsProv1", function () {
+    deepStrictEqual(shouldShowCompletionsProv1("", 6, 4, 2, 0, 6), true);
+  });
+
+  it("getRefCompletionsProv1", function () {
+    const actual = getRefCompletionsProv1(
+      "metadata",
+      undefined,
+      "",
+      defMapProv1Completion,
+      false,
+      yamlKeysGetPathAtCursor,
+      expectedRefProvider1
+    );
+
+    const expected = [new vscode.CompletionItem("contactName: ", vscode.CompletionItemKind.Method)];
+    expected[0].detail = "Enum";
+    expected[0].documentation = new vscode.MarkdownString();
+    expected[0].command = {
+      title: "Trigger Suggest",
+      command: "editor.action.triggerSuggest",
+    };
+    expected[0].insertText = "contactName: \n  ";
+    expected[0].kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(actual, expected);
+  });
+});
+
+describe("Provider2 Completions", function () {
+  it("extractIndexFromPath", function () {
+    deepStrictEqual(extractIndexFromPath("api.buildingBlock[14]"), 14);
+  });
+
+  it("getLinesFromArrayIndex", function () {
+    deepStrictEqual(getLinesForArrayIndex(yamlKeysGetPathAtCursor, 1, "api.buildingBlock[1]"), 6);
+  });
+
+  it("shouldFilterExistingCharacters", function () {
+    deepStrictEqual(shouldFilterExistingCharacters("meta", "metadata"), true);
+  });
+
+  it("shouldFilterExistingCharacters", function () {
+    deepStrictEqual(shouldFilterExistingCharacters("meba", "metadata"), false);
+  });
+
+  it("shouldFilterExistingCharactersWithDash", function () {
+    deepStrictEqual(shouldFilterExistingCharacters("- building", "buildingBlock"), true);
+  });
+
+  it("createCompletionItem", function () {
+    const expected = new vscode.CompletionItem("metadata", vscode.CompletionItemKind.Method);
+    expected.command = { title: "Trigger Suggest", command: "editor.action.triggerSuggest" };
+    expected.detail = "obj";
+    expected.documentation = new vscode.MarkdownString();
+    expected.insertText = "metadata: \n  ";
+    expected.kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(
+      createCompletionItem(
+        "metadata",
+        {
+          groupname: "OgcApiDataV2",
+          title: "metadata",
+          description: "General [Metadata](#metadata) for the API.",
+          ref: "ApiMetadata",
+          addRef: "",
+          deprecated: false,
+          type: "object",
+        },
+        buildEnumArray(servicesNew),
+        false
+      ),
+      expected
+    );
+  });
+
+  it("createCompletionItemArray", function () {
+    const expected = new vscode.CompletionItem("textSequences", vscode.CompletionItemKind.Method);
+    expected.command = { title: "Trigger Suggest", command: "editor.action.triggerSuggest" };
+    expected.detail = "Enum";
+    expected.documentation = new vscode.MarkdownString();
+    expected.insertText = "textSequences: ";
+    expected.kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(
+      createCompletionItem(
+        "textSequences",
+        {
+          addRef: "",
+          deprecated: false,
+          description:
+            "Enables support for CityJSON text sequences (media type `application/city+json-seq`).     Requires version 1.1 or later.",
+          groupname: "CityJsonConfiguration",
+          ref: "",
+          title: "textSequences",
+          type: undefined,
+        },
+        buildEnumArray(servicesNew),
+        false
+      ),
+      expected
+    );
+  });
+});
+
+describe("Provider3 Completions", function () {
+  it("gatherInformation", function () {
+    const expected = new vscode.CompletionItem(
+      "persistentUriTemplate",
+      vscode.CompletionItemKind.Method
+    );
+    expected.documentation = new vscode.MarkdownString();
+    expected.insertText = "persistentUriTemplate: ";
+    expected.kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(
+      createCompletionItemProv3(
+        "persistentUriTemplate",
+        {
+          groupname: "FeatureTypeConfigurationOgcApi",
+          title: "persistentUriTemplate",
+          description:
+            "The *Feature* resource defines a unique URI for every feature, but this URI is only     stable as long as the API URI stays the same. For use cases where external persistent     feature URIs, which redirect to the current API URI, are used, this option allows to use     such URIs as canonical URI of every feature. To enable this option, provide an URI template     where `{{value}}` is replaced with the feature id.",
+          type: ["string", "number", "boolean", "null"],
+          ref: "",
+          addRef: "",
+          deprecated: false,
+        },
+        buildEnumArray(servicesNew),
+        false
+      ),
+      expected
+    );
+  });
+
+  it("createCompletionItemProv3Example2", function () {
+    const expected = new vscode.CompletionItem("transformations", vscode.CompletionItemKind.Method);
+    expected.documentation = new vscode.MarkdownString();
+    expected.insertText = "transformations: \n  ";
+    expected.kind = vscode.CompletionItemKind.Method;
+
+    deepStrictEqual(
+      createCompletionItemProv3(
+        "transformations",
+        {
+          groupname: "GltfConfiguration",
+          title: "transformations",
+          description:
+            "[Property transformations](../../providers/details/transformations.md) do not affect     data sources, they are applied on-the-fly as part of the encoding. Filter expressions do     not take transformations into account, they have to be based on the source values. That     means queryable properties (see `queryables` in [Features](features.md)) should not use     transformations in most cases. The exception to the rule is the HTML encoding, where     readability might be more important than filter support.",
+          type: "object",
+          ref: "",
+          addRef: "PropertyTransformation",
+          deprecated: false,
+        },
+        buildEnumArray(servicesNew),
+        false
+      ),
+      expected
+    );
   });
 });
