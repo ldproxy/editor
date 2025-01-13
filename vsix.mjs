@@ -31,6 +31,7 @@ prebuilds/**
 
 copySync("README.md", `dist/${target}/README.md`);
 copySync("LICENSE", `dist/${target}/LICENSE`);
+copySync("icon.png", `dist/${target}/icon.png`);
 
 mkdirSync(`dist/${target}/webview-ui/build`, { recursive: true });
 copySync("webview-ui/build", `dist/${target}/webview-ui/build`);
