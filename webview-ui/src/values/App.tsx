@@ -55,7 +55,6 @@ function App() {
   const [selectedApiInDropdown, setSelectedApiInDropdown] = useState(false);
   const [currentView, setCurrentView] = useRecoilState(currentViewAtom);
   const DEV = false;
-
   const valueDataSelector = selector({
     key: "uniqueValueDataSelector_v1",
     get: ({ get }) => {
@@ -113,7 +112,8 @@ function App() {
 
     switch (message.command) {
       case "setApis":
-        const sortedApis = message.existingApis.sort((a: string, b: string) => a.localeCompare(b));
+        const filteredApis = message.existingApis.filter((api: string) => /^[a-zA-Z0-9]/.test(api));
+        const sortedApis = filteredApis.sort((a: string, b: string) => a.localeCompare(b));
         setExistingApis(sortedApis);
         if (!DEV) {
           console.log("existing Apis:", message.existingApis);

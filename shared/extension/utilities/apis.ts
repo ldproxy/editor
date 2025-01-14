@@ -34,8 +34,11 @@ export async function listApisInDirectory() {
 
     return serviceFiles.map((file: string) => {
       const baseName = path.posix.basename(file);
-      const nameWithoutExtension = path.parse(baseName).name;
-      return nameWithoutExtension;
+      if (baseName.endsWith(".yml")) {
+        const nameWithoutExtension = path.parse(baseName).name;
+        return nameWithoutExtension;
+      }
+      return null;
     });
   } catch (error) {
     return ["No APIs..."];
