@@ -29,9 +29,12 @@ prebuilds/**
 `);
 }
 
-copySync("README.md", `dist/${target}/README.md`);
 copySync("LICENSE", `dist/${target}/LICENSE`);
-copySync("icon.png", `dist/${target}/icon.png`);
+copySync("docs/vscode.md", `dist/${target}/README.md`);
+copySync("docs/icon.png", `dist/${target}/icon.png`);
+copySync("docs/screenshot.png", `dist/${target}/screenshot.png`);
+copySync("docs/screenshot2.png", `dist/${target}/screenshot2.png`);
+copySync("docs/screenshot3.png", `dist/${target}/screenshot3.png`);
 
 mkdirSync(`dist/${target}/webview-ui/build`, { recursive: true });
 copySync("webview-ui/build", `dist/${target}/webview-ui/build`);
