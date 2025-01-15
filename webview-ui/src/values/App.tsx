@@ -115,7 +115,7 @@ function App() {
         const filteredApis = message.existingApis.filter((api: string) => /^[a-zA-Z0-9]/.test(api));
         const sortedApis = filteredApis.sort((a: string, b: string) => a.localeCompare(b));
         setExistingApis(sortedApis);
-        if (!DEV) {
+        if (DEV) {
           console.log("existing Apis:", message.existingApis);
         }
         break;

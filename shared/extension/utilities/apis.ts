@@ -32,16 +32,15 @@ export async function listApisInDirectory() {
       return hasServicesBeforeLastPart && doesNotContainDefaults;
     });
 
-    return serviceFiles.map((file: string) => {
+    const ymlFiles = serviceFiles.filter((file: string) => file.endsWith(".yml"));
+
+    return ymlFiles.map((file: string) => {
       const baseName = path.posix.basename(file);
-      if (baseName.endsWith(".yml")) {
-        const nameWithoutExtension = path.parse(baseName).name;
-        return nameWithoutExtension;
-      }
-      return null;
+      const nameWithoutExtension = path.parse(baseName).name;
+      return nameWithoutExtension;
     });
   } catch (error) {
-    return ["No APIs..."];
+    return null;
   }
 }
 
