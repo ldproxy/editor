@@ -9,7 +9,7 @@ FROM ghcr.io/ldproxy/xtracfg:lib as xtracfg
 
 FROM codercom/code-server:latest
 
-COPY --chmod=0644 --from=extension /src/dist/vsix/ldproxy-editor-web-*.vsix /
+COPY --chmod=0644 --from=extension /src/dist/vsix/ldproxy-editor-web-*.vsix /ldproxy-editor.vsix
 COPY --chmod=0755 --from=extension /src/startup.sh /entrypoint.d/
 COPY --chmod=0755 --from=xtracfg /xtracfg /usr/bin/
 
