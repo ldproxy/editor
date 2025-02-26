@@ -24,7 +24,7 @@ const fileTypes: {
 } = {};
 
 export const initSchemas = (transport: any) => {
-  xtracfg = connect(transport, { debug: true });
+  xtracfg = connect(transport, { debug: DEV });
 
   if (DEV) {
     console.log("INIT SCHEMAS");
