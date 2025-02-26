@@ -18,7 +18,7 @@ const diagnosticsResults: {
 const collection = vscode.languages.createDiagnosticCollection("ldproxy-editor");
 
 export const registerDiagnostics: Registration = (context, transport: TransportCreator) => {
-  xtracfg = connect(transport, { debug: true });
+  xtracfg = connect(transport, { debug: DEV });
 
   xtracfg.listen(
     (response) => {

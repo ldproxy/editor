@@ -15,6 +15,7 @@ import { connect, TransportCreator, Xtracfg } from "@xtracfg/core";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
 import { Registration } from "../utilities/registration";
 import { listApisInDirectory } from "../utilities/apis";
+import { DEV } from "../utilities/constants";
 
 const workspaceFolders = vscode.workspace.workspaceFolders;
 if (!workspaceFolders) {
@@ -28,7 +29,7 @@ export const registerShowAutoCreateValues: Registration = (
   context: ExtensionContext,
   transport: TransportCreator
 ): Disposable[] => {
-  xtracfg = connect(transport, { debug: true });
+  xtracfg = connect(transport, { debug: DEV });
 
   return [
     commands.registerCommand("ldproxy-editor.showAutoCreateValues", () => {
