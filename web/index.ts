@@ -24,7 +24,6 @@ const getLocation = () => {
       protocol: url.protocol,
       host: url.host,
     };
-    console.log("LOCATION", location);
 
     return location;
   }
