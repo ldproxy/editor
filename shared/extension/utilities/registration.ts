@@ -1,8 +1,9 @@
 import { Disposable, ExtensionContext, TextDocument } from "vscode";
 import { AllYamlKeys } from "./yaml";
 import { TransportCreator } from "@xtracfg/core";
+import { type Transport } from "..";
 
-export type Registration = (context: ExtensionContext, transport: TransportCreator) => Disposable[];
+export type Registration = (context: ExtensionContext, transport: Transport) => Disposable[];
 
 export type DocUpdate = (
   event: DocEvent,
@@ -22,7 +23,7 @@ export enum DocEvent {
 
 export const register = (
   context: ExtensionContext,
-  transport: TransportCreator,
+  transport: Transport,
   ...registrations: Registration[]
 ) => {
   registrations.forEach((registration) =>
