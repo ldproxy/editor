@@ -4,6 +4,7 @@ import { DEV } from "./constants";
 import { extractSingleRefs } from "./refs";
 import { TOP_LEVEL_REF } from "./refs";
 import { DefinitionsMap, LooseDefinition } from "./defs";
+import { type Transport } from "..";
 
 interface FileType {
   type: string;
@@ -23,8 +24,8 @@ const fileTypes: {
   };
 } = {};
 
-export const initSchemas = (transport: any) => {
-  xtracfg = connect(transport, { debug: DEV });
+export const initSchemas = ({ transport, additionalTransportOptions }: Transport) => {
+  xtracfg = connect(transport, { specific: additionalTransportOptions, debug: DEV });
 
   if (DEV) {
     console.log("INIT SCHEMAS");

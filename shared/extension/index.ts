@@ -15,9 +15,18 @@ import { Registration, register, DocEvent } from "./utilities/registration";
 import { registeTreeViews } from "./trees";
 import { TransportCreator } from "@xtracfg/core";
 
+export type Transport = {
+  transport: TransportCreator;
+  additionalTransportOptions: Record<string, any>;
+};
+
 let initialized = false;
 
-export function activate(context: ExtensionContext, transport: TransportCreator) {
+export function activate(
+  context: ExtensionContext,
+  transportCreator: TransportCreator,
+  additionalTransportOptions: Record<string, any> = {}
+) {
   if (initialized) {
     return;
   }
@@ -30,6 +39,8 @@ export function activate(context: ExtensionContext, transport: TransportCreator)
       context.extensionMode
     );
   }
+
+  const transport: Transport = { transport: transportCreator, additionalTransportOptions };
 
   initialized = true;
 
@@ -54,7 +65,7 @@ export function activate(context: ExtensionContext, transport: TransportCreator)
 
 export function deactivate() {}
 
-const registerDocHandlers: Registration = (context, transport) => {
+const registerDocHandlers: Registration = () => {
   return [
     window.onDidChangeActiveTextEditor((editor) => {
       const document = window.activeTextEditor?.document;

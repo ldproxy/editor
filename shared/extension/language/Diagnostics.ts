@@ -3,6 +3,7 @@ import { connect, TransportCreator, Xtracfg } from "@xtracfg/core";
 import { getRelativeFilePath, getWorkspacePath } from "../utilities/paths";
 import { DEV } from "../utilities/constants";
 import { DocEvent, DocUpdate, Registration } from "../utilities/registration";
+import { type Transport } from "..";
 
 let xtracfg: Xtracfg;
 
@@ -17,8 +18,11 @@ const diagnosticsResults: {
 
 const collection = vscode.languages.createDiagnosticCollection("ldproxy-editor");
 
-export const registerDiagnostics: Registration = (context, transport: TransportCreator) => {
-  xtracfg = connect(transport, { debug: DEV });
+export const registerDiagnostics: Registration = (
+  context,
+  { transport, additionalTransportOptions }: Transport
+) => {
+  xtracfg = connect(transport, { specific: additionalTransportOptions, debug: DEV });
 
   xtracfg.listen(
     (response) => {
