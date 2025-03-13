@@ -108,16 +108,28 @@ export const updateDiagnostics: DocUpdate = async function (
   const results = await requestDiagnostics(path);
 
   results.forEach((info) => {
-    const infoText = info.match(/\$.(.*):/);
-    const infoWord = infoText ? infoText[1].trim() : "";
+    const infoText = info.match(/\$.\S*/);
+    if (DEV) {
+      console.log("infoText", info, infoText);
+    }
+    let infoWord = infoText ? infoText[0].trim() : "";
+
+    if (infoWord.startsWith("$.")) {
+      infoWord = infoWord.substring(2);
+    }
+    if (infoWord.endsWith(":")) {
+      infoWord = infoWord.slice(0, -1);
+    }
+
     const infoWordWithoutIndex = infoWord.replace(/\[\d+\]/g, "");
     if (DEV) {
-      console.log("infoWord", infoWord);
+      console.log("infoWord:", infoWord);
+      console.log("withoutIndex", infoWordWithoutIndex);
     }
     try {
       const keys = infoWord.split(".");
       const lastKey: string = keys[keys.length - 1];
-      const match = infoWord.match(/\[(\d+)\]/);
+      const match = infoWord.match(/\[(\d+)\]/); // Index Number
       let index: number | null = null;
       if (match && match[1]) {
         index = parseInt(match[1], 10);
@@ -126,6 +138,7 @@ export const updateDiagnostics: DocUpdate = async function (
 
       let lineOfPath: number | null = 0;
       if (DEV) {
+        console.log("Keys", keys, lastKey, match);
         console.log("indexUpdateDiagnostics", index);
       }
       if (index !== null) {
