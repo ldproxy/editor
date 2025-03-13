@@ -129,24 +129,25 @@ export const updateDiagnostics: DocUpdate = async function (
     try {
       const keys = infoWord.split(".");
       const lastKey: string = keys[keys.length - 1];
-      const match = infoWord.match(/\[(\d+)\]/); // Index Number
+      const matches = [...infoWord.matchAll(/\[(\d+)\]/g)];
+      const lastMatch = matches[matches.length - 1];
       let index: number | null = null;
-      if (match && match[1]) {
-        index = parseInt(match[1], 10);
+      if (lastMatch && lastMatch[1]) {
+        index = parseInt(lastMatch[1], 10);
       }
       let lastKeyIndex: number | undefined;
 
       let lineOfPath: number | null = 0;
       if (DEV) {
-        console.log("Keys", keys, lastKey, match);
-        console.log("indexUpdateDiagnostics", index);
+        console.log("Keys", keys, lastKey, lastMatch);
+        console.log("indexUpdateDiagnostics", keys, ":", index, lastMatch);
       }
       if (index !== null) {
         const foundItem = newAllYamlKeys.find(
           (item) => item.path === infoWordWithoutIndex && item.arrayIndex === index
         );
         if (DEV) {
-          console.log("foundItem", foundItem);
+          console.log("foundItemIndex", foundItem);
         }
         if (foundItem) {
           lineOfPath = foundItem.lineOfPath - 1;
