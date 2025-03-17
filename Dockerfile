@@ -4,7 +4,7 @@ COPY . /src/
 RUN cd /src && npm run install:all && npm test && npm run package:web
 
 
-FROM ghcr.io/ldproxy/xtracfg:lib-a2720a2 as xtracfg
+FROM ghcr.io/ldproxy/xtracfg:lib as xtracfg
 
 
 FROM codercom/code-server:latest
