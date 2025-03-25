@@ -20,6 +20,7 @@ if [ ! -f "/settings/.local/share/code-server/User/settings.json" ]; then
 fi
 
 code-server --install-extension /ldproxy-editor.vsix
+code-server --install-extension redhat.vscode-yaml
 
 exec dumb-init /usr/bin/xtracfg listen 8081 --debug --verbose &
 
