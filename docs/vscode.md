@@ -14,10 +14,12 @@ A [VS Code](https://code.visualstudio.com) extension that supports you in creati
 
 - The extension is not yet available for Windows, only MacOS and Linux are supported for now.
 - The workspace root needs to be a ldproxy store directory for the extension to work properly. Parent directories that contain multiple store directories are not yet supported, and neither are multi-root workspaces.
+- Tile Providers cannot be generated yet.
 
 ## Usage
 
-Open a ldproxy store directory in VS Code, for example by using `File -> Open Folder` or by calling `code` in a terminal. You can then start editing your files. Unknown or deprecated properties will automatically be marked in open files. Hovering over a property will show the documentation.
+Open a ldproxy store directory in VS Code, for example by using `File -> Open Folder` or by calling `code` in a terminal. You can then start editing your files.
+Unknown or deprecated properties will automatically be marked in open files. Hovering over a property will show the documentation.
 
 ### IntelliSense (autocompletion)
 
@@ -31,9 +33,6 @@ You can then use the cursor keys to navigate the suggestions and choose one with
 When you open the [command palette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) and start typing `ldproxy`, the command `ldproxy: Create new entities` should appear at the top. Upon selecting, the graphical wizard will open in a new tab.
 
 It allows you to automatically generate provider and service configurations from _PostgreSQL/PostGIS_, _GeoPackage_ and _WFS_ data sources.
-
-> [!NOTE]
-> When trying to access a _PostgreSQL_ database on the same host where the docker container is runnning, you have to use `host.docker.internal` instead of `localhost`.
 
 ![](screenshot.png)
 
