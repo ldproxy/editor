@@ -1,0 +1,9 @@
+when:
+  event: push
+
+steps:
+  test:
+    image: node:20-alpine
+    commands:
+      - npm run install:all
+      - npm test
