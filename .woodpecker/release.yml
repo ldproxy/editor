@@ -1,6 +1,9 @@
 when:
   event: tag
 
+depends_on:
+  - build
+
 steps:
   docker:
     image: woodpeckerci/plugin-docker-buildx
@@ -15,7 +18,7 @@ steps:
       pull_image: true
       platforms:
         - linux/amd64
-        #- linux/arm64
+        - linux/arm64
       logins:
         - registry: ghcr.io
           username:

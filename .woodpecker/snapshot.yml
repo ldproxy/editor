@@ -1,14 +1,10 @@
 when:
   event: push
 
-steps:
-  native:
-    image: node:20-alpine
-    commands:
-      - npm run install:all
-      - npm test
-      - npm run package:native
+depends_on:
+  - build
 
+steps:
   nexus:
     image: rockdrilla/woodpecker-sonatype-nexus
     secrets:
