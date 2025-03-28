@@ -9,9 +9,9 @@ steps:
     image: alpine/curl
     commands:
       - mkdir -p dist/vsix
-      - curl --verbose --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-darwin-arm64-1.0.100.vsix
-      - curl --verbose --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-linux-arm64-1.0.100.vsix
-      - curl --verbose --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-linux-x64-1.0.100.vsix
+      - curl --verbose -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-darwin-arm64-1.0.100.vsix
+      - curl --verbose -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-linux-arm64-1.0.100.vsix
+      - curl --verbose -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-linux-x64-1.0.100.vsix
       - ls -la dist/vsix
 
   publish:
