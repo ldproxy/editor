@@ -1,6 +1,9 @@
 when:
   event: push
 
+depends_on:
+  - build
+
 steps:
   download:
     image: alpine/curl
