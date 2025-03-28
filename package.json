@@ -1,8 +1,8 @@
 {
   "name": "ldproxy-editor",
-  "displayName": "ldproxy",
+  "displayName": "ldproxy for VS Code",
   "description": "ldproxy configuration editor",
-  "version": "1.1.0",
+  "version": "1.0.100",
   "private": true,
   "license": "MIT",
   "repository": "https://github.com/ldproxy/editor",
@@ -10,7 +10,14 @@
   "preview": true,
   "categories": [
     "Linters",
+    "Formatters",
     "Other"
+  ],
+  "keywords": [
+    "ldproxy",
+    "configuration",
+    "editor",
+    "generator"
   ],
   "engines": {
     "vscode": "^1.82.2"
@@ -53,6 +60,7 @@
     "prelaunch:web": "npm run build:ui && npm run dev:web",
     "prepackage:web": "VITE_DEV=false npm run build:ui && npm run build:web  && node vsix.mjs web",
     "package:web": "cd dist/web && vsce package -o ../vsix -t web --pre-release",
+    "publish": "vsce publish --packagePath dist/vsix/ldproxy-editor-*.vsix",
     "test": "jest",
     "lint": "eslint ./ --ext ts"
   },
