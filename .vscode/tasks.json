@@ -4,8 +4,9 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "prelaunch:native",
       "type": "npm",
-      "script": "build:all",
+      "script": "prelaunch:native",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -13,8 +14,17 @@
       "problemMatcher": []
     },
     {
+      "label": "prelaunch:web",
       "type": "npm",
-      "script": "watch-web",
+      "script": "prelaunch:web",
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "watch:web",
       "group": "build",
       "isBackground": true,
       "problemMatcher": "$tsc-watch"

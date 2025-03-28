@@ -1,7 +1,7 @@
 when:
   event: push
 
-pipeline:
+steps:
   docker:
     image: woodpeckerci/plugin-docker-buildx
     # TODO: see https://codeberg.org/woodpecker-plugins/docker-buildx/issues/50

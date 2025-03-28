@@ -1,15 +1,15 @@
 FROM node:20-alpine as extension
 
 COPY . /src/
-RUN cd /src && npm run install:all && npm test && npm run package
+RUN cd /src && npm run install:all && npm test && npm run package:web
 
 
-FROM ghcr.io/ldproxy/xtracfg:maintenance-v3-528524f4 as xtracfg
+FROM ghcr.io/ldproxy/xtracfg:4.2.0 as xtracfg
 
 
 FROM codercom/code-server:latest
 
-COPY --chmod=0644 --from=extension /src/dist/ldproxy-editor.vsix /
+COPY --chmod=0644 --from=extension /src/dist/vsix/ldproxy-editor-web-*.vsix /ldproxy-editor.vsix
 COPY --chmod=0755 --from=extension /src/startup.sh /entrypoint.d/
 COPY --chmod=0755 --from=xtracfg /xtracfg /usr/bin/
 

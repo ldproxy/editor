@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
+import AppEntities from "./entities/App";
+import AppValues from "./values/App";
 import { RecoilRoot, DefaultValue } from "recoil";
 import { RecoilSync } from "recoil-sync";
 import { vscode } from "./utilities/vscode";
@@ -8,36 +9,75 @@ import { DEBUG_RECOIL } from "./utilities/constants";
 
 const DEFAULT_VALUE = new DefaultValue();
 
-ReactDOM.render(
-  <React.StrictMode>
-    <RecoilRoot>
-      <RecoilSync
-        storeKey="StoreA"
-        read={(key) => {
-          const state = vscode.getState();
-          const value = state[key] || DEFAULT_VALUE;
+const rootDiv = document.getElementById("root");
+const createValues = rootDiv?.getAttribute("data-create-values") === "true";
+const App = createValues ? AppValues : AppEntities;
 
-          if (DEBUG_RECOIL) {
-            console.log("RECOIL getting key", key, state, value);
-          }
+if (rootDiv) {
+  ReactDOM.render(
+    <React.StrictMode>
+      {App === AppValues ? (
+        <RecoilRoot>
+          <RecoilSync
+            storeKey="StoreA"
+            read={(key) => {
+              const state = vscode.getState();
+              const value = state[key] || DEFAULT_VALUE;
 
-          return value;
-        }}
-        write={({ diff }) => {
-          const state = vscode.getState();
-          const newState = { ...state, ...Object.fromEntries(diff) };
+              if (DEBUG_RECOIL) {
+                console.log("RECOIL getting key", key, state, value);
+              }
 
-          if (DEBUG_RECOIL) {
-            console.log("RECOIL writing diff", diff, state, newState);
-          }
+              return value;
+            }}
+            write={({ diff }) => {
+              const state = vscode.getState();
+              const newState = { ...state, ...Object.fromEntries(diff) };
 
-          vscode.setState(newState);
-        }}>
-        <Suspense fallback="loading...">
-          <App />
-        </Suspense>
-      </RecoilSync>
-    </RecoilRoot>
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+              if (DEBUG_RECOIL) {
+                console.log("RECOIL writing diff", diff, state, newState);
+              }
+
+              vscode.setState(newState);
+            }}>
+            <Suspense fallback="loading...">
+              <App />
+            </Suspense>
+          </RecoilSync>
+        </RecoilRoot>
+      ) : (
+        <RecoilRoot>
+          <RecoilSync
+            storeKey="StoreB"
+            read={(key) => {
+              const state = vscode.getState();
+              const value = state[key] || DEFAULT_VALUE;
+
+              if (DEBUG_RECOIL) {
+                console.log("RECOIL getting key", key, state, value);
+              }
+
+              return value;
+            }}
+            write={({ diff }) => {
+              const state = vscode.getState();
+              const newState = { ...state, ...Object.fromEntries(diff) };
+
+              if (DEBUG_RECOIL) {
+                console.log("RECOIL writing diff", diff, state, newState);
+              }
+
+              vscode.setState(newState);
+            }}>
+            <Suspense fallback="loading...">
+              <App />
+            </Suspense>
+          </RecoilSync>
+        </RecoilRoot>
+      )}
+    </React.StrictMode>,
+    rootDiv
+  );
+} else {
+  ReactDOM.render(<div>loading...</div>, document.getElementById("root"));
+}

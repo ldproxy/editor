@@ -5,8 +5,8 @@
     "outDir": "dist",
     "lib": ["ES2022", "dom"],
     "sourceMap": true,
-    "rootDir": "src",
-    "strict": true
+    "strict": true,
+    "types": ["node", "jest"]
   },
   "exclude": ["node_modules", ".vscode-test-web", "webview-ui"]
 }
