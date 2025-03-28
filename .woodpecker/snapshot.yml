@@ -1,28 +1,7 @@
 when:
   event: push
 
-depends_on:
-  - build
-
 steps:
-  download:
-    image: alpine/curl
-    commands:
-      - mkdir -p dist/vsix
-      - curl --verbose -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-darwin-arm64-1.0.100.vsix
-      - curl --verbose -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-linux-arm64-1.0.100.vsix
-      - curl --verbose -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/next/ldproxy-editor-linux-x64-1.0.100.vsix
-      - ls -la dist/vsix
-
-  publish:
-    image: node:20-alpine
-    environment:
-      VSCE_PAT:
-        from_secret: vscode_marketplace_token
-    commands:
-      - npm ci --ignore-scripts
-      - npm run publish
-
   docker:
     image: woodpeckerci/plugin-docker-buildx
     # TODO: see https://codeberg.org/woodpecker-plugins/docker-buildx/issues/50
