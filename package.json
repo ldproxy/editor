@@ -2,7 +2,7 @@
   "name": "ldproxy-editor",
   "displayName": "ldproxy for VS Code",
   "description": "ldproxy configuration editor",
-  "version": "1.0.100",
+  "version": "1.1.0",
   "private": true,
   "license": "MIT",
   "repository": "https://github.com/ldproxy/editor",
