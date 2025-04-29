@@ -28,7 +28,7 @@ export async function listGpkgFilesInDirectory() {
 
     return gpkgFiles.map((file: string) => path.posix.relative(directoryPath, file));
   } catch (error) {
-    return ["No Geopackages..."];
+    return [];
   }
 }
 
