@@ -56,6 +56,13 @@ main {
   width: 60px;
 }
 
+.dropdown-label {
+  font-family: var(--font-family);
+  line-height: var(--type-ramp-base-line-height);
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
 .vscode-button {
   background-color: var(--vscode-button-background);
   color: var(--vscode-button-foreground);
