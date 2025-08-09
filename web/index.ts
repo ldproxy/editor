@@ -23,6 +23,7 @@ const getLocation = () => {
     const location = {
       protocol: url.protocol,
       host: url.host,
+      pathname: url.pathname,
     };
 
     return location;
