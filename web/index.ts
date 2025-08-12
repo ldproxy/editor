@@ -3,7 +3,7 @@ import {
   activate as sharedActivate,
   deactivate as sharedDeactivate,
 } from "../shared/extension/index";
-import { ExtensionContext } from "vscode";
+import { ExtensionContext, workspace } from "vscode";
 
 export function activate(context: ExtensionContext) {
   sharedActivate(context, transport, { url: getUrl() });
@@ -16,6 +16,19 @@ export function deactivate() {
 // for some reason, the location is not set in the web worker as it should be (see https://developer.mozilla.org/en-US/docs/Web/API/WorkerLocation)
 // so we need to retrieve it manually so that the xtracfg websocket client can connect to the correct location
 const getLocation = () => {
+  const baseUrl = workspace.getConfiguration('ldproxy-editor').get<string>('baseUrl');
+
+  if (baseUrl) {
+    const url = new URL(baseUrl);
+    const location = {
+      protocol: url.protocol,
+      host: url.host,
+      pathname: url.pathname,
+    };
+
+    return location;
+  }
+
   const vscodeFileRoot = (self as any)._VSCODE_FILE_ROOT;
 
   if (vscodeFileRoot) {

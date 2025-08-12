@@ -42,7 +42,18 @@
         "category": "ldproxy",
         "icon": "$(add)"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "ldproxy Editor Configuration",
+      "properties": {
+        "ldproxy-editor.baseUrl": {
+          "type": "string",
+          "format": "uri",
+          "scope": "machine"
+        }
+      }
+    }
   },
   "scripts": {
     "install:all": "npm install --ignore-scripts && cd webview-ui && npm install",
