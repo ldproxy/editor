@@ -6,7 +6,7 @@ import {
 import { ExtensionContext } from "vscode";
 
 export function activate(context: ExtensionContext) {
-  sharedActivate(context, transport, { location: getLocation() });
+  sharedActivate(context, transport, { url: getUrl() });
 }
 
 export function deactivate() {
@@ -30,4 +30,18 @@ const getLocation = () => {
   }
 
   return self.location;
+};
+
+const getUrl = () => {
+  if (process.env.NODE_ENV === "development") {
+    return "ws://localhost:8081/sock";
+  }
+  
+  const location = getLocation();
+  const protocol = location.protocol === "https:" ? "wss" : "ws";
+  const path = location.pathname.endsWith("/")
+    ? location.pathname.substring(0, location.pathname.length - 1)
+    : location.pathname;
+
+  return `${protocol}://${location.host}${path}/proxy/8081/`;
 };
