@@ -19,6 +19,12 @@ if [ ! -f "/settings/.local/share/code-server/User/settings.json" ]; then
     echo "{\"editor.suggest.showWords\": false, \"workbench.colorTheme\": \"Default Dark Modern\", \"editor.suggest.showStatusBar\": true}" > /settings/.local/share/code-server/User/settings.json
 fi
 
+
+if [ -n "${BASE_URL}" ]; then
+    mkdir -p /settings/.local/share/code-server/Machine
+    echo "{\"ldproxy-editor.baseUrl\": \"${BASE_URL}\"}" > /settings/.local/share/code-server/Machine/settings.json
+fi
+
 code-server --install-extension /ldproxy-editor.vsix
 code-server --install-extension redhat.vscode-yaml
 

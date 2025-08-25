@@ -2,33 +2,6 @@ when:
   event: push
 
 steps:
-  native:
-    image: node:20-alpine
-    commands:
-      - npm run install:all
-      - npm test
-      - npm run package:native
-
-  nexus:
-    image: rockdrilla/woodpecker-sonatype-nexus
-    secrets:
-      - nexus_auth_b64
-    environment:
-      #NEXUS_URL: https://dl.interactive-instruments.de
-      #NEXUS_AUTH_BASE64 is stored as CI variable
-      NEXUS_REPOSITORY: ldproxy
-      NEXUS_PATHS: "dist/vsix/*.vsix"
-      NEXUS_PROPERTIES: "directory=/editor/"
-    settings:
-      nexus_url: https://dl.interactive-instruments.de
-      auth_base64:
-        from_secret: nexus_auth_b64
-  #      upload: '[{"repository": "ldproxy", "paths": ["dist/vsix/*.vsix"], "directory": "/editor/"}]'
-  #        - repository: ldproxy
-  #          paths:
-  #            - dist/vsix/*.vsix
-  #          directory: /editor/
-
   docker:
     image: woodpeckerci/plugin-docker-buildx
     # TODO: see https://codeberg.org/woodpecker-plugins/docker-buildx/issues/50
