@@ -14,7 +14,8 @@ import {
   atomSyncString,
   atomSyncStringArray,
 } from "../utilities/recoilSyncWrapper";
-import { Response, Error, xtracfg } from "../utilities/xtracfgValues";
+import { xtracfg } from "../utilities/xtracfgValues";
+import type { Response, Error } from "../utilities/xtracfgValues";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useEffect, useState } from "react";
 import { vscode } from "../utilities/vscode";
