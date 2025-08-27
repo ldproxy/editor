@@ -29,6 +29,37 @@ type ExistingStyles = {
   [key: string]: string[];
 };
 
+function getBasename(filePath: string) {
+  return filePath.split("/").pop() || filePath;
+}
+
+export const fromCopySelector = selector({
+  key: "copyExistingSelector",
+  get: ({ get }) => {
+    const id = get(idAtom);
+    const selectedConfigSelector = get(selectedConfigAtom);
+    const selectedSubConfigsSelector = get(selectedSubConfigsAtom);
+    const existingConfigurations = get(existingConfigurationsAtom);
+
+    let fullConfigPath = selectedConfigSelector;
+    existingConfigurations.forEach((full: string) => {
+      const match = full.match(/^(.*?)(\s+\(provider\)|\s+\(service\))?$/);
+      const fullPath = match ? match[1] : full;
+      const typeSuffix = match && match[2] ? match[2] : "";
+      const filename = getBasename(fullPath);
+      if (selectedConfigSelector === filename + typeSuffix) {
+        fullConfigPath = full.replace(/\s+\([^)]+\)$/, "");
+      }
+    });
+
+    return {
+      id,
+      selectedConfigSelector: fullConfigPath,
+      selectedSubConfigsSelector,
+    };
+  },
+});
+
 function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
   const [selectedConfig, setSelectedConfig] = useRecoilState(selectedConfigAtom);
   const [selectedSubConfigs, setSelectedSubConfigs] = useRecoilState(selectedSubConfigsAtom);
@@ -38,19 +69,6 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
 
   const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
   const existingStyles = useRecoilValue<ExistingStyles>(existingStylesAtom);
-  const fromCopySelector = selector({
-    key: `copyExistingCfgSelector_${Math.random()}`,
-    get: ({ get }) => {
-      const id = get(idAtom);
-      const selectedConfigSelector = get(selectedConfigAtom);
-      const selectedSubConfigsSelector = get(selectedSubConfigsAtom);
-      return {
-        id,
-        selectedConfigSelector,
-        selectedSubConfigsSelector,
-      };
-    },
-  });
   const copyData = useRecoilValue(fromCopySelector);
 
   const handleDropdownChange = (e: any) => {
@@ -122,7 +140,15 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
     return config;
   };
 
-  const formattedConfigurations = existingConfigurations
+  const configurationsWithFilename = existingConfigurations.map((config: string) => {
+    const match = config.match(/^(.*?)(\s+\(provider\)|\s+\(service\))?$/);
+    const fullPath = match ? match[1] : config;
+    const typeSuffix = match && match[2] ? match[2] : "";
+    const filename = getBasename(fullPath);
+    return filename + typeSuffix;
+  });
+
+  const formattedConfigurations = configurationsWithFilename
     .map(filterAndFormatConfigurations)
     .filter((config: string) => config !== null);
 

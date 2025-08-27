@@ -4,6 +4,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 import { vscode } from "../utilities/vscode";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./from_data_source/GeoPackage";
+import { fromExistingSelector } from "./FromExistingEntity";
 import Wfs, { WfsData, wfsDataSelector } from "./from_data_source/Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./from_data_source/PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./from_data_source/Tables";
@@ -51,6 +52,7 @@ export const typesAtom = atomSyncBoolean("types", false, "StoreB");
 
 function App() {
   const [types, setTypes] = useRecoilState(typesAtom);
+  const fromExistingData = useRecoilValue(fromExistingSelector);
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
   const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
@@ -268,6 +270,12 @@ function App() {
 
   const fromExistingSubmit = (submitData: any) => {
     console.log("submitDataExisting", submitData);
+    xtracfg.send({
+      ...basicData,
+      ...fromExistingData,
+      // types: selectedTables,
+      subcommand: "generate",
+    });
     setDataProcessing("generated");
     setNamesOfCreatedFiles(
       [

@@ -11,11 +11,41 @@ import { typeObjectAtom } from "../components/TypeCheckboxes";
 import { existingConfigurationsAtom } from "./App";
 import { idAtom } from "../components/Common";
 import { atomSyncString } from "../utilities/recoilSyncWrapper";
-import { object } from "@recoiljs/refine";
 
 type FromExistingEntityProps = {
   fromExistingSubmit: (submitData: Object) => void;
 };
+
+function getBasename(filePath: string) {
+  return filePath.split("/").pop() || filePath;
+}
+
+export const fromExistingSelector = selector({
+  key: "fromExistingSelector",
+  get: ({ get }) => {
+    const id = get(idAtom);
+    const selectedConfig = get(selectedConfigFromExistingAtom);
+    const typeObject = get(typeObjectAtom);
+    const existingConfigurations = get(existingConfigurationsAtom);
+
+    let fullConfigPath = selectedConfig;
+    existingConfigurations.forEach((full: string) => {
+      const match = full.match(/^(.*?)(\s+\(provider\)|\s+\(service\))?$/);
+      const fullPath = match ? match[1] : full;
+      const typeSuffix = match && match[2] ? match[2] : "";
+      const filename = getBasename(fullPath);
+      if (selectedConfig === filename + typeSuffix) {
+        fullConfigPath = full.replace(/\s+\([^)]+\)$/, "");
+      }
+    });
+
+    return {
+      id,
+      selectedConfig: fullConfigPath,
+      typeObject,
+    };
+  },
+});
 
 export const selectedTypeAtom = atomSyncString("selectedType", "", "StoreB");
 export const selectedConfigFromExistingAtom = atomSyncString(
@@ -61,7 +91,15 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
     setSelectedType(getTypeFromConfig(selectedConfig));
   }, [selectedConfig]);
 
-  const filteredConfigurations = existingConfigurations.filter(
+  const configurationsWithFilename = existingConfigurations.map((config: string) => {
+    const match = config.match(/^(.*?)(\s+\(provider\)|\s+\(service\))?$/);
+    const fullPath = match ? match[1] : config;
+    const typeSuffix = match && match[2] ? match[2] : "";
+    const filename = getBasename(fullPath);
+    return filename + typeSuffix;
+  });
+
+  const filteredConfigurations = configurationsWithFilename.filter(
     (config: string) => !config.startsWith("defaults/") && !config.includes("-tiles")
   );
 

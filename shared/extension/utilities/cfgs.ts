@@ -19,9 +19,6 @@ export async function listCfgFilesInDirectory() {
       "entities/instances/services"
     );
 
-    const providerDirectoryPath = path.posix.normalize(providerDirectoryUri.path);
-    const serviceDirectoryPath = path.posix.normalize(serviceDirectoryUri.path);
-
     const providerFiles = await readAllFilesInDirectory(providerDirectoryUri);
     const serviceFiles = await readAllFilesInDirectory(serviceDirectoryUri);
 
@@ -32,12 +29,8 @@ export async function listCfgFilesInDirectory() {
       (file: string) => path.extname(file) === ".yml"
     );
 
-    const providerResults = providerCfgFiles.map(
-      (file: string) => `${path.posix.relative(providerDirectoryPath, file)} (provider)`
-    );
-    const serviceResults = serviceCfgFiles.map(
-      (file: string) => `${path.posix.relative(serviceDirectoryPath, file)} (service)`
-    );
+    const providerResults = providerCfgFiles.map((file: string) => `${file} (provider)`);
+    const serviceResults = serviceCfgFiles.map((file: string) => `${file} (service)`);
 
     return [...providerResults, ...serviceResults];
   } catch (error) {
