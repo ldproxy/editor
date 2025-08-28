@@ -54,7 +54,7 @@ export const fromCopySelector = selector({
 
     return {
       id,
-      selectedConfigSelector: fullConfigPath,
+      selectedConfig: fullConfigPath,
       selectedSubConfigsSelector,
       createOption: "copy",
     };

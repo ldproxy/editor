@@ -277,6 +277,8 @@ function App() {
       // types: selectedTables,
       subcommand: "generate",
     });
+    setError({});
+
     setDataProcessing("inProgressGenerating");
   };
 
@@ -287,6 +289,8 @@ function App() {
       // types: selectedTables,
       subcommand: "generate",
     });
+    setError({});
+
     setDataProcessing("inProgressGenerating");
   };
 
