@@ -8,18 +8,20 @@ type FromScratchProps = {
   fromScratchSubmit: (submitData: Object) => void;
 };
 
+export const fromScratchSelector = selector({
+  key: `fromScratchSelector_${Math.random()}`,
+  get: ({ get }) => {
+    const id = get(idAtom);
+    const typeObject = get(typeObjectAtom);
+    return {
+      id,
+      typeObject,
+      createOption: "fromScratch",
+    };
+  },
+});
+
 function FromScratch({ fromScratchSubmit }: FromScratchProps) {
-  const fromScratchSelector = selector({
-    key: `fromScratchSelector_${Math.random()}`,
-    get: ({ get }) => {
-      const id = get(idAtom);
-      const typeObject = get(typeObjectAtom);
-      return {
-        id,
-        typeObject,
-      };
-    },
-  });
   const fromScratchData = useRecoilValue(fromScratchSelector);
 
   return (

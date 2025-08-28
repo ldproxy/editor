@@ -6,6 +6,7 @@ import { vscode } from "../utilities/vscode";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./from_data_source/GeoPackage";
 import { fromExistingSelector } from "./FromExistingEntity";
 import { fromCopySelector } from "./CopyOfExisting";
+import { fromScratchSelector } from "./FromScratch";
 import Wfs, { WfsData, wfsDataSelector } from "./from_data_source/Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./from_data_source/PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./from_data_source/Tables";
@@ -54,6 +55,7 @@ export const typesAtom = atomSyncBoolean("types", false, "StoreB");
 function App() {
   const [types, setTypes] = useRecoilState(typesAtom);
   const copyData = useRecoilValue(fromCopySelector);
+  const fromScratchData = useRecoilValue(fromScratchSelector);
   const fromExistingData = useRecoilValue(fromExistingSelector);
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
@@ -295,17 +297,15 @@ function App() {
   };
 
   const fromScratchSubmit = (submitData: any) => {
-    console.log("submitDataScratch", submitData);
-    setDataProcessing("generated");
-    setNamesOfCreatedFiles(
-      [
-        submitData.id,
-        submitData.typeObject.provider ? "provider" : undefined,
-        submitData.typeObject.service ? "service" : undefined,
-        submitData.typeObject.tileProvider ? "tileProvider" : undefined,
-        submitData.typeObject.style ? "style" : undefined,
-      ].filter(Boolean)
-    );
+    xtracfg.send({
+      ...basicData,
+      ...fromScratchData,
+      // types: selectedTables,
+      subcommand: "generate",
+    });
+    setError({});
+
+    setDataProcessing("inProgressGenerating");
   };
 
   return (
