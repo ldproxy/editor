@@ -5,6 +5,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { vscode } from "../utilities/vscode";
 import GeoPackage, { GpkgData, gpkgDataSelector } from "./from_data_source/GeoPackage";
 import { fromExistingSelector } from "./FromExistingEntity";
+import { fromCopySelector } from "./CopyOfExisting";
 import Wfs, { WfsData, wfsDataSelector } from "./from_data_source/Wfs";
 import PostgreSql, { sqlDataSelector, SqlData } from "./from_data_source/PostgreSql";
 import Tables, { TableData, allTablesAtom, currentTableAtom } from "./from_data_source/Tables";
@@ -52,6 +53,7 @@ export const typesAtom = atomSyncBoolean("types", false, "StoreB");
 
 function App() {
   const [types, setTypes] = useRecoilState(typesAtom);
+  const copyData = useRecoilValue(fromCopySelector);
   const fromExistingData = useRecoilValue(fromExistingSelector);
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
@@ -269,33 +271,23 @@ function App() {
   };
 
   const fromExistingSubmit = (submitData: any) => {
-    console.log("submitDataExisting", submitData);
     xtracfg.send({
       ...basicData,
       ...fromExistingData,
       // types: selectedTables,
       subcommand: "generate",
     });
-    setDataProcessing("generated");
-    setNamesOfCreatedFiles(
-      [
-        submitData.id,
-        submitData.selectedConfig,
-        submitData.typeObject.provider ? "provider" : undefined,
-        submitData.typeObject.service ? "service" : undefined,
-        submitData.typeObject.tileProvider ? "tileProvider" : undefined,
-        submitData.typeObject.style ? "style" : undefined,
-      ].filter(Boolean)
-    );
+    setDataProcessing("inProgressGenerating");
   };
 
   const copySubmit = (submitData: any) => {
-    setDataProcessing("generated");
-    setNamesOfCreatedFiles([
-      submitData.id,
-      submitData.selectedConfigSelector,
-      ...submitData.selectedSubConfigsSelector,
-    ]);
+    xtracfg.send({
+      ...basicData,
+      ...copyData,
+      // types: selectedTables,
+      subcommand: "generate",
+    });
+    setDataProcessing("inProgressGenerating");
   };
 
   const fromScratchSubmit = (submitData: any) => {
