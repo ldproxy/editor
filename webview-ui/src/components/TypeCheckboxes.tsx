@@ -84,6 +84,12 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
     setIsStyleChecked(target.checked);
   };
 
+  useEffect(() => {
+    if (createCfgMode !== undefined && (!type || type !== "service")) {
+      setIsProviderChecked(true);
+    }
+  }, [createCfgMode, type]);
+
   return (
     <>
       <section className="component-example">

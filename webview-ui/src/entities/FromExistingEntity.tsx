@@ -63,19 +63,6 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
   const [selectedType, setSelectedType] = useRecoilState(selectedTypeAtom);
   const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
   const typeObject = useRecoilValue<TypeObject>(typeObjectAtom);
-  const fromExistingSelector = selector({
-    key: `fromExistingCfgSelector_${Math.random()}`,
-    get: ({ get }) => {
-      const id = get(idAtom);
-      const typeObject = get(typeObjectAtom);
-
-      return {
-        id,
-        selectedConfig,
-        typeObject,
-      };
-    },
-  });
   const fromExistingData = useRecoilValue(fromExistingSelector);
 
   const handleDropdownChange = (e: any) => {
