@@ -85,10 +85,21 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
   };
 
   useEffect(() => {
-    if (createCfgMode !== undefined && (!type || type !== "service")) {
+    if (
+      createCfgMode !== "fromExisting" &&
+      createCfgMode !== undefined &&
+      (!type || type !== "service") &&
+      !isProviderChecked
+    ) {
       setIsProviderChecked(true);
     }
-  }, [createCfgMode, type]);
+    if (
+      (createCfgMode === "fromExisting" || (createCfgMode !== undefined && type === "service")) &&
+      isProviderChecked
+    ) {
+      setIsProviderChecked(false);
+    }
+  }, [createCfgMode, type, isProviderChecked, setIsProviderChecked]);
 
   return (
     <>
@@ -100,7 +111,10 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
         <div style={{ display: "flex", gap: "20px", flexWrap: "nowrap", marginTop: "-5px" }}>
           <VSCodeCheckbox
             checked={
-              (createCfgMode !== undefined && (!type || type !== "service")) || isProviderChecked
+              createCfgMode === "fromExisting"
+                ? false
+                : (createCfgMode !== undefined && (!type || type !== "service")) ||
+                  isProviderChecked
             }
             onChange={handleProviderChange}
             disabled={createCfgMode !== undefined}>
