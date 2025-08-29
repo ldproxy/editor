@@ -52,16 +52,21 @@ const Final = ({
     });
   };
 
+  const hasProgress = progress && Object.keys(progress).length > 0;
   return (
     <div className="final-container">
-      <h3 className="final-title">Progress</h3>
-      <Progress
-        currentTable={currentTable}
-        progress={progress}
-        selectedTable={selectedTables}
-        dataProcessed={dataProcessing}
-        fallbackSchema={fallbackSchema}
-      />
+      {hasProgress && (
+        <>
+          <h3 className="final-title">Progress</h3>
+          <Progress
+            currentTable={currentTable}
+            progress={progress}
+            selectedTable={selectedTables}
+            dataProcessed={dataProcessing}
+            fallbackSchema={fallbackSchema}
+          />
+        </>
+      )}
       {dataProcessing === "generated" ? (
         <div className="final-content">
           <h3 className="final-title">The following files were created</h3>
