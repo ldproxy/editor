@@ -6,6 +6,7 @@ import Progress from "./Progress";
 import { selectedTablesAtom, TableData } from "./from_data_source/Tables";
 import { dataProcessingAtom } from "./App";
 import { atomSyncStringArray } from "../utilities/recoilSyncWrapper";
+import { typeObjectAtom } from "../components/TypeCheckboxes";
 
 export const namesOfCreatedFilesAtom = atomSyncStringArray("namesOfCreatedFiles", [""], "StoreB");
 
@@ -26,6 +27,7 @@ const Final = ({
 }: FinalProps) => {
   const selectedTables = useRecoilValue<TableData>(selectedTablesAtom);
   const dataProcessing = useRecoilValue<string>(dataProcessingAtom);
+  const typeObject = useRecoilValue(typeObjectAtom);
 
   const onClose = () => {
     vscode.postMessage({ command: "closeWebview" });
@@ -67,34 +69,40 @@ const Final = ({
           />
         </>
       )}
-      {dataProcessing === "generated" ? (
-        <div className="final-content">
-          <h3 className="final-title">The following files were created</h3>
-          <ul>
-            {namesOfCreatedFiles.map((file, index) => {
-              return (
-                <li key={index}>
-                  <a key={index} className="final-link" onClick={() => onLinkClick(file)}>
-                    {file}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="final-buttons">
-            <VSCodeButton className="final-create-another" onClick={onCreateAnother}>
-              Create Another
-            </VSCodeButton>
-            <VSCodeButton className="final-dismiss" onClick={onClose}>
-              Close
-            </VSCodeButton>
+      {typeObject &&
+        (typeObject.provider === true ||
+          typeObject.service === true ||
+          typeObject.tileProvider === true) &&
+        (dataProcessing === "generated" ? (
+          <div className="final-content">
+            <h3 className="final-title">The following files were created</h3>
+            <ul>
+              {namesOfCreatedFiles.map((file, index) => {
+                return (
+                  <li key={index}>
+                    <a key={index} className="final-link" onClick={() => onLinkClick(file)}>
+                      {file}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+            {typeObject && typeObject.style === false && (
+              <div className="final-buttons">
+                <VSCodeButton className="final-create-another" onClick={onCreateAnother}>
+                  Create Another
+                </VSCodeButton>
+                <VSCodeButton className="final-dismiss" onClick={onClose}>
+                  Close
+                </VSCodeButton>
+              </div>
+            )}
           </div>
-        </div>
-      ) : (
-        <VSCodeButton className="resetButton" onClick={onCancelGenerating}>
-          Cancel
-        </VSCodeButton>
-      )}
+        ) : (
+          <VSCodeButton className="resetButton" onClick={onCancelGenerating}>
+            Cancel
+          </VSCodeButton>
+        ))}
     </div>
   );
 };

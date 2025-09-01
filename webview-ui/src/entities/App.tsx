@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
@@ -23,7 +23,8 @@ import {
   atomSyncStringArray,
   atomSyncBoolean,
 } from "../utilities/recoilSyncWrapper";
-
+import AppValues from "../values/App";
+import { typeObjectAtom } from "../components/TypeCheckboxes";
 import "./App.css";
 
 type FieldErrors = {
@@ -78,6 +79,8 @@ function App() {
   const [currentTable, setCurrentTable] = useRecoilState<string>(currentTableAtom);
   const [progress, setProgress] = useRecoilState<TableData>(progressAtom);
   const [error, setError] = useRecoilState<FieldErrors>(errorAtom);
+
+  const [showCollectionTables, setShowCollectionTables] = useState<boolean>(false);
 
   const basicData: BasicData = {
     command: "auto",
@@ -232,7 +235,6 @@ function App() {
       console.log("setDataProcessing, CaseAnalyze");
     }
     setDataProcessing("inProgress");
-    console.log("types", connectionInfo);
 
     xtracfg.send({
       ...basicData,
@@ -269,6 +271,7 @@ function App() {
     if (DEV) {
       console.log("setDataProcessing, CaseGenerate");
     }
+
     setDataProcessing("inProgressGenerating");
   };
 
@@ -307,6 +310,28 @@ function App() {
 
     setDataProcessing("inProgressGenerating");
   };
+
+  const typeObject = useRecoilValue(typeObjectAtom);
+
+  useEffect(() => {
+    if (
+      typeObject &&
+      typeObject.style === true &&
+      typeObject.provider === false &&
+      typeObject.service === false &&
+      typeObject.tileProvider === false
+    ) {
+      setShowCollectionTables(
+        dataProcessing === "generated" && typeObject && typeObject.style === true
+      );
+    } else if (typeObject && typeObject.style === true) {
+      setTimeout(() => {
+        setShowCollectionTables(
+          dataProcessing === "generated" && typeObject && typeObject.style === true
+        );
+      }, 2000);
+    }
+  }, [dataProcessing, typeObject]);
 
   return (
     <>
@@ -365,6 +390,19 @@ function App() {
             </VSCodeButton>
           </div>
         </div>
+      ) : showCollectionTables ? (
+        <AppValues
+          id={fromExistingData.id}
+          selectedCfg={
+            fromExistingData?.selectedConfig
+              ? fromExistingData.selectedConfig
+                  .split("/")
+                  .pop()
+                  ?.replace(/\.yml$/, "") ?? ""
+              : ""
+          }
+          entitiesWorkspace={workspace}
+        />
       ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
         <Final
           workspace={workspace}

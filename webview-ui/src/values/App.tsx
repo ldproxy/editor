@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { vscode } from "../utilities/vscode";
 import Final from "./Final";
 import CollectionTables, { TableData } from "./CollectionTables";
+import { typeObjectAtom } from "../components/TypeCheckboxes";
 
 export const apiNameAtom = atomSyncString("apiName", "", "StoreA");
 export const valueFileNameAtom = atomSyncString("valueFileName", "default", "StoreA");
@@ -47,11 +48,20 @@ export type BasicData = valueData & {
   subcommand: string;
 };
 
-function App() {
+function App({
+  id,
+  selectedCfg,
+  entitiesWorkspace,
+}: {
+  id?: string;
+  selectedCfg?: string;
+  entitiesWorkspace?: string;
+}) {
   const [apiName, setApiName] = useRecoilState(apiNameAtom);
   const [valueFileName, setValueFileName] = useRecoilState(valueFileNameAtom);
   const [type, setType] = useRecoilState(typeAtom);
   const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
+  const typeObject = useRecoilValue(typeObjectAtom);
   const [existingApis, setExistingApis] = useRecoilState<string[]>(existingApisAtom);
   const [selectedApiInDropdown, setSelectedApiInDropdown] = useState(false);
   const [currentView, setCurrentView] = useRecoilState(currentViewAtom);
@@ -59,11 +69,12 @@ function App() {
   const valueDataSelector = selector({
     key: "uniqueValueDataSelector_v1",
     get: ({ get }) => {
-      const apiId = get(apiNameAtom);
-      const name = get(valueFileNameAtom);
+      const apiId = selectedCfg ? selectedCfg : id && id !== "" ? id : get(apiNameAtom);
+      const name = id && id !== "" ? id : get(valueFileNameAtom);
       const type = get(typeAtom);
       // const source = "/Users/pascal/Documents/ldproxy_mount";
-      const source = workspace;
+      const source =
+        entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace;
       const command = "autoValue";
       if (DEV) {
         const collectionColors = "TEST";
@@ -87,6 +98,23 @@ function App() {
   const [resultDetails, setResultDetails] = useRecoilState<TableData>(details);
   const [collectionColors, setCollectionColors] = useRecoilState(collections);
 
+  useEffect(() => {
+    if (id && id !== "" && typeObject.service === true) {
+      setApiName(id);
+      setValueFileName(id);
+      setWorkspace(
+        entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace
+      );
+    } else if (id && id !== "" && selectedCfg) {
+      setApiName(selectedCfg);
+      setValueFileName(id);
+      setWorkspace(
+        entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace
+      );
+    }
+    submitData(valueData);
+  }, [id]);
+
   const handleBack = () => {
     setCurrentView("main");
   };
@@ -102,7 +130,7 @@ function App() {
       command: "setExistingApis",
       text: "setExistingApis",
     });
-  }, []);
+  }, [id]);
 
   const onFileSelect = (apiName: string) => {
     setApiName(apiName);
@@ -189,11 +217,21 @@ function App() {
       collectionColors: JSON.stringify(collectionColors),
       subcommand: "generate",
     };
-
     xtracfg.send(basicData);
   };
 
-  if (
+  if (id && id !== "" && Object.keys(collectionColors).length === 0) {
+    return (
+      <CollectionTables
+        generate={generate}
+        details={resultDetails}
+        success={success}
+        error={error}
+        setCollectionColors={setCollectionColors}
+        onBack={handleBack}
+      />
+    );
+  } else if (
     currentView === "collectionTables" &&
     resultDetails &&
     Object.keys(resultDetails).length > 0 &&

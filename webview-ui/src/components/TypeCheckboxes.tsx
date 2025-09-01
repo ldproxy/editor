@@ -3,7 +3,16 @@ import { VSCodeCheckbox, VSCodeDivider } from "@vscode/webview-ui-toolkit/react"
 import { atomSyncObject, atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
 import { useRecoilState } from "recoil";
 
-export const typeObjectAtom = atomSyncObject("typeObject", {}, "StoreB");
+export const typeObjectAtom = atomSyncObject(
+  "typeObject",
+  {
+    provider: false,
+    service: false,
+    tileProvider: false,
+    style: false,
+  },
+  "StoreB"
+);
 export const isServiceCheckedAtom = atomSyncBoolean("isServiceChecked", false, "StoreB");
 export const isTileProviderCheckedAtom = atomSyncBoolean("isTileProviderChecked", false, "StoreB");
 export const isProviderCheckedAtom = atomSyncBoolean("isProviderChecked", false, "StoreB");
@@ -121,7 +130,7 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
             Provider
           </VSCodeCheckbox>
           <VSCodeCheckbox
-            checked={isServiceChecked || type === "service"}
+            checked={isServiceChecked}
             onChange={handleServiceChange}
             disabled={createCfgMode === "fromExisting" && type === "service"}>
             Service
