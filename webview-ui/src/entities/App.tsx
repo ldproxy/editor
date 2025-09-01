@@ -81,6 +81,7 @@ function App() {
   const [error, setError] = useRecoilState<FieldErrors>(errorAtom);
 
   const [showCollectionTables, setShowCollectionTables] = useState<boolean>(false);
+  const [createValueData, setCreateValueData] = useState<{ [key: string]: any }>({});
 
   const basicData: BasicData = {
     command: "auto",
@@ -251,6 +252,10 @@ function App() {
         types: selectedTables,
         subcommand: "generate",
       });
+
+      setCreateValueData({
+        id: sqlData.id,
+      });
     } else if (selectedDataSource === "GPKG") {
       xtracfg.send({
         ...basicData,
@@ -258,12 +263,20 @@ function App() {
         types: selectedTables,
         subcommand: "generate",
       });
+
+      setCreateValueData({
+        id: gpkgData.id,
+      });
     } else if (selectedDataSource === "WFS") {
       xtracfg.send({
         ...basicData,
         ...wfsData,
         types: selectedTables,
         subcommand: "generate",
+      });
+
+      setCreateValueData({
+        id: wfsData.id,
       });
     }
 
@@ -284,6 +297,14 @@ function App() {
     });
     setError({});
 
+    setCreateValueData({
+      id: fromExistingData.id,
+      selectedCfg: fromExistingData.selectedConfig
+        .split("/")
+        .pop()
+        ?.replace(/\.yml$/, ""),
+    });
+
     setDataProcessing("inProgressGenerating");
   };
 
@@ -296,6 +317,14 @@ function App() {
     });
     setError({});
 
+    setCreateValueData({
+      id: copyData.id,
+      selectedCfg: copyData.selectedConfig
+        .split("/")
+        .pop()
+        ?.replace(/\.yml$/, ""),
+    });
+
     setDataProcessing("inProgressGenerating");
   };
 
@@ -307,6 +336,10 @@ function App() {
       subcommand: "generate",
     });
     setError({});
+
+    setCreateValueData({
+      id: fromScratchData.id,
+    });
 
     setDataProcessing("inProgressGenerating");
   };
@@ -392,15 +425,8 @@ function App() {
         </div>
       ) : showCollectionTables ? (
         <AppValues
-          id={fromExistingData.id}
-          selectedCfg={
-            fromExistingData?.selectedConfig
-              ? fromExistingData.selectedConfig
-                  .split("/")
-                  .pop()
-                  ?.replace(/\.yml$/, "") ?? ""
-              : ""
-          }
+          id={createValueData.id}
+          selectedCfg={createValueData?.selectedCfg ?? ""}
           entitiesWorkspace={workspace}
         />
       ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
