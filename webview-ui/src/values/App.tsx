@@ -98,14 +98,17 @@ function App({
   const [resultDetails, setResultDetails] = useRecoilState<TableData>(details);
   const [collectionColors, setCollectionColors] = useRecoilState(collections);
 
+  const createStylewithService = id && id !== "" && typeObject.service === true;
+  const createStyleWithoutService = id && id !== "" && selectedCfg;
+
   useEffect(() => {
-    if (id && id !== "" && typeObject.service === true) {
+    if (createStylewithService) {
       setApiName(id);
       setValueFileName(id);
       setWorkspace(
         entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace
       );
-    } else if (id && id !== "" && selectedCfg) {
+    } else if (createStyleWithoutService) {
       setApiName(selectedCfg);
       setValueFileName(id);
       setWorkspace(
@@ -220,7 +223,10 @@ function App({
     xtracfg.send(basicData);
   };
 
-  if (id && id !== "" && Object.keys(collectionColors).length === 0) {
+  const createStyleAndSelectCollections =
+    id && id !== "" && Object.keys(collectionColors).length === 0;
+
+  if (createStyleAndSelectCollections) {
     return (
       <CollectionTables
         generate={generate}

@@ -54,6 +54,12 @@ const Final = ({
     });
   };
 
+  const createEntityOtherThanStyle =
+    typeObject &&
+    (typeObject.provider === true ||
+      typeObject.service === true ||
+      typeObject.tileProvider === true);
+
   const hasProgress = progress && Object.keys(progress).length > 0;
   return (
     <div className="final-container">
@@ -69,10 +75,7 @@ const Final = ({
           />
         </>
       )}
-      {typeObject &&
-        (typeObject.provider === true ||
-          typeObject.service === true ||
-          typeObject.tileProvider === true) &&
+      {createEntityOtherThanStyle &&
         (dataProcessing === "generated" ? (
           <div className="final-content">
             <h3 className="final-title">The following files were created</h3>
