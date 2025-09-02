@@ -92,9 +92,10 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
       .trim();
   };
 
-  const subConfigs: string[] = existingConfigurations.filter(
-    (config: string) => getMainNameCfg(config) === mainNameSelectedCfg && config !== selectedConfig
-  );
+  const subConfigs: string[] = existingConfigurations.filter((config: string) => {
+    const basename = config.split("/").pop() || config;
+    return getMainNameCfg(basename) === mainNameSelectedCfg && basename !== selectedConfig;
+  });
 
   useEffect(() => {
     const mainNameCfg = getMainNameCfg(selectedConfig);
