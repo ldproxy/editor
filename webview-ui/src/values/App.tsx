@@ -83,8 +83,7 @@ function App({
       const name = id && id !== "" ? id : get(valueFileNameAtom);
       const type = get(typeAtom);
       // const source = "/Users/pascal/Documents/ldproxy_mount";
-      const source =
-        entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace;
+      const source = entitiesWorkspace && entitiesWorkspace !== "" ? entitiesWorkspace : workspace;
       const command = "autoValue";
       if (DEV) {
         const collectionColors = "TEST";
@@ -120,21 +119,22 @@ function App({
 
   useEffect(() => {
     if (success || successCreateCfg) return;
-    if (createStylewithService) {
+    if (createStylewithService && (workspace || entitiesWorkspace)) {
       setApiNameCreateCfg(id);
       setValueFileNameCreateCfg(id);
       setWorkspaceCreateCfg(
-        entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace
+        entitiesWorkspace && entitiesWorkspace !== "" ? entitiesWorkspace : workspace
       );
-    } else if (createStyleWithoutService) {
+      submitData(valueData);
+    } else if (createStyleWithoutService && (workspace || entitiesWorkspace)) {
       setApiNameCreateCfg(selectedCfg);
       setValueFileNameCreateCfg(id);
       setWorkspaceCreateCfg(
-        entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace
+        entitiesWorkspace && entitiesWorkspace !== "" ? entitiesWorkspace : workspace
       );
+      submitData(valueData);
     }
-    submitData(valueData);
-  }, [id]);
+  }, [id, workspace, entitiesWorkspace]);
 
   const handleBack = () => {
     setCurrentView("main");
