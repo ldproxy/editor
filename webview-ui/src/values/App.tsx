@@ -35,6 +35,16 @@ export const collections = atomSyncObject<Response>("collections", {}, "StoreA")
 export const existingApisAtom = atomSyncStringArray("existingApis", [""], "StoreA");
 export const currentViewAtom = atomSyncString("currentView", "main", "StoreA");
 
+export const successCreateCfgAtom = atomSyncString("successCreateCfg", "", "StoreB");
+export const apiNameCreateCfgAtom = atomSyncString("apiNameCreateCfg", "", "StoreB");
+export const valueFileNameCreateCfgAtom = atomSyncString(
+  "valueFileNameCreateCfg",
+  "default",
+  "StoreB"
+);
+export const typeCreateCfgAtom = atomSyncString("typeCreateCfg", "maplibre-styles", "StoreB");
+export const workspaceCreateCfgAtom = atomSyncString("workspaceCreateCfg", "", "StoreB");
+
 export type valueData = {
   apiId: string;
   name: string;
@@ -97,21 +107,29 @@ function App({
   const [loading, setLoading] = useRecoilState(loadingAtom);
   const [resultDetails, setResultDetails] = useRecoilState<TableData>(details);
   const [collectionColors, setCollectionColors] = useRecoilState(collections);
+  const [successCreateCfg, setSuccessCreateCfg] = useRecoilState(successCreateCfgAtom);
+  const [apiNameCreateCfg, setApiNameCreateCfg] = useRecoilState(apiNameCreateCfgAtom);
+  const [valueFileNameCreateCfg, setValueFileNameCreateCfg] = useRecoilState(
+    valueFileNameCreateCfgAtom
+  );
+  const [typeCreateCfg, setTypeCreateCfg] = useRecoilState(typeCreateCfgAtom);
+  const [workspaceCreateCfg, setWorkspaceCreateCfg] = useRecoilState(workspaceCreateCfgAtom);
 
   const createStylewithService = id && id !== "" && typeObject.service === true;
   const createStyleWithoutService = id && id !== "" && selectedCfg;
 
   useEffect(() => {
+    if (success || successCreateCfg) return;
     if (createStylewithService) {
-      setApiName(id);
-      setValueFileName(id);
-      setWorkspace(
+      setApiNameCreateCfg(id);
+      setValueFileNameCreateCfg(id);
+      setWorkspaceCreateCfg(
         entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace
       );
     } else if (createStyleWithoutService) {
-      setApiName(selectedCfg);
-      setValueFileName(id);
-      setWorkspace(
+      setApiNameCreateCfg(selectedCfg);
+      setValueFileNameCreateCfg(id);
+      setWorkspaceCreateCfg(
         entitiesWorkspace && entitiesWorkspace !== "workspace" ? entitiesWorkspace : workspace
       );
     }
@@ -180,6 +198,7 @@ function App({
           message.response.results[0].message
         ) {
           setSuccess(message.response.results[0].message);
+          setSuccessCreateCfg(message.response.results[0].message);
         } else if (message && message.error && message.error.notification) {
           setError(message.error.notification);
         } else if (message && message.error) {
@@ -212,10 +231,10 @@ function App({
   const generate = (collectionColors: object) => {
     setLoading(true);
     const basicData: BasicData = {
-      apiId: apiName,
-      name: valueFileName,
-      type,
-      source: workspace,
+      apiId: apiName || apiNameCreateCfg,
+      name: valueFileName || valueFileNameCreateCfg,
+      type: type || typeCreateCfg,
+      source: workspace || workspaceCreateCfg,
       command: "autoValue",
       collectionColors: JSON.stringify(collectionColors),
       subcommand: "generate",
@@ -226,22 +245,21 @@ function App({
   const createStyleAndSelectCollections =
     id && id !== "" && Object.keys(collectionColors).length === 0;
 
-  if (createStyleAndSelectCollections) {
+  if (success || successCreateCfg) {
     return (
-      <CollectionTables
-        generate={generate}
-        details={resultDetails}
-        success={success}
-        error={error}
-        setCollectionColors={setCollectionColors}
-        onBack={handleBack}
+      <Final
+        nameOfCreatedFile={valueFileName || valueFileNameCreateCfg}
+        workspace={workspace || workspaceCreateCfg}
+        apiId={apiName || apiNameCreateCfg}
+        type={type || typeCreateCfg}
       />
     );
   } else if (
-    currentView === "collectionTables" &&
-    resultDetails &&
-    Object.keys(resultDetails).length > 0 &&
-    Object.keys(collectionColors).length === 0
+    createStyleAndSelectCollections ||
+    (currentView === "collectionTables" &&
+      resultDetails &&
+      Object.keys(resultDetails).length > 0 &&
+      Object.keys(collectionColors).length === 0)
   ) {
     return (
       <CollectionTables
@@ -252,10 +270,6 @@ function App({
         setCollectionColors={setCollectionColors}
         onBack={handleBack}
       />
-    );
-  } else if (success && collectionColors && Object.keys(collectionColors).length !== 0) {
-    return (
-      <Final nameOfCreatedFile={valueFileName} workspace={workspace} apiId={apiName} type={type} />
     );
   } else {
     return (

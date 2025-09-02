@@ -346,26 +346,15 @@ function App() {
 
   const typeObject = useRecoilValue(typeObjectAtom);
 
-  const onlyCreateStyle =
-    typeObject &&
-    typeObject.style === true &&
-    typeObject.provider === false &&
-    typeObject.service === false &&
-    typeObject.tileProvider === false;
-
-  const createStyleAndOther = typeObject && typeObject.style === true;
+  const createStyle = typeObject && typeObject.style === true;
 
   useEffect(() => {
-    if (onlyCreateStyle) {
-      setShowCollectionTables(
-        dataProcessing === "generated" && typeObject && typeObject.style === true
-      );
-    } else if (createStyleAndOther) {
+    if (createStyle) {
       setTimeout(() => {
         setShowCollectionTables(
           dataProcessing === "generated" && typeObject && typeObject.style === true
         );
-      }, 2000);
+      }, 100);
     }
   }, [dataProcessing, typeObject]);
 
