@@ -44,6 +44,8 @@ export const valueFileNameCreateCfgAtom = atomSyncString(
 );
 export const typeCreateCfgAtom = atomSyncString("typeCreateCfg", "maplibre-styles", "StoreB");
 export const workspaceCreateCfgAtom = atomSyncString("workspaceCreateCfg", "", "StoreB");
+export const currentViewCreateCfgAtom = atomSyncString("currentView", "main", "StoreB");
+export const detailsCreateCfgAtom = atomSyncObject<TableData>("details", {}, "StoreB");
 
 export type valueData = {
   apiId: string;
@@ -111,8 +113,10 @@ function App({
   const [valueFileNameCreateCfg, setValueFileNameCreateCfg] = useRecoilState(
     valueFileNameCreateCfgAtom
   );
+  const [resultDetailsCreateCfg, setResultDetailsCreateCfg] = useRecoilState(detailsCreateCfgAtom);
   const [typeCreateCfg, setTypeCreateCfg] = useRecoilState(typeCreateCfgAtom);
   const [workspaceCreateCfg, setWorkspaceCreateCfg] = useRecoilState(workspaceCreateCfgAtom);
+  const [currentViewCreateCfg, setCurrentViewCreateCfg] = useRecoilState(currentViewCreateCfgAtom);
 
   const createStylewithService = id && id !== "" && typeObject.service === true;
   const createStyleWithoutService = id && id !== "" && selectedCfg;
@@ -138,6 +142,7 @@ function App({
 
   const handleBack = () => {
     setCurrentView("main");
+    setCurrentViewCreateCfg("main");
   };
 
   useEffect(() => {
@@ -190,6 +195,7 @@ function App({
         ) {
           const collections = message.response.details["Collection Colors"];
           setResultDetails(collections);
+          setResultDetailsCreateCfg(collections);
         } else if (
           message &&
           message.response &&
@@ -225,6 +231,7 @@ function App({
 
     xtracfg.send(basicData);
     setCurrentView("collectionTables");
+    setCurrentViewCreateCfg("collectionTables");
   };
 
   // step 2: generate
@@ -256,15 +263,15 @@ function App({
     );
   } else if (
     createStyleAndSelectCollections ||
-    (currentView === "collectionTables" &&
-      resultDetails &&
-      Object.keys(resultDetails).length > 0 &&
+    ((currentView === "collectionTables" || currentViewCreateCfg === "collectionTables") &&
+      (resultDetails || resultDetailsCreateCfg) &&
+      Object.keys(resultDetails || resultDetailsCreateCfg).length > 0 &&
       Object.keys(collectionColors).length === 0)
   ) {
     return (
       <CollectionTables
         generate={generate}
-        details={resultDetails}
+        details={resultDetails || resultDetailsCreateCfg}
         success={success}
         error={error}
         setCollectionColors={setCollectionColors}
