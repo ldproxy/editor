@@ -148,6 +148,7 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
             checked={isStyleChecked}
             onChange={handleStyleChange}
             disabled={
+              mode === "fromScratch" ||
               createCfgMode === "fromDataWfs" ||
               (createCfgMode === "fromData" && !isServiceChecked) ||
               (createCfgMode === "fromExisting" && !isServiceChecked && type !== "service")

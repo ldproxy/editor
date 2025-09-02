@@ -1,5 +1,5 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 
 import { vscode } from "../utilities/vscode";
 import Progress from "./Progress";
@@ -7,6 +7,8 @@ import { selectedTablesAtom, TableData } from "./from_data_source/Tables";
 import { dataProcessingAtom } from "./App";
 import { atomSyncStringArray } from "../utilities/recoilSyncWrapper";
 import { typeObjectAtom } from "../components/TypeCheckboxes";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { useEffect } from "react";
 
 export const namesOfCreatedFilesAtom = atomSyncStringArray("namesOfCreatedFiles", [""], "StoreB");
 
@@ -28,6 +30,16 @@ const Final = ({
   const selectedTables = useRecoilValue<TableData>(selectedTablesAtom);
   const dataProcessing = useRecoilValue<string>(dataProcessingAtom);
   const typeObject = useRecoilValue(typeObjectAtom);
+  const [_, setNamesOfCreatedFilesAtom] = useRecoilState(namesOfCreatedFilesAtom);
+
+  const createNoStyle = typeObject && typeObject.style === false;
+
+  useEffect(() => {
+    if (!createNoStyle && namesOfCreatedFiles.length > 0) {
+      setNamesOfCreatedFilesAtom(namesOfCreatedFiles);
+    }
+    console.log("namesOfCreatedFiles", namesOfCreatedFiles);
+  }, [createNoStyle, namesOfCreatedFiles]);
 
   const onClose = () => {
     vscode.postMessage({ command: "closeWebview" });
@@ -54,12 +66,6 @@ const Final = ({
     });
   };
 
-  const createEntityOtherThanStyle =
-    typeObject &&
-    (typeObject.provider === true ||
-      typeObject.service === true ||
-      typeObject.tileProvider === true);
-
   const hasProgress = progress && Object.keys(progress).length > 0;
   return (
     <div className="final-container">
@@ -75,8 +81,8 @@ const Final = ({
           />
         </>
       )}
-      {createEntityOtherThanStyle &&
-        (dataProcessing === "generated" ? (
+      {createNoStyle ? (
+        dataProcessing === "generated" ? (
           <div className="final-content">
             <h3 className="final-title">The following files were created</h3>
             <ul>
@@ -105,7 +111,18 @@ const Final = ({
           <VSCodeButton className="resetButton" onClick={onCancelGenerating}>
             Cancel
           </VSCodeButton>
-        ))}
+        )
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100px",
+          }}>
+          <VSCodeProgressRing />{" "}
+        </div>
+      )}
     </div>
   );
 };

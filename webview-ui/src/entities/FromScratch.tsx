@@ -26,7 +26,7 @@ function FromScratch({ fromScratchSubmit }: FromScratchProps) {
 
   return (
     <>
-      <TypeCheckboxes />
+      <TypeCheckboxes mode="fromScratch" />
       <div className="submitAndReset">
         <VSCodeButton className="submitButton" onClick={() => fromScratchSubmit(fromScratchData)}>
           Next
