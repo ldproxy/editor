@@ -278,7 +278,7 @@ function App({
         onBack={handleBack}
       />
     );
-  } else {
+  } else if (currentView !== "collectionTables" && currentViewCreateCfg !== "collectionTables") {
     return (
       <>
         <main>
@@ -350,6 +350,18 @@ function App({
           {error && <div style={{ color: "red" }}>{error}</div>}
         </main>
       </>
+    );
+  } else {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100px",
+        }}>
+        <VSCodeProgressRing />
+      </div>
     );
   }
 }
