@@ -2,6 +2,13 @@ when:
   event: push
 
 steps:
+  docker_tags:
+    image: ghcr.io/dvjn/woodpecker-docker-tags-plugin
+    settings:
+      tags: |
+        edge -v next
+        branch
+
   docker:
     image: woodpeckerci/plugin-docker-buildx
     # TODO: see https://codeberg.org/woodpecker-plugins/docker-buildx/issues/50
@@ -10,7 +17,7 @@ steps:
     settings:
       registry: ghcr.io
       repo: ghcr.io/ldproxy/editor
-      tags: next
+      tags_file: .tags
       force_tag: true
       pull_image: true
       platforms:
