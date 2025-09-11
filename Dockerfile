@@ -1,21 +1,29 @@
-FROM node:20-alpine as extension
+FROM node:20-bullseye-slim AS build
 
-COPY . /src/
-RUN cd /src && npm run install:all && npm test && npm run package:web
+WORKDIR /app
+COPY ./theia-app/ ./
 
+# Build tools for native addons
+RUN apt-get update && apt-get install -y python3 make g++ git 
 
-FROM ghcr.io/ldproxy/xtracfg:4.2.0 as xtracfg
+# Install dependencies
+RUN yarn install --frozen-lockfile
 
+# Run prepare in subfolder
+WORKDIR /app/empty
+RUN yarn prepare
 
-FROM codercom/code-server:latest
+# Back to root and start build
+WORKDIR /app
+RUN npm run build:browser
 
-COPY --chmod=0644 --from=extension /src/dist/vsix/ldproxy-editor-web-*.vsix /ldproxy-editor.vsix
-COPY --chmod=0755 --from=extension /src/startup.sh /entrypoint.d/
-COPY --chmod=0755 --from=xtracfg /xtracfg /usr/bin/
+# Clean up build dependencies
+RUN apt-get purge -y python3 make g++ && apt-get autoremove -y --purge
 
-ENV HOME=/settings
-VOLUME /settings
-VOLUME /data
-USER root
+FROM node:20-bullseye-slim
 
-ENTRYPOINT ["/usr/bin/entrypoint.sh", "--ignore-last-opened", "--bind-addr", "0.0.0.0:80", "--welcome-text", "\"Hello\"", "--app-name", "\"ldproxy-editor\"", "--disable-telemetry", "--disable-update-check", "--disable-workspace-trust", "--disable-getting-started-override", "/data"]
+WORKDIR /home/theia-app
+COPY --from=build /app .
+
+WORKDIR /home/theia-app/browser-app
+CMD ["yarn", "run", "startPlugin", "--hostname=0.0.0.0", "/home/theia-app/data/"]
