@@ -30,13 +30,7 @@
     "commands": [
       {
         "command": "ldproxy-editor.showAutoCreate",
-        "title": "Create Configuration",
-        "category": "ldproxy",
-        "icon": "$(add)"
-      },
-      {
-        "command": "ldproxy-editor.showAutoCreateValues",
-        "title": "Create new values",
+        "title": "Create new entities",
         "category": "ldproxy",
         "icon": "$(add)"
       },
@@ -56,6 +50,12 @@
           "format": "uri",
           "scope": "machine"
         }
+      }
+    },
+    "capabilities": {
+      "untrustedWorkspaces": {
+        "supported": true,
+        "restricted": false
       }
     }
   },
