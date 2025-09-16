@@ -19,14 +19,10 @@
     "browser-app",
     "hello-world",
     "empty",
-    "theia-proxy-plugin"
+    "theia-proxy-plugin",
+    "theia-trust-plugin"
   ],
   "extensionKind": [
     "workspace"
-  ],
-  "capabilities": {
-    "untrustedWorkspaces": {
-      "supported": true
-    }
-  }
+  ]
 }

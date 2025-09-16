@@ -1,13 +1,23 @@
 services:
   editor:
     #    image: ghcr.io/ldproxy/editor:next
+    image: theia-test
     build: .
-    ports:
-      - 8080:80
+    expose:
+      - 80
     volumes:
       # replace ./data with path to your configuration
       - ./data:/data
       - settings:/settings
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - 8080:80
+    depends_on:
+      - editor
 
 volumes:
   settings:

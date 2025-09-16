@@ -1,5 +1,5 @@
 {
-  "name": "theia-proxy-plugin",
+  "name": "theia-trust-plugin",
   "keywords": [
     "theia-extension"
   ],
@@ -9,12 +9,9 @@
     "src"
   ],
   "dependencies": {
-    "@theia/core": "1.64.1",
-    "axios": "^1.12.0",
-    "express": "^5.1.0"
+    "@theia/core": "1.64.1"
   },
   "devDependencies": {
-    "@types/http-proxy": "^1.17.16",
     "rimraf": "^5.0.0",
     "typescript": "~5.4.5"
   },
@@ -26,8 +23,7 @@
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/theia-proxy-plugin-frontend-module",
-      "backend": "lib/node/theia-proxy-plugin-backend-module"
+      "frontend": "lib/browser/theia-trust-plugin-frontend-module"
     }
   ]
 }

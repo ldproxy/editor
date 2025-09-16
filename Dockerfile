@@ -26,7 +26,7 @@ WORKDIR /home/theia-app
 COPY --from=build /app .
 
 WORKDIR /home/theia-app/browser-app
-CMD ["yarn", "run", "startPlugin", "--hostname=0.0.0.0", "/home/theia-app/data/"]
+CMD ["yarn", "run", "startPlugin", "/home/theia-app/data/"]
 
 # ToDo, when using downloaded image: plugin-manager ERROR Activating plugin 'GitLens — Git supercharged' failed: 
 # Error: Cannot find module '/home/theia-app/plugin/git/extension/dist/gitlens.js'

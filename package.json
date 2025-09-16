@@ -79,6 +79,7 @@
     "@types/glob": "^7.2.0",
     "@types/jest": "^29.5.14",
     "@types/js-yaml": "^4.0.9",
+    "@types/minimatch": "^5.1.2",
     "@types/mock-require": "^3.0.0",
     "@types/node": "^12.20.55",
     "@types/vscode": "^1.82.2",

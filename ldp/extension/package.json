@@ -51,6 +51,12 @@
           "scope": "machine"
         }
       }
+    },
+    "capabilities": {
+      "untrustedWorkspaces": {
+        "supported": true,
+        "restricted": false
+      }
     }
   },
   "browser": "./extension.js"
