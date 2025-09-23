@@ -19,7 +19,6 @@
     "browser-app",
     "hello-world",
     "empty",
-    "theia-proxy-plugin",
     "theia-trust-plugin"
   ],
   "extensionKind": [

@@ -17,8 +17,7 @@
     "@theia/plugin-ext-vscode": "1.64.1",
     "@theia/vsx-registry": "1.64.1",
     "empty": "0.0.0",
-    "hello-world": "0.0.0",
-    "theia-proxy-plugin": "0.0.0"
+    "hello-world": "0.0.0"
   },
   "devDependencies": {
     "@theia/cli": "1.64.1"
