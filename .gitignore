@@ -91,7 +91,6 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
@@ -132,5 +131,14 @@ dist
 .pnp.*
 
 build/
-dist/
 .coder/
+
+**/dist/
+!theia-app/plugin/yaml/extension/dist/
+!theia-app/plugin/git/extension/dist/
+!theia-app/
+!theia-app/plugin/
+!theia-app/plugin/yaml/
+!theia-app/plugin/yaml/extension/
+!theia-app/plugin/git/
+!theia-app/plugin/git/extension/
