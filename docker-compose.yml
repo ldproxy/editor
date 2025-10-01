@@ -1,13 +1,13 @@
 services:
   editor:
-    #    image: ghcr.io/ldproxy/editor:next
-    image: theia-test
-    build: .
+    image: ghcr.io/ldproxy/editor:ldp-68-use-theia-instead-of-coder-for-editor
+    # image: theia-test
+    # build: .
     expose:
       - 80
     volumes:
       # replace ./data with path to your configuration
-      - ./data:/data
+      - ./data:/home/theia-app/data/
       - settings:/settings
 
   nginx:

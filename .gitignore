@@ -1,8 +1,5 @@
 .DS_Store
 
-theia-app/data/*
-!theia-app/data/.gitkeep
-
 # Logs
 logs
 *.log
