@@ -6,12 +6,15 @@ COPY ./theia-app/ ./
 # Build tools for native addons
 RUN apt-get update && apt-get install -y python3 make g++ git 
 
-# Run prepare in subfolder
+# Install dependencies
+RUN yarn install --frozen-lockfile
+
+# Build plugin
 RUN cd empty && yarn prepare
 
-# Install dependencies and build
-RUN yarn install --frozen-lockfile
+# Build theia
 RUN npm run build:browser
+
 
 ###
 FROM node:20-bullseye-slim
