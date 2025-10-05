@@ -136,9 +136,4 @@ build/
 **/dist/
 !theia-app/plugin/yaml/extension/dist/
 !theia-app/plugin/git/extension/dist/
-!theia-app/
-!theia-app/plugin/
-!theia-app/plugin/yaml/
-!theia-app/plugin/yaml/extension/
-!theia-app/plugin/git/
-!theia-app/plugin/git/extension/
+!theia-app/plugin/ldp/extension/webview-ui/build/
