@@ -1,10 +1,13 @@
-FROM node:20-bullseye-slim AS build
-
-WORKDIR /app
-COPY ./theia-app/ ./
+###
+FROM node:20-bookworm-slim AS build
 
 # Build tools for native addons
-RUN apt-get update && apt-get install -y python3 make g++ git 
+RUN apt-get update -y && apt-get install -y python3 make g++ git
+
+WORKDIR /home/theia
+
+# Copy repository files
+COPY ./theia-app/ ./
 
 # Install dependencies
 RUN yarn install --frozen-lockfile
@@ -15,15 +18,48 @@ RUN cd empty && yarn prepare
 # Build theia
 RUN npm run build:browser
 
+###
+FROM ghcr.io/ldproxy/xtracfg:4.2.1 AS xtracfg
 
 ###
-FROM node:20-bullseye-slim
+FROM node:20-bookworm-slim
 
-COPY --from=build /app /home/theia-app
+RUN apt-get update -y &&  \ 
+    apt-get install --no-install-recommends -y \
+      procps \
+      dumb-init \
+      git \
+      git-lfs \
+    && git lfs install \    
+    && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir /data
+# Create theia user and directories
+# Application will be copied to /home/theia
+# Default workspace is located at /data
+RUN adduser --system --group theia
+RUN chmod g+rw /home && \
+    mkdir -p /home/theia && \
+    mkdir -p /data && \
+    chown -R theia:theia /home/theia && \
+    chown -R theia:theia /data;
 
-WORKDIR /home/theia-app/browser-app
+COPY --from=build --chown=theia:theia /home/theia /home/theia
+COPY --from=xtracfg --chmod=0755 /xtracfg /usr/bin/
 
-CMD ["yarn", "run", "startPlugin", "/data"]
+# Specify default shell for Theia and the Built-In plugins directory
+# Use installed git instead of dugite
+ENV SHELL=/bin/bash \
+    HOME=/home/theia \
+    USE_LOCAL_GIT=true \
+    THEIA_DEFAULT_PLUGINS=local-dir:/home/theia/plugin \
+    THEIA_WEBVIEW_EXTERNAL_ENDPOINT=""
+
+# Switch to Theia user
+USER theia
+WORKDIR /home/theia/browser-app
+
+EXPOSE 8080
+
+#CMD ["yarn", "run", "startPlugin", "/data"]
+ENTRYPOINT ["/bin/sh", "/home/theia/startup.sh"]
 
