@@ -31,6 +31,11 @@
   },
   "theia": {
     "target": "browser",
-    "applicationName": "My Theia App"
+    "applicationName": "My Theia App",
+    "frontend": {
+      "config": {
+        "warnOnPotentiallyInsecureHostPattern": false 
+      }
+    }
   }
 }
