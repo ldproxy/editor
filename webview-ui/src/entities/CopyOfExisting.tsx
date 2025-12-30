@@ -158,9 +158,9 @@ function CopyFromExistingEntity({ copySubmit }: CopyExistingEntityProps) {
     <>
       <section className="component-example">
         <label style={{ display: "block" }} className="vscode-text">
-          <strong>Configuration</strong>
+          <strong>Source Configuration</strong>
         </label>
-        <VSCodeDivider style={{ marginBottom: "10px", width: "165px" }} />
+        <VSCodeDivider style={{ marginBottom: "10px", width: "100%" }} />
         <VSCodeDropdown
           style={{ height: "26px", minWidth: "165px" }}
           value={selectedConfig}

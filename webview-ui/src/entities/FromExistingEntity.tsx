@@ -59,6 +59,7 @@ type TypeObject = {
 };
 
 function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
+  const [id, setId] = useRecoilState(idAtom);
   const [selectedConfig, setSelectedConfig] = useRecoilState(selectedConfigFromExistingAtom);
   const [selectedType, setSelectedType] = useRecoilState(selectedTypeAtom);
   const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
@@ -67,6 +68,7 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
 
   const handleDropdownChange = (e: any) => {
     setSelectedConfig(e.target.value);
+    setId(e.target.value?.substr(0, e.target.value.lastIndexOf(".y")));
   };
 
   const getTypeFromConfig = (config: string) => {
@@ -107,9 +109,9 @@ function FromExistingEntity({ fromExistingSubmit }: FromExistingEntityProps) {
     <>
       <section className="component-example">
         <label style={{ display: "block" }} className="vscode-text">
-          <strong>Configuration</strong>
+          <strong>Source Configuration</strong>
         </label>
-        <VSCodeDivider style={{ marginBottom: "10px", width: "165px" }} />
+        <VSCodeDivider style={{ marginBottom: "10px", width: "100%" }} />
         <VSCodeDropdown
           style={{ height: "26px", minWidth: "165px" }}
           value={selectedConfig}

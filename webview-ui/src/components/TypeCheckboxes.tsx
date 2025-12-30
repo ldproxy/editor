@@ -114,9 +114,9 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
     <>
       <section className="component-example">
         <label style={{ display: "block" }} className="vscode-text">
-          <strong>Select Types</strong>
+          <strong>Target File Types</strong>
         </label>
-        <VSCodeDivider style={{ marginBottom: "10px", width: "410px" }} />
+        <VSCodeDivider style={{ marginBottom: "10px", width: "100%" }} />
         <div style={{ display: "flex", gap: "20px", flexWrap: "nowrap", marginTop: "-5px" }}>
           <VSCodeCheckbox
             checked={

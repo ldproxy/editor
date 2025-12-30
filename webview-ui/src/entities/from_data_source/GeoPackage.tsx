@@ -387,7 +387,7 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
           />
         </div>
       </div>
-      <div style={{ marginBottom: "-10px", marginTop: "10px" }}>
+      <div style={{ marginBottom: "-10px", marginTop: "10px", width: "100%" }}>
         <TypeCheckboxes mode="fromData" />
       </div>
       {msg && <div style={{ textAlign: "left" }}>{msg}</div>}

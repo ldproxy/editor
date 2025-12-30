@@ -37,10 +37,29 @@ function Common({ error, fromExistingSubmit, copySubmit, fromScratchSubmit }: Co
   const [createCfgOption, setCreateCfgOption] = useRecoilState(createCfgOptionAtom);
 
   const tabs = [
-    { id: "generateFromDataSource", label: "From Data Source" },
-    { id: "generateFromExistingEntity", label: "From Existing Entity" },
-    { id: "copyOfExistingFile", label: "Copy Of Existing File" },
-    { id: "fromScratch", label: "From Scratch" },
+    {
+      id: "generateFromDataSource",
+      label: "From Data Source",
+      description:
+        "Generate configuration files for an existing data source. The selected target configuration files are derived from the schema of the data source.",
+    },
+    {
+      id: "generateFromExistingEntity",
+      label: "From Existing Entity",
+      description:
+        "Generate additional configuration files for an existing entity configuration. The selected target configuration files are derived from the the source configuration file.",
+    },
+    {
+      id: "copyOfExistingFile",
+      label: "Copy Of Existing Entity",
+      description: "Create a copy of an existing entity configuration file.",
+    },
+    {
+      id: "fromScratch",
+      label: "From Scratch",
+      description:
+        "Create configuration files from scratch. Provides a starting point for new configurations.",
+    },
   ];
 
   const handleTabChange = (id: string) => {
@@ -49,8 +68,8 @@ function Common({ error, fromExistingSubmit, copySubmit, fromScratchSubmit }: Co
 
   return (
     <>
-      <h3>Create Configuration</h3>
-      <section className="component-example">
+      <h3>Create Configuration Files</h3>
+      <section className="component-example" style={{ width: "100%" }}>
         <div className="tabs-container">
           {tabs.map((tab) => (
             <div
@@ -61,31 +80,35 @@ function Common({ error, fromExistingSubmit, copySubmit, fromScratchSubmit }: Co
             </div>
           ))}
         </div>
-        <div className="tab-content">
+        <div className="tab-content" style={{ width: "100%" }}>
           <section className="component-example">
+            <p>{tabs.find((tab) => tab.id === createCfgOption)?.description}</p>
+          </section>
+          <section className="component-example">
+            <label style={{ display: "block" }} className="vscode-text">
+              <strong>Id</strong>
+            </label>
+            <VSCodeDivider style={{ marginBottom: "10px", width: "100%" }} />
             <div className="input-container">
               <VSCodeTextField
-                style={{ marginTop: "15px" }}
                 value={id}
+                disabled={createCfgOption === "generateFromExistingEntity"}
                 onInput={(e) => {
                   const target = e.target as HTMLInputElement;
                   if (target) {
                     setId(target.value);
                   }
-                }}>
-                <strong>Id</strong>
-                <VSCodeDivider style={{ marginBottom: "10px", width: "100%" }} />
-              </VSCodeTextField>
+                }}></VSCodeTextField>
               {error.id && <span className="error-message">{error.id}</span>}
             </div>
           </section>
           {createCfgOption === "generateFromDataSource" && (
             <section className="component-example">
+              <label style={{ display: "block" }} className="vscode-text">
+                <strong>Data Source</strong>
+              </label>
+              <VSCodeDivider style={{ marginBottom: "10px", width: "100%" }} />
               <VSCodeRadioGroup name="DataType" value={featureProviderType} orientation="vertical">
-                <label slot="label">
-                  <strong>Data Source Type</strong>
-                </label>
-                <VSCodeDivider style={{ marginTop: "-1px", marginBottom: "10px", width: "100%" }} />
                 <VSCodeRadio
                   id="PostgreSQL"
                   value="PGIS"

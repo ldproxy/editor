@@ -130,7 +130,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
             {error.password && <span className="error-message">{error.password}</span>}
           </section>
         </div>
-        <div style={{ width: "700px" }}>
+        <div style={{ width: "100%" }}>
           <TypeCheckboxes mode="fromData" />
         </div>
         <div className="submitAndReset">
