@@ -1,9 +1,9 @@
 import { VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
-import { dataProcessingAtom } from "./App";
-import { atomSyncString, atomSyncObject } from "../utilities/recoilSyncWrapper";
-import { DEV } from "../utilities/constants";
+import { dataProcessingAtom } from "../App";
+import { atomSyncString, atomSyncObject } from "../../utilities/recoilSyncWrapper";
+import { DEV } from "../../utilities/constants";
 
 export const allTablesAtom = atomSyncObject<TableData>("allTables", {}, "StoreB");
 

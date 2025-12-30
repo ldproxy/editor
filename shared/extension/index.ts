@@ -14,6 +14,7 @@ import { parseYaml, hashText } from "./utilities/yaml";
 import { Registration, register, DocEvent } from "./utilities/registration";
 import { registeTreeViews } from "./trees";
 import { TransportCreator } from "@xtracfg/core";
+import { languages } from "vscode";
 
 export type Transport = {
   transport: TransportCreator;
@@ -95,6 +96,8 @@ export const onDocUpdate = function (event: DocEvent, document?: TextDocument) {
     const text = document.getText();
     const uri = document.uri.toString();
     const hash = hashText(text);
+
+    languages.setTextDocumentLanguage(document, "ldproxy-configuration");
 
     if (hash && hash !== "") {
       const allYamlKeys = parseYaml(text);

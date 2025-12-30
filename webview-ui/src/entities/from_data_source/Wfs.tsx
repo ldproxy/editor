@@ -5,10 +5,11 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 
-import { BasicData } from "../utilities/xtracfg";
-import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString, atomSyncBoolean } from "../utilities/recoilSyncWrapper";
-import { DEV } from "../utilities/constants";
+import { BasicData } from "../../utilities/xtracfg";
+import Common, { idAtom, featureProviderTypeAtom } from "../../components/Common";
+import { atomSyncString, atomSyncBoolean } from "../../utilities/recoilSyncWrapper";
+import { DEV } from "../../utilities/constants";
+import TypeCheckboxes, { typeObjectAtom } from "../../components/TypeCheckboxes";
 
 export const urlAtom = atomSyncString("url", "", "StoreB");
 
@@ -24,12 +25,14 @@ export const wfsDataSelector = selector({
     const user = get(userAtom);
     const password = get(passwordAtom);
     const featureProviderType = get(featureProviderTypeAtom);
+    const typeObject = get(typeObjectAtom);
     return {
       id,
       ...(url ? { url } : null),
       ...(user ? { user } : null),
       ...(password ? { password } : null),
       featureProviderType,
+      typeObject,
     };
   },
 });
@@ -40,6 +43,7 @@ export type WfsData = BasicData & {
   user?: string;
   password?: string;
   featureProviderType?: string;
+  typeObject?: object;
 };
 
 type PostgreSqlProps = {
@@ -78,13 +82,12 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
   }
 
   return (
-    <div className="frame">
-      <Common error={error} disabled={inProgress} />
+    <>
       <div className="postgresWfsOuterContainer">
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
             <VSCodeTextField
-              value={url ? url : undefined || ""}
+              value={url ? url : ""}
               disabled={inProgress}
               onInput={(e) => {
                 const target = e.target as HTMLInputElement;
@@ -112,7 +115,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
             <>
               <section className="component-example">
                 <VSCodeTextField
-                  value={user ? user : undefined || ""}
+                  value={user ? user : ""}
                   disabled={inProgress}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
@@ -126,7 +129,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
               </section>
               <section className="component-example">
                 <VSCodeTextField
-                  value={password ? password : undefined || ""}
+                  value={password ? password : ""}
                   disabled={inProgress}
                   onInput={(e) => {
                     const target = e.target as HTMLInputElement;
@@ -140,6 +143,9 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
               </section>
             </>
           ) : null}
+        </div>
+        <div style={{ width: "100%", marginTop: "20px", marginBottom: "25px" }}>
+          <TypeCheckboxes mode="fromDataWfs" />
         </div>
         <div className="postgresWfsSubmit">
           <VSCodeButton
@@ -156,7 +162,7 @@ function Wfs({ submitData, inProgress, error }: PostgreSqlProps) {
           <span id="progressText">Data is being processed...</span>
         </div>
       )}{" "}
-    </div>
+    </>
   );
 }
 

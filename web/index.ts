@@ -16,7 +16,7 @@ export function deactivate() {
 // for some reason, the location is not set in the web worker as it should be (see https://developer.mozilla.org/en-US/docs/Web/API/WorkerLocation)
 // so we need to retrieve it manually so that the xtracfg websocket client can connect to the correct location
 const getLocation = () => {
-  const baseUrl = workspace.getConfiguration('ldproxy-editor').get<string>('baseUrl');
+  const baseUrl = workspace.getConfiguration("ldproxy-editor").get<string>("baseUrl");
 
   if (baseUrl) {
     const url = new URL(baseUrl);
@@ -49,7 +49,7 @@ const getUrl = () => {
   if (process.env.NODE_ENV === "development") {
     return "ws://localhost:8081/sock";
   }
-  
+
   const location = getLocation();
   const protocol = location.protocol === "https:" ? "wss" : "ws";
   const path = location.pathname.endsWith("/")

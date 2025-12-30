@@ -1,24 +1,30 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 import { vscode } from "../utilities/vscode";
-import GeoPackage, { GpkgData, gpkgDataSelector } from "./GeoPackage";
-import Wfs, { WfsData, wfsDataSelector } from "./Wfs";
-import PostgreSql, { sqlDataSelector, SqlData } from "./PostgreSql";
-import Tables, { TableData, allTablesAtom, currentTableAtom } from "./Tables";
+import GeoPackage, { GpkgData, gpkgDataSelector } from "./from_data_source/GeoPackage";
+import { fromExistingSelector } from "./FromExistingEntity";
+import { fromCopySelector } from "./CopyOfExisting";
+import { fromScratchSelector } from "./FromScratch";
+import Wfs, { WfsData, wfsDataSelector } from "./from_data_source/Wfs";
+import PostgreSql, { sqlDataSelector, SqlData } from "./from_data_source/PostgreSql";
+import Tables, { TableData, allTablesAtom, currentTableAtom } from "./from_data_source/Tables";
 import Final from "./Final";
-import { BasicData, Response, Error, xtracfg } from "../utilities/xtracfg";
+import { xtracfg } from "../utilities/xtracfg";
+import type { BasicData, Response, Error } from "../utilities/xtracfg";
 import { DEV } from "../utilities/constants";
 import { namesOfCreatedFilesAtom } from "./Final";
-import { featureProviderTypeAtom } from "./Common";
+import { featureProviderTypeAtom, createCfgOptionAtom } from "../components/Common";
+import Common from "../components/Common";
 import {
   atomSyncString,
   atomSyncObject,
   atomSyncStringArray,
   atomSyncBoolean,
 } from "../utilities/recoilSyncWrapper";
-
+import AppValues from "../values/App";
+import { typeObjectAtom } from "../components/TypeCheckboxes";
 import "./App.css";
 
 type FieldErrors = {
@@ -28,6 +34,14 @@ type FieldErrors = {
 export const dataProcessingAtom = atomSyncString("dataProcessing", "", "StoreB");
 
 export const existingGeopackageAtom = atomSyncStringArray("existingGeopackage", [""], "StoreB");
+
+export const existingConfigurationsAtom = atomSyncStringArray(
+  "existingConfigurations",
+  [""],
+  "StoreB"
+);
+
+export const existingStylesAtom = atomSyncObject("existingStyles", {}, "StoreB");
 
 export const workspaceAtom = atomSyncString("workspace", "", "StoreB");
 
@@ -41,12 +55,20 @@ export const typesAtom = atomSyncBoolean("types", false, "StoreB");
 
 function App() {
   const [types, setTypes] = useRecoilState(typesAtom);
+  const copyData = useRecoilValue(fromCopySelector);
+  const fromScratchData = useRecoilValue(fromScratchSelector);
+  const fromExistingData = useRecoilValue(fromExistingSelector);
   const sqlData = useRecoilValue<SqlData>(sqlDataSelector);
   const wfsData = useRecoilValue<WfsData>(wfsDataSelector);
   const gpkgData = useRecoilValue<GpkgData>(gpkgDataSelector);
   const [existingGeopackages, setExistingGeopackages] =
     useRecoilState<string[]>(existingGeopackageAtom);
+  const [existingConfigurations, setExistingConfigurations] = useRecoilState<string[]>(
+    existingConfigurationsAtom
+  );
+  const [existingStyles, setExistingStyles] = useRecoilState<{}>(existingStylesAtom);
   const selectedDataSource = useRecoilValue(featureProviderTypeAtom);
+  const selectedCreateCfgOption = useRecoilValue(createCfgOptionAtom);
   const [dataProcessing, setDataProcessing] = useRecoilState<string>(dataProcessingAtom);
   const [allTables, setAllTables] = useRecoilState<TableData>(allTablesAtom);
   const [namesOfCreatedFiles, setNamesOfCreatedFiles] =
@@ -57,6 +79,9 @@ function App() {
   const [currentTable, setCurrentTable] = useRecoilState<string>(currentTableAtom);
   const [progress, setProgress] = useRecoilState<TableData>(progressAtom);
   const [error, setError] = useRecoilState<FieldErrors>(errorAtom);
+
+  const [showCollectionTables, setShowCollectionTables] = useState<boolean>(false);
+  const [createValueData, setCreateValueData] = useState<{ [key: string]: any }>({});
 
   const basicData: BasicData = {
     command: "auto",
@@ -80,6 +105,16 @@ function App() {
       command: "setExistingGpkg",
       text: "setExistingGpkg",
     });
+
+    vscode.postMessage({
+      command: "setExistingCfgs",
+      text: "setExistingCfgs",
+    });
+
+    vscode.postMessage({
+      command: "setExistingStyles",
+      text: "setExistingStyles",
+    });
   }, []);
 
   const handleVscode = (message: any) => {
@@ -95,6 +130,18 @@ function App() {
         setExistingGeopackages(message.existingGeopackages);
         if (DEV) {
           console.log("existing GeoPackages:", message.existingGeopackages);
+        }
+        break;
+      case "setConfigurations":
+        setExistingConfigurations(message.existingCfgs);
+        if (DEV) {
+          console.log("existing Configurations:", message.existingCfgs);
+        }
+        break;
+      case "setStyles":
+        setExistingStyles(message.existingStyles);
+        if (DEV) {
+          console.log("existing Styles:", message.existingStyles);
         }
         break;
       case "xtracfg":
@@ -205,12 +252,20 @@ function App() {
         types: selectedTables,
         subcommand: "generate",
       });
+
+      setCreateValueData({
+        id: sqlData.id,
+      });
     } else if (selectedDataSource === "GPKG") {
       xtracfg.send({
         ...basicData,
         ...gpkgData,
         types: selectedTables,
         subcommand: "generate",
+      });
+
+      setCreateValueData({
+        id: gpkgData.id,
       });
     } else if (selectedDataSource === "WFS") {
       xtracfg.send({
@@ -219,34 +274,124 @@ function App() {
         types: selectedTables,
         subcommand: "generate",
       });
+
+      setCreateValueData({
+        id: wfsData.id,
+      });
     }
 
     setError({});
     if (DEV) {
       console.log("setDataProcessing, CaseGenerate");
     }
+
     setDataProcessing("inProgressGenerating");
   };
+
+  const fromExistingSubmit = (submitData: any) => {
+    xtracfg.send({
+      ...basicData,
+      ...fromExistingData,
+      // types: selectedTables,
+      subcommand: "generate",
+    });
+    setError({});
+
+    setCreateValueData({
+      id: fromExistingData.id,
+      selectedCfg: fromExistingData.selectedConfig
+        .split("/")
+        .pop()
+        ?.replace(/\.yml$/, ""),
+    });
+
+    setDataProcessing("inProgressGenerating");
+  };
+
+  const copySubmit = (submitData: any) => {
+    xtracfg.send({
+      ...basicData,
+      ...copyData,
+      // types: selectedTables,
+      subcommand: "generate",
+    });
+    setError({});
+
+    setCreateValueData({
+      id: copyData.id,
+      selectedCfg: copyData.selectedConfig
+        .split("/")
+        .pop()
+        ?.replace(/\.yml$/, ""),
+    });
+
+    setDataProcessing("inProgressGenerating");
+  };
+
+  const fromScratchSubmit = (submitData: any) => {
+    xtracfg.send({
+      ...basicData,
+      ...fromScratchData,
+      // types: selectedTables,
+      subcommand: "generate",
+    });
+    setError({});
+
+    setCreateValueData({
+      id: fromScratchData.id,
+    });
+
+    setDataProcessing("inProgressGenerating");
+  };
+
+  const typeObject = useRecoilValue(typeObjectAtom);
+
+  const createStyle = typeObject && typeObject.style === true;
+
+  useEffect(() => {
+    if (createStyle) {
+      setTimeout(() => {
+        setShowCollectionTables(
+          dataProcessing === "generated" && typeObject && typeObject.style === true
+        );
+      }, 100);
+    }
+  }, [dataProcessing, typeObject]);
+
   return (
     <>
       {dataProcessing === "" || dataProcessing === "inProgress" ? (
         <main>
-          {selectedDataSource === "PGIS" ? (
-            <PostgreSql
-              submitData={analyze}
-              inProgress={dataProcessing === "inProgress"}
+          <div className="frame">
+            <Common
               error={error}
+              fromExistingSubmit={fromExistingSubmit}
+              copySubmit={copySubmit}
+              fromScratchSubmit={fromScratchSubmit}
             />
-          ) : selectedDataSource === "GPKG" ? (
-            <GeoPackage
-              submitData={analyze}
-              inProgress={dataProcessing === "inProgress"}
-              existingGeopackages={existingGeopackages}
-              error={error}
-            />
-          ) : (
-            <Wfs submitData={analyze} inProgress={dataProcessing === "inProgress"} error={error} />
-          )}
+            {selectedDataSource === "PGIS" &&
+            selectedCreateCfgOption === "generateFromDataSource" ? (
+              <PostgreSql
+                submitData={analyze}
+                inProgress={dataProcessing === "inProgress"}
+                error={error}
+              />
+            ) : selectedDataSource === "GPKG" &&
+              selectedCreateCfgOption === "generateFromDataSource" ? (
+              <GeoPackage
+                submitData={analyze}
+                inProgress={dataProcessing === "inProgress"}
+                existingGeopackages={existingGeopackages}
+                error={error}
+              />
+            ) : selectedCreateCfgOption === "generateFromDataSource" ? (
+              <Wfs
+                submitData={analyze}
+                inProgress={dataProcessing === "inProgress"}
+                error={error}
+              />
+            ) : null}
+          </div>
         </main>
       ) : dataProcessing === "analyzed" && types ? (
         <Tables generateProgress={generateProgress} generate={generate} />
@@ -270,6 +415,12 @@ function App() {
             </VSCodeButton>
           </div>
         </div>
+      ) : showCollectionTables ? (
+        <AppValues
+          id={createValueData.id}
+          selectedCfg={createValueData?.selectedCfg ?? ""}
+          entitiesWorkspace={workspace}
+        />
       ) : dataProcessing === "inProgressGenerating" || dataProcessing === "generated" ? (
         <Final
           workspace={workspace}
