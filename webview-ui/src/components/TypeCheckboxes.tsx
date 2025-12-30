@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { VSCodeCheckbox, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { atomSyncObject, atomSyncBoolean, atomSyncString } from "../utilities/recoilSyncWrapper";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { idAtom } from "./Common";
+import { existingStylesAtom, existingConfigurationsAtom } from "../entities/App";
 
 export const typeObjectAtom = atomSyncObject(
   "typeObject",
@@ -35,6 +37,34 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
   const [isTileProviderChecked, setIsTileProviderChecked] =
     useRecoilState(isTileProviderCheckedAtom);
   const [isStyleChecked, setIsStyleChecked] = useRecoilState(isStyleCheckedAtom);
+
+  const id = useRecoilValue(idAtom);
+  const existingStyles = useRecoilValue(existingStylesAtom);
+  const existingConfigurations = useRecoilValue(existingConfigurationsAtom);
+
+  // Check if service configuration already exists for this id
+  const serviceConfigurationExists = existingConfigurations.some((config: string) => {
+    if (!config.includes("(service)")) return false;
+    const configWithoutType = config.replace(/\s+\([^)]+\)$/, "");
+    const configId = configWithoutType
+      .split("/")
+      .pop()
+      ?.replace(/\.yml$/, "");
+    return configId === id;
+  });
+
+  // Check if tile provider configuration already exists for this id
+  const tileProviderConfigurationExists = existingConfigurations.some((config: string) => {
+    const configWithoutType = config.replace(/\s+\([^)]+\)$/, "");
+    const configId = configWithoutType
+      .split("/")
+      .pop()
+      ?.replace(/\.yml$/, "");
+    return configId && configId.includes("-tiles") && configId.startsWith(id);
+  });
+
+  // Check if style already exists for this id
+  const styleExists = Boolean(id && existingStyles && Object.keys(existingStyles).includes(id));
 
   useEffect(() => {
     if (selectedType !== type || mode !== createCfgMode) {
@@ -132,7 +162,10 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
           <VSCodeCheckbox
             checked={isServiceChecked}
             onChange={handleServiceChange}
-            disabled={createCfgMode === "fromExisting" && type === "service"}>
+            disabled={
+              (createCfgMode === "fromExisting" && type === "service") ||
+              (createCfgMode === "fromExisting" && serviceConfigurationExists)
+            }>
             Service
           </VSCodeCheckbox>
           <VSCodeCheckbox
@@ -140,7 +173,8 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
             onChange={handleTileProviderChange}
             disabled={
               createCfgMode === "fromDataWfs" ||
-              (createCfgMode === "fromExisting" && type === "service")
+              (createCfgMode === "fromExisting" && type === "service") ||
+              (createCfgMode === "fromExisting" && tileProviderConfigurationExists)
             }>
             Tile Provider
           </VSCodeCheckbox>
@@ -151,7 +185,8 @@ function TypeCheckboxes({ mode, selectedType }: TypeCheckboxesProps) {
               mode === "fromScratch" ||
               createCfgMode === "fromDataWfs" ||
               (createCfgMode === "fromData" && !isServiceChecked) ||
-              (createCfgMode === "fromExisting" && !isServiceChecked && type !== "service")
+              (createCfgMode === "fromExisting" && !isServiceChecked && type !== "service") ||
+              (createCfgMode === "fromExisting" && styleExists)
             }>
             Style
           </VSCodeCheckbox>
