@@ -7,7 +7,7 @@ RUN cd /src && npm run install:all && npm test && npm run package:web
 FROM ghcr.io/ldproxy/xtracfg:4.3.5 as xtracfg
 
 
-FROM codercom/code-server:4.103.2
+FROM codercom/code-server:4.107.1
 
 COPY --chmod=0644 --from=extension /src/dist/vsix/ldproxy-editor-web-*.vsix /ldproxy-editor.vsix
 COPY --chmod=0755 --from=extension /src/startup.sh /entrypoint.d/
