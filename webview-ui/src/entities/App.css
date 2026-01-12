@@ -20,7 +20,7 @@ main {
 }
 
 .component-example {
-  margin-bottom: 0.5rem;
+  margin-bottom: 20px;
   width: 100%;
 }
 
@@ -54,6 +54,14 @@ main {
   font-weight: bold;
   height: 28px;
   width: 60px;
+}
+
+.vscode-text {
+  color: var(--vscode-quickInput-foreground);
+  font-family: var(--font-family);
+  font-size: var(--type-ramp-base-font-size);
+  line-height: var(--type-ramp-base-line-height);
+  margin-bottom: 2px;
 }
 
 .vscode-button {
@@ -139,6 +147,7 @@ vscode-button:hover {
 
 .frame {
   margin-bottom: 10px;
+  width: 100%;
 }
 
 #progressText {
@@ -146,7 +155,7 @@ vscode-button:hover {
 }
 
 .postgresWfsOuterContainer {
-  width: 166.67px;
+  width: 100%;
   margin-bottom: 10px;
 }
 
@@ -171,6 +180,7 @@ vscode-button:hover {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
 }
 
 .final-container {
@@ -320,4 +330,36 @@ li:before {
   list-style-position: inside;
   width: 20px;
   margin-left: -20px;
+}
+
+.tabs-container {
+  display: flex;
+  margin-top: 25px;
+  border-bottom: 1px solid var(--divider-background);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  color: var(--vscode-panelTitle-inactiveForeground);
+}
+
+.tab:hover {
+  color: var(--vscode-panelTitle-activeForeground);
+}
+
+.tab.active {
+  /*color: var(--vscode-settings-headerForeground);
+  border-bottom: 1px solid var(--vscode-settings-headerForeground); */
+  color: var(--vscode-panelTitle-activeForeground);
+  border-bottom: 1px solid var(--vscode-settings-headerForeground);
+  /*border-bottom: 1px solid var(--vscode-panelTitle-activeBorder);*/
+}
+
+.tab + .tab {
+  border-left: none;
 }

@@ -19,7 +19,7 @@ RUN cd empty && yarn prepare
 RUN npm run build:browser
 
 ###
-FROM ghcr.io/ldproxy/xtracfg:4.2.1 AS xtracfg
+FROM ghcr.io/ldproxy/xtracfg:4.3.5 AS xtracfg
 
 ###
 FROM node:20-bookworm-slim

@@ -14,12 +14,14 @@ import {
   atomSyncString,
   atomSyncStringArray,
 } from "../utilities/recoilSyncWrapper";
-import { Response, Error, xtracfg } from "../utilities/xtracfgValues";
+import { xtracfg } from "../utilities/xtracfgValues";
+import type { Response, Error } from "../utilities/xtracfgValues";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useEffect, useState } from "react";
 import { vscode } from "../utilities/vscode";
 import Final from "./Final";
 import CollectionTables, { TableData } from "./CollectionTables";
+import { typeObjectAtom } from "../components/TypeCheckboxes";
 
 export const apiNameAtom = atomSyncString("apiName", "", "StoreA");
 export const valueFileNameAtom = atomSyncString("valueFileName", "default", "StoreA");
@@ -32,6 +34,18 @@ export const details = atomSyncObject<TableData>("details", {}, "StoreA");
 export const collections = atomSyncObject<Response>("collections", {}, "StoreA");
 export const existingApisAtom = atomSyncStringArray("existingApis", [""], "StoreA");
 export const currentViewAtom = atomSyncString("currentView", "main", "StoreA");
+
+export const successCreateCfgAtom = atomSyncString("successCreateCfg", "", "StoreB");
+export const apiNameCreateCfgAtom = atomSyncString("apiNameCreateCfg", "", "StoreB");
+export const valueFileNameCreateCfgAtom = atomSyncString(
+  "valueFileNameCreateCfg",
+  "default",
+  "StoreB"
+);
+export const typeCreateCfgAtom = atomSyncString("typeCreateCfg", "maplibre-styles", "StoreB");
+export const workspaceCreateCfgAtom = atomSyncString("workspaceCreateCfg", "", "StoreB");
+export const currentViewCreateCfgAtom = atomSyncString("currentView", "main", "StoreB");
+export const detailsCreateCfgAtom = atomSyncObject<TableData>("details", {}, "StoreB");
 
 export type valueData = {
   apiId: string;
@@ -46,11 +60,20 @@ export type BasicData = valueData & {
   subcommand: string;
 };
 
-function App() {
+function App({
+  id,
+  selectedCfg,
+  entitiesWorkspace,
+}: {
+  id?: string;
+  selectedCfg?: string;
+  entitiesWorkspace?: string;
+}) {
   const [apiName, setApiName] = useRecoilState(apiNameAtom);
   const [valueFileName, setValueFileName] = useRecoilState(valueFileNameAtom);
   const [type, setType] = useRecoilState(typeAtom);
   const [workspace, setWorkspace] = useRecoilState(workspaceAtom);
+  const typeObject = useRecoilValue(typeObjectAtom);
   const [existingApis, setExistingApis] = useRecoilState<string[]>(existingApisAtom);
   const [selectedApiInDropdown, setSelectedApiInDropdown] = useState(false);
   const [currentView, setCurrentView] = useRecoilState(currentViewAtom);
@@ -58,11 +81,11 @@ function App() {
   const valueDataSelector = selector({
     key: "uniqueValueDataSelector_v1",
     get: ({ get }) => {
-      const apiId = get(apiNameAtom);
-      const name = get(valueFileNameAtom);
+      const apiId = selectedCfg ? selectedCfg : id && id !== "" ? id : get(apiNameAtom);
+      const name = id && id !== "" ? id : get(valueFileNameAtom);
       const type = get(typeAtom);
       // const source = "/Users/pascal/Documents/ldproxy_mount";
-      const source = workspace;
+      const source = entitiesWorkspace && entitiesWorkspace !== "" ? entitiesWorkspace : workspace;
       const command = "autoValue";
       if (DEV) {
         const collectionColors = "TEST";
@@ -85,9 +108,41 @@ function App() {
   const [loading, setLoading] = useRecoilState(loadingAtom);
   const [resultDetails, setResultDetails] = useRecoilState<TableData>(details);
   const [collectionColors, setCollectionColors] = useRecoilState(collections);
+  const [successCreateCfg, setSuccessCreateCfg] = useRecoilState(successCreateCfgAtom);
+  const [apiNameCreateCfg, setApiNameCreateCfg] = useRecoilState(apiNameCreateCfgAtom);
+  const [valueFileNameCreateCfg, setValueFileNameCreateCfg] = useRecoilState(
+    valueFileNameCreateCfgAtom
+  );
+  const [resultDetailsCreateCfg, setResultDetailsCreateCfg] = useRecoilState(detailsCreateCfgAtom);
+  const [typeCreateCfg, setTypeCreateCfg] = useRecoilState(typeCreateCfgAtom);
+  const [workspaceCreateCfg, setWorkspaceCreateCfg] = useRecoilState(workspaceCreateCfgAtom);
+  const [currentViewCreateCfg, setCurrentViewCreateCfg] = useRecoilState(currentViewCreateCfgAtom);
+
+  const createStylewithService = id && id !== "" && typeObject.service === true;
+  const createStyleWithoutService = id && id !== "" && selectedCfg;
+
+  useEffect(() => {
+    if (success || successCreateCfg) return;
+    if (createStylewithService && (workspace || entitiesWorkspace)) {
+      setApiNameCreateCfg(id);
+      setValueFileNameCreateCfg(id);
+      setWorkspaceCreateCfg(
+        entitiesWorkspace && entitiesWorkspace !== "" ? entitiesWorkspace : workspace
+      );
+      submitData(valueData);
+    } else if (createStyleWithoutService && (workspace || entitiesWorkspace)) {
+      setApiNameCreateCfg(selectedCfg);
+      setValueFileNameCreateCfg(id);
+      setWorkspaceCreateCfg(
+        entitiesWorkspace && entitiesWorkspace !== "" ? entitiesWorkspace : workspace
+      );
+      submitData(valueData);
+    }
+  }, [id, workspace, entitiesWorkspace]);
 
   const handleBack = () => {
     setCurrentView("main");
+    setCurrentViewCreateCfg("main");
   };
 
   useEffect(() => {
@@ -101,7 +156,7 @@ function App() {
       command: "setExistingApis",
       text: "setExistingApis",
     });
-  }, []);
+  }, [id]);
 
   const onFileSelect = (apiName: string) => {
     setApiName(apiName);
@@ -140,6 +195,7 @@ function App() {
         ) {
           const collections = message.response.details["Collection Colors"];
           setResultDetails(collections);
+          setResultDetailsCreateCfg(collections);
         } else if (
           message &&
           message.response &&
@@ -148,6 +204,7 @@ function App() {
           message.response.results[0].message
         ) {
           setSuccess(message.response.results[0].message);
+          setSuccessCreateCfg(message.response.results[0].message);
         } else if (message && message.error && message.error.notification) {
           setError(message.error.notification);
         } else if (message && message.error) {
@@ -174,45 +231,54 @@ function App() {
 
     xtracfg.send(basicData);
     setCurrentView("collectionTables");
+    setCurrentViewCreateCfg("collectionTables");
   };
 
   // step 2: generate
   const generate = (collectionColors: object) => {
     setLoading(true);
     const basicData: BasicData = {
-      apiId: apiName,
-      name: valueFileName,
-      type,
-      source: workspace,
+      apiId: apiName || apiNameCreateCfg,
+      name: valueFileName || valueFileNameCreateCfg,
+      type: type || typeCreateCfg,
+      source: workspace || workspaceCreateCfg,
       command: "autoValue",
       collectionColors: JSON.stringify(collectionColors),
       subcommand: "generate",
     };
-
     xtracfg.send(basicData);
   };
 
-  if (
-    currentView === "collectionTables" &&
-    resultDetails &&
-    Object.keys(resultDetails).length > 0 &&
-    Object.keys(collectionColors).length === 0
+  const createStyleAndSelectCollections =
+    id && id !== "" && Object.keys(collectionColors).length === 0;
+
+  if (success || successCreateCfg) {
+    return (
+      <Final
+        nameOfCreatedFile={valueFileName || valueFileNameCreateCfg}
+        workspace={workspace || workspaceCreateCfg}
+        apiId={apiName || apiNameCreateCfg}
+        type={type || typeCreateCfg}
+      />
+    );
+  } else if (
+    createStyleAndSelectCollections ||
+    ((currentView === "collectionTables" || currentViewCreateCfg === "collectionTables") &&
+      (resultDetails || resultDetailsCreateCfg) &&
+      Object.keys(resultDetails || resultDetailsCreateCfg).length > 0 &&
+      Object.keys(collectionColors).length === 0)
   ) {
     return (
       <CollectionTables
         generate={generate}
-        details={resultDetails}
+        details={resultDetails || resultDetailsCreateCfg}
         success={success}
         error={error}
         setCollectionColors={setCollectionColors}
         onBack={handleBack}
       />
     );
-  } else if (success && collectionColors && Object.keys(collectionColors).length !== 0) {
-    return (
-      <Final nameOfCreatedFile={valueFileName} workspace={workspace} apiId={apiName} type={type} />
-    );
-  } else {
+  } else if (currentView !== "collectionTables" && currentViewCreateCfg !== "collectionTables") {
     return (
       <>
         <main>
@@ -284,6 +350,18 @@ function App() {
           {error && <div style={{ color: "red" }}>{error}</div>}
         </main>
       </>
+    );
+  } else {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100px",
+        }}>
+        <VSCodeProgressRing />
+      </div>
     );
   }
 }

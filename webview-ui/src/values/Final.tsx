@@ -1,6 +1,8 @@
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-
 import { vscode } from "../utilities/vscode";
+import { namesOfCreatedFilesAtom } from "../entities/Final";
+import { workspaceAtom } from "../entities/App";
+import { useRecoilValue } from "recoil";
 
 type FinalProps = {
   workspace: string;
@@ -10,6 +12,9 @@ type FinalProps = {
 };
 
 const Final = ({ workspace, nameOfCreatedFile, apiId, type }: FinalProps) => {
+  const namesOfCreatedFilesOtherThanStyle = useRecoilValue(namesOfCreatedFilesAtom);
+  const entitiesWorkspace = useRecoilValue(workspaceAtom);
+
   const onClose = () => {
     vscode.postMessage({ command: "closeWebview" });
   };
@@ -29,10 +34,28 @@ const Final = ({ workspace, nameOfCreatedFile, apiId, type }: FinalProps) => {
     vscode.getState();
   };
 
+  const onLinkClickEntityFile = (file: string) => {
+    vscode.postMessage({
+      command: "success",
+      text: `${entitiesWorkspace}/${file}`,
+    });
+    vscode.getState();
+  };
+
   return (
     <div className="final-container">
       <h3 className="final-title">The following files were created</h3>
       <ul>
+        {namesOfCreatedFilesOtherThanStyle.map((file: string, index: number) => (
+          <li key={index}>
+            <a
+              className="final-link"
+              style={{ cursor: "pointer" }}
+              onClick={() => onLinkClickEntityFile(file)}>
+              {file}
+            </a>
+          </li>
+        ))}
         <li>
           <a
             className="final-link"

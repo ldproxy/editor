@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as vscode from "vscode";
+import { Buffer } from "buffer";
 
 const atob = (input: string): string => Buffer.from(input, "base64").toString("binary");
 
@@ -32,7 +33,7 @@ export async function listGpkgFilesInDirectory() {
   }
 }
 
-async function readAllFilesInDirectory(directoryUri: any) {
+export async function readAllFilesInDirectory(directoryUri: any) {
   const files = await vscode.workspace.fs.readDirectory(directoryUri);
   let allFiles: string[] = [];
 

@@ -11,6 +11,8 @@ import {
 import { getUri } from "../utilities/webview";
 import { getNonce } from "../utilities/webview";
 import { listGpkgFilesInDirectory, uploadedGpkg, setCancel } from "../utilities/gpkg";
+import { listCfgFilesInDirectory } from "../utilities/cfgs";
+import { listStylesInDirectory } from "../utilities/styles";
 import * as vscode from "vscode";
 import { connect, TransportCreator, Xtracfg } from "@xtracfg/core";
 import { getWorkspacePath, getWorkspaceUri } from "../utilities/paths";
@@ -134,7 +136,7 @@ export class AutoCreatePanel {
         // Panel view type
         "ldproxy-editor.showAutoCreate",
         // Panel title
-        "Create new entities",
+        "Create Configuration Files",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
@@ -258,6 +260,18 @@ export class AutoCreatePanel {
             this._panel.webview.postMessage({
               command: "setGeopackages",
               existingGeopackages: await listGpkgFilesInDirectory(),
+            });
+            break;
+          case "setExistingCfgs":
+            this._panel.webview.postMessage({
+              command: "setConfigurations",
+              existingCfgs: await listCfgFilesInDirectory(),
+            });
+            break;
+          case "setExistingStyles":
+            this._panel.webview.postMessage({
+              command: "setStyles",
+              existingStyles: await listStylesInDirectory(),
             });
             break;
           case "closeWebview":

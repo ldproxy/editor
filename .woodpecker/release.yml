@@ -12,6 +12,7 @@ steps:
       - curl -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/${CI_COMMIT_TAG}/ldproxy-editor-darwin-arm64-${CI_COMMIT_TAG##v}.vsix
       - curl -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/${CI_COMMIT_TAG}/ldproxy-editor-linux-arm64-${CI_COMMIT_TAG##v}.vsix
       - curl -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/${CI_COMMIT_TAG}/ldproxy-editor-linux-x64-${CI_COMMIT_TAG##v}.vsix
+      - curl -O --output-dir dist/vsix https://dl.interactive-instruments.de/repository/ldproxy/editor/${CI_COMMIT_TAG}/ldproxy-editor-win32-x64-${CI_COMMIT_TAG##v}.vsix
       - ls -la dist/vsix
 
   publish:
@@ -36,7 +37,7 @@ steps:
       pull_image: true
       platforms:
         - linux/amd64
-        - linux/arm64
+        #- linux/arm64
       logins:
         - registry: ghcr.io
           username:

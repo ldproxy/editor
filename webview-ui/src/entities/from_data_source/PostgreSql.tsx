@@ -5,9 +5,10 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import { useRecoilState, useRecoilValue, selector } from "recoil";
 
-import { BasicData } from "../utilities/xtracfg";
-import Common, { idAtom, featureProviderTypeAtom } from "./Common";
-import { atomSyncString } from "../utilities/recoilSyncWrapper";
+import { BasicData } from "../../utilities/xtracfg";
+import Common, { idAtom, featureProviderTypeAtom } from "../../components/Common";
+import { atomSyncString } from "../../utilities/recoilSyncWrapper";
+import TypeCheckboxes, { typeObjectAtom } from "../../components/TypeCheckboxes";
 
 const hostAtom = atomSyncString("host", "", "StoreB");
 
@@ -26,6 +27,7 @@ export const sqlDataSelector = selector({
     const database = get(databaseAtom);
     const user = get(userAtom);
     const password = get(passwordAtom);
+    const typeObject = get(typeObjectAtom);
     return {
       id,
       featureProviderType,
@@ -33,6 +35,7 @@ export const sqlDataSelector = selector({
       database,
       user,
       password,
+      typeObject,
     };
   },
 });
@@ -44,6 +47,7 @@ export type SqlData = BasicData & {
   database?: string;
   user?: string;
   password?: string;
+  typeObject?: object;
 };
 
 type PostgreSqlProps = {
@@ -66,8 +70,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
   const sqlData = useRecoilValue(sqlDataSelector);
 
   return (
-    <div className="frame">
-      <Common error={error} disabled={inProgress} />
+    <>
       <div className="postgresWfsOuterContainer">
         <div className="postgresWfsInnerContainer">
           <section className="component-example">
@@ -127,6 +130,9 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
             {error.password && <span className="error-message">{error.password}</span>}
           </section>
         </div>
+        <div style={{ width: "100%" }}>
+          <TypeCheckboxes mode="fromData" />
+        </div>
         <div className="submitAndReset">
           <VSCodeButton
             className="submitButton"
@@ -142,7 +148,7 @@ function PostgreSql({ error, inProgress, submitData }: PostgreSqlProps) {
           <span id="progressText">Analyzing database ...</span>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
