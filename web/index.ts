@@ -17,6 +17,7 @@ export function deactivate() {
 // so we need to retrieve it manually so that the xtracfg websocket client can connect to the correct location
 const getLocation = () => {
   const baseUrl = workspace.getConfiguration("ldproxy-editor").get<string>("baseUrl");
+  console.log("BASE URL", baseUrl);
 
   if (baseUrl) {
     const url = new URL(baseUrl);
@@ -30,6 +31,7 @@ const getLocation = () => {
   }
 
   const vscodeFileRoot = (self as any)._VSCODE_FILE_ROOT;
+  console.log("VSCODE FILE ROOT", vscodeFileRoot);
 
   if (vscodeFileRoot) {
     const url = new URL(vscodeFileRoot);
@@ -51,6 +53,7 @@ const getUrl = () => {
   }
 
   const location = getLocation();
+  console.log("LOCATION", location);
   const protocol = location.protocol === "https:" ? "wss" : "ws";
   const path = location.pathname.endsWith("/")
     ? location.pathname.substring(0, location.pathname.length - 1)
