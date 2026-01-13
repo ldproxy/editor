@@ -29,18 +29,18 @@ const getLocation = () => {
     return location;
   }
 
-  /*const vscodeFileRoot = (self as any)._VSCODE_FILE_ROOT;
+  const vscodeFileRoot = (self as any)._VSCODE_FILE_ROOT;
 
   if (vscodeFileRoot) {
     const url = new URL(vscodeFileRoot);
     const location = {
       protocol: url.protocol,
       host: url.host,
-      pathname: url.pathname,
+      pathname: "", // url.pathname,
     };
 
     return location;
-  }*/
+  }
 
   return self.location;
 };
