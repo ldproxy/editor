@@ -16,8 +16,8 @@ export function deactivate() {
 // for some reason, the location is not set in the web worker as it should be (see https://developer.mozilla.org/en-US/docs/Web/API/WorkerLocation)
 // so we need to retrieve it manually so that the xtracfg websocket client can connect to the correct location
 const getLocation = () => {
+  // set from environment variable BASE_URL
   const baseUrl = workspace.getConfiguration("ldproxy-editor").get<string>("baseUrl");
-  console.log("BASE URL", baseUrl);
 
   if (baseUrl) {
     const url = new URL(baseUrl);
@@ -30,8 +30,8 @@ const getLocation = () => {
     return location;
   }
 
+  // default from VSCode file root, ignore pathname (use BASE_URL if needed)
   const vscodeFileRoot = (self as any)._VSCODE_FILE_ROOT;
-  console.log("VSCODE FILE ROOT", vscodeFileRoot);
 
   if (vscodeFileRoot) {
     const url = new URL(vscodeFileRoot);
@@ -44,6 +44,7 @@ const getLocation = () => {
     return location;
   }
 
+  // fallback to self location
   return self.location;
 };
 
@@ -53,7 +54,6 @@ const getUrl = () => {
   }
 
   const location = getLocation();
-  console.log("LOCATION", location);
   const protocol = location.protocol === "https:" ? "wss" : "ws";
   const path = location.pathname.endsWith("/")
     ? location.pathname.substring(0, location.pathname.length - 1)

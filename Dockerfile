@@ -1,10 +1,12 @@
-FROM node:20-alpine as extension
+FROM node:20-alpine AS extension
+
+ARG VSIX_VERSION=""
 
 COPY . /src/
-RUN cd /src && npm run install:all && npm test && npm run package:web
+RUN cd /src && npm run install:all && npm test && VSIX_VERSION=${VSIX_VERSION} npm run package:web
 
 
-FROM ghcr.io/ldproxy/xtracfg:4.3.5 as xtracfg
+FROM ghcr.io/ldproxy/xtracfg:4.3.5 AS xtracfg
 
 
 FROM codercom/code-server:4.107.1

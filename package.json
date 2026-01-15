@@ -66,6 +66,7 @@
     "prepackage:web": "VITE_DEV=false npm run build:ui && npm run build:web  && node vsix.mjs web",
     "package:web": "cd dist/web && vsce package -o ../vsix -t web --pre-release",
     "publish": "vsce publish --packagePath dist/vsix/ldproxy-editor-*.vsix",
+    "docker": "docker build -t editor:local-dev --no-cache --progress plain --build-arg VSIX_VERSION=snapshot .",
     "test": "jest",
     "lint": "eslint ./ --ext ts"
   },

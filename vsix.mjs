@@ -6,16 +6,26 @@ const target = process.argv[2];
 const platform = process.argv[3];
 
 if (!target) {
-    throw new Error("Missing target");
+  throw new Error("Missing target");
 }
 
-const {browser,main,scripts,dependencies,devDependencies,...rest} = pkg;
+const { browser, main, scripts, dependencies, devDependencies, version, ...rest } = pkg;
 
 const vsixPkg = {
-    ...rest,
-    [target === "web" ? "browser" : "main"]: "./extension.js",
+  ...rest,
+  version:
+    process.env.VSIX_VERSION === "snapshot"
+      ? version +
+        "-snapshot." +
+        new Date()
+          .toISOString()
+          .substring(0, 19)
+          .replace("T", "")
+          .replaceAll("-", "")
+          .replaceAll(":", "")
+      : version,
+  [target === "web" ? "browser" : "main"]: "./extension.js",
 };
-
 
 mkdirSync("dist/vsix", { recursive: true });
 mkdirSync(`dist/${target}`, { recursive: true });
@@ -23,10 +33,13 @@ mkdirSync(`dist/${target}`, { recursive: true });
 writeFileSync(`dist/${target}/package.json`, JSON.stringify(vsixPkg, null, 2));
 
 if (target === "native") {
-writeFileSync(`dist/${target}/.vscodeignore`, `
+  writeFileSync(
+    `dist/${target}/.vscodeignore`,
+    `
 prebuilds/**
 !prebuilds/${platform}
-`);
+`
+  );
 }
 
 copySync("LICENSE", `dist/${target}/LICENSE`);
