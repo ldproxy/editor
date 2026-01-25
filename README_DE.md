@@ -4,27 +4,20 @@ Eine [VS Code](https://code.visualstudio.com) Extension, die Sie bei der Erstell
 
 ## Aktueller Stand
 
-- Die aktuelle stabile Version ist `v1.1.0`.
-- Sie ist als Pre-Release im VS Code Marketplace verfügbar (derzeit nur für macOS und Linux).
+- Die aktuelle stabile Version ist `v2.0.0`.
+- Sie ist im VS Code Marketplace für macOS, Linux und Windows verfügbar.
 - Sie kann als Webanwendung mithilfe des Docker-Image verwendet werden, das eine Open-Source-Version von VS Code for the Web enthält.
 
 ### Funktionen
 
-- Befehl `Create new entities`: bietet einen grafischen Assistenten zur automatischen Generierung von Provider- und Service-Konfigurationen aus Datenquellen.
-- Befehl `Create new values`: bietet einen grafischen Assistenten zur automatischen Generierung von Value-Konfigurationen, derzeit nur für MapLibre-Styles.
+- Befehl `Create Configuration Files`: bietet einen grafischen Assistenten zur automatischen Generierung von Provider- und Service-Konfigurationen aus Datenquellen und zur automatischen Generierung von Value-Konfigurationen (derzeit nur für MapLibre-Styles).
 - IntelliSense: Autovervollständigung, zeigt verfügbare Properties in YAML-Konfigurationsdateien an.
 - Syntax checks: erkennt unbekannte oder veraltete Properties in YAML-Konfigurationsdateien.
 - Tooltips: zeigt die Dokumentation für Properties in YAML-Konfigurationsdateien an.
 
 ### Limitationen
 
-- Die Erweiterung ist derzeit noch nicht für Windows verfügbar, nur für macOS und Linux.
 - Das Wurzelverzeichnis des Workspace muss ein ldproxy Store-Verzeichnis sein, damit die Erweiterung ordnungsgemäß funktioniert. Übergeordnete Verzeichnisse, die mehrere Store-Verzeichnisse enthalten, werden derzeit nicht unterstützt, ebenso wenig wie Multi-Root-Workspaces.
-- Tile-Provider können derzeit noch nicht generiert werden.
-
-### Ausblick
-
-- `v2.0.0` allgemeine Verfügbarkeit der Erweiterung für VS Code Desktop (macOS, Windows, Linux), keine bekannten Limitierungen
 
 ## Installation
 
@@ -64,7 +57,7 @@ Dann kann man mit den Cursor-Tasten durch die Vorschläge navigieren und mit `En
 
 ### Erstellen neuer Entities
 
-Wenn Sie die [Befehlspalette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) öffnen und beginnen, `ldproxy` einzugeben, sollte der Befehl `ldproxy: Neue Entitäten erstellen` oben erscheinen. Wenn Sie ihn auswählen, wird der grafische Assistent in einem neuen Tab geöffnet.
+Wenn Sie die [Befehlspalette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) öffnen und beginnen, `ldproxy` einzugeben, sollte der Befehl `ldproxy: Create Configuration Files` oben erscheinen. Wenn Sie ihn auswählen, wird der grafische Assistent in einem neuen Tab geöffnet.
 
 Er ermöglicht es Ihnen, automatisch Provider- und Service-Konfigurationen aus _PostgreSQL/PostGIS_, _GeoPackage_ und _WFS_ Datenquellen zu generieren.
 
@@ -75,7 +68,7 @@ Er ermöglicht es Ihnen, automatisch Provider- und Service-Konfigurationen aus _
 
 ### Erstellen neuer Werte
 
-Wenn Sie die [Befehlspalette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) öffnen und beginnen, `ldproxy` einzugeben, sollte der Befehl `ldproxy: Create new values` oben erscheinen. Wenn Sie ihn auswählen, wird der grafische Assistent in einem neuen Tab geöffnet.
+Wenn Sie die [Befehlspalette](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette) öffnen und beginnen, `ldproxy` einzugeben, sollte der Befehl `ldproxy: Create Configuration Files` oben erscheinen. Wenn Sie ihn auswählen, wird der grafische Assistent in einem neuen Tab geöffnet.
 
 Derzeit können Sie damit nur automatisch einen MapLibre-Style aus einer Service-Konfiguration generieren.
 
