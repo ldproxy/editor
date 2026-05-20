@@ -6,7 +6,7 @@ COPY . /src/
 RUN cd /src && npm run install:all && npm test && VSIX_VERSION=${VSIX_VERSION} npm run package:web
 
 
-FROM ghcr.io/ldproxy/xtracfg:4.3.5 AS xtracfg
+FROM ghcr.io/ldproxy/xtracfg:4.3.7 AS xtracfg
 
 
 FROM codercom/code-server:4.107.1
