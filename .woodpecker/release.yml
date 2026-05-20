@@ -20,9 +20,12 @@ steps:
     environment:
       VSCE_PAT:
         from_secret: vscode_marketplace_token
+      OVSX_PAT:
+        from_secret: ovsx_registry_token
     commands:
       - npm ci --ignore-scripts
       - npm run publish
+      - npm run publish:ovsx
 
   docker:
     image: woodpeckerci/plugin-docker-buildx
