@@ -351,12 +351,17 @@ function GeoPackage({ submitData, inProgress, error, existingGeopackages }: GeoP
       </label>
       <div className="dropdown">
         <VSCodeDropdown
-          disabled={inProgress || !!newGPKG || base64String !== ""}
+          disabled={
+            inProgress || !!newGPKG || base64String !== "" || existingGeopackages.length === 0
+          }
           value={existingGPKG}
           onChange={(e) => {
             onFileSelect((e.target as HTMLInputElement).value);
             setSelectedGpkgInDropdown(true);
           }}>
+          {existingGeopackages.length === 0 && (
+            <VSCodeOption value="">No Geopackages...</VSCodeOption>
+          )}
           {existingGeopackages.length > 0 &&
             existingGeopackages.map((option) => (
               <VSCodeOption key={option} value={option}>
